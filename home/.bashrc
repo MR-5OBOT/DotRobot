@@ -1,16 +1,9 @@
 #!/bin/bash
 
-#figlet -f mini "MR ROBOT"
-
 eval "$(starship init bash)"
 # neofetch
 
-# GitHub Titus Additions
-
 alias st='git status'
-alias gsw='git switch'
-alias gbr='git branch'
-alias gbrc='git checkout -b' # create and switch to a new branch
 
 lazygit() {
   git add .
@@ -31,25 +24,32 @@ alias mkdir='mkdir -p'
 alias ping='ping -c 10'
 alias cls='clear'
 alias sv='sudo vi'
+
 # Change dirs
 alias ..="cd .."
 alias cd..="cd .."
 alias ...="cd ../../"
 alias ....="cd ../../../"
+
 # Better copying
 alias cpv='rsync -avh --info=progress2'
 alias c='clear'
+
 # quick restart 
 alias rmako=~/.config/scripts/mako-start.sh
 alias rdunst=~/.config/scripts/dunst-start.sh
 alias rwaybar=~/.config/scripts/togglebar.sh
+
 # Change directory aliases
 alias home='cd ~'
+
 # cd into the old directory
 alias bd='cd "$OLDPWD"'
+
 # Alias's for multiple directory listing commands
 alias la='ls -Alh' # show hidden files
 alias ls='lsd -a --group-directories-first'
+
 # alias chmod commands
 alias mx='chmod a+x'
 alias 000='chmod -R 000'
