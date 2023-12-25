@@ -1,15 +1,16 @@
 #!/bin/bash
 
-eval "$(starship init bash)"
-# neofetch
-
 alias st='git status'
-
+# git function for eaasy push for each branch
 lazygit() {
   git add .
   git commit -m "$1"
   git push origin $(git rev-parse --abbrev-ref HEAD):$2
 }
+
+eval "$(starship init bash)" # starship cfg
+
+~/.config/scripts/kitty-gifs.sh # my gifs terminal logos
 
 
 # Alias's to modified commands
@@ -47,8 +48,9 @@ alias home='cd ~'
 alias bd='cd "$OLDPWD"'
 
 # Alias's for multiple directory listing commands
-alias la='ls -Alh' # show hidden files
 alias ls='lsd -a --group-directories-first'
+alias l.='ls -d .* --color=auto'
+alias la='ls -Alh' # show hidden files
 
 # alias chmod commands
 alias mx='chmod a+x'
