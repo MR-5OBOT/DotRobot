@@ -1,15 +1,16 @@
 #!/bin/bash
 
-eval "$(starship init bash)"
-neofetch
-
 alias st='git status'
-
+# git function for eaasy push for each branch
 lazygit() {
   git add .
   git commit -m "$1"
   git push origin $(git rev-parse --abbrev-ref HEAD):$2
 }
+
+eval "$(starship init bash)" # starship cfg
+
+~/.config/scripts/kitty-gifs.sh # my gifs terminal logos
 
 
 # Alias's to modified commands
