@@ -10,11 +10,11 @@ if [[ ! -d $gif_directory ]]; then
 fi
 
 # Select a random GIF
-random_gif=$(ls $gif_directory | sort -R | head -n 1)
+# random_gif=$(ls $gif_directory | sort -R | head -n 1)
 
 # Full path to the random GIF
-full_path="$gif_directory$random_gif"
+# full_path="$gif_directory$random_gif"
 
 # Display the GIF
-kitty +kitten icat --transfer-mode=file $full_path
+kitty +kitten icat --transfer-mode=file $HOME/.config/kitty/gifs/resized.gif
 
