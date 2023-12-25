@@ -1,7 +1,7 @@
 #!/bin/bash
 
 eval "$(starship init bash)"
-# neofetch
+neofetch
 
 alias st='git status'
 
@@ -47,8 +47,9 @@ alias home='cd ~'
 alias bd='cd "$OLDPWD"'
 
 # Alias's for multiple directory listing commands
-alias la='ls -Alh' # show hidden files
 alias ls='lsd -a --group-directories-first'
+alias l.='ls -d .* --color=auto'
+alias la='ls -Alh' # show hidden files
 
 # alias chmod commands
 alias mx='chmod a+x'
