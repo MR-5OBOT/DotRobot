@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Directory containing your GIFs
-gif_directory="~/MR-5OBOT/DotRoboT/.config/kitty/gifs/"
+gif_directory="$HOME/MR-5OBOT/DotRoboT/.config/kitty/gifs/"
 
 # Check if the directory exists
 if [[ ! -d $gif_directory ]]; then
@@ -16,5 +16,5 @@ random_gif=$(ls $gif_directory | sort -R | head -n 1)
 full_path="$gif_directory$random_gif"
 
 # Display the GIF
-kitty +kitten icat --transfer-mode=file --place=top-right $full_path
+kitty +kitten icat --transfer-mode=file $full_path
 
