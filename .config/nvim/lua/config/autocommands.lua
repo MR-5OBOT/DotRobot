@@ -5,11 +5,3 @@
 vim.cmd('autocmd BufEnter * set formatoptions-=cro')
 vim.cmd('autocmd BufEnter * setlocal formatoptions-=cro')
 
-vim.cmd([[
- augroup MarkdownAutoPreview
-   autocmd!
-   autocmd BufWritePost *.md MarkdownPreview
- augroup END
-]])
-
-
