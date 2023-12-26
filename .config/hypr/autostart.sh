@@ -6,6 +6,7 @@ exec-once = swww init
 exec-once = ~/.config/scripts/togglebar.sh
 exec-once = ~/.config/scripts/rame-treshold.sh
 exec-once = ~/.config/scripts/battery-notify.sh
+exec-once = ~/.config/scripts/screenlocker.sh
 
 # exec-once = swaybg -m fill -i ~/Pictures/wallpapers/xx1.png
 exec-once = ~/.config/scripts/swww-randomize.sh
