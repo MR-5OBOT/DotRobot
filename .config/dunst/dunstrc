@@ -58,16 +58,19 @@
     per_monitor_dpi = false
 
 [urgency_low]
+  sound = ~/.config/dunst/sounds/notify.wav
   background = "#151515"
   foreground = "#FF7A84"
   timeout = 5
 
 [urgency_normal]
+  sound = ~/.config/dunst/sounds/notify.wav
   background = "#151515"
   foreground = "#FF7A84"
   timeout = 10
 
 [urgency_critical]
+  sound = ~/.config/dunst/sounds/notify.wav
   background = "#652840"
   foreground = "#fff"
   timeout = 20

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 iDIR="$HOME/.config/mako/icons"
+
 # Get Volume
 get_volume() {
 	volume=$(pamixer --get-volume)
