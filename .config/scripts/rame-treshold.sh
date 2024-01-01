@@ -24,7 +24,7 @@ while true; do
   done
 
   # Sleep for a while before checking again
-  sleep 90
+  sleep 200
 
 done
 
