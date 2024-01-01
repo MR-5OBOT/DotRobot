@@ -5,11 +5,12 @@ pgrep_arr=($pgrep_output)
 
 if [[ "${#pgrep_arr[@]}" == "0" ]]; then
 
- echo "Swayidle is not running. Starting Swayidle."
+ paplay /usr/share/sounds/freedesktop/stereo/service-login.oga
+ notify-send -i ~/.config/dunst/icons/sleep-timer.png  "Swayidle is not running. Starting Swayidle (2min befor sleep)"
 
  swayidle -w \
-    timeout 20 'swaylock -f' \
-    timeout 20 'hyprctl dispatch dpms off' \
+    timeout 60 'swaylock -f' \
+    timeout 40 'hyprctl dispatch dpms off' \
     resume 'hyprctl dispatch dpms on' &
 
 else
