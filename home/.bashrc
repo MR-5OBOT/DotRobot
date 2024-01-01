@@ -1,5 +1,14 @@
 #!/bin/bash
 
+
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+PS1='[\u@\h \W]\$ '
+
+# Define Editor
+export EDITOR=nvim
+
+
 alias st='git status'
 # git function for eaasy push for each branch
 lazygit() {
@@ -18,7 +27,7 @@ alias .v='nvim ~/MR-5OBOT/DotRoboT/.config/nvim'
 alias .dots='cd ~/MR-5OBOT/DotRoboT/'
 alias .home='cd ~/MR-5OBOT/'
 alias v='nvim'
-alias cp='cp -i'
+# alias cp='cp -i'
 alias mv='mv -i'
 alias rm='trash -v'
 alias mkdir='mkdir -p'
