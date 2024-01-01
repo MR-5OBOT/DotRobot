@@ -20,9 +20,5 @@ while true; do
    notify-send -i ~/.config/dunst/icons/low-battery.png "Battery 0 is below 99%!" "Charging: ${battery_level_0}%"
  fi
 
- # if (( battery_level_1 < 30 )); then
-   # notify-send -i ~/.config/dunst/icons/low-battery.png "Battery 1 is below 20%!" "Charging: ${battery_level_1}%"
- # fi
-
- sleep 20 # 20 seconds
+ sleep 80 # 20 seconds
 done

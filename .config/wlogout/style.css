@@ -16,7 +16,7 @@ by Stephan Raabe (2023)
 }
 
 window {
-	background-color: rgba(12, 12, 12, 0.5); /* Adjust the last parameter to your liking */
+	background-color: rgba(12, 12, 12, 0.6); /* Adjust the last parameter to your liking */
 }
 
 button {
@@ -24,16 +24,16 @@ button {
 	background-position: center;
 	background-size: 25%;
 	border-style: solid;
-	background-color: rgba(12, 12, 12, 0.3);
+	background-color: rgba(12, 12, 12, 0.2);
 	border: 3px solid #FFFFFF;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.8), 0 6px 20px 0 rgba(0, 0, 0, 0.9);
 }
 
 button:focus,
 button:active,
 button:hover {
-	background-color: rgba(12, 12, 12, 0.5);
-	border: 3px solid ;
+	background-color: rgba(12, 12, 12, 0.8);
+	border: 3px solid purple;
 }
 
 /* 
