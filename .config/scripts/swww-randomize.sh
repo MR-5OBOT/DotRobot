@@ -9,7 +9,7 @@
 dir=~/Pictures/wallpapers/
 # Edit bellow to control the images transition
 export SWWW_TRANSITION_FPS=60
-export SWWW_TRANSITION_STEP=2
+export SWWW_TRANSITION_STEP=20
 # This controls (in seconds) when to switch to the next image
 INTERVAL=50
 

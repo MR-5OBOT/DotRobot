@@ -19,6 +19,8 @@ keymap("n", "<C-c>", "<cmd>close<CR>", { desc = "Close Split window" })
 keymap("n", "<leader>x", ":bd<CR>", {desc = "close buffer"})
 ----------------------------------------------------------------------------------------------------------------
 keymap("i", "jk", "<ESC>", opts)                       -- Press jk fast to exit insert mode 
+keymap("n", "L", "$", opts)                            -- easy go to end of line
+keymap("n", "H", "^", opts)                            -- easy go to the start of line
 keymap('n', 'r', '<C-r>')                              -- Faster redo
 keymap('n', '<leader>ms', ':%s/')                      -- Easier multi select and remove
 keymap("n", "<Enter>", "<cmd>nohlsearch<CR>", opts)    -- Clear search
