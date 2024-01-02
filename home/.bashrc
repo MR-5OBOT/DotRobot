@@ -26,14 +26,16 @@ eval "$(starship init bash)" # starship cfg
 alias .v='nvim ~/MR-5OBOT/DotRoboT/.config/nvim'
 alias .dots='cd ~/MR-5OBOT/DotRoboT/'
 alias .home='cd ~/MR-5OBOT/'
-alias v='nvim'
-# alias cp='cp -i'
+alias v='$EDITOR'
+alias cls='clear'
 alias mv='mv -i'
 alias rm='trash -v'
 alias mkdir='mkdir -p'
-alias ping='ping -c 10'
-alias cls='clear'
-alias sv='sudo vi'
+alias wifi='nmtui'
+alias off='systemctl poweroff'
+alias winclass="xprop | grep 'CLASS'"
+alias pid='pgrep -f'
+# alias cp='cp -i'
 
 # Change dirs
 alias ..="cd .."
