@@ -128,6 +128,7 @@ copy_save_editor_run() {
 
 # take shots
 takescreenshot() {
+ paplay /usr/share/sounds/freedesktop/stereo/camera-shutter.oga
  grimblast --notify "$option_chosen" "$option_type_screenshot"
 }
 
