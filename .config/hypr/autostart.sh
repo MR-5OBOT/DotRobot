@@ -16,7 +16,7 @@ exec-once = wl-paste --type image --watch cliphist store #Stores only image data
 
 exec-once = systemctl --user restart pipewire # RESTARTS PIPEWIRE (RECOMMENDED BY HYPRLAND DOC)
 exec-once = /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
-exec-once = ~/.config/hypr/xdg-portal-hyprland
+exec-once = ~/.config/hypr/xdg-portal-hyprland.sh
 exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 
