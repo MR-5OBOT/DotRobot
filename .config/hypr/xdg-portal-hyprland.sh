@@ -1,11 +1,4 @@
 #!/bin/bash
-# __  ______   ____ 
-# \ \/ /  _ \ / ___|
-#  \  /| | | | |  _ 
-#  /  \| |_| | |_| |
-# /_/\_\____/ \____|
-#                   
-# ------------------------------------------- 
 
 # kill all possible running xdg-desktop-portals
 killall xdg-desktop-portal-hyprland
