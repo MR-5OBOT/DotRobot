@@ -1,5 +1,5 @@
 configuration{
-    modi: "drun,calc,emoji";
+    modi: "drun,calc,emoji,file-browser-extended";
     show-icons: true;
     terminal: "kitty";
     drun-display-format: " => {name}";

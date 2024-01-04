@@ -25,7 +25,7 @@ check_all_batteries() {
        battery_level_0=$(acpi -b | awk -F'[,:]' '/Battery 0/{print $3}' | tr -dc '0-9')
        battery_level_1=$(acpi -b | awk -F'[,:]' '/Battery 1/{print $3}' | tr -dc '0-9')
 
-       if [ "${battery_level_0}" -lt 90 ]; then
+       if [ "${battery_level_0}" -lt 10 ]; then
            notify-send -i ~/.config/dunst/icons/low-battery.png "Battery 0 is below 20%!" "Charging: ${battery_level_0}%"
            paplay ~/.config/dunst/sounds/battery-low.wav
        fi
