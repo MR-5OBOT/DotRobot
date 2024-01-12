@@ -62,7 +62,3 @@ keymap('n', '<S-TAB>', '<CMD>BufferLineCyclePrev<CR>', { desc = "bufferPrev"})
 keymap("n", "<leader>bx", "<CMD>BufferLinePickClose<CR>", { desc = "CloseBuffer"})
 
 
-
-
-
-

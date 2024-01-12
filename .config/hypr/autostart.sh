@@ -1,5 +1,6 @@
 #!/usr/bin/bash
 
+exec-once = hyprctl setcursor Volantes Light Cursors 26
 # exec-once = ~/.config/scripts/mako-start
 exec-once = ~/.config/scripts/dunst-start # notification app
 exec-once = ~/.config/scripts/togglebar.sh # toggle waybar
