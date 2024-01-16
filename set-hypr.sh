@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# here's the most important packages i can't use my sys without it .
-
 
 #### Check for yay ####
 ISYAY=/sbin/yay
@@ -25,53 +23,60 @@ if [[ $WIFI == "Y" || $WIFI == "y" ]]; then
     sleep 3
 fi
 
-### Install all of the above pacakges ####
+### Install pacakges ####
 read -n1 -rep 'Would you like to install packages from AUR ? (y,n)' INST
 if [[ $INST == "Y" || $INST == "y" ]]; then
     yay -S --noconfirm gtklock \
-    ttf-jetbrains-mono-nerd noto-fonts-emoji \
+    noto-fonts-emoji \
     python-requests grimblast slurp \
-    nwg-look \
+    nwg-look devify\
     # Clean out other portals
     echo -e "Cleaning out conflicting xdg portals...\n"
-    yay -R --noconfirm xdg-desktop-portal-gnome xdg-desktop-portal-gtk
+    yay ln -s --noconfirm xdg-desktop-portal-gnome xdg-desktop-portal-gtk
 fi
 
 read -n1 -rep 'Would you like to install some extra packages from arch repository?  (y,n)' INST
 if [[ $INST == "Y" || $INST == "y" ]]; then
     sudo pacman  -S --noconfirm hyprland kitty waybar \
-    swaybg wofi swaync thunar thunar-archive-plugin \
+    swww rofi dunst thunar thunar-archive-plugin \
     polkit-gnome starship \
     slurp pamixer brightnessctl gvfs \
-    xdg-desktop-portal-hyprland \
+    xdg-desktop-portal-hyprland Viewnior\
 fi
 
 ### Copy Config Files ###
 read -n1 -rep 'Would you like to copy config files? (y,n)' CFG
 if [[ $CFG == "Y" || $CFG == "y" ]]; then
-    echo -e "Copying config files...\n"
-    cp -R hypr ~/.config/
-    cp -R kitty ~/.config/
-    cp -R sc-im ~/.config/
-    cp -R mpv ~/.config/
-    cp -R zatura ~/.config/
-    cp -R waybar ~/.config/
-    cp -R rofi ~/.config/
-    cp -R mako ~/.config/
-    cp -R .bashrc ~/
-    cp -R firefox/chrome ~/.mozilla/firefox/xbugllrt.default-release/
-    cp firefox/user.js ~/.mozilla/firefox/xbugllrt.default-release/
-    cp -R .themes/paradise ~/.themes/
-    cp -R .icons/Bibata-Modern-Ice.tar.xz ~/.icons/
 
+read -n1 -rep "did you creat MR-5OBOT dir ?" mr5obot_dir
+if [[ $mr5obot_dir == "Y" || $mr5obot_dir == "y" ]]; then
+
+    echo -e "Creating MR-5OBOT dir ...<>"
+    mkdir MR-5OBOT/ || cp DotRoboT / ~/MR-5OBOT/
     
+    echo -e "linking config files...\n"
+    # .config files
+    cp ln -s ~/MR-5OBOT/DotRoboT/.config/* ~/.config/
+
+    echo -e "add walls dir to Pictures/"
+    ln -s ~/MR-5OBOT/DotRoboT/wallpapers/ ~/Pictures/
+
+    echo -e "add .bachrc file to home dir"
+    cp ln -s home/.bashrc ~/
+
+    eco -e "add firefox css theme <>"
+    cp ln -s firefox-css/* ~/.mozilla/firefox/xbugllrt.default-release/
+
+    echo -e "copy fonts & themes & icons to home dir <>"
+    cp -R home/.themes/* ~/.themes/
+    cp -R home/.fonts/* ~/.themes/
+    cp -R .icons/* ~/.icons/
+
     # Set some files as exacutable 
-    chmod +x ~/.config/hypr/autostart.sh
-    chmod +x ~/.config/hypr/xdg-portal-hyprland
-    chmod +x ~/.config/hypr/scripts/togglebar.sh
-    chmod +x ~/.config/hypr/scripts/lockscreentime.sh
-    chmod +x ~/.config/hypr/scripts/brightness.sh
-    chmod +x ~/.config/hypr/scripts/volume.sh
+    chmod u+x ~/.config/hypr/autostart.sh
+    chmod u+x ~/.config/hypr/xdg-desktop-portal-hyprland
+    chmod u+x ~/.config/hypr/gtk.sh
+    chmod u+x ~/.config/scripts/*
 fi
 
 ### Install teh starship shell ###
@@ -80,9 +85,9 @@ if [[ $STAR == "Y" || $STAR == "y" ]]; then
     # install the starship shell
     echo -e "Updating .bashrc...\n"
     echo -e '\neval "$(starship init bash)"' >> ~/.bashrc
-    echo -e "copying starship config file to ~/.confg ...\n"
-    cp starship.toml ~/.config/
-fi
+    echo -e "link starship config file to ~/.confg ...\n"
+    ln -s .config/starship.toml ~/.config/
+f
 
 ### Script is done ###
 echo -e "Script had completed.\n"
