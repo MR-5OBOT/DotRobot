@@ -7,8 +7,11 @@
 -- ╚══════╝╚══════╝   ╚═╝      ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚══════╝
 
 
--- local opt = vim.opt
--- local g = vim.g
+-- To get help type :
+--	:help [option_name]
+
+local opt = vim.opt
+local g = vim.g
 
 local options = {
   -- disable nvim intro
@@ -25,25 +28,25 @@ local options = {
   guicursor = "n:blinkon200,i-ci-ve:ver25", -- Enable cursor blink.
   backup = false,                          -- creates a backup file
   clipboard = "unnamedplus",               -- allows neovim to access the system clipboard
-  virtualedit = "block", -- allow going past end of line in visual block mode.
+  virtualedit = "block",                   -- allow going past end of line in visual block mode.
   inccommand = "split",
-  autochdir = true,                        -- Use current file dir as working dir (See project.nvim).
+  autochdir = false,                       -- Use current file dir as working dir (See project.nvim).
   cmdheight = 2,                           -- more space in the neovim command line for displaying messages
   conceallevel = 0,                        -- so that `` is visible in markdown files
   hlsearch = true,                         -- highlight all matches on previous search pattern
   ignorecase = true,                       -- ignore case in search patterns
   mouse = "",                              -- allow the mouse to be used in neovim
-  mousescroll = "ver:1,hor:0", -- Disables hozirontal scroll in neovim.
+  mousescroll = "ver:1,hor:0",             -- Disables hozirontal scroll in neovim.
   confirm = true,                          -- Ask for confirmation when handling unsaved or read-only files
-  showtabline = 2,                         -- always show tabs
+  showtabline = 0,                         -- always show tabs
   smartcase = true,                        -- smart case
   splitbelow = true,                       -- force all horizontal splits to go below current window
   splitright = true,                       -- force all vertical splits to go to the right of current window
-  undofile = true, -- Enable persistent undo between session and reboots.
+  undofile = true,                         -- Enable persistent undo between session and reboots.
   undodir = vim.fn.stdpath "data" .. "/undodir", -- Chooses where to store the undodir.
-  swapfile = false, -- Ask what state to recover when opening a file that was not saved.
-  writebackup = false, -- Disable making a backup before overwriting a file.
-  history = 100, -- Number of commands to remember in a history table (per buffer).
+  swapfile = true,                        -- Ask what state to recover when opening a file that was not saved.
+  writebackup = false,                     -- Disable making a backup before overwriting a file.
+  history = 100,                           -- Number of commands to remember in a history table (per buffer).
   fileencoding = "utf-8",                  -- encoding files
   expandtab = true,                        -- convert tabs to spaces
   shiftwidth = 2,                          -- the number of spaces inserted for each indentation
