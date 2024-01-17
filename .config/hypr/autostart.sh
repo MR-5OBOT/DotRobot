@@ -4,9 +4,9 @@ exec-once = hyprctl setcursor Volantes Light Cursors 26
 # exec-once = ~/.config/scripts/mako-start
 exec-once = ~/.config/scripts/dunst-start # notification app
 exec-once = ~/.config/scripts/togglebar.sh # toggle waybar
-exec-once = ~/.config/scripts/battery-notify.sh # get battery notifications
 exec-once = ~/.config/scripts/swayidle-locktime.sh # swayidle lockscreen with swaylock
 exec-once = ~/.config/scripts/swww-randomize.sh # random wallpapers
+exec-once = ~/.config/scripts/low-battery-notify.sh
 
 exec-once = swww init
 exec-once = nm-applet & # network manager tray
