@@ -23,7 +23,7 @@ eval "$(starship init bash)" # starship cfg
 
 
 # Alias's to modified commands
-alias .v='nvim ~/MR-5OBOT/DotRoboT/.config/nvim'
+alias .v='nvim ~/MR-5OBOT/nvim'
 alias .dots='cd ~/MR-5OBOT/DotRoboT/'
 alias .home='cd ~/MR-5OBOT/'
 alias v='$EDITOR'
