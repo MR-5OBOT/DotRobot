@@ -2,7 +2,7 @@
 
 exec-once = ~/.config/scripts/dunst-start # notification app
 exec-once = ~/.config/scripts/togglebar.sh # toggle waybar
-exec-once = ~/.config/scripts/swayidle-locktime.sh # swayidle lockscreen with swaylock
+exec-once = ~/.config/scripts/swayidle_screenlocker.sh # swayidle lockscreen with swaylock
 exec-once = ~/.config/scripts/swww-randomize.sh # random wallpapers
 exec-once = ~/.config/scripts/low-battery-notify.sh
 
