@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 echo "hello, this is a simple script to install DotRoboT_hyprland cfgs
 checking yay ...."
 #### Check for yay ####
