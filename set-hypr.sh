@@ -1,11 +1,12 @@
 #!/bin/bash
 
-
+echo "hello, this is a simple script to install DotRoboT_hyprland cfgs
+checking yay ...."
 #### Check for yay ####
 ISYAY=/sbin/yay
 if [ -f "$ISYAY" ]; then 
     echo -e "yay was located, moving on.\n"
-    yay -Suy
+    echo -e "updaing ....."
 else 
     echo -e "yay was not located, please install yay. Exiting script.\n"
     exit 
@@ -42,6 +43,8 @@ if [[ $INST == "Y" || $INST == "y" ]]; then
     polkit-gnome starship \
     slurp pamixer brightnessctl gvfs \
     xdg-desktop-portal-hyprland Viewnior\
+    dunst udiskie nm-applet swayidle \
+    cliphist zathura pavucontrol waybar 
 fi
 
 ### Copy Config Files ###
@@ -52,31 +55,45 @@ read -n1 -rep "did you creat MR-5OBOT dir ?" mr5obot_dir
 if [[ $mr5obot_dir == "Y" || $mr5obot_dir == "y" ]]; then
 
     echo -e "Creating MR-5OBOT dir ...<>"
-    mkdir MR-5OBOT/ || cp DotRoboT / ~/MR-5OBOT/
-    
+    mkdir -p MR-5OBOT ; mv DotRoboT/ ~/MR-5OBOT/
+fi    
     echo -e "linking config files...\n"
     # .config files
-    cp ln -s ~/MR-5OBOT/DotRoboT/.config/* ~/.config/
+    ln -s ~/MR-5OBOT/DotRoboT/.config/* ~/.config/
 
     echo -e "add walls dir to Pictures/"
     ln -s ~/MR-5OBOT/DotRoboT/wallpapers/ ~/Pictures/
 
     echo -e "add .bachrc file to home dir"
-    cp ln -s home/.bashrc ~/
+    ln -s ~/MR-5OBOT/DotRoboT/home/.bashrc ~/
 
-    eco -e "add firefox css theme <>"
-    cp ln -s firefox-css/* ~/.mozilla/firefox/xbugllrt.default-release/
-
+    
     echo -e "copy fonts & themes & icons to home dir <>"
-    cp -R home/.themes/* ~/.themes/
-    cp -R home/.fonts/* ~/.themes/
-    cp -R .icons/* ~/.icons/
+    cp -R ~/MR-5OBOT/DotRoboT/home/.themes/* ~/.themes/
+    cp -R ~/MR-5OBOT/DotRoboT/home/.fonts/* ~/.themes/
+    cp -R ~/MR-5OBOT/DotRoboT/home/.icons/* ~/.icons/
 
     # Set some files as exacutable 
     chmod u+x ~/.config/hypr/autostart.sh
     chmod u+x ~/.config/hypr/xdg-desktop-portal-hyprland
-    chmod u+x ~/.config/hypr/gtk.sh
     chmod u+x ~/.config/scripts/*
+fi
+
+read -n1 -rep 'Would you want to add firefox css style to ur browser ? (y,n)' Firefox
+if [[ Firefox == "Y" || Firefox == "y" ]]; then
+  
+#find the firefox profile dir and creat symbolic link for it
+PROFILE=$(find ~/.mozilla/firefox/ -maxdepth 1 -type d -name "*default-release")
+
+# Check if the profile directory was found
+if [ -z "$PROFILE" ]; then
+echo "Could not find the Firefox profile directory."
+exit 1
+fi
+# Use the profile directory in your script
+ln -s ~/MR-5OBOT/DotRoboT/firefox-css/* "$PROFILE"/
+echo -e "firefox css theme is done. enjoy <>"
+
 fi
 
 ### Install teh starship shell ###
@@ -86,15 +103,10 @@ if [[ $STAR == "Y" || $STAR == "y" ]]; then
     echo -e "Updating .bashrc...\n"
     echo -e '\neval "$(starship init bash)"' >> ~/.bashrc
     echo -e "link starship config file to ~/.confg ...\n"
-    ln -s .config/starship.toml ~/.config/
-f
+    ln -s ~/MR-5OBOT/DotRoboT/.config/starship.toml ~/.config/
+fi
 
 ### Script is done ###
 echo -e "Script had completed.\n"
-echo -e "You can start Hyprland by typing Hyprland (note the capital H).\n"
-read -n1 -rep 'Would you like to start Hyprland now? (y,n)' HYP
-if [[ $HYP == "Y" || $HYP == "y" ]]; then
-    exec Hyprland
-else
-    exit
-fi
+echo -e "all done now you can do whatever you want! \n"
+

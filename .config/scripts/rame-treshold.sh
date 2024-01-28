@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set the RAM usage thresholds (can be multiple)
-thresholds=70
+thresholds=85
 
 # Loop continuously
 while true; do
