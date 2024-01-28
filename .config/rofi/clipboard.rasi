@@ -2,7 +2,7 @@
 configuration {
   modi: "drun";
   show-icons: false;
-  font: "operator-caska bold italic 10";
+  font: "NovaMono 11";
 }
 
 @theme "/dev/null"

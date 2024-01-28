@@ -1,11 +1,10 @@
 #!/usr/bin/bash
 
-# exec-once = ~/.config/scripts/mako-start
 exec-once = ~/.config/scripts/dunst-start # notification app
 exec-once = ~/.config/scripts/togglebar.sh # toggle waybar
-exec-once = ~/.config/scripts/battery-notify.sh # get battery notifications
-exec-once = ~/.config/scripts/swayidle-locktime.sh # swayidle lockscreen with swaylock
+exec-once = ~/.config/scripts/swayidle_screenlocker.sh # swayidle lockscreen with swaylock
 exec-once = ~/.config/scripts/swww-randomize.sh # random wallpapers
+exec-once = ~/.config/scripts/low-battery-notify.sh
 
 exec-once = swww init
 exec-once = nm-applet & # network manager tray
@@ -19,8 +18,10 @@ exec-once = wl-paste --type image --watch cliphist store & #Stores only image da
 
 exec-once = systemctl --user restart pipewire # RESTARTS PIPEWIRE (RECOMMENDED BY HYPRLAND DOC)
 exec-once = /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+
 exec-once = ~/.config/hypr/xdg-portal-hyprland
 exec-once = dbus-update-activation-environment --all &
+
 exec-once = sleep 1 && dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 
