@@ -11,7 +11,7 @@ export EDITOR=nvim
 
 alias st='git status'
 # git function for eaasy push for each branch
-lazygit() {
+lazyg() {
   git add .
   git commit -m "$1"
   git push origin $(git rev-parse --abbrev-ref HEAD):$2
