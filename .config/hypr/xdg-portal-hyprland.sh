@@ -1,20 +1,12 @@
 #!/bin/bash
 
-# kill all possible running xdg-desktop-portals
-killall xdg-desktop-portal-hyprland
-killall xdg-desktop-portal-gnome
-killall xdg-desktop-portal-kde
-killall xdg-desktop-portal-lxqt
-killall xdg-desktop-portal-wlr
-killall xdg-desktop-portal-gtk
-killall xdg-desktop-portal
 sleep 1
-
-# start xdg-desktop-portal-hyprland
+killall -e xdg-desktop-portal-hyprland
+killall -e xdg-desktop-portal-wlr
+killall xdg-desktop-portal
 /usr/lib/xdg-desktop-portal-hyprland &
 sleep 2
-
-# start xdg-desktop-portal
 /usr/lib/xdg-desktop-portal &
-sleep 1
 
+systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=Hyprland
