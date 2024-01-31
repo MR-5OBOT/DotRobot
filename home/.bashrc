@@ -8,7 +8,9 @@ PS1='[\u@\h \W]\$ '
 # Define Editor
 export EDITOR=nvim
 
+~/.config/scripts/kitty-gifs.sh # my gifs terminal logos
 
+alias lg='lazygit'
 alias st='git status'
 # git function for eaasy push for each branch
 lazyg() {
@@ -19,7 +21,6 @@ lazyg() {
 
 eval "$(starship init bash)" # starship cfg
 
-~/.config/scripts/kitty-gifs.sh # my gifs terminal logos
 
 
 # Alias's to modified commands
