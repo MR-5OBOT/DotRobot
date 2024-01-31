@@ -40,8 +40,7 @@ add_newline = true
 
 # Second param
 [hostname]
-ssh_only = true 
-format = "[](fg:#252525 bg:none)[█](fg:#E8E3E3 bg:#252525)[$ssh_symbol$hostname](bold bg:#E8E3E3)[](fg:#E8E3E3 bg:none) "
+ssh_only = false
 disabled = false
 
 # Third param
