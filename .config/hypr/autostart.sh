@@ -17,6 +17,7 @@ exec-once = wl-clipboard-history -t
 exec-once = wl-paste --type text --watch cliphist store &  #Stores only text data
 exec-once = wl-paste --type image --watch cliphist store & #Stores only image data
 
+exec-once = systemctl --user start pipewire
 exec-once = systemctl --user restart pipewire # RESTARTS PIPEWIRE (RECOMMENDED BY HYPRLAND DOC)
 exec-once = /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 
