@@ -50,23 +50,8 @@ x_cur=$(( x_cur < min_x ? min_x : ( x_cur > max_x ? max_x :  x_cur)))
 y_cur=$(( y_cur < min_y ? min_y : ( y_cur > max_y ? max_y :  y_cur)))
 
 pos="window {location: north west; x-offset: ${x_cur}px; y-offset: ${y_cur}px;}" #! I just Used the old pos function
-#pos="window {location: $y_rofi $x_rofi; $x_offset $y_offset}" 
-
-# read hypr theme border
-
-# wind_border=$(( hypr_border * 3/2 ))
-# elem_border=`[ $hypr_border -eq 0 ] && echo "5" || echo $hypr_border`
-# r_override="window {border: ${hypr_width}px; border-radius: ${wind_border}px;} entry {border-radius: ${elem_border}px;} element {border-radius: ${elem_border}px;}"
-
-
-# read hypr font size
-
-# fnt_override=`gsettings get org.gnome.desktop.interface monospace-font-name | awk '{gsub(/'\''/,""); print $NF}'`
-# fnt_override="configuration {font: \"JetBrainsMono Nerd Font ${fnt_override}\";}"
-
 
 # clipboard action
-
 case $1 in
     c)  cliphist list | rofi -dmenu -theme-str "entry { placeholder: \"Copy...\";} ${pos} ${r_override}" -theme-str "${fnt_override}" -config $roconf | cliphist decode | wl-copy
         ;; 
