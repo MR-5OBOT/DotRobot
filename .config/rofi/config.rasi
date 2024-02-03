@@ -1,5 +1,5 @@
 configuration{
-    modi: "drun,calc,emoji";
+    modi: "run,drun,calc,";
     show-icons: true;
     terminal: "kitty";
     drun-display-format: " => {name}";
@@ -7,9 +7,7 @@ configuration{
     anchor: northwest;
     disable-history: false;
     hide-scrollbar: true;
-    display-drun: "   > ";
-    // display-run: "  Run ";
-    // sidebar-mode: true;
+    sidebar-mode: true;
 }
 
 @theme "~/.config/rofi/theme.rasi"
