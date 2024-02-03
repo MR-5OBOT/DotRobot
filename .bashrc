@@ -24,9 +24,10 @@ lazyg() {
 # Alias's to modified commands
 alias lg='lazygit'
 alias st='git status'
+alias .dev='~/MR-5OBOT/DEV/'
 alias .v='nvim ~/MR-5OBOT/MR-NV/'
 alias .dots='cd ~/MR-5OBOT/DotRoboT/'
-alias .home='cd ~/MR-5OBOT/'
+alias .repos='cd ~/MR-5OBOT/'
 alias v='nvim'
 alias c='clear'
 alias mv='mv -i'
@@ -34,7 +35,6 @@ alias rm='trash -v'
 alias mkdir='mkdir -p -v'
 alias wifi='nmtui'
 alias off='systemctl poweroff'
-alias winclass="xprop | grep 'CLASS'"
 alias pid='pgrep -f'
 alias targz='tar -czf' # file-name + files want to archive
 # alias cp='cp -i'

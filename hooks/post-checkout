@@ -1,0 +1,46 @@
+#!/bin/bash
+
+echo "check all the symlinks files on $HOME | .config | .mozilla"
+echo "and then creat switch them to the working branch version of files"
+
+# Path to your dotfiles repository
+DOTFILES_PATH=~/MR-5OBOT/DotRoboT
+
+# Destination directories
+DESTINATIONS=("~/.config" "~/")
+
+#find the firefox profile dir
+echo "getting the firfox Profile!"
+PROFILE=$(find ~/.mozilla/firefox/ -maxdepth 1 -type d -name "*default-release")
+
+# Check if the profile directory was found
+if [[ -z "$PROFILE" ]]; then
+    echo "Profile variable is empty"
+else
+    echo "Firefox Profile is located"
+    DESTINATIONS+=("$PROFILE")
+fi
+
+# Function to check if a file exists and is a symlink
+function is_symlink() {
+ if [[ -e $1 && -h $1 ]]; then
+    return 0
+ else
+    return 1
+ fi
+}
+
+for file in "$DOTFILES_PATH"/*; do
+    file=${file##*/} # Remove directory part of the path
+    if [[ -e $DOTFILES_PATH/$file ]]; then
+        echo "Processing file: $file"
+        for dest in "${DESTINATIONS[@]}"; do
+            if [[ -e $dest/$file ]]; then
+                if is_symlink "$dest/$file"; then
+                    ln -sf $DOTFILES_PATH/$file $dest/$file
+                fi
+            fi
+        done
+    fi
+done
+

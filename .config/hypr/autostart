@@ -1,0 +1,34 @@
+#!/usr/bin/bash
+
+# variables
+scripts="$HOME/.config/hypr/scripts/"
+wallpapers="$scripts""wallpapers/"
+autostart="$scripts""autostart"
+
+$HOME/.config/hypr/scripts/rdunst.sh # notification app
+$HOME/.config/hypr/scripts/toggle-waybar.sh # toggle waybar
+$HOME/.config/hypr/scripts/autostart_app/idle_handler.sh # swayidle lockscreen with swaylock
+= ~/.config/scripts/swww-randomize.sh # random wallpapers
+swww img ~/Pictures/wallpapers/b.jpg
+$HOME/.config/scripts/low-battery-notify.sh
+
+swww init # wallpaper demon
+nm-applet & # network manager tray
+blueman-applet # blueman-applet
+udiskie & # Automounter for removable media
+devify & # Notify about devices connecting and disconnecting
+swayidle & # Idle daemon to screen lockh
+
+wl-clipboard-history -t
+wl-paste --type text --watch cliphist store &  #Stores only text data
+wl-paste --type image --watch cliphist store & #Stores only image data
+
+systemctl --user restart pipewire # RESTARTS PIPEWIRE (RECOMMENDED BY HYPRLAND DOC)
+/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+$HOME/.config/hypr/xdg-portal-hyprland
+
+dbus-update-activation-environment --all & # for XDPH
+sleep 1 && dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP # for XDPH
+systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+
+
