@@ -1,14 +1,4 @@
-configuration{
-    
-    terminal: "kitty";
-    drun-display-format: " => ";
-    location: 0;
-    disable-history: false;
-    hide-scrollbar: true;
-}
-
 @theme "/dev/null"
-
 
 * {
     font: "GohuFont 14 Nerd Font Mono 12";
@@ -20,8 +10,7 @@ configuration{
 
 window {
     background-color:            #101010;
-    fullscreen: true;
-    width: 30%;
+    width: 22%;
     border: 2px;
     border-color: #262626;
 }
