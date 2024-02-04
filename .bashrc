@@ -5,23 +5,13 @@
 [[ $- != *i* ]] && return
 PS1='[\u@\h \W]\$ '
 
-
-# starship cfg
-eval "$(starship init bash)" 
-
-
 export PATH="$HOME/.local/bin:$PATH"
 
 
-# git function for eaasy push for each branch
-lazyg() {
-   git add .
-   git commit -m "$1"
-   git push origin $(git rev-parse --abbrev-ref HEAD):$2
-}
-
-
-# Alias's to modified commands
+# -----------------------------------------------------
+# ALIASES
+# -----------------------------------------------------
+alias ls='eza -a --icons'
 alias lg='lazygit'
 alias st='git status'
 alias .dev='~/MR-5OBOT/DEV/'
@@ -37,18 +27,12 @@ alias wifi='nmtui'
 alias off='systemctl poweroff'
 alias pid='pgrep -f'
 alias targz='tar -czf' # file-name + files want to archive
-# alias cp='cp -i'
 alias ..="cd .."
 alias cd..="cd .."
 alias ...="cd ../../"
-# Better copying
-alias cpv='rsync -avh --info=progress2'
 alias c='clear'
-# cd into the old directory
 alias bd='cd "$OLDPWD"'
-
-# Alias's for multiple directory listing commands
-alias ls='lsd -a --group-directories-first'
+# alias ls='lsd -a --group-directories-first'
 alias l.='ls -d .* --color=auto'
 alias la='ls -Alh' # show hidden files
 
@@ -85,10 +69,56 @@ extract () {
 }
 
 
+# ----------------------------------------------------
 # IP address lookup
+# ----------------------------------------------------
 myip ()
      {
 ip addr show | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*'
 }
 
+# -----------------------------------------------------
+# GIT
+# -----------------------------------------------------
+lazyg() {
+   git add .
+   git commit -m "$1"
+   git push origin $(git rev-parse --abbrev-ref HEAD):$2
+}
 
+# -----------------------------------------------------
+# EDIT CONFIG FILES
+# -----------------------------------------------------
+
+alias vhypr='$EDITOR $HOME/.config/hypr/'
+alias vbashrc='$EDITOR ~/dotfiles/.bashrc'
+
+# -----------------------------------------------------
+# EDIT NOTES
+# -----------------------------------------------------
+
+alias trading='$EDITOR ~/MR-5OBOT/Trading-Lab/'
+
+# -----------------------------------------------------
+# SYSTEM
+# -----------------------------------------------------
+
+# alias update-grub='sudo grub-mkconfig -o /boot/grub/grub.cfg'
+# alias setkb='setxkbmap de;echo "Keyboard set back to de."'
+
+# -----------------------------------------------------
+# START STARSHIP
+# -----------------------------------------------------
+eval "$(starship init bash)"
+
+# -----------------------------------------------------
+# PFETCH if on wm
+# -----------------------------------------------------
+# echo ""
+# if [[ $(tty) == *"pts"* ]]; then
+#     neofetch
+# else
+#     if [ -f /bin/hyprctl ]; then
+#         echo "Start Hyprland with command Hyprland"
+#     fi
+# fi
