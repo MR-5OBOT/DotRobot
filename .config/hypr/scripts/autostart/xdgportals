@@ -2,6 +2,7 @@
 
 # kill all possible running xdg-desktop-portals
 killall xdg-desktop-portal
+killall xdg-desktop-portal-hyprland
 sleep 1
 
 # start xdg-desktop-portal-hyprland
