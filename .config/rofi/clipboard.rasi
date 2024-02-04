@@ -1,7 +1,5 @@
 // config //
 configuration {
-  modi: "drun";
-  show-icons: false;
   font: "NovaMono 11";
 }
 
@@ -9,47 +7,27 @@ configuration {
 
 // main //
 window {
-  height: 100%;
-  width: 100%;
-  transparency: "none";
   fullscreen: true;
-  enabled: true;
-  cursor: "default";
-  spacing: 3px;
-  padding: 1px;
-  border: 2px;
-  border-color: @main-br;
   background-color: #161616;
 }
 
 mainbox {
-  enabled: true;
-  spacing: 0px;
-  orientation: vertical;
-  children: [ "inputbar" , "listbox" ];
   background-color: #262626;
 }
 
 // inputs //
 inputbar {
   enabled: false;
-  padding: 7px;
-  children: [ "entry" ];
   background-color: #94938F;
 }
 
 entry {
-  enabled: true;
-  padding: 7px;
   text-color: #d3d3d3;
   background-color: #161616;
 }
 
 // lists //
 listbox {
-  spacing: 0px;
-  padding: 1px;
-  children: [ "listview" ];
   background-color: #161616;
 }
 
@@ -84,9 +62,6 @@ element selected.normal {
 }
 
 element-text {
-  vertical-align: 0.0;
-  horizontal-align: 0.0;
-  cursor: inherit;
   background-color: transparent;
   text-color: #d3d3d3;
 }
