@@ -29,9 +29,10 @@ fi
 read -n1 -rep 'Would you like to install packages from AUR ? (y,n)' INST
 if [[ $INST == "Y" || $INST == "y" ]]; then
     yay -S --noconfirm gtklock \
-    noto-fonts-emoji \
+    noto-fonts-emoji swappy \
     python-requests grimblast slurp \
-    nwg-look devify\
+    nwg-look devify hyprpicker-git
+
     # Clean out other portals
     echo -e "Cleaning out conflicting xdg portals...\n"
     yay ln -s --noconfirm xdg-desktop-portal-gnome xdg-desktop-portal-gtk
