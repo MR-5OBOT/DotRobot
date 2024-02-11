@@ -5,20 +5,20 @@ scripts="$HOME/.config/hypr/scripts"
 wallpapers="$scripts""/wallpapers"
 autostart="$scripts""/autostart"
 
-dunst & # notfication demon
+dunst  # notfication demon
 swww kill ; swww init  # wallpaper demon
-nm-applet --indicator  # network manager tray
+nm-applet # network manager tray
 blueman-applet # blueman-applet
-udiskie -t -n & # Automounter for removable media
-devify & # Notify about devices connecting and disconnecting
-hyprctl setcursor Volantes Light Cursors 25
+udiskie -t -n # Automounter for removable media
+devify # Notify about devices connecting and disconnecting
 
-$scripts/lock.sh
+$autostart/lock.sh
 $autostart/toggle-waybar.sh # toggle waybar
 $autostart/idle_handler.sh # swayidle lockscreen with swaylock
 $wallpapers/swww-randomize.sh # random wallpapers
-$wallpapers/low-battery-notify.sh
+$autostart/low-battery-notify.sh
 
+# hyprctl setcursor Volantes Light Cursors 25
 wl-paste --type text --watch cliphist store &  #Stores only text data
 wl-paste --type image --watch cliphist store & #Stores only image data
 

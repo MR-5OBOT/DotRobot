@@ -14,7 +14,6 @@ $vcsh\
 $hg_branch\
 $docker_context\
 $package\
-$custom\
 
 $sudo\
 
@@ -65,7 +64,7 @@ symbol = ' '
 style = 'bold green'
 
 [cmd_duration]
-min_time = 10
+min_time = 100
 format = "[](fg:#252525 bg:none)[$duration]($style)[](fg:#252525 bg:#252525)[](fg:#C397D8 bg:#252525)[󱑂 ](fg:#252525 bg:#C397D8)[](fg:#C397D8 bg:none)"
 disabled = false
 style = "fg:#E8E3E3 bg:#252525 bold"
@@ -206,7 +205,7 @@ ruby.disabled = true
 rust.disabled = true
 perl.disabled = true
 package.disabled = true
-lua.disabled = true
+lua.disabled = false
 nodejs.disabled = true
 java.disabled = true
 golang.disabled = true

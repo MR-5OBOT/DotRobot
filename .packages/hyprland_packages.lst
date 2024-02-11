@@ -28,6 +28,8 @@ jellyfin-media-player
 jmtpfs
 waybar-hyprland
 swww
-sddm-sugar-dark
-ovmf
-ebtables
+acpi
+brightnesctl
+eza
+pamixer
+jq
