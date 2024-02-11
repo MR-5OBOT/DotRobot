@@ -8,14 +8,6 @@ user_pref("browser.uitour.enabled", false);
 
 /*** STARTUP ***/
 
-/* set startup page
- * 0=blank, 1=home, 2=last visited page, 3=resume previous session*/
-//user_pref("browser.startup.page", 1);
-/* set HOME+NEWWINDOW page
- * about:home=Firefox Home, custom URL, about:blank*/
-//user_pref("browser.startup.homepage", "about:home");
-/* disable sponsored content on Firefox Home (Activity Stream)
- * [SETTING] Home>Firefox Home Content ***/
 user_pref("browser.newtabpage.activity-stream.showSponsored", false); // [FF58+] Pocket > Sponsored Stories
 user_pref("browser.newtabpage.activity-stream.showSponsoredTopSites", false); // [FF83+] Sponsored shortcuts
 /* clear default topsites
@@ -99,14 +91,6 @@ user_pref("geo.provider.use_corelocation", false); // [MAC]
 user_pref("geo.provider.use_gpsd", false); // [LINUX]
 user_pref("geo.provider.use_geoclue", false); // [FF102+] [LINUX]
 
-/*** disable search suggest ***/
-//user_pref("browser.urlbar.suggest.quicksuggest.nonsponsored", false);
-//user_pref("browser.urlbar.suggest.quicksuggest.sponsored", false);
-
-/*** disable autofill ***/
-//user_pref("browser.formfill.enable", false);
-//user_pref("signon.autofillForms", false);
-//user_pref("signon.formlessCapture.enabled", false);
 
 // Integrated calculator at urlbar
 user_pref("browser.urlbar.suggest.calculator", true);
