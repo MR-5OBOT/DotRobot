@@ -21,7 +21,7 @@ if [[ $CUSTOM == "Y" || $CUSTOM == "y" ]]; then
     sudo pacman -S hyprland pipewire pipewire-alsa pipewire-audio pipewire-jack swayidle \
     pipewire-pulse gst-plugin-pipewire wireplumber polkit-gnome  imagemagick qt5-imageformats ffmpegthumbs \
     starship qt5-wayland networkmanager network-manager-applet kvantum cliphist pacman-contrib jq \
-    qt5-quickcontrols qt5-quickcontrols2 qt5-graphicaleffects qt6-wayland xdg-desktop-portal-hyprland \
+    qt5-quickcontrols qt5-quickcontrols2 qt5-graphicaleffects qt6-wayland xdg-desktop-portal-hyprland acpi 
     
 fi
 
@@ -33,10 +33,12 @@ fi
 read -n1 -rep "would you like to install required packages from AUR ? (y,n)" AUR
 if [[ $AUR == "Y" || $AUR == "y" ]]; then
 
-    yay -S grimblast-git hyprpicker-git slurp swappy nwg-look sddm-git devify
+    yay -S grimblast-git hyprpicker-git slurp swappy nwg-look sddm-git devify 
 
 fi
 
 
-
-
+#install fonts
+if [ $? -eq 0 ]; then
+    ~/MR-5OBOT/DotRoboT/.install/nerdfonts-installer.sh
+    fi

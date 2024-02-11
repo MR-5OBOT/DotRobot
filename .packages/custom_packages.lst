@@ -33,3 +33,5 @@ brightnesctl
 eza
 pamixer
 jq
+npm
+pyright
