@@ -32,7 +32,6 @@ alias cd..="cd .."
 alias ...="cd ../../"
 alias c='clear'
 alias bd='cd "$OLDPWD"'
-# alias ls='lsd -a --group-directories-first'
 alias l.='ls -d .* --color=auto'
 alias la='ls -Alh' # show hidden files
 
@@ -76,15 +75,6 @@ myip ()
      {
 ip addr show | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*'
 }
-
-# -----------------------------------------------------
-# GIT
-# -----------------------------------------------------
-#lazyg() {
-#   git add .
-#   git commit -m "$1"
-#   git push origin $(git rev-parse --abbrev-ref HEAD):$2
-#}
 
 # -----------------------------------------------------
 # EDIT CONFIG FILES
