@@ -1,36 +1,32 @@
 #!/usr/bin/bash
 
-# variables
-scripts="$HOME/.config/hypr/scripts"
-wallpapers="$scripts""/wallpapers"
-autostart="$scripts""/autostart"
-
-dunst  # notfication demon
-swww kill ; swww init  # wallpaper demon
-nm-applet # network manager tray
-blueman-applet # blueman-applet
-udiskie -t -n # Automounter for removable media
-devify # Notify about devices connecting and disconnecting
-
-$autostart/lock.sh
-$autostart/toggle-waybar.sh # toggle waybar
-$autostart/idle_handler.sh # swayidle lockscreen with swaylock
-$wallpapers/swww-randomize.sh # random wallpapers
-$autostart/low-battery-notify.sh
-
-# hyprctl setcursor Volantes Light Cursors 25
-wl-paste --type text --watch cliphist store &  #Stores only text data
-wl-paste --type image --watch cliphist store & #Stores only image data
-
-systemctl --user restart pipewire # RESTARTS PIPEWIRE (RECOMMENDED BY HYPRLAND DOC)
-/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
-$scripts/autostart/xdgportals
-
-dbus-update-activation-environment --all & 
-sleep 1 && dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP 
-systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+$SCRIPTS=~/.config/hypr/scripts/
 
 
+exec-once = dunst & # notfication demon
+exec-once = nm-applet & # network manager tray
+exec-once = blueman-applet & # blueman-applet
+exec-once = udiskie -t -n & # Automounter for removable media
+exec-once = devify & # Notify about devices connecting and disconnecting
+
+exec-once = hyprctl setcursor Volantes Light Cursors 27
+exec-once = wl-paste --type text --watch cliphist store &  #Stores only text data
+exec-once = wl-paste --type image --watch cliphist store & #Stores only image data
+
+exec-once = systemctl --user restart pipewire # RESTARTS PIPEWIRE (RECOMMENDED BY HYPRLAND DOC)
+exec-once = /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+exec-once = $SCRIPTS/autostart/xdgportals
+
+exec-once = dbus-update-activation-environment --all & 
+exec-once = sleep 1 && dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP 
+exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+
+exec-once = $SCRIPTS/autostart/lock.sh
+exec-once = $SCRIPTS/autostart/swww-daemon.sh
+exec-once = $SCRIPTS/wallpapers/swww-randomize.sh
+exec-once = $SCRIPTS/autostart/toggle-waybar.sh
+exec-once = $SCRIPTS/autostart/idle_handler.sh
+exec-once = $SCRIPTS/autostart/low-battery-notify.sh
 
 
 
