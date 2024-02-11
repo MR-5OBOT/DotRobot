@@ -21,6 +21,6 @@ element {
 
 listview {
   columns: 1;
-  lines: 3;
+  lines: 4;
 }
 
