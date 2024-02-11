@@ -5,7 +5,6 @@ $SCRIPTS=~/.config/hypr/scripts/
 
 exec-once = dunst & # notfication demon
 exec-once = nm-applet & # network manager tray
-exec-once = blueman-applet & # blueman-applet
 exec-once = udiskie -t -n & # Automounter for removable media
 exec-once = devify & # Notify about devices connecting and disconnecting
 
