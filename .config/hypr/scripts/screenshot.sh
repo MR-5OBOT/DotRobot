@@ -1,16 +1,7 @@
 #!/usr/bin/bash
 
-## Author  : Aditya Shakya (adi1090x)
-## Github  : @adi1090x
-## Applets : Screenshot (Ported to use Grimblast)
-## Modify
-## Author  : Gonçalo Duarte (MrDuartePT)
-## Github  : @MrDuartePT
-## Aur Package: grimblast-git (https://aur.archlinux.org/packages/grimblast-git)
-
-## Add this to the ~/.config/user-dirs.dirs to save in the Screenshots folder: XDG_SCREENSHOTS_DIR="$HOME/Screenshots"
 # Define the directory
-DIR="$HOME/Screenshots"
+DIR="$HOME/Pictures/Screenshots"
 
 # Check if the directory exists
 if [[ ! -d "$DIR" ]]; then

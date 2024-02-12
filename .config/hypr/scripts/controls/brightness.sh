@@ -1,52 +1,53 @@
 #!/bin/bash
+## /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  ##
+# Script for Monitor backlights (if supported) using brightnessctl
 
 iDIR="$HOME/.config/dunst/icons"
+notification_timeout=1000
 
 # Get brightness
 get_backlight() {
-	LIGHT=$(printf "%.0f\n" $(brightnessctl i))
-	echo "${LIGHT}%"
+	echo $(brightnessctl -m | cut -d, -f4)
 }
 
 # Get icons
 get_icon() {
-	backlight="$(brightnessctl g)"
-	current="${backlight%%%}"
-	if [[ ("$current" -ge "0") && ("$current" -le "85") ]]; then
+	current=$(get_backlight | sed 's/%//')
+	if   [ "$current" -le "20" ]; then
 		icon="$iDIR/brightness-20.png"
-	elif [[ ("$current" -ge "52") && ("$current" -le "172") ]]; then
+	elif [ "$current" -le "40" ]; then
 		icon="$iDIR/brightness-40.png"
-	elif [[ ("$current" -ge "103") && ("$current" -le "342") ]]; then
+	elif [ "$current" -le "60" ]; then
 		icon="$iDIR/brightness-60.png"
-	elif [[ ("$current" -ge "155") && ("$current" -le "512") ]]; then
+	elif [ "$current" -le "80" ]; then
 		icon="$iDIR/brightness-80.png"
-	elif [[ ("$current" -ge "180") && ("$current" -le "852") ]]; then 
-        icon="$iDIR/brightness-100.png"
+	else
+		icon="$iDIR/brightness-100.png"
 	fi
 }
 
 # Notify
 notify_user() {
-	notify-send -h string:x-canonical-private-synchronous:sys-notify -u low -i "$icon" "Brightness : $(brightnessctl g)"
+	notify-send -e -h string:x-canonical-private-synchronous:brightness_notif -h int:value:$current -u low -i "$icon" "Brightness : $current%"
 }
 
-# Increase brightness
-inc_backlight() {
-	brightnessctl set 10%+ && get_icon && notify_user
-}
-
-# Decrease brightness
-dec_backlight() {
-	brightnessctl set 10%- && get_icon && notify_user
+# Change brightness
+change_backlight() {
+	brightnessctl set "$1" && get_icon && notify_user
 }
 
 # Execute accordingly
-if [[ "$1" == "--get" ]]; then
-	brightnessctl g
-elif [[ "$1" == "--inc" ]]; then
-	inc_backlight
-elif [[ "$1" == "--dec" ]]; then
-	dec_backlight
-else
-	get_backlight
-fi
+case "$1" in
+	"--get")
+		get_backlight
+		;;
+	"--inc")
+		change_backlight "+10%"
+		;;
+	"--dec")
+		change_backlight "10%-"
+		;;
+	*)
+		get_backlight
+		;;
+esac

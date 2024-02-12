@@ -1,0 +1,16 @@
+configuration{
+    modi: "run,drun,calc";
+    show-icons: true;
+    drun-display-format: " => {name}";
+    disable-history: false;
+    hide-scrollbar: true;
+    sidebar-mode: true;
+}
+
+@theme "~/.config/rofi/theme.rasi"
+
+listview {
+  columns: 1;
+  lines: 6;
+}
+
