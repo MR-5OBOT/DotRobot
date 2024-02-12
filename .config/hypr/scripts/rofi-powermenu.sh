@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 
-powermenu=$(echo -e "Lock Screen \n Quit Hyprland \n Reboot \n Shutdown" | rofi -dmenu)
+powermenu=$(echo -e "Lock Screen\nQuit Hyprland\nReboot\nShutdown" | rofi -dmenu)
 
 Lock_cfg="$HOME/MR-5OBOT/DotRoboT/.config/gtklock/style.css"
 lock_cmd="gtklock -i -s $Lock_cfg"
