@@ -1,5 +1,5 @@
 /*
-* penguinFox
+* MR-5OBOT firefox css cfg 
 */
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
@@ -19,32 +19,17 @@
   display: none !important;
 }
 
-/* This CSS rule hides the tabs by default */
 #TabsToolbar {
- display: none !important;
+  visibility: collapse !important;
 }
 
 /* This CSS rule hides the bookmarks by default */
+#forward-button, #back-button, #stop-reload-button {
+ display: none !important;
+}
+
 #personal-bookmarks {
- display: none !important;
-}
-
-#back-button {
- display: none !important;
-}
-
-#forward-button {
- display: none !important;
-}
-
-#stop-reload-button {
- display: none !important;
-}
-
-/* X-button */
-:root {
-    --show-tab-close-button: none;
-    --show-tab-close-button-hover: none;
+  display: none !important;
 }
 
 * {
@@ -62,11 +47,6 @@
     --uc-status-panel-spacing: 0px;
     --uc-page-action-margin: 0px;
 }
-
-/* remove gap after pinned tabs */
-#tabbrowser-tabs[haspinnedtabs]:not([positionpinnedtabs])
-  > #tabbrowser-arrowscrollbox
-  > .tabbrowser-tab:nth-child(1 of :not([pinned], [hidden])) { margin-inline-start: 0 !important; }
 
 /*  Removes annoying border  */
 #navigator-toolbox{border:none !important;}
