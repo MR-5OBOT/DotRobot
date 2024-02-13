@@ -7,9 +7,8 @@ start() {
 SCRIPTS=~/.config/hypr/scripts/
 WALLPAPER_PATH="$(find "$HOME"/Pictures/wallpapers/ -type f | shuf -n1)"
 
- Check if a marker file exists.
+#Check if a marker file exists.
 if [ ! -f ~/.config/hypr/.initial_startup_done ]; then
-
 
 pgrep -x swww-deamon	|| start swww init && swww img "$WALLPAPER_PATH" --transition-type random
 pgrep -x nm-applet    || start nm-applet
@@ -34,10 +33,10 @@ start systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 start $SCRIPTS/autostart/lock.sh               
 start $SCRIPTS/autostart/Polkit.sh
 start $SCRIPTS/autostart/swww-daemon.sh        
-start $SCRIPTS/wallpapers/swww-randomize.sh    
+start $SCRIPTS/wallpapers/random_walls.sh
 start $SCRIPTS/autostart/toggle-waybar.sh      
 start $SCRIPTS/autostart/idle_handler.sh       
-start $SCRIPTS/autostart/low-battery-notify.sh 
+start $SCRIPTS/autostart/TinkPad_BT_notify.sh
 
 # initiate GTK dark mode and apply icon and cursor theme
 gsettings set org.gnome.desktop.interface color-scheme prefer-dark > /dev/null 2>&1 &
