@@ -9,6 +9,8 @@ configuration{
 
 @theme "~/.config/rofi/theme.rasi"
 
-
-
+listview {
+  columns: 1;
+  lines: 6;
+}
 

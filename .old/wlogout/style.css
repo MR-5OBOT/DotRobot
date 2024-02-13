@@ -1,0 +1,63 @@
+/*
+          _                         _    
+__      _| | ___   __ _  ___  _   _| |_  
+\ \ /\ / / |/ _ \ / _` |/ _ \| | | | __| 
+ \ V  V /| | (_) | (_| | (_) | |_| | |_  
+  \_/\_/ |_|\___/ \__, |\___/ \__,_|\__| 
+                  |___/                  
+ 
+by Stephan Raabe (2023) 
+----------------------------------------------------- 
+*/
+
+
+* {
+	transition: 20ms;
+}
+
+window {
+	background-color: rgba(12, 12, 12, 0.6); /* Adjust the last parameter to your liking */
+}
+
+button {
+  background-repeat: no-repeat;
+	background-position: center;
+	background-size: 25%;
+	border-style: solid;
+	background-color: rgba(12, 12, 12, 0.6);
+	border: 1px solid rgba(12, 12, 12, 0.2);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.8);
+  border-radius: 50px;
+  margin: 10px;
+}
+
+button:focus,
+button:active,
+button:hover {
+	background-color: rgba(12, 12, 12, 0.8);
+	border: 2px solid #A4A4A4;
+}
+
+#lock {
+	background-image: none;
+}
+
+#logout {
+	background-image: image(url("icons/logout.png"));
+}
+
+#suspend {
+	background-image: image(url("icons/suspend.png"));
+}
+
+#hibernate {
+	background-image: image(url("icons/hibernate.png"));
+}
+
+#shutdown {
+	background-image: image(url("icons/shutdown.png"));
+}
+
+#reboot {
+	background-image: image(url("icons/reboot.png"));
+}
