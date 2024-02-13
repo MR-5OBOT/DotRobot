@@ -12,6 +12,7 @@ export PATH="$HOME/.local/bin:$PATH"
 # ALIASES
 # -----------------------------------------------------
 alias ls='eza -a --icons'
+alias ll='ls -l'
 alias lg='lazygit'
 alias st='git status'
 alias .dev='~/MR-5OBOT/DEV/'
