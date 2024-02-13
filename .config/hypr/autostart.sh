@@ -13,7 +13,7 @@ exec-once = wl-paste --type text --watch cliphist store &  #Stores only text dat
 exec-once = wl-paste --type image --watch cliphist store & #Stores only image data
 
 exec-once = systemctl --user restart pipewire # RESTARTS PIPEWIRE (RECOMMENDED BY HYPRLAND DOC)
-exec-once = /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+# exec-once = /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 exec-once = $SCRIPTS/autostart/xdgportals
 
 exec-once = dbus-update-activation-environment --all & 
@@ -22,10 +22,11 @@ exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESK
 
 exec-once = $SCRIPTS/autostart/lock.sh
 exec-once = $SCRIPTS/autostart/swww-daemon.sh
+exec-once = $SCRIPTS/autostart/Polkit.sh
 exec-once = $SCRIPTS/wallpapers/swww-randomize.sh
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh
 exec-once = $SCRIPTS/autostart/idle_handler.sh
-exec-once = $SCRIPTS/autostart/low-battery-notify.sh
+exec-once = $SCRIPTS/autostart/TinkPad_BT_notify.sh
 
 
 
