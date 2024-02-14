@@ -29,7 +29,7 @@ main() {
             kitty -e nvim "$Configs/hypr/scripts"
             ;;
         "3) view Startup_apps")
-            kitty -e nvim "$Configs/hypr/HyprInit.sh"
+            kitty -e nvim "$Configs/hypr/autostart.sh"
             ;;
         "4) view kitty_cfg")
             kitty -e nvim "$Configs/kitty/"
