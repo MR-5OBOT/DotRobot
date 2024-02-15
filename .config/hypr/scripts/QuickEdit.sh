@@ -18,7 +18,7 @@ menu() {
 # Main function to handle the menu selection
 main() {
     # Display the menu and get the user's choice
-    choice=$(menu | rofi -dmenu -config ~/.config/rofi/cfgs_viewer.rasi -p "=>")
+    choice=$(menu | rofi -dmenu -config ~/.config/rofi/custom/cfgs_viewer.rasi -p "=>")
     
     # Handle the selected option
     case $choice in
