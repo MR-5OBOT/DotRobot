@@ -7,7 +7,7 @@ exec-once = dunst & # notfication demon
 exec-once = nm-applet & # network manager tray
 exec-once = udiskie -t -n & # Automounter for removable media
 exec-once = devify & # Notify about devices connecting and disconnecting
-# exec-once = blueman-applet & 
+exec-once = blueman-applet & 
 
 exec-once = hyprctl setcursor Volantes Light Cursors 27
 exec-once = wl-paste --type text --watch cliphist store &  #Stores only text data

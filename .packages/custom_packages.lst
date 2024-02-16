@@ -37,3 +37,7 @@ npm
 pyright
 texlive-latex
 texlive-basic
+bluez-tools 
+bluez-utils
+bluez-libs
+bluez
