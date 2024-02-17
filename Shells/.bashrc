@@ -1,12 +1,9 @@
 #!/bin/bash
 
-
-# If not running interactively, don't do anything
-[[ $- != *i* ]] && return
-PS1='[\u@\h \W]\$ '
+# If not running interactively, don't do anything 
+[[ $- != *i* ]] && return 
 
 export PATH="$HOME/.local/bin:$PATH"
-
 
 # -----------------------------------------------------
 # ALIASES
@@ -23,6 +20,7 @@ alias v='nvim'
 alias c='clear'
 alias mv='mv -i'
 alias rm='trash -v'
+alias free='free -h'
 alias mkdir='mkdir -p -v'
 alias wifi='nmtui'
 alias off='systemctl poweroff'
@@ -35,6 +33,8 @@ alias c='clear'
 alias bd='cd "$OLDPWD"'
 alias l.='ls -d .* --color=auto'
 alias la='ls -Alh' # show hidden files
+
+alias hi="notify-send 'Hi there!' 'Welcome to MR5OBOT LAB! ' -i ''"
 
 # alias chmod commands
 alias mx='chmod a+x'

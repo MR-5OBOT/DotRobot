@@ -27,6 +27,7 @@ alias grep='grep --color=auto'
 alias lg='lazygit'
 alias st='git status'
 alias v='nvim'
+alias free='free -h'
 alias c='clear'
 alias mv='mv -i'
 alias rm='trash -v'
@@ -39,6 +40,8 @@ alias ..="cd .."
 alias ...="cd ../../"
 alias l.='ls -d .* --color=auto'
 alias la='ls -Alh' # show hidden files
+
+alias hi="notify-send 'Hi there!' 'Welcome to MR5OBOT LAB! ' -i ''"
 
 
 # -----------------------------------------------------

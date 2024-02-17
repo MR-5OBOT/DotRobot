@@ -27,6 +27,7 @@ exec-once = $SCRIPTS/wallpapers/swww-randomize.sh
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh
 exec-once = $SCRIPTS/autostart/idle_handler.sh
 exec-once = $SCRIPTS/autostart/TinkPad_BT_notify.sh
+exec-once = $SCRIPTS/autostart/Hi
 
 
 
