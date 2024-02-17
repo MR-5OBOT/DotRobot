@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+sudo pacman -S --noconfirm unzip tf-font-awesome
+mkdir -p ~/.fonts
+
+# Google font
+NovaMono=~/MR-5OBOT/DotRoboT/.extra/args/Nova_Mono.zip
+unzip $NovaMono -d $HOME/.fonts/$NovaMono/
+rm $NovaMono.zip
+
+cd /tmp
+
+# nerdfonts
+fonts=( 
+Gohu
+)
+
+for font in ${fonts[@]}
+do
+    wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/$font.zip
+	unzip $font.zip -d $HOME/.fonts/$font/
+    rm $font.zip
+done
+fc-cache
