@@ -5,7 +5,6 @@
 format = """
 $hostname\
 $directory\
-
 $localip\
 $shlvl\
 $singularity\
@@ -14,9 +13,7 @@ $vcsh\
 $hg_branch\
 $docker_context\
 $package\
-
 $sudo\
-
 $fill\
 $git_branch\
 $git_status\
@@ -52,7 +49,7 @@ read_only = " "
 ## SECOND LINE/ROW: Prompt
 # Prompt: param 2 └─
 [character]
-success_symbol = "[󰮯 ](#038857 bold)"
+success_symbol = "[󱞪 ](#038857 bold)"
 error_symbol = "[ ](#B66467 bold)"
 
 [line_break]

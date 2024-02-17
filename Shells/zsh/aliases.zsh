@@ -1,42 +1,49 @@
-#!/bin/bash
-
-
-# If not running interactively, don't do anything
-[[ $- != *i* ]] && return
-PS1='[\u@\h \W]\$ '
-
-export PATH="$HOME/.local/bin:$PATH"
-
-
 # -----------------------------------------------------
 # ALIASES
 # -----------------------------------------------------
 alias ls='eza -a --icons'
-alias ll='ls -l'
+alias grep='grep --color=auto'
 alias lg='lazygit'
 alias st='git status'
-alias .dev='~/MR-5OBOT/DEV/'
-alias .v='nvim ~/MR-5OBOT/MR-NV/'
-alias .dots='cd ~/MR-5OBOT/DotRoboT/'
-alias .repos='cd ~/MR-5OBOT/'
 alias v='nvim'
+alias free='free -h'
 alias c='clear'
 alias mv='mv -i'
 alias rm='trash -v'
 alias mkdir='mkdir -p -v'
-alias wifi='nmtui'
+alias hostmane='nmtui'
 alias off='systemctl poweroff'
 alias pid='pgrep -f'
 alias targz='tar -czf' # file-name + files want to archive
 alias ..="cd .."
-alias cd..="cd .."
 alias ...="cd ../../"
-alias c='clear'
-alias bd='cd "$OLDPWD"'
 alias l.='ls -d .* --color=auto'
 alias la='ls -Alh' # show hidden files
 
-# alias chmod commands
+alias hi="notify-send 'Hi there!' 'Welcome to MR5OBOT LAB! ' -i ''"
+
+# -----------------------------------------------------
+# CD TO REPOS
+# -----------------------------------------------------
+alias .dev='cd ~/repos/DEV/'
+alias .dots='cd ~/repos/DotRoboT/'
+alias .repos='cd ~/repos/'
+alias .trading='$EDITOR ~/repos/Trading-Lab/'
+alias .zsh='$EDITOR ~/zsh/'
+
+# -----------------------------------------------------
+# EDIT CONFIG FILES
+# -----------------------------------------------------
+alias .v='$EDITOR ~/.config/nvim/'
+alias vhypr='$EDITOR $HOME/.config/hypr/'
+alias vbashrc='$EDITOR ~/.bashrc'
+alias vzshrc='$EDITOR ~/.zshrc'
+alias vrofi='$EDITOR ~/.config/rofi/'
+alias vwaybar='$EDITOR ~/.config/waybar/'
+alias vkitty='$EDITOR ~/.config/kitty/'
+# -----------------------------------------------------
+# chmod aliases
+# -----------------------------------------------------
 alias mx='chmod a+x'
 alias 000='chmod -R 000'
 alias 644='chmod -R 644'
@@ -68,7 +75,6 @@ extract () {
 	done
 }
 
-
 # ----------------------------------------------------
 # IP address lookup
 # ----------------------------------------------------
@@ -78,38 +84,10 @@ ip addr show | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.
 }
 
 # -----------------------------------------------------
-# EDIT CONFIG FILES
-# -----------------------------------------------------
-
-alias vhypr='$EDITOR $HOME/.config/hypr/'
-alias vbashrc='$EDITOR ~/dotfiles/.bashrc'
-
-# -----------------------------------------------------
-# EDIT NOTES
-# -----------------------------------------------------
-
-alias trading='$EDITOR ~/MR-5OBOT/Trading-Lab/'
-
-# -----------------------------------------------------
 # SYSTEM
 # -----------------------------------------------------
 
 # alias update-grub='sudo grub-mkconfig -o /boot/grub/grub.cfg'
 # alias setkb='setxkbmap de;echo "Keyboard set back to de."'
 
-# -----------------------------------------------------
-# START STARSHIP
-# -----------------------------------------------------
-eval "$(starship init bash)"
 
-# -----------------------------------------------------
-# PFETCH if on wm
-# -----------------------------------------------------
-# echo ""
-# if [[ $(tty) == *"pts"* ]]; then
-#     neofetch
-# else
-#     if [ -f /bin/hyprctl ]; then
-#         echo "Start Hyprland with command Hyprland"
-#     fi
-# fi

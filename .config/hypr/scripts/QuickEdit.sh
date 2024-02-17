@@ -18,7 +18,7 @@ menu() {
 # Main function to handle the menu selection
 main() {
     # Display the menu and get the user's choice
-    choice=$(menu | rofi -dmenu -config ~/.config/rofi/cfgs_viewer.rasi -p "=>")
+    choice=$(menu | rofi -dmenu -config ~/.config/rofi/custom/cfgs_viewer.rasi -p "=>")
     
     # Handle the selected option
     case $choice in
@@ -29,7 +29,7 @@ main() {
             kitty -e nvim "$Configs/hypr/scripts"
             ;;
         "3) view Startup_apps")
-            kitty -e nvim "$Configs/hypr/HyprInit.sh"
+            kitty -e nvim "$Configs/hypr/autostart.sh"
             ;;
         "4) view kitty_cfg")
             kitty -e nvim "$Configs/kitty/"

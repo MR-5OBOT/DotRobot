@@ -1,7 +1,13 @@
 qt5-wayland
 qt6-wayland
 dunst
+pamixer 
 xdg-desktop-portal-hyprland
+btop
+brightnessctl
+slurp
+playerctl
+eza
 gnome-polkit
 sddm
 qt5ct
@@ -35,3 +41,9 @@ pamixer
 jq
 npm
 pyright
+texlive-latex
+texlive-basic
+bluez-tools 
+bluez-utils
+bluez-libs
+bluez
