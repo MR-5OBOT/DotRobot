@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 ScrDir=`dirname "$(realpath "$0")"`
-roconf="~/.config/rofi/clipboard.rasi"
+roconf="~/.config/rofi/custom/clipboard.rasi"
 
 # clipboard action
 case $1 in
