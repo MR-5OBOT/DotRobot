@@ -20,7 +20,7 @@ exec-once = $SCRIPTS/autostart/xdgportals
 exec-once = wl-paste --type text --watch cliphist store &  #Stores only text data
 exec-once = wl-paste --type image --watch cliphist store & #Stores only image data
 
-exec-once = $SCRIPTS/wallpapers/swww-randomize.sh
+exec-once = $SCRIPTS/wallpapers/random_walls.sh
 exec-once = $SCRIPTS/autostart/lock.sh
 exec-once = $SCRIPTS/autostart/Polkit.sh
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh
