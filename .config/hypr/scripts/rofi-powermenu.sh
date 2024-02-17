@@ -3,7 +3,7 @@
 
 powermenu=$(echo -e "Lock Screen\nQuit Hyprland\nReboot\nShutdown" | rofi -dmenu -config ~/.config/rofi/custom/powermenu.rasi)
 
-Lock_cfg="$HOME/MR-5OBOT/DotRoboT/.config/gtklock/style.css"
+Lock_cfg="$HOME/repos/DotRoboT/.config/gtklock/style.css"
 lock_cmd="gtklock -i -s $Lock_cfg"
 
 case "$powermenu" in
@@ -11,12 +11,12 @@ case "$powermenu" in
     $lock_cmd
     ;;
  "Quit Hyprland")
-    systemctl exit
+    # systemctl exit
     ;;
  "Reboot")
     sudo reboot
     ;;
  "Shutdown")
-    sudo shutdown now
+    sudo systemctl exit
     ;;
 esac
