@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-gtklock_dir=$HOME/MR-5OBOT/DotRoboT/.config/gtklock/style.css
+gtklock_dir=$HOME/.config/gtklock/style.css
 
 swayidle -w \
     timeout 5 "hyprctl dispatch dpms off" \

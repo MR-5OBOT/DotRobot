@@ -17,6 +17,6 @@ case "$powermenu" in
     sudo reboot
     ;;
  "Shutdown")
-    sudo systemctl exit
+    systemctl exit
     ;;
 esac

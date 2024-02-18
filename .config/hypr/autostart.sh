@@ -1,10 +1,10 @@
 #!/usr/bin/bash
 
-$SCRIPTS=~/.config/hypr/scripts/
+$SCRIPTS=~/.config/hypr/scripts
 
 exec-once = dunst & # notfication demon
 exec-once = nm-applet & # network manager tray
-exec-once = udiskie -t -n & # Automounter for removable media
+# exec-once = udiskie -t -n & # Automounter for removable media
 exec-once = devify & # Notify about devices connecting and disconnecting
 exec-once = swww init
 exec-once = blueman-applet & 
