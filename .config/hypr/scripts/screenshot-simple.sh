@@ -1,6 +1,7 @@
-#!/bin/bash
+#!/usr//bin/env bash
 
-FILE_NAME="screenshot-$(date +%F-%T).png"
-FILE_PATH="${HOME}/Pictures/screenshots/${FILE_NAME}"
-grim -t png -g "$(slurp)" "${FILE_PATH}"
-notify-send 'Screenshot' -i "${FILE_PATH}" "${FILE_NAME}"
+FILE_NAME="Screenshots-$(date +%F-%T).png"
+FILE_PATH="${HOME}/Pictures/Screenshots/${FILE_NAME}"
+
+grimblast --notify save area "$FILE_PATH"
+# notify-send 'Screenshot' -i "${FILE_PATH}" "${FILE_NAME}"

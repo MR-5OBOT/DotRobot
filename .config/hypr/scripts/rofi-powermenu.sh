@@ -11,10 +11,10 @@ case "$powermenu" in
     $lock_cmd
     ;;
  "Quit Hyprland")
-    # systemctl exit
+    pkill -u $USER
     ;;
  "Reboot")
-    sudo reboot
+    reboot
     ;;
  "Shutdown")
     systemctl exit
