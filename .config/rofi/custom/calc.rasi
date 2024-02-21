@@ -1,14 +1,14 @@
-/*****----- Configuration -----*****/
 configuration {
 	  modi:                       "calc";
    	drun-display-format:        "{name}";
+    display-calc:               " - %";
+
 }
 
-/*****----- Global Properties -----*****/
-@import                          "shared/colors.rasi"
-@import                          "shared/fonts.rasi"
+@import                          "shared/custom_oxocarbon.rasi"
 
 * {
+    font:                        "GohuFont 14 Nerd Font Mono 12";
     handle-colour:               var(foreground);
     background-colour:           var(background);
     foreground-colour:           var(foreground);
@@ -25,7 +25,6 @@ configuration {
     alternate-active-foreground: var(background);
 }
 
-/*****----- Main Window -----*****/
 window {
     transparency:                "real";
     y-offset: 0%;
@@ -40,7 +39,6 @@ window {
     background-color:            @background-colour;
 }
 
-/*****----- Main Box -----*****/
 mainbox {
     enabled:                     true;
     spacing:                     20px;
@@ -52,17 +50,24 @@ mainbox {
     children:                    [ "inputbar", "listview" ];
 }
 
-/*****----- Inputbar -----*****/
 inputbar {
     enabled:                     true;
     spacing:                     10px;
     margin:                      0px;
     padding:                     0px;
     border:                      0px solid;
-    children:                    [ "prompt", "entry" ];
+    children:                    [ "prompt","entry" ];
 }
 
-/*****----- Listview -----*****/
+entry {
+    enabled:                     true;
+    background-color:            inherit;
+    text-color:                  inherit;
+    cursor:                      text;
+    placeholder:                 "";
+    placeholder-color:           inherit;
+}
+
 listview {
     enabled:                     true;
     columns:                     1;
@@ -83,7 +88,6 @@ listview {
     cursor:                      "default";
 }
 
-/*****----- Elements -----*****/
 element {
     enabled:                     true;
     spacing:                     8px;
@@ -95,7 +99,6 @@ element {
     cursor:                      pointer;
 }
 
-/*****----- Message -----*****/
 error-message {
     padding:                     10px;
     border:                      0px solid;

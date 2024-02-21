@@ -2,7 +2,7 @@
 ## /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  ##
 # Script for Random Wallpaper
 
-wallDIR="$HOME/Pictures/wallpapers/"
+wallDIR="$HOME/Pictures/wallpapers"
 
 PICS=($(find ${wallDIR} -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.gif" \)))
 RANDOMPICS=${PICS[ $RANDOM % ${#PICS[@]} ]}

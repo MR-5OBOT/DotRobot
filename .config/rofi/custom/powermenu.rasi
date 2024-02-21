@@ -5,10 +5,10 @@ configuration{
     hide-scrollbar: true;
 }
 
-@import                          "shared/colors.rasi"
-@import                          "shared/fonts.rasi"
+@import                          "shared/custom_oxocarbon.rasi"
 
 * {
+    font: "GohuFont 14 Nerd Font Mono 12";
     handle-colour:               var(foreground);
     background-colour:           var(background);
     foreground-colour:           var(foreground);
