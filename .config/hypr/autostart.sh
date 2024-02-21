@@ -1,12 +1,12 @@
 #!/usr/bin/bash
 
-$SCRIPTS=~/.config/hypr/scripts/
+$SCRIPTS=~/.config/hypr/scripts
 
 exec-once = dunst & # notfication demon
 exec-once = nm-applet & # network manager tray
-exec-once = udiskie -t -n & # Automounter for removable media
+# exec-once = udiskie -t -n & # Automounter for removable media
 exec-once = devify & # Notify about devices connecting and disconnecting
-exec-once = swww init
+# exec-once = swww init
 exec-once = blueman-applet & 
 
 exec-once = dbus-update-activation-environment --all & 
@@ -20,7 +20,7 @@ exec-once = $SCRIPTS/autostart/xdgportals
 exec-once = wl-paste --type text --watch cliphist store &  #Stores only text data
 exec-once = wl-paste --type image --watch cliphist store & #Stores only image data
 
-exec-once = $SCRIPTS/wallpapers/swww-randomize.sh
+exec-once = $SCRIPTS/wallpapers/random_walls.sh
 exec-once = $SCRIPTS/autostart/lock.sh
 exec-once = $SCRIPTS/autostart/Polkit.sh
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh
