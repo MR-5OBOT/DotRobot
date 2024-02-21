@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+###
+# Adapted form here
+# https://github.com/miroslavvidovic/rofi-scripts
+###
+
+declare -A URLS
+
+URLS=(
+  ["Duckduckgo Search"]="https://duckduckgo.com/?t=ffab&q="
+  ["YouTube"]="https://www.youtube.com/results?search_query="
+  ["Github"]="https://github.com/search?q="
+  ["Reddit"]="https://www.reddit.com/search/?q="
+  ["Arch Wiki"]="https://wiki.archlinux.org/title/"
+  ["X (Twitter)"]="  https://twitter.com/search?q="
+  # ["Gitlab"]="https://gitlab.com/search?q="
+  # ["Gentoo Wiki"]="https://wiki.gentoo.org/index.php?title="
+  # ["Gentoo Packages"]="https://packages.gentoo.org/packages/search?q="
+)
+
+# List for rofi
+gen_list() {
+    for i in "${!URLS[@]}"
+    do
+      echo "$i"
+    done
+}
+
+main() {
+  # Pass the list to rofi
+  platform=$( (gen_list) | rofi -dmenu -dmenu -config ~/.config/rofi/custom/web-chearch.rasi "Search > " )
+
+  if [[ -n "$platform" ]]; then
+    query=$( (echo ) | rofi -dmenu "Query > " )
+
+    if [[ -n "$query" ]]; then
+      url=${URLS[$platform]}$query
+      xdg-open "$url"
+    else
+      exit
+    fi
+
+  else
+    exit
+  fi
+}
+
+main
+
+exit 0
+
