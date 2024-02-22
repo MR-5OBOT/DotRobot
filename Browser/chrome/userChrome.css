@@ -2,39 +2,75 @@
 * MR-5OBOT firefox css cfg 
 */
 
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+/* --------------------- FONTS ----------------------------- */
 
 * {
   font-family: "NovaMono" !important;
   font-size: 14px !important;
 }
 
-/* tab font */
-.tabbrowser-tab .tab-label-container, .tab-content {
-  font-family: "Noto Kufi Arabic", serif !important;
-}
+/* --------------------- BUTTONS ----------------------------- */
 
+/* hide buttons */
+#forward-button, #back-button, #stop-reload-button {
+ display: none !important;
+}
 /* hide min max close */
 .titlebar-buttonbox-container {
   display: none !important;
 }
+/* nave bar display on left */
+#nav-bar {
+  direction: rtl;
+}
+/* navebar custom bg color */
+#nav-bar {
+  background-color: #161616 !important; /* Change to the desired color */
+}
+/* Hide the close buttons from the tabs */
+/* .tabbrowser-tab .tab-close-button { */
+/*     display: none !important; */
+/* } */
 
+/* Move the List All Tabs button to the navigation bar */
+#nav-bar-customization-target {
+    display: flex;
+}
+
+#alltabs-button {
+    -moz-box-ordinal-group: 0 !important;
+}
+
+/* --------------------- TABS ----------------------------- */
+/* Hide the tab bar by default */
 #TabsToolbar {
-  visibility: collapse !important;
+    visibility: collapse;
+}
+/* Show the tab bar on hover */
+/* #navigator-toolbox:hover #TabsToolbar { */
+/*     visibility: visible; */
+/*     height: var(--tab-min-height); /* Set the desired height of the tab bar */ */
+/* } */
+
+/* Add a fade-in animation to the tab on hover */
+.tabbrowser-tab:not(:hover) {
+    opacity: 0.5; /* Set the initial opacity */
+    transition: opacity 0.3s ease; /* Add a smooth transition */
+}
+.tabbrowser-tab:hover {
+    opacity: 1; /* Set the full opacity on hover */
 }
 
-/* This CSS rule hides the bookmarks by default */
-#forward-button, #back-button, #stop-reload-button {
- display: none !important;
-}
+/* --------------------- OTHERS ----------------------------- */
 
-#personal-bookmarks {
-  display: none !important;
-}
+/* hide the toolbar*/
+/* #TabsToolbar { */
+/*   visibility: collapse !important; */
+/* } */
 
 * {
   --animation-speed: 0.2s;
-  --urlbar-min-height: 28px !important;
+  --urlbar-min-height: 25px !important;
   --moz-hidden-unscrollable: scroll !important;
   --toolbarbutton-border-radius: 0px !important;
   --tabs-border-color: transparent;

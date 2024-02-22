@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+killall dunst 
 
 notify-send 'Hi there!' 'Welcome to MR5OBOT LAB! ' -i ''
 

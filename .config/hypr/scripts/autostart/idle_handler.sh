@@ -1,6 +1,5 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
-paplay /usr/share/sounds/freedesktop/stereo/service-login.oga
 notify-send -i ~/.config/dunst/icons/sleep-timer.png "Starting Swayidle!"
 
 swayidle -w \
