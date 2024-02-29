@@ -11,7 +11,7 @@ case "$powermenu" in
     $lock_cmd
     ;;
  "Quit Hyprland")
-    pkill -u $USER
+    sh ~/.config/hypr/scripts/exit.sh 
     ;;
  "Reboot")
     reboot
