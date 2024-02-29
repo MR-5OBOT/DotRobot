@@ -2,12 +2,14 @@
 
 $SCRIPTS=~/.config/hypr/scripts
 
-exec-once = dunst & # notfication demon
-exec-once = nm-applet & # network manager tray
-# exec-once = udiskie -t -n & # Automounter for removable media
-exec-once = devify & # Notify about devices connecting and disconnecting
+exec-once = dunst & 
+exec-once = nm-applet & 
+exec-once = devify & 
+exec-once = hypridle
+exec-once = hyprlock
+# exec-once = udiskie -t -n & 
 # exec-once = swww init
-exec-once = blueman-applet & 
+# exec-once = blueman-applet & 
 
 exec-once = dbus-update-activation-environment --all & 
 exec-once = sleep 1 && dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP 
@@ -21,10 +23,10 @@ exec-once = wl-paste --type text --watch cliphist store &  #Stores only text dat
 exec-once = wl-paste --type image --watch cliphist store & #Stores only image data
 
 exec-once = $SCRIPTS/wallpapers/random_walls.sh
-exec-once = $SCRIPTS/autostart/lock.sh
+# exec-once = $SCRIPTS/autostart/lock.sh
 exec-once = $SCRIPTS/autostart/Polkit.sh
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh
-exec-once = $SCRIPTS/autostart/idle_handler.sh
+# exec-once = $SCRIPTS/autostart/idle_handler.sh
 exec-once = $SCRIPTS/autostart/TinkPad_BT_notify.sh
 
 

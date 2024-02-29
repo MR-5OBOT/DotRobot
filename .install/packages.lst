@@ -3,6 +3,8 @@ qt6-wayland
 dunst
 pamixer 
 xdg-desktop-portal-hyprland
+hyprlock
+hypridle
 btop
 brightnessctl
 slurp

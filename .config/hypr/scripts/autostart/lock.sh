@@ -1,12 +1,14 @@
 #!/usr/bin/bash
 
-gtklock_dir=$HOME/.config/gtklock/style.css
+hyprlock
 
-swayidle -w \
-    timeout 5 "hyprctl dispatch dpms off" \
-    resume 'hyprctl dispatch dpms on' &
+# gtklock_dir=$HOME/.config/gtklock/style.css
 
-gtklock -i -s $gtklock_dir 
+# swayidle -w \
+#     timeout 5 "hyprctl dispatch dpms off" \
+#     resume 'hyprctl dispatch dpms on' &
+#
+# gtklock -i -s $gtklock_dir 
 
 kill %%
 
