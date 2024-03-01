@@ -73,7 +73,7 @@ entry {
 
 listview {
     columns:                     1;
-    lines:                       1;
+    lines:                       2;
     dynamic:                     true;
     scrollbar:                   false;
     spacing:                     5px;

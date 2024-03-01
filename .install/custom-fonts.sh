@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+mkdir -p ~/.fonts
 
 # Helper script to install nerd-fonts
 REPO="ryanoasis/nerd-fonts"
@@ -35,3 +37,4 @@ read -ra FONTS
 for font in "${FONTS[@]}"; do
     install_font "$font"
 done
+
