@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-# Install Hyprland/Wayland Packages
-sudo pacman -S --needed --noconfirm cliphist gvfs dialog mtools dosfstools avahi acpi pipewire polkit-gnome python-requests python-pip qt5ct qt6ct wget wl-clipboard xdg-user-dirs xdg-utils yad 
-
-# Enable services
-sudo systemctl enable avahi-daemon
