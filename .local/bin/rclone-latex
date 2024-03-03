@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+# The name of the rclone remote for Google Drive
+REMOTE_NAME="gdrive"
+
+export RCLONE_CONFIG_PASS=ys
+
+# The directory in Google Drive where you want to store the PDFs
+GDRIVE_DIR="Digital-life/Latex-PDFs"
+
+# The local LaTeX working directory containing the PDFs
+LOCAL_DIR="$HOME/repos/Dev-Lab/latex-projects/"
+
+# Recursively find all PDF files in the LaTeX working directory
+find "$LOCAL_DIR" -type f -name "*.pdf" | while read -r file; do
+    # Extract the base name of the file
+    filename=$(basename "$file")
+    
+    # Upload the file to Google Drive
+    rclone copy "$file" "$REMOTE_NAME:/$GDRIVE_DIR/$filename"
+done
+
+# Check if the loop completed successfully
+if [[ $? -eq 0 ]]; then
+    echo "Script completed successfully"
+else
+    echo "Script failed"
+fi

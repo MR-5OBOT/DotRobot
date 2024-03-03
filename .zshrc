@@ -58,7 +58,6 @@ alias .dev='cd ~/repos/Dev-Lab/'
 alias .dots='cd ~/repos/DotRoboT/'
 alias .repos='cd ~/repos/'
 alias .trading='$EDITOR ~/repos/Trading-Lab/'
-alias .zsh='$EDITOR ~/zsh/'
 
 # -----------------------------------------------------
 # EDIT CONFIG FILES
@@ -70,6 +69,8 @@ alias vzshrc='$EDITOR ~/.zshrc'
 alias vrofi='$EDITOR ~/.config/rofi/'
 alias vwaybar='$EDITOR ~/.config/waybar/'
 alias vkitty='$EDITOR ~/.config/kitty/'
+alias vlatex='$EDITOR ~/repos/Dev-Lab/latex-projects/'
+
 # -----------------------------------------------------
 # chmod aliases
 # -----------------------------------------------------

@@ -1,6 +1,7 @@
 packagesPacman=(
     "viewnior"
     "gimp"
+    "rclone"
     "figlet" 
     "neovim"
     "kitty"
