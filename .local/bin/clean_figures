@@ -1,0 +1,13 @@
+
+#!/usr/bin/env bash
+
+FIGURES=~/repos/Dev-Lab/latex-projects/trading-jounral/figures
+
+find "$FIGURES" -mindepth 1 -delete
+
+# Check if the last command was successful
+if [ $? -eq 0 ]; then
+    echo "all figures deleted successfully."
+else
+    echo "Script encountered an error."
+fi
