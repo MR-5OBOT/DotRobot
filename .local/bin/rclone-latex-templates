@@ -6,7 +6,7 @@ REMOTE_NAME="gdrive"
 export RCLONE_CONFIG_PASS=ys
 
 # The directory in Google Drive where you want to store the PDFs
-GDRIVE_DIR="Digital-life/Latex-PDFs"
+GDRIVE_DIR="Digital-life/Latex-templates"
 
 # The local LaTeX working directory containing the PDFs
 LOCAL_DIR="$HOME/repos/Dev-Lab/latex-projects/"
@@ -22,7 +22,7 @@ done
 
 # Check if the loop completed successfully
 if [[ $? -eq 0 ]]; then
-    echo "Script completed successfully"
+    echo "PDFs sync completed successfully"
 else
     echo "Script failed"
 fi
