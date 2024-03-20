@@ -5,8 +5,8 @@ $SCRIPTS=~/.config/hypr/scripts
 exec-once = dunst & 
 exec-once = nm-applet & 
 exec-once = devify & 
-exec-once = hypridle
 exec-once = hyprlock
+# exec-once = hypridle
 # exec-once = udiskie -t -n & 
 # exec-once = swww init
 # exec-once = blueman-applet & 
@@ -26,7 +26,7 @@ exec-once = $SCRIPTS/wallpapers/random_walls.sh
 # exec-once = $SCRIPTS/autostart/lock.sh
 exec-once = $SCRIPTS/autostart/Polkit.sh
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh
-# exec-once = $SCRIPTS/autostart/idle_handler.sh
+exec-once = $SCRIPTS/autostart/Hypridle.sh
 exec-once = $SCRIPTS/autostart/TinkPad_BT_notify.sh
 
 
