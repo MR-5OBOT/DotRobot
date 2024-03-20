@@ -26,7 +26,7 @@ exec-once = $SCRIPTS/wallpapers/random_walls.sh
 # exec-once = $SCRIPTS/autostart/lock.sh
 exec-once = $SCRIPTS/autostart/Polkit.sh
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh
-exec-once = $SCRIPTS/autostart/Hypridle.sh
+# exec-once = $SCRIPTS/autostart/Hypridle.sh
 exec-once = $SCRIPTS/autostart/TinkPad_BT_notify.sh
 
 
