@@ -13,8 +13,11 @@
 
 /* hide buttons */
 #forward-button, #back-button, #stop-reload-button {
- display: none !important;
+ /* display: none !important; */
+ direction: rtl;
+
 }
+
 /* hide min max close */
 .titlebar-buttonbox-container {
   display: none !important;
