@@ -30,3 +30,4 @@ exec-once = $SCRIPTS/autostart/toggle-waybar.sh
 exec-once = $SCRIPTS/autostart/TinkPad_BT_notify.sh
 
 
+exec-once = swaybg -i ~/Pictures/wallpapers/b.png
