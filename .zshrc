@@ -57,7 +57,7 @@ alias hi="notify-send 'Hi there!' 'Welcome to MR5OBOT LAB! ' -i ''"
 alias .dev='cd ~/repos/Dev-Lab/'
 alias .dots='cd ~/repos/DotRoboT/'
 alias .repos='cd ~/repos/'
-alias .trading='cd ~/repos/Trading-Lab/'
+alias .trading='cd ~/repos/Trading-journal/'
 
 # -----------------------------------------------------
 # EDIT CONFIG FILES
