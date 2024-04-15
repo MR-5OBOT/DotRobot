@@ -56,8 +56,7 @@ alias hi="notify-send 'Hi there!' 'Welcome to MR5OBOT LAB! ' -i ''"
 # -----------------------------------------------------
 alias .dev='cd ~/repos/Dev-Lab/'
 alias .dots='cd ~/repos/DotRoboT/'
-alias .repos='cd ~/repos/'
-alias .trading='cd ~/repos/Trading-journal/'
+alias .trading='cd ~/repos/trading-journal/'
 
 # -----------------------------------------------------
 # EDIT CONFIG FILES
@@ -69,7 +68,6 @@ alias vzshrc='$EDITOR ~/.zshrc'
 alias vrofi='$EDITOR ~/.config/rofi/'
 alias vwaybar='$EDITOR ~/.config/waybar/'
 alias vkitty='$EDITOR ~/.config/kitty/'
-alias vlatex='$EDITOR ~/repos/Dev-Lab/latex-projects/'
 
 # -----------------------------------------------------
 # chmod aliases
