@@ -6,16 +6,18 @@
 
 * {
   font-family: "NovaMono" !important;
-  font-size: 14px !important;
+  font-size: 13px !important;
 }
 
 /* --------------------- BUTTONS ----------------------------- */
 
-/* hide buttons */
-#forward-button, #back-button, #stop-reload-button {
- /* display: none !important; */
- direction: rtl;
+#forward-button  {
+ display: none !important;
+}
 
+/* hide buttons */
+#back-button, #stop-reload-button {
+ direction: rtl;
 }
 
 /* hide min max close */

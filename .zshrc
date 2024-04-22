@@ -1,3 +1,6 @@
+
+
+
 # Set up the PATH
 export PATH="$HOME/.local/bin:$PATH"
 
@@ -68,6 +71,7 @@ alias vzshrc='$EDITOR ~/.zshrc'
 alias vrofi='$EDITOR ~/.config/rofi/'
 alias vwaybar='$EDITOR ~/.config/waybar/'
 alias vkitty='$EDITOR ~/.config/kitty/'
+alias vtjournal='$EDITOR ~/repos/Dev-Lab/latex-projects/trading-jounral/'
 
 # -----------------------------------------------------
 # chmod aliases
