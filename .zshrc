@@ -1,6 +1,3 @@
-
-
-
 # Set up the PATH
 export PATH="$HOME/.local/bin:$PATH"
 
@@ -51,27 +48,23 @@ alias ...="cd ../../"
 alias ls='eza -a --icons'
 alias l.='ls -d .* --color=auto'
 alias la='ls -Alh' # show hidden files
-
 alias hi="notify-send 'Hi there!' 'Welcome to MR5OBOT LAB! ' -i ''"
 
 # -----------------------------------------------------
 # CD TO REPOS
 # -----------------------------------------------------
-alias .dev='cd ~/repos/Dev-Lab/'
-alias .dots='cd ~/repos/DotRoboT/'
-alias .trading='cd ~/repos/trading-journal/'
+alias dlab='cd ~/repos/Dev-Lab/'
+alias dots='cd ~/repos/DotRoboT/'
+alias tj='~/repos/Dev-Lab/latex-projects/trading-jounral/'
+alias hlab='cd ~/repos/'
+alias vlab='cd ~/repos/MR-NV/nvim/'
 
 # -----------------------------------------------------
 # EDIT CONFIG FILES
 # -----------------------------------------------------
-alias .v='$EDITOR ~/.config/nvim/'
 alias vhypr='$EDITOR $HOME/.config/hypr/'
 alias vbashrc='$EDITOR ~/.bashrc'
 alias vzshrc='$EDITOR ~/.zshrc'
-alias vrofi='$EDITOR ~/.config/rofi/'
-alias vwaybar='$EDITOR ~/.config/waybar/'
-alias vkitty='$EDITOR ~/.config/kitty/'
-alias vtjournal='$EDITOR ~/repos/Dev-Lab/latex-projects/trading-jounral/'
 
 # -----------------------------------------------------
 # chmod aliases
