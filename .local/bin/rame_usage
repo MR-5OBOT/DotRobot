@@ -1,9 +1,0 @@
-#!/bin/bash
-
-  # Get current RAM usage percentage
-  usage=$(free -m | awk '/Mem:/{print int($3/$2 * 100)}')
-
-      notify-send "RAM usage is at $usage%."
-
-
-
