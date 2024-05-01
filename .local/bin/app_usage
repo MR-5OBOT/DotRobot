@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+# Function to calculate RAM usage for a given application
+calculate_app_ram_usage() {
+    app_name=$1
+    total_rss_mib=0
+
+    # Calculate RAM usage for the given application
+    while read -r pid rss comm; do
+        if [[ "$comm" == *"$app_name"* ]]; then
+            total_rss_mib=$((total_rss_mib + rss / 1024))
+        fi
+    done < <(ps -e -o pid,rss,comm --no-headers)
+
+    # Print RAM usage for the application
+    echo "${app_name} RAM usage: ${total_rss_mib} MiB"
+
+    # Display desktop notification
+    if command -v notify-send &> /dev/null; then
+        notify-send "$app_name" "RAM usage: ${total_rss_mib} MiB"
+    else
+        echo "Desktop notification not supported. Unable to display RAM usage for ${app_name}."
+    fi
+}
+
+# Main script
+read -p "Enter the application name (e.g., snapd, tradingview): " app_name
+
+while [ ! -z "$app_name" ]; do
+    calculate_app_ram_usage "$app_name"
+    read -p "Enter another application name (or press Enter to exit): " app_name
+done

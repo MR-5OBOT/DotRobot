@@ -30,34 +30,31 @@ eval "$(starship init zsh)"
 # -----------------------------------------------------
 # ALIASES
 # -----------------------------------------------------
-alias grep='grep --color=auto'
+alias ff='fd --type f --hidden --exclude .git | fzf-tmux --preview "bat {}" -p --reverse | xargs -o sh -c '\''[ -z "$1" ] || nvim "$1"'\'' sh' # fzf-files
+alias fdir='fd --type d --hidden --exclude .git | fzf-tmux --preview "tree -C {}" -p --reverse | xargs -o sh -c '\''[ -z "$1" ] || cd "$1"'\'' sh' # fzf-dirs
+alias flist='kitty list-fonts | fzf'
 alias lg='lazygit'
-alias st='git status'
 alias v='nvim'
 alias free='free -h'
 alias c='clear'
 alias mv='mv -i'
 alias rm='trash -v'
 alias mkdir='mkdir -p -v'
-alias hostmane='nmtui'
-alias off='systemctl poweroff'
-alias pid='pgrep -f'
-alias targz='tar -czf' # file-name + files want to archive
+alias myhost='nmtui'
+alias mx='chmod a+x'
 alias ..="cd .."
 alias ...="cd ../../"
 alias ls='eza -a --icons'
 alias l.='ls -d .* --color=auto'
 alias la='ls -Alh' # show hidden files
-alias hi="notify-send 'Hi there!' 'Welcome to MR5OBOT LAB! ' -i ''"
 
 # -----------------------------------------------------
 # CD TO REPOS
 # -----------------------------------------------------
 alias dlab='cd ~/repos/Dev-Lab/'
-alias dots='cd ~/repos/DotRoboT/'
-alias tj='~/repos/Dev-Lab/latex-projects/trading-jounral/'
-alias hlab='cd ~/repos/'
-alias vlab='cd ~/repos/MR-NV/nvim/'
+alias vlab='v ~/repos/MR-NV/nvim/'
+alias tj='cd ~/repos/Dev-Lab/latex-projects/trading-journal/'
+alias .dots='cd ~/repos/DotRoboT/'
 
 # -----------------------------------------------------
 # EDIT CONFIG FILES
@@ -66,15 +63,6 @@ alias vhypr='$EDITOR $HOME/.config/hypr/'
 alias vbashrc='$EDITOR ~/.bashrc'
 alias vzshrc='$EDITOR ~/.zshrc'
 
-# -----------------------------------------------------
-# chmod aliases
-# -----------------------------------------------------
-alias mx='chmod a+x'
-alias 000='chmod -R 000'
-alias 644='chmod -R 644'
-alias 666='chmod -R 666'
-alias 755='chmod -R 755'
-alias 777='chmod -R 777'
 
 # Extracts any archive(s) (if unp isn't installed)
 extract () {
@@ -107,13 +95,3 @@ myip ()
      {
 ip addr show | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*'
 }
-
-# -----------------------------------------------------
-# SYSTEM
-# -----------------------------------------------------
-
-# alias update-grub='sudo grub-mkconfig -o /boot/grub/grub.cfg'
-# alias setkb='setxkbmap de;echo "Keyboard set back to de."'
-
-
-

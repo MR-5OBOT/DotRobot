@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+# Function to get the top 2 applications by RAM usage and send notifications
+get_top_apps() {
+    # Get the list of all running processes
+    all_processes=$(ps -e -o pid,rss,comm --no-headers)
+
+    # Initialize variables to store the top 2 apps
+    declare -a top_ram_apps
+    declare -a top_ram_values
+    top_ram_values=(0 0)
+
+    # Iterate through the processes and find the top 2 by RAM usage
+    while read -r pid rss comm; do
+        ram=$((rss / 1024))
+        for ((i=0; i<2; i++)); do
+            if ((ram > top_ram_values[i])); then
+                for ((j=1; j>i; j--)); do
+                    top_ram_values[j]=${top_ram_values[j-1]}
+                    top_ram_apps[j]=${top_ram_apps[j-1]}
+                done
+                top_ram_values[i]=$ram
+                top_ram_apps[i]=$comm
+                break
+            fi
+        done
+    done <<< "$all_processes"
+
+    # Send desktop notifications for the top 2 apps by RAM usage
+    for ((i=0; i<2; i++)); do
+        ram_usage=$(ps -C "${top_ram_apps[i]}" -o rss --no-headers | awk '{s+=$1} END {print s/1024}')
+        notify-send "${top_ram_apps[i]}" "RAM usage: ${ram_usage} MiB"
+    done
+}
+
+# Call the function to get the top apps and send notifications every 30 minutes
+while true; do
+    get_top_apps
+    sleep 1800  # 30 minutes
+done
