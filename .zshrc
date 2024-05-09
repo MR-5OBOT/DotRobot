@@ -31,7 +31,6 @@ eval "$(starship init zsh)"
 # ALIASES
 # -----------------------------------------------------
 alias ff='fd --type f --hidden --exclude .git | fzf-tmux --preview "bat {}" -p --reverse | xargs -o sh -c '\''[ -z "$1" ] || nvim "$1"'\'' sh' # fzf-files
-alias fdir='fd --type d --hidden --exclude .git | fzf-tmux --preview "tree -C {}" -p --reverse | xargs -o sh -c '\''[ -z "$1" ] || cd "$1"'\'' sh' # fzf-dirs
 alias flist='kitty list-fonts | fzf'
 alias lg='lazygit'
 alias v='nvim'
