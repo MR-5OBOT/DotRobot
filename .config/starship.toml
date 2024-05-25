@@ -35,7 +35,7 @@ add_newline = false
 
 # Second param
 [hostname]
-ssh_only = false
+ssh_only = true
 disabled = false
 
 # Third param
