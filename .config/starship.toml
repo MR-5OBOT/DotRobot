@@ -4,6 +4,7 @@
 
 format = """
 $hostname\
+$username\
 $directory\
 $localip\
 $shlvl\
@@ -37,6 +38,13 @@ add_newline = false
 [hostname]
 ssh_only = true
 disabled = false
+
+[username]
+style_user = "bold green"
+style_root = "bold red"
+format = "[$user]($style) in "
+disabled = false
+show_always = true
 
 # Third param
 [directory]

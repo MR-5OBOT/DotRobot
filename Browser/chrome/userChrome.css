@@ -2,6 +2,12 @@
 * MR-5OBOT firefox css cfg 
 */
 
+/* Hide the Pocket button */
+#pocket-button {
+  display: none !important;
+}
+
+
 /* --------------------- FONTS ----------------------------- */
 
 * {
