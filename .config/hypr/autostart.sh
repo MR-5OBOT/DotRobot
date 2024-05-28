@@ -5,10 +5,10 @@ $SCRIPTS=~/.config/hypr/scripts
 exec-once = dunst & 
 exec-once = nm-applet & 
 exec-once = devify & 
+exec-once = hypridle
+exec-once = swww init
 # exec-once = hyprlock
-# exec-once = hypridle
 # exec-once = udiskie -t -n & 
-# exec-once = swww init
 # exec-once = blueman-applet & 
 
 exec-once = dbus-update-activation-environment --all & 
@@ -22,11 +22,11 @@ exec-once = $SCRIPTS/autostart/xdgportals
 exec-once = wl-paste --type text --watch cliphist store &  #Stores only text data
 exec-once = wl-paste --type image --watch cliphist store & #Stores only image data
 
-# exec-once = $SCRIPTS/wallpapers/random_walls.sh
-# exec-once = $SCRIPTS/autostart/lock.sh
+exec-once = $SCRIPTS/wallpapers/random_walls2.sh
 exec-once = $SCRIPTS/autostart/Polkit.sh
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh
 exec-once = $SCRIPTS/autostart/TinkPad_BT_notify.sh
+# exec-once = $SCRIPTS/autostart/lock.sh
+# exec-once = swaybg -i ~/Pictures/wallpapers/b.png
 
 
-exec-once = swaybg -i ~/Pictures/wallpapers/b.png
