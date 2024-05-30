@@ -1,6 +1,6 @@
 * {
  font-family: GohuFont uni11 Nerd Font Mono;
- font-size: 17px;
+ font-size: 15px;
 }
 
 window#waybar {
@@ -8,7 +8,7 @@ window#waybar {
 }
 
 window#waybar > box {
- margin: 4px;
+ margin: 2px;
 }
 
 #workspaces {
@@ -34,7 +34,7 @@ window#waybar > box {
  padding-left: 2px;
  padding-right: 1px;
  font-family: NovaMono;
- font-size: 15.5px;
+ font-size: 14px;
 }
 
 #pulseaudio {
