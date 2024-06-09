@@ -1,17 +1,7 @@
-/*
-* MR-5OBOT firefox css cfg 
-*/
-
-/* Hide the Pocket button */
-#pocket-button {
-  display: none !important;
-}
-
-
 /* --------------------- FONTS ----------------------------- */
 
 * {
-  font-family: "NovaMono" !important;
+  font-family: "NovaMono", monospace !important; /* Fallback to monospace */
   font-size: 13px !important;
 }
 
@@ -21,23 +11,26 @@
  display: none !important;
 }
 
-/* hide buttons */
+/* Hide buttons */
 #back-button, #stop-reload-button {
  direction: rtl;
 }
 
-/* hide min max close */
+/* Hide minimize, maximize, and close buttons */
 .titlebar-buttonbox-container {
   display: none !important;
 }
-/* nave bar display on left */
+
+/* Navbar display on left */
 #nav-bar {
   direction: rtl;
 }
-/* navebar custom bg color */
+
+/* Navbar custom background color */
 #nav-bar {
   background-color: #161616 !important; /* Change to the desired color */
 }
+
 /* Hide the close buttons from the tabs */
 /* .tabbrowser-tab .tab-close-button { */
 /*     display: none !important; */
@@ -53,32 +46,36 @@
 }
 
 /* --------------------- TABS ----------------------------- */
+
 /* Hide the tab bar by default */
 #TabsToolbar {
     visibility: collapse;
 }
+
 /* Show the tab bar on hover */
-/* #navigator-toolbox:hover #TabsToolbar { */
-/*     visibility: visible; */
-/*     height: var(--tab-min-height); /* Set the desired height of the tab bar */ */
-/* } */
+#navigator-toolbox:hover #TabsToolbar {
+    visibility: visible;
+    height: var(--tab-min-height); /* Set the desired height of the tab bar */
+}
 
 /* Add a fade-in animation to the tab on hover */
-.tabbrowser-tab:not(:hover) {
+.tabbrowser-tab {
     opacity: 0.5; /* Set the initial opacity */
     transition: opacity 0.3s ease; /* Add a smooth transition */
 }
+
 .tabbrowser-tab:hover {
     opacity: 1; /* Set the full opacity on hover */
 }
 
 /* --------------------- OTHERS ----------------------------- */
 
-/* hide the toolbar*/
-/* #TabsToolbar { */
-/*   visibility: collapse !important; */
-/* } */
+/* Hide the toolbar */
+#TabsToolbar {
+  visibility: collapse !important;
+}
 
+/* Variables for customization */
 * {
   --animation-speed: 0.2s;
   --urlbar-min-height: 25px !important;
@@ -95,8 +92,45 @@
     --uc-page-action-margin: 0px;
 }
 
-/*  Removes annoying border  */
-#navigator-toolbox{border:none !important;}
+/* Removes annoying border */
+#navigator-toolbox { border: none !important; }
 
-/*  Removes the annoying rainbow thing from the hamburger  */
-#appMenu-fxa-separator{border-image:none !important;}
+/* Removes the annoying rainbow thing from the hamburger */
+#appMenu-fxa-separator { border-image: none !important; }
+
+/* --------------------- ANIMATIONS ----------------------------- */
+
+/* Smooth animations for better UX */
+:root {
+    --animation-duration: 0.3s;
+    --animation-timing-function: ease-in-out;
+}
+
+#nav-bar {
+    transition: background-color var(--animation-duration) var(--animation-timing-function);
+}
+
+.tabbrowser-tab {
+    transition: opacity var(--animation-duration) var(--animation-timing-function);
+}
+
+/* --------------------- HOVER EFFECTS ----------------------------- */
+
+/* Stylish hover effects for buttons */
+#back-button:hover, #stop-reload-button:hover, #alltabs-button:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important; /* Light overlay on hover */
+    border-radius: 4px; /* Smooth corners */
+}
+
+/* --------------------- PERFORMANCE OPTIMIZATIONS ----------------------------- */
+
+/* Avoid redundant property declarations */
+body {
+    scroll-behavior: smooth;
+}
+
+/* Optimized font rendering */
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
