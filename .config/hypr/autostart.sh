@@ -18,6 +18,7 @@ exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESK
 exec-once = hyprctl setcursor Volantes Light Cursors 27
 exec-once = systemctl --user restart pipewire # RESTARTS PIPEWIRE (RECOMMENDED BY HYPRLAND DOC)
 # exec-once = /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+# exec-once = /usr/lib/polkit-kde-authentication-agent-1
 exec-once = $SCRIPTS/autostart/xdgportals
 exec-once = wl-paste --type text --watch cliphist store &  #Stores only text data
 exec-once = wl-paste --type image --watch cliphist store & #Stores only image data
