@@ -79,3 +79,4 @@ if command -v notify-send &> /dev/null; then
 else
     echo "Dotfiles linked successfully!"
 fi
+
