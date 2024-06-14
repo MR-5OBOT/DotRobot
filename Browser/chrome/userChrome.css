@@ -1,40 +1,37 @@
 /* --------------------- FONTS ----------------------------- */
 
 * {
-  font-family: "NovaMono", monospace !important; /* Fallback to monospace */
-  font-size: 13px !important;
+    font-family: "NovaMono", monospace !important; /* Fallback to monospace */
+    font-size: 13px !important;
 }
 
 /* --------------------- BUTTONS ----------------------------- */
 
-#forward-button  {
- display: none !important;
+/* Hide forward button */
+#forward-button {
+    display: none !important;
 }
 
-/* Hide buttons */
-#back-button, #stop-reload-button {
- direction: rtl;
+/* Direction and style adjustments for buttons */
+#back-button,
+#stop-reload-button {
+    direction: rtl;
 }
 
 /* Hide minimize, maximize, and close buttons */
 .titlebar-buttonbox-container {
-  display: none !important;
+    display: none !important;
 }
 
 /* Navbar display on left */
 #nav-bar {
-  direction: rtl;
+    direction: rtl;
 }
 
 /* Navbar custom background color */
 #nav-bar {
-  background-color: #161616 !important; /* Change to the desired color */
+    background-color: #161616 !important; /* Change to desired color */
 }
-
-/* Hide the close buttons from the tabs */
-/* .tabbrowser-tab .tab-close-button { */
-/*     display: none !important; */
-/* } */
 
 /* Move the List All Tabs button to the navigation bar */
 #nav-bar-customization-target {
@@ -55,48 +52,43 @@
 /* Show the tab bar on hover */
 #navigator-toolbox:hover #TabsToolbar {
     visibility: visible;
-    height: var(--tab-min-height); /* Set the desired height of the tab bar */
 }
 
 /* Add a fade-in animation to the tab on hover */
 .tabbrowser-tab {
-    opacity: 0.5; /* Set the initial opacity */
-    transition: opacity 0.3s ease; /* Add a smooth transition */
+    opacity: 0.5; /* Set initial opacity */
+    transition: opacity 0.3s ease; /* Smooth transition */
 }
 
 .tabbrowser-tab:hover {
-    opacity: 1; /* Set the full opacity on hover */
+    opacity: 1; /* Full opacity on hover */
 }
 
 /* --------------------- OTHERS ----------------------------- */
 
 /* Hide the toolbar */
 #TabsToolbar {
-  visibility: collapse !important;
+    visibility: collapse !important;
 }
 
 /* Variables for customization */
-* {
-  --animation-speed: 0.2s;
-  --urlbar-min-height: 25px !important;
-  --moz-hidden-unscrollable: scroll !important;
-  --toolbarbutton-border-radius: 0px !important;
-  --tabs-border-color: transparent;
-}
-
 :root {
-    --window: -moz-Dialog !important;
-    --secondary: color-mix(in srgb, currentColor 5%, -moz-Dialog) !important;
-    --uc-border-radius: 0px;
-    --uc-status-panel-spacing: 0px;
-    --uc-page-action-margin: 0px;
+    --animation-speed: 0.2s;
+    --urlbar-min-height: 25px !important;
+    --moz-hidden-unscrollable: scroll !important;
+    --toolbarbutton-border-radius: 0px !important;
+    --tabs-border-color: transparent;
 }
 
 /* Removes annoying border */
-#navigator-toolbox { border: none !important; }
+#navigator-toolbox {
+    border: none !important;
+}
 
-/* Removes the annoying rainbow thing from the hamburger */
-#appMenu-fxa-separator { border-image: none !important; }
+/* Removes the rainbow effect from the hamburger */
+#appMenu-fxa-separator {
+    border-image: none !important;
+}
 
 /* --------------------- ANIMATIONS ----------------------------- */
 
@@ -117,7 +109,9 @@
 /* --------------------- HOVER EFFECTS ----------------------------- */
 
 /* Stylish hover effects for buttons */
-#back-button:hover, #stop-reload-button:hover, #alltabs-button:hover {
+#back-button:hover,
+#stop-reload-button:hover,
+#alltabs-button:hover {
     background-color: rgba(255, 255, 255, 0.1) !important; /* Light overlay on hover */
     border-radius: 4px; /* Smooth corners */
 }
