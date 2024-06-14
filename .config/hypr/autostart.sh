@@ -6,14 +6,13 @@ exec-once = dunst &
 exec-once = nm-applet & 
 exec-once = devify & 
 # exec-once = hypridle
-exec-once = swww init
 # exec-once = hyprlock
+exec-once = swww init
 exec-once = udiskie --no-automount --smart-tray # front-end that allows to manage removable media
 exec-once = nm-applet --indicator # systray app for Network/Wifi
 
 exec-once = $SCRIPTS/autostart/xdgportals
 exec-once = dbus-update-activation-environment --all & # for XDPH
-exec-once = dbus-update-activation-environment --systemd --all 
 exec-once = sleep 1 && dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP # for XDPH
 exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP # for XDPH
 
