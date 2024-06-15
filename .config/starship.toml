@@ -61,12 +61,12 @@ style = "fg:#E8E3E3 bg:#252525 bold"
 
 
 [git_branch]
-format = "[](fg:#252525 bg:none)[$branch]($style)[](fg:#252525 bg:#252525)[](fg:#81C19B bg:#252525)[](fg:#252525 bg:#81C19B)[](fg:#81C19B bg:none) "
+format = "[](fg:#252525 bg:none)[$branch]($style)[](fg:#252525 bg:#252525)[](fg:#94938F bg:#252525)[](fg:#252525 bg:#94938F)[](fg:#94938F bg:none) "
 style = "fg:#E8E3E3 bg:#252525"
 symbol = " "
 
 [git_status]
-format="[](fg:#252525 bg:none)[$all_status$ahead_behind]($style)[](fg:#252525 bg:#252525)[](fg:#6791C9 bg:#252525)[](fg:#252525 bg:#6791C9)[](fg:#6791C9 bg:none) "
+format="[](fg:#252525 bg:none)[$all_status$ahead_behind]($style)[](fg:#252525 bg:#252525)[](fg:#94938F bg:#252525)[](fg:#252525 bg:#94938F)[](fg:#94938F bg:none) "
 style = "fg:#E8E3E3 bg:#252525"
 conflicted = "="
 ahead =	"⇡${count}"
@@ -106,7 +106,7 @@ disabled = false
 
 [python]
 symbol = " "
-#pyenv_version_name = true
+pyenv_version_name = true
 format = 'via [${symbol}python (${version} )(\($virtualenv\) )]($style)'
 style = "bold yellow"
 pyenv_prefix = "venv "
