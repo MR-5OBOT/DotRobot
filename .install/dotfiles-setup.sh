@@ -7,35 +7,81 @@ set -e
 Dotfiles="$HOME/repos/DotRoboT"
 configs="$Dotfiles/.config"
 
-# Link .config files
-echo "Linking all .config files"
-ln -sf $configs/* ~/.config/
+# Ensure Dotfiles directory exists
+if [[ ! -d "$Dotfiles" ]]; then
+    echo "Error: Dotfiles directory $Dotfiles does not exist."
+    exit 1
+fi
+
+# Function to safely link files and directories
+safe_link() {
+    src=$1
+    dest=$2
+
+    # Create parent directory if it doesn't exist
+    mkdir -p "$(dirname "$dest")"
+
+    if [[ -e "$dest" ]]; then
+        if [[ -d "$dest" && -d "$src" ]]; then
+            rm -rf "$dest"
+        elif [[ -f "$dest" || -h "$dest" ]]; then
+            rm -f "$dest"
+        fi
+    fi
+
+    ln -sf "$src" "$dest"
+}
+
+# Link .config files and directories
+echo "Linking all .config files and directories"
+if [[ -d "$configs" ]]; then
+    for item in "$configs"/*; do
+        dest="$HOME/.config/$(basename "$item")"
+        safe_link "$item" "$dest"
+    done
+else
+    echo "Warning: .config directory $configs does not exist."
+fi
 
 # Link zshrc & bashrc
 echo "Linking zshrc & bashrc"
-ln -sf "$Dotfiles/.bashrc" ~/
-ln -sf "$Dotfiles/.zshrc" ~/
+safe_link "$Dotfiles/.bashrc" "$HOME/.bashrc"
+safe_link "$Dotfiles/.zshrc" "$HOME/.zshrc"
 
 # Link .local/bin scripts
 echo "Linking .local/bin scripts"
-mkdir -p ~/.local/bin
-ln -sf $Dotfiles/.local/bin/* ~/.local/bin/
+mkdir -p "$HOME/.local/bin"
+for script in "$Dotfiles/.local/bin"/*; do
+    safe_link "$script" "$HOME/.local/bin/$(basename "$script")"
+done
 
-# Link walls
-echo "Linking walls"
-ln -sf $Dotfiles/wallpapers/ ~/Pictures/
+# Link wallpapers
+echo "Linking wallpapers"
+safe_link "$Dotfiles/wallpapers" "$HOME/Pictures/wallpapers"
 
+# Link .ssh
+echo "linking .ssh cfg"
+safe_link "$Dotfiles/.extra/.ssh" "~/"
+	
 # Find the firefox profile directory
 echo "Getting the Firefox Profile!"
-PROFILE=$(find ~/.mozilla/firefox/ -maxdepth 1 -type d -name "*default-release")
+PROFILE=$(find "$HOME/.mozilla/firefox/" -maxdepth 1 -type d -name "*default-release")
 
 # Check if the profile directory was found
 if [[ -z "$PROFILE" ]]; then
-    echo "Profile variable is empty"
+    echo "Error: Firefox profile directory not found."
 else
     echo "Firefox Profile is located"
-    ln -sf $Dotfiles/Browser/* "$PROFILE"/
+    for file in "$Dotfiles/Browser"/*; do
+        safe_link "$file" "$PROFILE/$(basename "$file")"
+    done
 fi
 
 # Success message after all commands have executed
-notify-send "Dotfiles linked successfully!"
+if command -v notify-send &> /dev/null; then
+    notify-send "Dotfiles linked successfully!"
+else
+    echo "Dotfiles linked successfully!"
+fi
+
+

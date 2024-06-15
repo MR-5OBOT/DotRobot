@@ -29,11 +29,11 @@ window {
     transparency:                "real";
     y-offset: 0%;
     x-offset: 42%;
-    width: 11%;
+    width: 12%;
     fullscreen: false;
     enabled:                     true;
-    margin:                      0px;
-    padding:                     0px;
+    margin:                      3px;
+    padding:                     3px;
     border:                      0px solid;
     border-radius:               0px;
     cursor:                      "default";
