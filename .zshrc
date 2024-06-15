@@ -3,17 +3,17 @@ ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 
 # Download Zinit if not present
 if [ ! -d "$ZINIT_HOME" ]; then
-   mkdir -p "$(dirname $ZINIT_HOME)"
-   git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+   mkdir -p "$(dirname "$ZINIT_HOME")"
+   git clone https://github.com/zdharma/zinit.git "$ZINIT_HOME"
 fi
 
 # Source/Load Zinit
 source "${ZINIT_HOME}/zinit.zsh"
 
-# Start Starship
+# Initialize Starship prompt
 eval "$(starship init zsh)"
 
-# start Zoxide
+# Initialize Zoxide
 eval "$(zoxide init zsh)"
 
 # Add Zsh plugins
@@ -57,7 +57,7 @@ alias mkdir='mkdir -p -v'
 alias ..="cd .."
 alias ...="cd ../../"
 alias ls='eza -a --icons'
-alias l="eza -l --icons --git -a"
+alias l="ls -lah"
 alias lt="eza --tree --level=2 --long --icons --git"
 
 # CD to repos
@@ -75,7 +75,30 @@ myip() {
     ip addr show | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*'
 }
 
-
-# snapd Path apps
+# Snapd Path apps
 export XDG_DATA_DIRS="$XDG_DATA_DIRS:/var/lib/snapd/desktop"
 
+# Check and install necessary packages via Pacman
+check_and_install() {
+    for package in "$@"; do
+        if ! pacman -Qs "$package" > /dev/null; then
+            echo "Package '$package' is not installed. Installing..."
+            sudo pacman -S --noconfirm "$package"
+        fi
+    done
+}
+
+# List of packages to check/install
+packages=(
+    starship
+    zoxide
+    fd
+    bat
+    lazygit
+    trash-cli
+    fzf
+    neovim
+)
+
+# Check and install packages
+check_and_install "${packages[@]}"
