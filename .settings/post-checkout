@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 echo "check all the symlinks files on $HOME | .config | .mozilla"
 echo "and then creat switch them to the working branch version of files"
