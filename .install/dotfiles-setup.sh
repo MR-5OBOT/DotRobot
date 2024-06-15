@@ -59,6 +59,10 @@ done
 echo "Linking wallpapers"
 safe_link "$Dotfiles/wallpapers" "$HOME/Pictures/wallpapers"
 
+# Link .ssh
+echo "linking .ssh cfg"
+safe_link "$Dotfiles/.extra/.ssh" "~/"
+	
 # Find the firefox profile directory
 echo "Getting the Firefox Profile!"
 PROFILE=$(find "$HOME/.mozilla/firefox/" -maxdepth 1 -type d -name "*default-release")
@@ -79,4 +83,5 @@ if command -v notify-send &> /dev/null; then
 else
     echo "Dotfiles linked successfully!"
 fi
+
 
