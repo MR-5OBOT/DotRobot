@@ -67,8 +67,8 @@ alias tj='cd ~/repos/Dev-Lab/latex-projects/trading-journal/'
 alias .dots='cd ~/repos/DotRoboT/'
 
 # Edit config files
-alias vbashrc='$EDITOR ~/.bashrc'
-alias vzshrc='$EDITOR ~/.zshrc'
+alias vbashrc='nvim ~/.bashrc'
+alias vzshrc='nvim ~/.zshrc'
 
 # IP address lookup function
 myip() {

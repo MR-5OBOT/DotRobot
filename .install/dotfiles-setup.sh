@@ -76,8 +76,8 @@ else
 fi
 
 # Link .bashrc and .zshrc
-echo "Linking .bashrc & .zshrc"
-safe_link "$Dotfiles/.bashrc" "$HOME/.bashrc"
+echo "Linking Sell"
+# safe_link "$Dotfiles/.bashrc" "$HOME/.bashrc"
 safe_link "$Dotfiles/.zshrc" "$HOME/.zshrc"
 
 # Link .local/bin scripts

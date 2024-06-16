@@ -6,6 +6,8 @@ packagesPacman=(
     "neovim"
     "wget"
     "unzip"
+    "figlet"
+    "gum"
     "pamixer"
     "btop"
     "nm-connection-editor"
