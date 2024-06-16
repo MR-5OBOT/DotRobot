@@ -1,27 +1,34 @@
 #!/usr/bin/env bash
 
+# Define packages for Pacman and Yay
 packagesPacman=(
-    "viewnior"
-    "gimp"
-    "rclone"
-    "figlet"
-    "neovim"
-    "kitty"
-    "thunar"
-    "fileroller"
-    "fzf"
-    "eza"
-    "thunar-archive-plugin"
-    "thunar"
-    "zoxide"
-    "trash-cli"
-    "mpv"
+    "hyprland"
+    "xdg-desktop-portal-hyprland"
+    "waybar"
+    "slurp"
+    "swappy"
+    "dunst"
+    "rofi"
+    "starship"
+    "pipewire"
+    "blueman"
+    "pavucontrol"
+    "brightnessctl"
+    "acpi"
+    "wl-clipboard"
+    "polkit-gnome"
+    "networkmanager"
 )
 
 packagesYay=(
-    "devify"
-    "texlive-latex"
-    "texlive-full"
+    "gtklock"
+    "swww"
+    "grimblast-git"
+    "cliphist"
+    "nwg-look"
+    "hyprlock"
+    "hypridle"
+    "hyprpicker"
 )
 
 # Function to install packages with Pacman, skipping already installed ones
@@ -49,7 +56,7 @@ _installPackagesYay() {
 }
 
 # Main installation process
-echo "Starting installation process of custom packages..."
+echo "Starting installation process of hyprland packages..."
 echo "Installing packages with Pacman..."
 _installPackagesPacman "${packagesPacman[@]}"
 echo "Installing packages with Yay..."
