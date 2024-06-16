@@ -24,6 +24,7 @@ run_script() {
 echo "Starting full setup for Hyprland packages and configurations..."
 echo "The following scripts will be run in sequence:"
 
+echo
 ### Scripts to be Executed
 echo "- custom-fonts.sh"
 echo "- yay.sh"
@@ -34,7 +35,15 @@ echo "- dotfiles-setup.sh"
 echo "- neovim-setup.sh"
 echo "- thunar-setup.sh"
 echo "- archives.sh"
+echo "- thunar-setup"
 
+gum confirm "Do you want to start the full installation? (y/n): "
+if [ $? -ne 0 ]; then
+    echo "Setup cancelled."
+    exit 1
+fi
+
+echo
 # Run the scripts in sequence
 run_script "./.install/custom-fonts.sh"
 run_script "./.install/yay.sh"
@@ -45,6 +54,7 @@ run_script "./.install/dotfiles-setup.sh"
 run_script "./.install/neovim-setup.sh"
 run_script "./.install/thunar-setup.sh"
 run_script "./.install/archives.sh"
+run_script "./.install/thunar-setup.sh"
 
 echo -e "\033[92m All scripts completed successfully. \033[0m"
 echo -e "\033[92m Enjoy your system. \033[0m"

@@ -10,11 +10,12 @@ echo "  2. Move the 'DotRoboT' repository into the 'repos' directory."
 echo ""
 
 # Prompt user for confirmation
-read -p "Have you completed the steps above? (y/n): " confirm
-if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+gum confirm "Have you completed the steps above? (y/n): "
+if [[ $? -ne 0 ]]; then
     echo "Setup steps not completed. Exiting script."
     exit 1
 fi
+
 
 # Define variables
 Dotfiles="$HOME/repos/DotRoboT"
@@ -76,7 +77,7 @@ else
 fi
 
 # Link .bashrc and .zshrc
-echo "Linking Sell"
+echo "Linking Sell zsh"
 # safe_link "$Dotfiles/.bashrc" "$HOME/.bashrc"
 safe_link "$Dotfiles/.zshrc" "$HOME/.zshrc"
 
@@ -109,8 +110,7 @@ else
     done
 fi
 
-# Check if post-checkout file exists in DotRoboT/.setting/
-checkout="$Dotfiles/.setting/post-checkout"
+checkout="$HOME/repos/DotRoboT/.settings/post-checkout"
 if [[ -f "$checkout" ]]; then
     echo "Copying post-checkout file to destination"
     cp "$checkout" "../.git/hooks/"
