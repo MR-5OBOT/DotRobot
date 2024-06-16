@@ -33,6 +33,7 @@ echo "- custom-pkgs.sh"
 echo "- dotfiles-setup.sh"
 echo "- neovim-setup.sh"
 echo "- thunar-setup.sh"
+echo "- archives.sh"
 
 # Run the scripts in sequence
 run_script "./.install/custom-fonts.sh"
@@ -43,6 +44,7 @@ run_script "./.install/packages/custom-pkgs.sh"
 run_script "./.install/dotfiles-setup.sh"
 run_script "./.install/neovim-setup.sh"
 run_script "./.install/thunar-setup.sh"
+run_script "./.install/archives.sh"
 
 echo -e "\033[92m All scripts completed successfully. \033[0m"
 echo -e "\033[92m Enjoy your system. \033[0m"
