@@ -21,8 +21,8 @@ packagesPacman=(
 
 packagesYay=(
     "devify"
-    "texlive-latex"
-    "texlive-full"
+#    "texlive-latex"
+#    "texlive-full"
 )
 
 # Function to install packages with Pacman, skipping already installed ones
