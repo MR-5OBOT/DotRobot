@@ -76,7 +76,7 @@ myip() {
 }
 
 # Snapd Path apps
-export XDG_DATA_DIRS="$XDG_DATA_DIRS:/var/lib/snapd/desktop"
+# export XDG_DATA_DIRS="$XDG_DATA_DIRS:/var/lib/snapd/desktop"
 
 # Check and install necessary packages via Pacman
 check_and_install() {

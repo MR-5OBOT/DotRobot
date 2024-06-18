@@ -10,13 +10,12 @@
   "spacing": 0,
   "gtk-layer-shell": true,
   "modules-left": [
-// "custom/notification",
   "clock"
   ],
   "clock": {
     "interval": 1,
     "format": "{:%H\n%M\n──\n%d\n──}",
-    // "format-alt": "{:󰣆 %A, %B %d | %I:%M %p}",
+    \\"format-alt": "{:󰣆 %A, %B %d | %I:%M %p}",
     "on-click": "gnome-calendar",
     "tooltip": true,
     "tooltip-format": "{calendar}",
@@ -31,7 +30,6 @@
   "modules-center": [
     "hyprland/workspaces",
     "hyprland/submap",
-
   ],
   "hyprland/workspaces": {
     "format": "{icon}",
