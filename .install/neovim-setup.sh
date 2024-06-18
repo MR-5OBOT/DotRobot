@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# MR5OBOT Header
+gum style --border normal --margin "1 2" --padding "1 2" --align center "MR5OBOT Scripts for Managing Your Dotfiles and Configurations"
+# gum style --border normal --margin "1 2" --padding "1 2" --align center "Neovim Setup"
+
 # Define colors
 RED='\033[91m'
 GREEN='\033[92m'
@@ -17,7 +21,7 @@ fi
 
 # Check if the user wants to install the MR5OBOT Neovim configuration
 echo -e "${GREEN}"
-figlet "Neovim"
+figlet "  Neovim"
 echo -e "${NONE}"
 echo ":: The script has detected a nvim folder."
 echo
@@ -31,7 +35,7 @@ if gum confirm "Do you want to install the MR5OBOT Neovim configuration?"; then
     fi
     # Link the nvim repository to ~/.config
     if ln -sf ~/repos/MR-NV/nvim ~/.config/nvim; then
-        echo ":: MR5OBOT Neovim configuration installed successfully"
+        notify-send ":: MR5OBOT Neovim configuration installed successfully"
     else
         echo -e "${RED}"
         figlet "Error: Neovim Configuration Installation Failed"

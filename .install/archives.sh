@@ -1,45 +1,38 @@
 #!/usr/bin/env bash
 
-# Define colors
-RED='\033[91m'
-GREEN='\033[92m'
-NONE='\033[0m']
+# MR5OBOT Header
+gum style --border normal --margin "1 2" --padding "1 2" --align center "MR5OBOT Scripts for Managing Your Dotfiles and Configurations"
+gum style --border normal --margin "1 2" --padding "1 2" --align center "Archives Setup"
 
-# Define the source and destination directories
-SOURCE_DIR=~/repos/DotRoboT/.extra/archives/
-DEST_DIR=$HOME/
+# Define source and destination directories
+SOURCE_DIR="$HOME/repos/DotRoboT/.extra/archives/"
+DEST_DIR="$HOME/"
 
-# Define the directories to link
-DIRECTORIES=(".icons" ".themes" ".fonts")
+# Ask for confirmation
+echo "Copy directories? .icons, .themes, .fonts ? (y/n)"
+read -r CONFIRMATION
 
-# Function to link directories
-link_directories() {
-    local dir=$1
-    local source_path="$SOURCE_DIR/$dir"
-    local dest_path="$DEST_DIR/$dir"
+# Check if confirmation is valid
+if [[ $CONFIRMATION != "y" && $CONFIRMATION != "n" ]]; then
+    echo "Invalid confirmation. Please enter 'y' or 'n'."
+    exit 1
+fi
 
-    # Check if the directory exists
-    if [ -d "$source_path" ]; then
-        # Prompt to link the directory
-        read -p "Link directory $dir? (y/n): " -n 1 -r
-        echo    # (optional) move to a new line
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            # Link the directory
-            ln -sf "$source_path" "$dest_path"
-            echo -e "${GREEN}Linked $dir...${NONE}"
-        else
-            echo -e "${RED}Skipping link for $dir${NONE}"
+    for dir in $SOU; do
+        if [ -d "$dir" ]; then
+            DIR_NAME=$(basename "$dir")
+            echo "Copying: $DIR_NAME"
+            if [ -d "$DEST_DIR/$DIR_NAME" ]; then
+                read -p "Destination directory already contains files with the same name. Overwrite? (y/n) " OVERWRITE_CONFIRMATION
+                if [[ $OVERWRITE_CONFIRMATION != "y" ]]; then
+                    echo "Copying cancelled."
+                    exit 0
+                fi
+            fi
+            cp -r "$dir" "$DEST_DIR/$DIR_NAME" && echo "Copied: $DIR_NAME"
         fi
-    else
-        echo -e "${RED}Error: Directory $dir not found${NONE}"
-        exit 1
-    fi
-}
-
-# Link each directory
-for dir in "${DIRECTORIES[@]}"; do
-    link_directories "$dir"
-done
-
-echo -e "${GREEN}Setup complete${NONE}"
-
+    done
+    echo "Directory copying complete."
+else
+    echo "Directory copying cancelled."
+fi

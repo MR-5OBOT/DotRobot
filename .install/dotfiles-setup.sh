@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+# MR5OBOT Header
+gum style --border normal --margin "1 2" --padding "1 2" --align center "MR5OBOT Scripts for Managing Your Dotfiles and Configurations"
+gum style --border normal --margin "1 2" --padding "1 2" --align center "Dotfiles Setup"
+
+# Prompt user for confirmation
+gum confirm "Have you want to build hyprland from source ? (y/n): "
+if [[ $? -ne 0 ]]; then
+    echo "Exiting script."
+    exit 1
+fi
 # Enable error checking
 set -e
 
@@ -15,7 +25,6 @@ if [[ $? -ne 0 ]]; then
     echo "Setup steps not completed. Exiting script."
     exit 1
 fi
-
 
 # Define variables
 Dotfiles="$HOME/repos/DotRoboT"
@@ -58,7 +67,6 @@ safe_link() {
             rm -f "$dest"
         fi
     fi
-
     # Create symbolic link
     ln -sf "$src" "$dest"
 }
