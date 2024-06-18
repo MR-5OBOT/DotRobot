@@ -24,7 +24,7 @@ exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESK
 exec-once = systemctl --user restart pipewire # RESTARTS PIPEWIRE (RECOMMENDED BY HYPRLAND DOC)
 
 exec-once = $SCRIPTS/autostart/xdgportals
-exec-once = $SCRIPTS/autostart/gtk.sh # Load GTK settings
+# exec-once = $SCRIPTS/autostart/gtk.sh # Load GTK settings
 exec-once = $SCRIPTS/wallpapers/random_walls2.sh
 exec-once = $SCRIPTS/autostart/Polkit.sh
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh

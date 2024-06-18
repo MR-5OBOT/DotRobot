@@ -26,7 +26,7 @@ echo "The following scripts will be run in sequence:"
 
 echo
 ### Scripts to be Executed
-echo "- custom-fonts.sh"
+# echo "- custom-fonts.sh"
 echo "- yay.sh"
 echo "- general-packages.sh"
 echo "- hyprland-pkgs.sh"
@@ -45,7 +45,7 @@ fi
 
 echo
 # Run the scripts in sequence
-run_script "./.install/custom-fonts.sh"
+# run_script "./.install/custom-fonts.sh"
 run_script "./.install/yay.sh"
 run_script "./.install/packages/general-packages.sh"
 run_script "./.install/packages/hyprland-pkgs.sh"

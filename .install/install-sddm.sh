@@ -13,6 +13,8 @@ sudo pacman -S --noconfirm sddm && echo -e "\e[92mSDDM installed successfully\e[
 # Setup SDDM theme
 SDDM_THEME=~/repos/DotRoboT/.extra/sddm/sddm-slice/
 sudo cp -r $SDDM_THEME /usr/share/sddm/themes/ 
-echo -e "\e[92m--now you need to add sddm-slice to themes in /usr/lib/sddm/sddm.conf.d/default.conf--\e[0m"
+
+gum style --border normal --margin "1 2" --padding "1 2" --align center "now you need to add sddm-slice to themes in /usr/lib/sddm/sddm.conf.d/default.conf"
+
 
 
