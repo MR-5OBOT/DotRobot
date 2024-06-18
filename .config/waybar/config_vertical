@@ -10,42 +10,22 @@
   "spacing": 0,
   "gtk-layer-shell": true,
   "modules-left": [
-    // "custom/notification",
-    "clock"
+// "custom/notification",
+  "clock"
   ],
-  "custom/notification": {
-    "tooltip": false,
-    "format": "{icon}",
-    "format-icons": {
-      "notification": "󱅫",
-      "none": "󰂚",
-      "dnd-notification": "󰂛",
-      "dnd-none": "󰂛",
-      "inhibited-notification": "󱅫",
-      "inhibited-none": "󰂚",
-      "dnd-inhibited-notification": "󰂛",
-      "dnd-inhibited-none": "󰂛"
-    },
-    "return-type": "json",
-    "exec-if": "which swaync-client",
-    "exec": "swaync-client -swb",
-    "on-click": "swaync-client -t -sw",
-    "on-click-right": "swaync-client -d -sw",
-    "escape": true
-  },
   "clock": {
     "interval": 1,
     "format": "{:%H\n%M\n──\n%d\n──}",
     // "format-alt": "{:󰣆 %A, %B %d | %I:%M %p}",
-    // "on-click": "gnome-calendar",
+    "on-click": "gnome-calendar",
     "tooltip": true,
     "tooltip-format": "{calendar}",
     "calendar": {
-      "mode": "month",
-      "mode-mon-col": 1,
-      "format": {
-        "today": "<span color='#0dbc79'>{}</span>"
-      }
+    "mode": "month",
+    "mode-mon-col": 1,
+    "format": {
+    "today": "<span color='#0dbc79'>{}</span>"
+    }
     }
   },
   "modules-center": [
@@ -74,16 +54,11 @@
     "format": "{}",
     "tooltip": false
   },
-  "hyprland/window": {
-    "format": " <span font_desc='Iosevka Raven 12'>{:.40}</span> ",
-    "separate-outputs": false
-  },
-
   "modules-right": [
     "tray",
     // "cpu",
     // "memory",
-    // "backlight",
+    "backlight",
     "pulseaudio#microphone",
     "pulseaudio#audio",
     // "bluetooth",
@@ -95,18 +70,8 @@
     "icon-size": 18,
     "spacing": 10
   },
-  "cpu": {
-    "format": "󰻠 {usage}%",
-    "on-click": "",
-    "tooltip": false
-  },
-  "memory": {
-    "format": "󰍛 {used:0.1f}GB ({percentage}%) / {total:0.1f}GB",
-    "on-click": "",
-    "tooltip": false
-  },
   "backlight": {
-    "format": "{icon} {percent}%",
+    "format": "{icon}",
     "format-icons": [
       "󰃟"
     ],

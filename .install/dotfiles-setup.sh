@@ -5,7 +5,7 @@ gum style --border normal --margin "1 2" --padding "1 2" --align center "MR5OBOT
 gum style --border normal --margin "1 2" --padding "1 2" --align center "Dotfiles Setup"
 
 # Prompt user for confirmation
-gum confirm "Have you want to build hyprland from source ? (y/n): "
+gum confirm "Have you want to setup dotfiles ? (y/n): "
 if [[ $? -ne 0 ]]; then
     echo "Exiting script."
     exit 1
@@ -118,16 +118,17 @@ else
     done
 fi
 
-checkout="$HOME/repos/DotRoboT/.settings/post-checkout"
-if [[ -f "$checkout" ]]; then
-    echo "Copying post-checkout file to destination"
-    cp "$checkout" "../.git/hooks/"
-else
-    echo "Error: post-checkout file not found in DotRoboT/.setting/ directory."
-    echo "Stopping the script due to missing post-checkout file."
-    exit 1
-fi
+# checkout="$HOME/repos/DotRoboT/.settings/post-checkout"
+# if [[ -f "$checkout" ]]; then
+#     echo "Copying post-checkout file to destination"
+#     cp "$checkout" "~/repos/DotRoboT/.git/hooks/"
+# else
+#     echo "Error: post-checkout file not found in DotRoboT/.setting/ directory."
+#     echo "Stopping the script due to missing post-checkout file."
+#     exit 1
+# fi
 
+echo "pls link post-checkout file i can't do it"
 # Notify success message
 if command -v notify-send &> /dev/null; then
     notify-send "Dotfiles linked successfully!"
