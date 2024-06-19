@@ -14,7 +14,7 @@ source "${ZINIT_HOME}/zinit.zsh"
 eval "$(starship init zsh)"
 
 # Initialize Zoxide
-eval "$(zoxide init zsh)"
+# eval "$(zoxide init zsh)"
 
 # Add Zsh plugins
 zinit light zsh-users/zsh-syntax-highlighting
@@ -47,7 +47,7 @@ zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 zstyle ':completion:*' menu no
 
 # Aliases
-alias ff='fd --type f --hidden --exclude .git | fzf-tmux --preview "bat {}" -p --reverse | xargs -o sh -c '\''[ -z "$1" ] || nvim "$1"'\'' sh' # find & open files in nvim
+alias ff='fd --type f --hidden --exclude .git | --preview "bat {}" -p --reverse | xargs -o sh -c '\''[ -z "$1" ] || nvim "$1"'\'' sh' # find & open files in nvim
 alias v='nvim'
 alias c='clear'
 alias mv='mv -i'
@@ -78,27 +78,3 @@ myip() {
 # Snapd Path apps
 # export XDG_DATA_DIRS="$XDG_DATA_DIRS:/var/lib/snapd/desktop"
 
-# Check and install necessary packages via Pacman
-check_and_install() {
-    for package in "$@"; do
-        if ! pacman -Qs "$package" > /dev/null; then
-            echo "Package '$package' is not installed. Installing..."
-            sudo pacman -S --noconfirm "$package"
-        fi
-    done
-}
-
-# List of packages to check/install
-packages=(
-    starship
-    zoxide
-    fd
-    bat
-    lazygit
-    trash-cli
-    fzf
-    neovim
-)
-
-# Check and install packages
-check_and_install "${packages[@]}"
