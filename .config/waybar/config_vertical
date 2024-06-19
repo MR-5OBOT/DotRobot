@@ -10,27 +10,36 @@
   "spacing": 0,
   "gtk-layer-shell": true,
   "modules-left": [
-  "clock"
+  "group/clock",
   ],
+
   "clock": {
     "interval": 1,
-    "format": "{:%H\n%M\n──\n%d\n──}",
-    \\"format-alt": "{:󰣆 %A, %B %d | %I:%M %p}",
+    "format": "{0:%H}\n{0:%m}\n--\n{0:%d}",
     "on-click": "gnome-calendar",
     "tooltip": true,
     "tooltip-format": "{calendar}",
     "calendar": {
-    "mode": "month",
-    "mode-mon-col": 1,
-    "format": {
-    "today": "<span color='#0dbc79'>{}</span>"
-    }
+      "mode": "month",
+      "mode-mon-col": 1,
+      "format": {
+        "today": "<span color='#0dbc79'>{}</span>"
+      }
     }
   },
+
+  "group/clock": {
+    "orientation": "vertical",
+    "modules": [
+      "clock",
+    ]
+  },
+
   "modules-center": [
     "hyprland/workspaces",
-    "hyprland/submap",
+    "hyprland/submap"
   ],
+
   "hyprland/workspaces": {
     "format": "{icon}",
     "format-icons": {
@@ -48,26 +57,25 @@
     },
     "on-click": "activate"
   },
+
   "hyprland/submap": {
     "format": "{}",
     "tooltip": false
   },
+  
   "modules-right": [
     "tray",
-    // "cpu",
-    // "memory",
     "backlight",
     "pulseaudio#microphone",
     "pulseaudio#audio",
-    // "bluetooth",
-    // "network#wlo0",
-    // "network#eno1",
-    "battery",
+    "battery"
   ],
+
   "tray": {
     "icon-size": 18,
     "spacing": 10
   },
+
   "backlight": {
     "format": "{icon}",
     "format-icons": [
@@ -78,6 +86,7 @@
     "on-click": "",
     "tooltip": false
   },
+
   "pulseaudio#audio": {
     "format": "{icon}",
     "format-bluetooth": "󰂯{icon}",
@@ -87,9 +96,9 @@
       "headphone": "󰋋",
       "hands-free": "󰋋",
       "headset": "󰋋",
-      "phone": "",
-      "portable": "",
-      "car": "",
+      "phone": "",
+      "portable": "",
+      "car": "",
       "default": [
         "󰕿",
         "󰖀",
@@ -102,6 +111,7 @@
     "tooltip": true,
     "tooltip-format": "{icon} {desc} {volume}%"
   },
+
   "pulseaudio#microphone": {
     "format": "{format_source}",
     "format-source": "󰍬",
@@ -113,16 +123,6 @@
     "tooltip": true
   },
 
-  "bluetooth": {
-    "format-disabled": "󰂯",
-    "format-off": "󰂯",
-    "format-on": "󰂯",
-    "format-connected": "󰂯",
-    "format-connected-battery": "󰂯",
-    "tooltip-format-connected": "{device_alias} 󰂄{device_battery_percentage}%",
-    "on-click": "",
-    "tooltip": true
-  },
   "battery": {
     "states": {
       "warning": 20,
@@ -147,3 +147,6 @@
     "tooltip": true
   }
 }
+
+
+
