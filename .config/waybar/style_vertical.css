@@ -11,6 +11,25 @@ window#waybar > box {
  margin: 2px;
 }
 
+#workspaces {
+ margin-left: 0px;
+ margin-right: 0px;
+}
+
+#workspaces button {
+ color: #70717a;
+ padding: 0;
+ margin: 0;
+ margin-top: 2px;
+ margin-bottom: 2px;
+ margin-right: 0px;
+}
+
+#workspaces button.focused,
+#workspaces button.active {
+ color: #f9f5ff;
+}
+
 #clock {
  padding-left: 1px;
  padding-right: 1px;
@@ -19,26 +38,26 @@ window#waybar > box {
 }
 
 #pulseaudio {
-  padding: 1px;
+  padding: 2px;
 }
 
 battery {
-  padding: 1px;
+  padding: 2px;
 }
 
 /* If workspaces is the leftmost module, omit left margin */
 .modules-left > widget:first-child > #battery {
- margin-top: 2px;
+ margin-top: 4px;
 }
 
 .modules-right > widget:last-child > #battery {
- margin-bottom: 4px;
+ margin-bottom: 5px;
 }
 
 #tray {
  background-color: transparent;
- padding: 2px;
- font-size: 1px;
+ padding: 3px;
+ font-size: 2px;
 }
 
 #tray > .needs-attention {
