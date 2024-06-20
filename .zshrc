@@ -75,6 +75,9 @@ myip() {
     ip addr show | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*'
 }
 
+# colors for the man pages
+export LESS='-R --use-color -Dd+r$Du+b$'
+
 # Snapd Path apps
 # export XDG_DATA_DIRS="$XDG_DATA_DIRS:/var/lib/snapd/desktop"
 

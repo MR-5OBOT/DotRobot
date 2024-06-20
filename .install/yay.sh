@@ -8,10 +8,6 @@ else
     figlet "yay"
     echo -e "${NONE}"
     echo ":: yay is not installed. Starting the installation!"
-    _installPackagesPacman "base-devel"
-    SCRIPT=$(realpath "$0")
-    temp_path=$(dirname "$SCRIPT")
-    echo $temp_path
     git clone https://aur.archlinux.org/yay-git.git ~/yay-git
     cd ~/yay-git
     makepkg -si
