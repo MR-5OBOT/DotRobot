@@ -1,6 +1,8 @@
 # ------------------------------------------------------
 # Check if yay is installed
 # ------------------------------------------------------
+gum style --border normal --margin "1 2" --padding "1 2" --align center "MR5OBOT yay setup" 
+
 if sudo pacman -Qs yay > /dev/null ; then
     echo ":: yay is already installed!"
 else

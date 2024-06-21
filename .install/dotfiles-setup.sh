@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
+# Enable error checking
+set -e
+
 # MR5OBOT Header
-gum style --border normal --margin "1 2" --padding "1 2" --align center "MR5OBOT Scripts for Managing Your Dotfiles and Configurations"
-gum style --border normal --margin "1 2" --padding "1 2" --align center "Dotfiles Setup"
+gum style --border normal --margin "1 2" --padding "1 2" --align center "MR5OBOT dotfiles setup" 
 
 # Prompt user for confirmation
 gum confirm "Have you want to setup dotfiles ? (y/n): "
@@ -10,8 +12,6 @@ if [[ $? -ne 0 ]]; then
     echo "Exiting script."
     exit 1
 fi
-# Enable error checking
-set -e
 
 # Display hint message
 echo "Hint: Please ensure the following steps before running this script:"
@@ -29,13 +29,6 @@ fi
 # Define variables
 Dotfiles="$HOME/repos/DotRoboT"
 configs="$Dotfiles/.config"
-
-# Check if 'repos' directory exists
-if [[ ! -d "$HOME/repos" ]]; then
-    echo "Error: Directory 'repos' does not exist in your home directory."
-    echo "Please create the 'repos' directory and move the 'DotRoboT' repository into it."
-    exit 1
-fi
 
 # Check if 'DotRoboT' directory exists
 if [[ ! -d "$Dotfiles" ]]; then
@@ -103,30 +96,6 @@ safe_link "$Dotfiles/wallpapers" "$HOME/Pictures/wallpapers"
 # Link .ssh configuration
 echo "Linking .ssh configuration"
 safe_link "$Dotfiles/.extra/.ssh" "$HOME/.ssh"
-
-# Find the Firefox profile directory
-echo "Finding Firefox profile directory"
-PROFILE=$(find "$HOME/.mozilla/firefox/" -maxdepth 1 -type d -name "*default-release")
-
-# Check if the profile directory was found
-if [[ -z "$PROFILE" ]]; then
-    echo "Error: Firefox profile directory not found."
-else
-    echo "Firefox profile directory found"
-    for file in "$Dotfiles/Browser"/*; do
-        safe_link "$file" "$PROFILE/$(basename "$file")"
-    done
-fi
-
-# checkout="$HOME/repos/DotRoboT/.settings/post-checkout"
-# if [[ -f "$checkout" ]]; then
-#     echo "Copying post-checkout file to destination"
-#     cp "$checkout" "~/repos/DotRoboT/.git/hooks/"
-# else
-#     echo "Error: post-checkout file not found in DotRoboT/.setting/ directory."
-#     echo "Stopping the script due to missing post-checkout file."
-#     exit 1
-# fi
 
 echo "pls link post-checkout file i can't do it"
 # Notify success message
