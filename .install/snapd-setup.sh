@@ -3,8 +3,7 @@
 # error checking
 set -e
 
-gum style --border normal --margin "1 2" --padding "1 2" --align center "MR5OBOT Scripts for Managing Your Dotfiles and Configurations"
-gum style --border normal --margin "1 2" --padding "1 2" --align center "snapd Setup"
+gum style --border normal --margin "1 2" --padding "1 2" --align center "MR5OBOT snapd setup" 
 # ------------------------------------------------------
 # Check if snapd is installed
 # ------------------------------------------------------
