@@ -14,6 +14,7 @@ exec-once = devify
 exec-once = hyprctl setcursor Bitata-Modern-Icw 22
 exec-once = udiskie --no-automount --smart-tray # front-end that allows to manage removable media
 exec-once = nm-applet --indicator # systray app for Network/Wifi
+exec-once = wl-clipboard --watch -t
 exec-once = wl-paste --type text --watch cliphist store  # Stores only text data
 exec-once = wl-paste --type image --watch cliphist store # Stores only image data
 
