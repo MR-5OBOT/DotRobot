@@ -37,7 +37,6 @@
 
   "modules-center": [
     "hyprland/workspaces",
-    "hyprland/submap"
   ],
 
   "hyprland/workspaces": {
@@ -58,33 +57,16 @@
     "on-click": "activate"
   },
 
-  "hyprland/submap": {
-    "format": "{}",
-    "tooltip": false
-  },
-  
   "modules-right": [
     "tray",
-    "backlight",
     "pulseaudio#microphone",
     "pulseaudio#audio",
     "battery"
   ],
 
   "tray": {
-    "icon-size": 18,
-    "spacing": 10
-  },
-
-  "backlight": {
-    "format": "{icon}",
-    "format-icons": [
-      "󰃟"
-    ],
-    "on-scroll-up": "brightnessctl set +5% && ~/.config/dunst/scripts/show_brightness.sh",
-    "on-scroll-down": "brightnessctl set 5%- && ~/.config/dunst/scripts/show_brightness.sh",
-    "on-click": "",
-    "tooltip": false
+    "icon-size": 16,
+    "spacing": 8
   },
 
   "pulseaudio#audio": {
@@ -138,9 +120,6 @@
       "󰁽",
       "󰁾",
       "󰁿",
-      "󰂀",
-      "󰂁",
-      "󰂂",
       "󰁹"
     ],
     "on-click": "",

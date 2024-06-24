@@ -4,6 +4,7 @@ packagesPacman=(
     "viewnior"
     "gimp"
     "tmux"
+    "fd"
     "rclone"
     "figlet"
     "neovim"
