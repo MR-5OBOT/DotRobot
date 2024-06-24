@@ -1,6 +1,6 @@
 * {
  font-family: NovaMono;
- font-size: 15px;
+ font-size: 14px;
 }
 
 window#waybar {
@@ -42,7 +42,7 @@ window#waybar > box {
 }
 
 battery {
-  padding: 2px;
+  padding: 4px;
 }
 
 /* If workspaces is the leftmost module, omit left margin */
@@ -51,13 +51,13 @@ battery {
 }
 
 .modules-right > widget:last-child > #battery {
- margin-bottom: 5px;
+ margin-bottom: 6px;
 }
 
 #tray {
  background-color: transparent;
- padding: 3px;
- font-size: 2px;
+ padding: 2px;
+ font-size: 1px;
 }
 
 #tray > .needs-attention {

@@ -47,7 +47,7 @@ zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 zstyle ':completion:*' menu no
 
 # Aliases
-alias ff='fd --type f --hidden --exclude .git | --preview "bat {}" -p --reverse | xargs -o sh -c '\''[ -z "$1" ] || nvim "$1"'\'' sh' # find & open files in nvim
+alias ff='fd --type f --hidden --exclude .git |"bat {}" -p --reverse | xargs -o sh -c '\''[ -z "$1" ] || nvim "$1"'\'' sh' # find & open files in nvim
 alias v='nvim'
 alias c='clear'
 alias mv='mv -i'
