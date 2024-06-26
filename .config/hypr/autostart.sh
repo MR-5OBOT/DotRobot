@@ -6,12 +6,11 @@
 $SCRIPTS=~/.config/hypr/scripts
 
 exec-once = dunst
-exec-once = nm-applet
 exec-once = devify
 # exec-once = swww init
 # exec-once = hypridle
 
-exec-once = hyprctl setcursor Bitata-Modern-Icw 22
+exec-once = hyprctl setcursor Bitata-Modern-Ice 22
 exec-once = udiskie --no-automount --smart-tray # front-end that allows to manage removable media
 exec-once = nm-applet --indicator # systray app for Network/Wifi
 exec-once = wl-clipboard --watch -t
