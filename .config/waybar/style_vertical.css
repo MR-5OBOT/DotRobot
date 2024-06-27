@@ -8,12 +8,13 @@ window#waybar {
 }
 
 window#waybar > box {
- margin: 2px;
+ margin: 3px;
 }
 
 #workspaces {
  margin-left: 0px;
  margin-right: 0px;
+ font-size: 1px;
 }
 
 #workspaces button {
@@ -30,34 +31,38 @@ window#waybar > box {
  color: #f9f5ff;
 }
 
-#clock {
- padding-left: 1px;
- padding-right: 1px;
- font-family: NovaMono;
- font-size: 14px;
+#custom-powermenu {
+  color: #BB4176;
+  padding-top: 0px;
+  padding-bottom: 0px;
 }
 
-#pulseaudio {
+#clock {
+  padding-top: 2px;
+  padding-left: 1px;
+  padding-right: 1px;
+  font-family: NovaMono;
+  font-size: 14px;
+}
+
+#pulseaudio.audio {
   padding: 2px;
 }
-
-battery {
+#pulseaudio.microphone {
   padding: 4px;
 }
 
-/* If workspaces is the leftmost module, omit left margin */
-.modules-left > widget:first-child > #battery {
- margin-top: 4px;
-}
-
-.modules-right > widget:last-child > #battery {
- margin-bottom: 6px;
+#battery {
+  padding: 5px;
+  padding-bottom: 0px;
+  font-size: 12px;
 }
 
 #tray {
  background-color: transparent;
- padding: 2px;
- font-size: 1px;
+ padding-top: 4px;
+ padding-bottom: 2px;
+ font-size: 2px;
 }
 
 #tray > .needs-attention {
