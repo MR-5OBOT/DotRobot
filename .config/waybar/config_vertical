@@ -9,37 +9,32 @@
   "margin-right": 0,
   "spacing": 0,
   "gtk-layer-shell": true,
-  "modules-left": [
-  "group/clock",
+
+"modules-left": [
+  "clock",
   ],
 
-  "clock": {
+"clock": {
+    "orientation": "vertical",
     "interval": 1,
     "format": "{0:%H}\n{0:%m}\n--\n{0:%d}",
     "on-click": "gnome-calendar",
     "tooltip": true,
     "tooltip-format": "{calendar}",
     "calendar": {
-      "mode": "month",
-      "mode-mon-col": 1,
-      "format": {
+    "mode": "month",
+    "mode-mon-col": 1,
+    "format": {
         "today": "<span color='#0dbc79'>{}</span>"
       }
     }
   },
 
-  "group/clock": {
-    "orientation": "vertical",
-    "modules": [
-      "clock",
-    ]
-  },
-
-  "modules-center": [
+"modules-center": [
     "hyprland/workspaces",
   ],
 
-  "hyprland/workspaces": {
+"hyprland/workspaces": {
     "format": "{icon}",
     "format-icons": {
       "1": "〇",
@@ -50,26 +45,44 @@
       "6": "〇",
       "7": "〇",
       "8": "〇",
-      "9": "〇",
       "active": "󰊠",
       "default": "〇"
     },
+    "icon-size": 10,
     "on-click": "activate"
   },
 
-  "modules-right": [
+"modules-right": [
     "tray",
     "pulseaudio#microphone",
     "pulseaudio#audio",
-    "battery"
+    "battery",
+    "custom/separator",
+    "custom/powermenu"
   ],
 
-  "tray": {
-    "icon-size": 16,
+"custom/separator": {
+  "format": "{icon}",
+  "format-icons": [
+  "--"
+  ],
+},
+
+"custom/powermenu": {
+  "format": "{icon}",
+  "format-icons": [
+  "⏻"
+  ],
+  "on-click": "sh ~/.config/hypr/scripts/rofi-powermenu.sh",
+  "tooltip": true
+},
+
+"tray": {
+    "icon-size": 17,
     "spacing": 8
   },
 
-  "pulseaudio#audio": {
+"pulseaudio#audio": {
     "format": "{icon}",
     "format-bluetooth": "󰂯{icon}",
     "format-bluetooth-muted": "󰂯󰖁",
@@ -78,9 +91,6 @@
       "headphone": "󰋋",
       "hands-free": "󰋋",
       "headset": "󰋋",
-      "phone": "",
-      "portable": "",
-      "car": "",
       "default": [
         "󰕿",
         "󰖀",
@@ -94,7 +104,7 @@
     "tooltip-format": "{icon} {desc} {volume}%"
   },
 
-  "pulseaudio#microphone": {
+"pulseaudio#microphone": {
     "format": "{format_source}",
     "format-source": "󰍬",
     "format-source-muted": "󰍭",
@@ -105,11 +115,7 @@
     "tooltip": true
   },
 
-  "battery": {
-    "states": {
-      "warning": 20,
-      "critical": 10
-    },
+"battery": {
     "format": "{icon}",
     "format-charging": "󰂄",
     "format-plugged": "󱘖",
@@ -118,14 +124,15 @@
       "󰁻",
       "󰁼",
       "󰁽",
-      "󰁾",
       "󰁿",
       "󰁹"
     ],
     "on-click": "",
     "tooltip": true
   }
-}
+},
+
+
 
 
 
