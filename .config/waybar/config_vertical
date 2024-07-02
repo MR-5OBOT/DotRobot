@@ -45,8 +45,9 @@
       "6": "〇",
       "7": "〇",
       "8": "〇",
-      "active": "󰊠",
-      "default": "〇"
+      "active": "",
+      "default": "",
+      "focused": ""
     },
     "icon-size": 10,
     "on-click": "activate"
