@@ -62,7 +62,7 @@ alias lt="eza --tree --level=2 --long --icons --git"
 
 # CD to repos
 alias dlab='cd ~/repos/Dev-Lab/'
-alias vlab='v ~/repos/MR-NV/nvim/'
+alias vlab='cd ~/repos/MR-NV/nvim/'
 alias tj='cd ~/repos/Dev-Lab/latex-projects/trading-journal/'
 alias .dots='cd ~/repos/DotRoboT/'
 
