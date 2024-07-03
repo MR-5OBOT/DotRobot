@@ -15,7 +15,7 @@ echo "You can deactivate the current display manager (if exists)."
 echo ""
 echo "-> Do you really want to deactivate the display manager?"
 while true; do
-    read -p "Do you want to enable the sddm display manager and setup theme? (Yy/Nn): " yn
+    read -p "Do you want to remove the sddm display manager ? (Yy/Nn): " yn
     case $yn in
         [Yy]* )
             if [ -f /etc/systemd/system/display-manager.service ]; then
