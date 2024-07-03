@@ -1,9 +1,9 @@
 #!/usr/bin/bash
+
+$SCRIPTS=~/.config/hypr/scripts
 # ----------------------------------------------------- 
 # Autostart
 # ----------------------------------------------------- 
-
-$SCRIPTS=~/.config/hypr/scripts
 
 exec-once = dunst
 exec-once = devify
