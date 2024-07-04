@@ -1,6 +1,5 @@
 configuration {
-/*	  combi-modi:                 "drun,run";	   */
-	  modi:                       "drun,run";
+	  combi-modi:                 "drun,run";	 
     show-icons:                 false;
     display-drun:               "";
     display-run:                "";
@@ -29,7 +28,7 @@ window {
     transparency:                "real";
     y-offset:                    0%;
     x-offset:                    0%;
-    width:                       21%;
+    width:                       20%;
     fullscreen:                  false;
     margin:                      5px;
     padding:                     0px;
@@ -73,7 +72,7 @@ entry {
 
 listview {
     columns:                     1;
-    lines:                       2;
+    lines:                       6;
     dynamic:                     true;
     scrollbar:                   false;
     spacing:                     5px;
