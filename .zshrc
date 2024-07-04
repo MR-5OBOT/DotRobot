@@ -47,7 +47,7 @@ zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 zstyle ':completion:*' menu no
 
 # Aliases
-alias ff='fd --type f --hidden --exclude .git |"bat {}" -p --reverse | xargs -o sh -c '\''[ -z "$1" ] || nvim "$1"'\'' sh' # find & open files in nvim
+alias ff='fd --type f --hidden --exclude .git | fzf --preview "bat {}" --reverse | xargs -x sh -c '"'"'[ -z "$1" ] || nvim "$1"'"'"' sh'
 alias v='nvim'
 alias c='clear'
 alias mv='mv -i'
@@ -61,8 +61,8 @@ alias l="ls -lah"
 alias lt="eza --tree --level=2 --long --icons --git"
 
 # CD to repos
-alias dlab='cd ~/repos/DEV-LAB/'
-alias vlab='cd ~/repos/MR-NV/nvim/'
+alias dlab='cd ~/repos/Dev-Lab/'
+alias vlab='v ~/repos/MR-NV/nvim/'
 alias tj='cd ~/repos/Dev-Lab/latex-projects/trading-journal/'
 alias .dots='cd ~/repos/DotRoboT/'
 
