@@ -1,10 +1,10 @@
 configuration {
-	  combi-modi:                 "drun,run";	 
+    combi-modi:                 "drun,run";	 
     show-icons:                 false;
     display-drun:               "";
     display-run:                "";
-    display-calc:               " - %";
-   	drun-display-format:        "{name}";
+    display-calc:               " - %";    
+    drun-display-format:        "{name}";
 }
 
 @import                          "shared/custom_oxocarbon.rasi"
@@ -71,10 +71,10 @@ entry {
 }
 
 listview {
+    dynamic: true;
+    lines: 1;
+    scrollbar: false;
     columns:                     1;
-    lines:                       6;
-    dynamic:                     true;
-    scrollbar:                   false;
     spacing:                     5px;
     margin:                      0px;
     padding:                     0px;
@@ -92,9 +92,9 @@ element {
     border-radius:               1px;
     background-color:            transparent;
     text-color:                  @foreground-colour;
+    element-text: "  ";
 }
 
-/*****----- Message -----*****/
 error-message {
     padding:                     10px;
     border:                      0px solid;
@@ -102,5 +102,3 @@ error-message {
     background-color:            #0C0C0C;
     text-color:                  #fff;
 }
-
-
