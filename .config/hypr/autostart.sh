@@ -37,5 +37,5 @@ exec-once = $SCRIPTS/autostart/batterynotify.sh
 # exec-once = $SCRIPTS/autostart/gtk.sh # Load GTK settings
 
 # Application autostart
-exec-once = telegram-desktop -startintray
+# exec-once = telegram-desktop -startintray
 
