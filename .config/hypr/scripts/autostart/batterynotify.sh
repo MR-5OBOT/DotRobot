@@ -25,11 +25,15 @@ while true; do
         dunstify -u CRITICAL "Battery Low" "Battery is at $battery_percentage%. Connect the charger."
     fi
 
+    if  [ "$battery_percentage" -le 30 ]; then
+        dunstify -u CRITICAL "Battery Low" "Battery is at $battery_percentage%. Connect the charger."
+    fi
+
     if [ "$battery_status" == "Charging" ] && [ "$battery_percentage" -ge 85 ]; then
         dunstify -u NORMAL "Battery Charged" "Battery is at $battery_percentage%. You can unplug the charger."
     fi
 
-    sleep 300  # Sleep for 5 minutes before checking again
+    sleep 200  # Sleep for 5 minutes before checking again
   done
 
 fi

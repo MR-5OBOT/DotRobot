@@ -32,6 +32,8 @@ fi
 
 echo
 # Run the scripts in sequence
+run_script "./.setup/bluebooth.sh"
+run_script "./.setup/firefox.sh"
 run_script "./.install/MR5OBOT-dotfiles-setup.sh"
 run_script "./.install/neovim-setup.sh"
 run_script "./.install/thunar-setup.sh"

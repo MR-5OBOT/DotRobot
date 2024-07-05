@@ -33,8 +33,6 @@ exec-once = $SCRIPTS/autostart/xdgportals.sh
 exec-once = $SCRIPTS/wallpapers/random_walls.sh
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh
 exec-once = $SCRIPTS/autostart/batterynotify.sh
-# exec-once = $SCRIPTS/autostart/TinkPad_BT_notify.sh
-# exec-once = $SCRIPTS/autostart/gtk.sh # Load GTK settings
 
 # Application autostart
 # exec-once = telegram-desktop -startintray
