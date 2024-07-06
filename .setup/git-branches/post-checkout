@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Set the path to the dotfiles repository
-DOTFILES_PATH=~/MR-5OBOT/DotRoboT
+DOTFILES_PATH=~/repos/DotRoboT
 
 # Destination directories
 DESTINATIONS=("~/.config" "~/")
