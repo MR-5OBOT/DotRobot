@@ -70,6 +70,9 @@ alias .dots='cd ~/repos/DotRoboT/'
 alias vbashrc='nvim ~/.bashrc'
 alias vzshrc='nvim ~/.zshrc'
 
+# update the dotfiles
+alias fixdotfiles='sh ~/repos/DotRoboT/.setup/MR5OBOT-dotfiles-setup.sh'
+
 # IP address lookup function
 myip() {
     ip addr show | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*'
