@@ -1,0 +1,111 @@
+configuration {
+	  modi:                       "calc";
+   	drun-display-format:        "{name}";
+    display-calc:               " - %";
+
+}
+
+@import                          "shared/custom_oxocarbon.rasi"
+
+* {
+    font:                        "GohuFont 14 Nerd Font Mono 12";
+    handle-colour:               var(foreground);
+    background-colour:           var(background);
+    foreground-colour:           var(foreground);
+    normal-background:           var(background);
+    normal-foreground:           var(foreground);
+    urgent-foreground:           var(background);
+    selected-normal-background:  var(selected);
+    selected-normal-foreground:  var(background);
+    selected-urgent-foreground:  var(background);
+    selected-active-foreground:  var(background);
+    alternate-normal-background: var(background);
+    alternate-normal-foreground: var(foreground);
+    alternate-urgent-foreground: var(background);
+    alternate-active-foreground: var(background);
+}
+
+window {
+    transparency:                "real";
+    y-offset: 0%;
+    x-offset: 0%;
+    width: 35%;
+    enabled:                     true;
+    margin:                      0px;
+    padding:                     10px;
+    border:                      0px solid;
+    border-radius:               0px;
+    cursor:                      "default";
+    background-color:            @background-colour;
+}
+
+mainbox {
+    enabled:                     true;
+    spacing:                     20px;
+    margin:                      0px;
+    padding:                     0px;
+    border:                      0px solid;
+    border-radius:               0px 0px 0px 0px;
+    background-color:            transparent;
+    children:                    [ "inputbar", "listview" ];
+}
+
+inputbar {
+    enabled:                     true;
+    spacing:                     10px;
+    margin:                      0px;
+    padding:                     0px;
+    border:                      0px solid;
+    children:                    [ "prompt","entry" ];
+}
+
+entry {
+    enabled:                     true;
+    background-color:            inherit;
+    text-color:                  inherit;
+    cursor:                      text;
+    placeholder:                 "";
+    placeholder-color:           inherit;
+}
+
+listview {
+    enabled:                     true;
+    columns:                     1;
+    lines:                       5;
+    cycle:                       true;
+    dynamic:                     true;
+    scrollbar:                   false;
+    layout:                      vertical;
+    reverse:                     false;
+    fixed-height:                true;
+    fixed-columns:               true; 
+    spacing:                     5px;
+    margin:                      0px;
+    padding:                     0px;
+    border:                      0px solid;
+    border-radius:               0px;
+    background-color:            transparent;
+    cursor:                      "default";
+}
+
+element {
+    enabled:                     true;
+    spacing:                     8px;
+    margin:                      0px;
+    padding:                     5px;
+    border:                      0px solid;
+    border-radius:               1px;
+    text-color:                  @foreground-colour;
+    cursor:                      pointer;
+}
+
+error-message {
+    padding:                     10px;
+    border:                      0px solid;
+    border-radius:               0px;
+    background-color:            #0C0C0C;
+    text-color:                  #fff;
+}
+
+
+

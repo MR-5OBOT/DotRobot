@@ -1,0 +1,71 @@
+* {
+ font-family: NovaMono;
+ font-size: 14px;
+}
+
+window#waybar {
+ color: #a3a5b6;
+}
+
+window#waybar > box {
+ margin: 3px;
+}
+
+#workspaces {
+ margin-left: 0px;
+ margin-right: 0px;
+ font-size: 1px;
+}
+
+#workspaces button {
+ color: #70717a;
+ padding: 0;
+ margin: 0;
+ margin-top: 2px;
+ margin-bottom: 2px;
+ margin-right: 0px;
+}
+
+#workspaces button.focused,
+#workspaces button.active {
+ color: #f9f5ff;
+}
+
+#custom-powermenu {
+  color: #BB4176;
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
+#clock {
+  padding-top: 2px;
+  padding-left: 1px;
+  padding-right: 1px;
+  font-family: NovaMono;
+  font-size: 14px;
+}
+
+#pulseaudio.audio {
+  padding: 2px;
+}
+#pulseaudio.microphone {
+  padding: 4px;
+}
+
+#battery {
+  padding: 5px;
+  padding-bottom: 0px;
+  font-size: 12px;
+}
+
+#tray {
+ background-color: transparent;
+ padding-top: 4px;
+ padding-bottom: 2px;
+ font-size: 2px;
+}
+
+#tray > .needs-attention {
+ /* Replace with a valid property */
+ background-color: #f279a1;
+}

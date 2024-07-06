@@ -1,0 +1,115 @@
+## ░█▀▀░▀█▀░█▀█░█▀▄░█▀▀░█░█░▀█▀░█▀█
+## ░▀▀█░░█░░█▀█░█▀▄░▀▀█░█▀█░░█░░█▀▀
+## ░▀▀▀░░▀░░▀░▀░▀░▀░▀▀▀░▀░▀░▀▀▀░▀░░
+
+format = """
+$hostname\
+$username\
+$directory\
+$docker_context\
+$fill\
+$git_branch\
+$git_status\
+$git_commit\
+$status\
+$os\
+$container\
+$line_break\
+$character"""
+
+# Disable the blank line at the start of the prompt
+add_newline = false
+
+# Second param
+[hostname]
+ssh_only = true
+disabled = false
+
+[username]
+style_user = "bold green"
+style_root = "bold red"
+format = "[$user]($style) in "
+disabled = false
+show_always = true
+
+# Third param
+[directory]
+format = "[](fg:#252525 bg:none)[$path]($style)[█](fg:#232526 bg:#232526)[](fg:#94938F bg:#252525)[](fg:#252525 bg:#94938F)[](fg:#94938F bg:none)"
+style = "fg:#E8E3E3 bg:#252525 bold"
+truncation_length = 3
+truncate_to_repo=false
+read_only = " "
+
+## SECOND LINE/ROW: Prompt
+# Prompt: param 2 └─
+[character]
+success_symbol = "[󱞪 ](#038857 bold)"
+error_symbol = "[ ](#B66467 bold)"
+
+[line_break]
+disabled = false
+
+[fill]
+symbol = ' '
+style = 'bold green'
+
+[cmd_duration]
+min_time = 100
+format = "[](fg:#252525 bg:none)[$duration]($style)[](fg:#252525 bg:#252525)[](fg:#C397D8 bg:#252525)[󱑂 ](fg:#252525 bg:#C397D8)[](fg:#C397D8 bg:none)"
+disabled = false
+style = "fg:#E8E3E3 bg:#252525 bold"
+
+
+[git_branch]
+format = "[](fg:#252525 bg:none)[$branch]($style)[](fg:#252525 bg:#252525)[](fg:#94938F bg:#252525)[](fg:#252525 bg:#94938F)[](fg:#94938F bg:none) "
+style = "fg:#E8E3E3 bg:#252525"
+symbol = " "
+
+[git_status]
+format="[](fg:#252525 bg:none)[$all_status$ahead_behind]($style)[](fg:#252525 bg:#252525)[](fg:#94938F bg:#252525)[](fg:#252525 bg:#94938F)[](fg:#94938F bg:none) "
+style = "fg:#E8E3E3 bg:#252525"
+conflicted = "="
+ahead =	"⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+up_to_date = " 󰄸 "
+untracked = "?${count}"
+stashed = ""
+modified = "!${count}"
+staged = "+${count}"
+renamed = "»${count}"
+deleted = " ${count}"
+
+[git_commit]
+format = "[\\($hash\\)]($style) [\\($tag\\)]($style)"
+style = "green"
+
+[git_state]
+rebase = "REBASING"
+merge =	"MERGING"
+revert = "REVERTING"
+cherry_pick = "CHERRY-PICKING"
+bisect = "BISECTING"
+am = "AM"
+am_or_rebase = "AM/REBASE"
+style =	"yellow"
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+
+[docker_context]
+symbol = " "
+format = "via [$symbol$context]($style) "
+style = "blue bold"
+only_with_files = true
+detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
+detect_folders = []
+disabled = false
+
+[python]
+symbol = " "
+pyenv_version_name = true
+format = 'via [${symbol}python (${version} )(\($virtualenv\) )]($style)'
+style = "bold yellow"
+pyenv_prefix = "venv "
+python_binary = ["./venv/bin/python", "python", "python3", "python2"]
+detect_extensions = ["py"]
+version_format = "v${raw}"
