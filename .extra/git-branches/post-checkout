@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Set the source and destination directories
-src_dir="$HOME/repos/DotRoboT/.setup/git-branches/post-checkout"
+src_dir="$HOME/repos/DotRoboT/.setup/git-branches"
 dst_dir="$HOME/repos/DotRoboT/.git/hooks"
 
 # Check if the source file exists
