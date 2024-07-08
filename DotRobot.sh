@@ -14,12 +14,13 @@ run_script() {
 
 ## Full Setup for Hyprland Packages and Configurations
 echo "Starting full setup for MR5OBOT dotfiles"
-echo "The following scripts will be run in sequence:"
+echo "The following scripts will setup in sequence:"
 
 echo
 ### Scripts to be Executed
 # echo "- custom-fonts.sh"
-echo "- dotfiles-setup.sh"
+echo "- dotfiles-setup."
+echo "- firefox.sh"
 echo "- neovim-setup.sh"
 echo "- thunar-setup.sh"
 echo "- archives.sh"
@@ -32,12 +33,12 @@ fi
 
 echo
 # Run the scripts in sequence
-run_script "./.setup/bluebooth.sh"
+run_script "./.setup/MR5OBOT-dotfiles-setup.sh"
 run_script "./.setup/firefox.sh"
-run_script "./.install/MR5OBOT-dotfiles-setup.sh"
-run_script "./.install/neovim-setup.sh"
-run_script "./.install/thunar-setup.sh"
-run_script "./.install/archives.sh"
+run_script "./.setup/neovim-setup.sh"
+run_script "./.setup/thunar-setup.sh"
+run_script "./.setup/archives.sh"
 
 echo -e "All scripts completed successfully."
 echo -e "Enjoy your system."
+
