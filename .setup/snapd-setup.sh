@@ -30,4 +30,5 @@ echo ""
 
 echo "Enable classic snap support by creating a symbolic link"
 sudo ln -s /var/lib/snapd/snap /snap
+systemctl enable --now snapd.seeded.service
 
