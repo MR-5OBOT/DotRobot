@@ -105,3 +105,6 @@ myip() {
 # colors for the man pages
 export LESS='-R --use-color -Dd+r$Du+b$'
 
+# snapd PATH
+export PATH="/var/lib/snapd/snap/bin:$PATH"
+
