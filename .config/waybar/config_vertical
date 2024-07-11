@@ -19,25 +19,26 @@
 
 // positions generated based on config.ctl //
 
-	"modules-left": ["custom/padd","custom/power","custom/padd","clock","custom/padd"],
+	"modules-left": ["custom/padd","custom/power","custom/mode","custom/notification","custom/cliphist","custom/padd","clock",],
 	"modules-center": ["custom/padd","hyprland/workspaces","custom/padd"],
-	"modules-right": ["custom/padd","tray","custom/padd","pulseaudio","battery","custom/notification","custom/padd"],
+	"modules-right": ["tray","pulseaudio","pulseaudio#microphone","battery","custom/padd"],
 
 
 // sourced from modules based on config.ctl //
 
 "hyprland/workspaces": {
     "format": "{icon}",
-    "format-icons": {
-      "1": "〇",
-      "2": "〇",
-      "3": "〇",
-      "4": "〇",
-      "5": "〇",
-      "6": "〇",
-      "7": "〇",
-      "8": "〇",
-      "default": "",
+"format-icons": {
+    "1": "一",
+    "2": "二",
+    "3": "三",
+    "4": "四",
+    "5": "五",
+    "6": "六",
+    "7": "七",
+    "8": "八",
+    "9": "九",      
+    "default": "",
     },
     "icon-size": 1,
     "on-click": "activate"
@@ -80,6 +81,15 @@
         "interval" : 86400, // once every day
         "tooltip": true
     },
+    "custom/mode": {
+        "format": "{}",
+        "exec": "echo ; echo 󰟡 switch wallpaper",
+        "on-click": "~/.config/hypr/scripts/wallpapers/walls-picker.sh",
+        "on-click-right": "",
+        "on-click-middle": "",
+        "interval" : 86400, // once every day
+        "tooltip": true
+    },
 
     "battery": {
         "rotate": 0,
@@ -108,7 +118,7 @@
     },
 
     "clock": {
-        "format": "{:%I:%M %p 󰃭 %a %d}",
+        "format": "{:%H:%M 󰃭 %a %d}",
         "format-alt": "{:%H:%M  %b %Y}",
         "tooltip-format": "<tt><big>{calendar}</big></tt>",
         "rotate": 90,
@@ -157,13 +167,13 @@
             "phone": "",
             "portable": "",
             "car": "",
-            "default": ["", "", ""]
+            "default": ["", "", "🔊"]
         }
     },
 
     "pulseaudio#microphone": {
         "format": "{format_source}",
-        "format-source": "",
+        "format-source": "",
         "format-source-muted": "",
         "on-click": "pavucontrol -t 4",
         "on-click-middle": "swayosd-client --input-volume mute-toggle",
@@ -176,44 +186,8 @@
 
 // modules for padding //
 
-    "custom/l_end": {
-        "format": " ",
-        "interval" : "once",
-        "tooltip": false
-    },
-
-    "custom/r_end": {
-        "format": " ",
-        "interval" : "once",
-        "tooltip": false
-    },
-
-    "custom/sl_end": {
-        "format": " ",
-        "interval" : "once",
-        "tooltip": false
-    },
-
-    "custom/sr_end": {
-        "format": " ",
-        "interval" : "once",
-        "tooltip": false
-    },
-
-    "custom/rl_end": {
-        "format": " ",
-        "interval" : "once",
-        "tooltip": false
-    },
-
-    "custom/rr_end": {
-        "format": " ",
-        "interval" : "once",
-        "tooltip": false
-    },
-
     "custom/padd": {
-        "format": "  ",
+        "format": " ",
         "interval" : "once",
         "tooltip": false
     },
