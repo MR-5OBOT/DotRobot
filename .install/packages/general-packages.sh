@@ -15,6 +15,7 @@ packagesPacman=(
     "networkmanager"
     "xdg-user-dirs"
     "xdg-utils"
+    "noto-fonts-cjk"
     "brightnessctl"
     "base-devel"
     "pacman-contrib"

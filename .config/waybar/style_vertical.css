@@ -1,6 +1,7 @@
 * {
- font-family: NovaMono;
- font-size: 14px;
+  /* font-family: noto-fonts-cjk; */
+  font-size: 13px;
+  min-height: 20px;
 }
 
 window#waybar {
@@ -14,11 +15,13 @@ window#waybar > box {
 #workspaces {
  margin-left: 0px;
  margin-right: 0px;
+ padding-top: 20px;
+ padding-bottom: 20px;
  font-size: 1px;
 }
 
 #workspaces button {
- color: #70717a;
+ color: #B2B2B2;
  padding: 0;
  margin: 0;
  margin-top: 2px;
@@ -28,41 +31,44 @@ window#waybar > box {
 
 #workspaces button.focused,
 #workspaces button.active {
- color: #f9f5ff;
+ color: #B53F71;;
 }
 
-#custom-powermenu {
-  color: #BB4176;
-  padding-top: 0px;
-  padding-bottom: 0px;
+#custom-power {
+  color: #B53F71;
+  /* padding-bottom: 15px; */
+  /* padding-top: 10px; */
 }
 
 #clock {
-  padding-top: 2px;
+  /* padding-top: 15px; */
   padding-left: 1px;
   padding-right: 1px;
   font-family: NovaMono;
   font-size: 14px;
 }
 
+#pulseaudio {
+  padding-top: 5px;
+}
 #pulseaudio.audio {
-  padding: 2px;
+  padding-top: 0px;
 }
 #pulseaudio.microphone {
-  padding: 4px;
+  padding: 0px;
 }
 
 #battery {
-  padding: 5px;
-  padding-bottom: 0px;
-  font-size: 12px;
+  padding-top: 0px;
+  padding-bottom: 5px;
+  font-size: 14px;
 }
 
 #tray {
  background-color: transparent;
  padding-top: 4px;
  padding-bottom: 2px;
- font-size: 2px;
+ /* font-size: 2px; */
 }
 
 #tray > .needs-attention {
