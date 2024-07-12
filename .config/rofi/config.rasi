@@ -1,6 +1,6 @@
 configuration {
     combi-modi:                 "drun,run";	 
-    show-icons:                 false;
+    show-icons:                 true;
     display-drun:               "";
     display-run:                "";
     display-calc:               " - %";    
@@ -72,7 +72,7 @@ entry {
 
 listview {
     dynamic: true;
-    lines: 1;
+    lines: 3;
     scrollbar: false;
     columns:                     1;
     spacing:                     5px;
