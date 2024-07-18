@@ -24,8 +24,9 @@ exec-once = devify
 # exec-once = hypridle
 
 # clipboard deamon
-exec-once = wl-paste --type text --watch cliphist store  # Stores only text data
-exec-once = wl-paste --type image --watch cliphist store # Stores only image data
+exec-once=wl-paste --watch cliphist store
+# exec-once = wl-paste --type text --watch cliphist store  # Stores only text data
+# exec-once = wl-paste --type image --watch cliphist store # Stores only image data
 
 # scripts
 exec-once = $SCRIPTS/autostart/xdgportals.sh
