@@ -23,17 +23,18 @@ while true; do
 
     if [ "$battery_status" == "Discharging" ] && [ "$battery_percentage" -le 20 ]; then
         dunstify -u CRITICAL "Battery Low" "Battery is at $battery_percentage%. Connect the charger."
+        paplay ~/.config/dunst/sounds/battery-low.wav
     fi
 
     if  [ "$battery_percentage" -le 30 ]; then
         dunstify -u CRITICAL "Battery Low" "Battery is at $battery_percentage%. Connect the charger."
     fi
 
-    if [ "$battery_status" == "Charging" ] && [ "$battery_percentage" -ge 85 ]; then
+    if [ "$battery_status" == "Charging" ] && [ "$battery_percentage" -ge 90 ]; then
         dunstify -u NORMAL "Battery Charged" "Battery is at $battery_percentage%. You can unplug the charger."
     fi
 
-    sleep 200  # Sleep for 5 minutes before checking again
+    sleep 300  # Sleep for 5 minutes before checking again
   done
 
 fi
