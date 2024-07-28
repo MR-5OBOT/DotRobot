@@ -12,10 +12,10 @@ fi
 if ! systemctl --user is-active --quiet wireplumber; then
     echo "WirePlumber is not running. Enabling and starting WirePlumber..."
     systemctl --user enable --now wireplumber
-    notify-send "WirePlumber Enabled" "WirePlumber has been enabled and started."
+    dunstify "WirePlumber Enabled" "WirePlumber has been enabled and started."
 else
     echo "WirePlumber is already running."
-    notify-send "WirePlumber Running" "WirePlumber is already enabled and running."
+    dunstify "WirePlumber Running" "WirePlumber is already enabled and running."
 fi
 
 

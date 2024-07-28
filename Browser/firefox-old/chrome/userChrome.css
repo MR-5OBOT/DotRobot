@@ -1,7 +1,7 @@
 /* --------------------- FONTS ----------------------------- */
 
 * {
-    font-family: "NovaMono", monospace !important; /* Fallback to monospace */
+    font-family: "NovaMono", monospace !important;
     font-size: 13px !important;
 }
 
