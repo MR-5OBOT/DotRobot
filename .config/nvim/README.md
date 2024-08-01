@@ -8,3 +8,5 @@
 - lazy.nvim = plugins manager
 - telescop = fuzy finder
 - noe-tree = file explorer
+
+hello

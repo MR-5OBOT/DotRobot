@@ -85,10 +85,10 @@ alias l="ls -lah"
 alias lt="eza --tree --level=2 --long --icons --git"
 
 # CD to repos
-alias mylab='cd ~/repos/The-Lab/'
+alias mlab='cd ~/repos/The-Lab/'
 alias vlab='v ~/repos/DotRoboT/.config/nvim/'
-alias tj='cd ~/repos/Dev-Lab/latex-projects/trading-journal/'
-alias .dotfiles='cd ~/repos/DotRoboT/'
+alias tlab='cd ~/repos/Dev-Lab/latex-projects/trading-journal/'
+alias .dots='cd ~/repos/DotRoboT/'
 
 # Edit config files
 alias vbashrc='nvim ~/.bashrc'
