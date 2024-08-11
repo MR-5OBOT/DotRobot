@@ -20,8 +20,8 @@ exec-once = nm-applet --indicator # systray app for Network/Wifi
 # exec-once = sleep 3; blueman-applet
 exec-once = dunst
 exec-once = devify
+exec-once = hypridle
 # exec-once = swww init
-# exec-once = hypridle
 
 # clipboard deamon
 # exec-once=wl-paste --watch cliphist store
@@ -29,12 +29,12 @@ exec-once = wl-paste --type text --watch cliphist store  # Stores only text data
 exec-once = wl-paste --type image --watch cliphist store # Stores only image data
 
 # scripts
+exec-once = $SCRIPTS/autostart/Hypridle.sh
 exec-once = $SCRIPTS/autostart/xdgportals.sh
 exec-once = $SCRIPTS/autostart/pipewire_check.sh
 exec-once = $SCRIPTS/wallpapers/random_walls.sh
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh
 exec-once = $SCRIPTS/autostart/batterynotify.sh
 
-# Application autostart
-# exec-once = telegram-desktop -startintray
+
 
