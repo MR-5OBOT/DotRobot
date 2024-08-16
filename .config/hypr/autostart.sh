@@ -11,20 +11,16 @@ exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CUR
 exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP # for XDPH
 exec-once = systemctl --user restart pipewire # RESTARTS PIPEWIRE (RECOMMENDED BY HYPRLAND DOC)
 
-# exec-once = systemctl --user import-environment QT_QPA_PLATFORMTHEME # to import the QT_QPA_PLATFORMTHEME 
-# exec-once = systemctl start --user xdg-desktop-portal-hyprland
-# exec-once = systemctl start --user xdg-desktop-portal
-
 exec-once = udiskie -a --tray # front-end that allows to manage removable media
 exec-once = nm-applet --indicator # systray app for Network/Wifi
-# exec-once = sleep 3; blueman-applet
 exec-once = dunst
 exec-once = devify
 exec-once = hypridle
+# exec-once = sleep 3; blueman-applet
 # exec-once = swww init
 
 # clipboard deamon
-# exec-once=wl-paste --watch cliphist store
+exec-once = wl-paste --watch cliphist store
 exec-once = wl-paste --type text --watch cliphist store  # Stores only text data
 exec-once = wl-paste --type image --watch cliphist store # Stores only image data
 
