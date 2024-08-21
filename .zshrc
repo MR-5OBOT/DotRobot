@@ -15,7 +15,7 @@ fi
 # Set the directory to store Zinit and plugins
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 
-# Download Zinit if not present
+ Download Zinit if not present
 if [ ! -d "$ZINIT_HOME" ]; then
    mkdir -p "$(dirname "$ZINIT_HOME")"
    git clone https://github.com/zdharma/zinit.git "$ZINIT_HOME"

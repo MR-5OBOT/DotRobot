@@ -8,6 +8,7 @@ packagesPacman=(
     "rclone"
     "figlet"
     "neovim"
+    "zsh"
     "kitty"
     "thunar"
     "file-roller"
