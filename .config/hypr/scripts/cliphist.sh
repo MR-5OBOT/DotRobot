@@ -1,22 +1,25 @@
 #!/usr/bin/env sh
 
-ScrDir=`dirname "$(realpath "$0")"`
-roconf="~/.config/rofi/custom/clipboard.rasi"
+#   ____ _ _       _     _     _    
+#  / ___| (_)_ __ | |__ (_)___| |_  
+# | |   | | | '_ \| '_ \| / __| __| 
+# | |___| | | |_) | | | | \__ \ |_  
+#  \____|_|_| .__/|_| |_|_|___/\__| 
+#           |_|                     
+#  
+# by Stephan Raabe (2023) 
+# ----------------------------------------------------- 
 
-# clipboard action
 case $1 in
-    c)  cliphist list | rofi -dmenu -theme-str "entry { placeholder: \"Copy...\";}  ${r_override}" -theme-str "${fnt_override}" -config $roconf | cliphist decode | wl-copy
-        ;; 
-    d)  cliphist list | rofi -dmenu -theme-str "entry { placeholder: \"Delete...\";}  ${r_override}" -theme-str "${fnt_override}" -config $roconf | cliphist delete
-        ;;
-    w)  if [ `echo -e "Yes\nNo" | rofi -dmenu -theme-str "entry { placeholder: \"Clear Clipboard History?\";}  ${r_override}" -theme-str "${fnt_override}" -config $roconf` == "Yes" ] ; then
+    d) cliphist list | rofi -dmenu -replace -config ~/.config/rofi/clipboard.rasi | cliphist delete
+       ;;
+
+    w) if [ `echo -e "Clear\nCancel" | rofi -dmenu -config ~/.config/rofi/clipboard.rasi` == "Clear" ] ; then
             cliphist wipe
-        fi
-        ;;
-    *)  echo -e "cliphist.sh [action]"
-        echo "c :  cliphist list and copy selected"
-        echo "d :  cliphist list and delete selected"
-        echo "w :  cliphist wipe database"
-        exit 1
-        ;;
+       fi
+       ;;
+
+    *) cliphist list | rofi -dmenu -replace -config ~/.config/rofi/clipboard.rasi | cliphist decode | wl-copy
+       ;;
+esac
 esac
