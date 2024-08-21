@@ -4,7 +4,7 @@
 gum style --border normal --margin "1 2" --padding "1 2" --align center "MR5OBOT Archives Setup"
 
 # Define source and destination directories
-SOURCE_DIR="$HOME/repos/DotRoboT/home"
+SOURCE_DIR="$HOME/repos/DotRoboT/.home/"
 DEST_DIR="$HOME"
 
 # Define the directories to copy
