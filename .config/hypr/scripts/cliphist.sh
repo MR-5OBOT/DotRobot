@@ -22,4 +22,3 @@ case $1 in
     *) cliphist list | rofi -dmenu -replace -config ~/.config/rofi/clipboard.rasi | cliphist decode | wl-copy
        ;;
 esac
-esac
