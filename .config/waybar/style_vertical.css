@@ -1,7 +1,7 @@
 * {
-  /* font-family: noto-fonts-cjk; */
-  font-size: 13px;
-  min-height: 20px;
+  font-family: noto-fonts-cjk, NovaMono, IosevkaTerm;
+  /* font-size: 14px; */
+  min-height: 25px;
 }
 
 window#waybar {
@@ -17,7 +17,6 @@ window#waybar > box {
  margin-right: 0px;
  padding-top: 20px;
  padding-bottom: 20px;
- font-size: 1px;
 }
 
 #workspaces button {
@@ -61,7 +60,6 @@ window#waybar > box {
 #battery {
   padding-top: 0px;
   padding-bottom: 5px;
-  font-size: 14px;
 }
 
 #tray {
