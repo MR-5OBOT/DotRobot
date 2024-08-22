@@ -65,7 +65,7 @@
   },
 
     "custom/power": {
-        "format": "{}",
+        "format": "",
         "exec": "echo ; echo  logout",
         "on-click": "~/.config/hypr/scripts/rofi-powermenu.sh",
         "interval" : 86400, // once every day
@@ -73,7 +73,7 @@
     },
 
     "custom/cliphist": {
-        "format": "{}",
+        "format": "",
         "exec": "echo ; echo 󰅇 clipboard history",
         "on-click": "sleep 0.1 && ~/.config/hypr/scripts/cliphist.sh c",
         "on-click-right": "sleep 0.1 && ~/.config/hypr/scripts/cliphist.sh d",
@@ -82,7 +82,7 @@
         "tooltip": true
     },
     "custom/mode": {
-        "format": "{}",
+        "format": "",
         "exec": "echo ; echo 󰟡 switch wallpaper",
         "on-click": "~/.config/hypr/scripts/wallpapers/walls-picker.sh",
         "on-click-right": "",
@@ -105,16 +105,6 @@
         "tooltip-format": "{capacity}%",
         "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
         "on-click-right": "~/.config/rofi/files/applets/bin/battery.sh"
-    },
-
-    "custom/wallchange": {
-        "format": "{}",
-        "exec": "echo ; echo 󰆊 switch wallpaper",
-        "on-click": "~/.config/hypr/scripts/wallpapers/walls-picker.sh",
-        "on-click-right": "~/.config/hypr/scripts/swwwallpaper.sh -p",
-        "on-click-middle": "sleep 0.1 && ~/.config/hypr/scripts/swwwallselect.sh",
-        "interval" : 86400, // once every day
-        "tooltip": true
     },
 
     "clock": {
@@ -152,8 +142,8 @@
     },
 
     "pulseaudio": {
-        "format": "{icon}",
-        "format-muted": "婢",
+        "format": "",
+        "format-muted": "󰝟",
         "on-click": "pavucontrol -t 3",
         "on-click-middle": "swayosd-client --output-volume mute-toggle ",
         "on-scroll-up": "swayosd-client --output-volume raise",
@@ -167,7 +157,6 @@
             "phone": "",
             "portable": "",
             "car": "",
-            "default": ["", "", "🔊"]
         }
     },
 
