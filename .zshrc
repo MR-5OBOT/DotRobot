@@ -1,9 +1,22 @@
-#  ┬  ┬┌─┐┬─┐┌─┐
-#  └┐┌┘├─┤├┬┘└─┐
-#   └┘ ┴ ┴┴└─└─┘
+
+# Set the directory to store Zinit and plugins
+ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+
+# Download Zinit if not present
+if [ ! -d "$ZINIT_HOME" ]; then
+    mkdir -p "$(dirname "$ZINIT_HOME")"
+    git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+fi
+
+# Source/Load Zinit
+if [ -f "${ZINIT_HOME}/zinit.zsh" ]; then
+    source "${ZINIT_HOME}/zinit.zsh"
+else
+    echo "Error: zinit.zsh not found in ${ZINIT_HOME}. Please check the installation."
+fi
+
 export VISUAL="${EDITOR}"
 export EDITOR='neovim'
-export BROWSER='firefox'
 export HISTORY_IGNORE="(ls|cd|pwd|exit|sudo reboot|history|cd -|cd ..)"
 export SUDO_PROMPT="Deploying root access for %u. Password pls: "
 
@@ -11,18 +24,6 @@ export SUDO_PROMPT="Deploying root access for %u. Password pls: "
 if [ -d "$HOME/.local/bin" ] ;
   then PATH="$HOME/.local/bin:$PATH"
 fi
-
-# Set the directory to store Zinit and plugins
-ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
-
- Download Zinit if not present
-if [ ! -d "$ZINIT_HOME" ]; then
-   mkdir -p "$(dirname "$ZINIT_HOME")"
-   git clone https://github.com/zdharma/zinit.git "$ZINIT_HOME"
-fi
-
-# Source/Load Zinit
-source "${ZINIT_HOME}/zinit.zsh"
 
 # Initialize Starship prompt
 eval "$(starship init zsh)"
