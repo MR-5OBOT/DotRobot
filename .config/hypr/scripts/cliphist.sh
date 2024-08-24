@@ -11,14 +11,14 @@
 # ----------------------------------------------------- 
 
 case $1 in
-    d) cliphist list | rofi -dmenu -replace -config ~/.config/rofi/clipboard.rasi | cliphist delete
+    d) cliphist list | rofi -dmenu -replace -config ~/.config/rofi/custom/clipboard.rasi | cliphist delete
        ;;
 
-    w) if [ `echo -e "Clear\nCancel" | rofi -dmenu -config ~/.config/rofi/clipboard.rasi` == "Clear" ] ; then
+    w) if [ `echo -e "Clear\nCancel" | rofi -dmenu -config ~/.config/rofi/custom/clipboard.rasi` == "Clear" ] ; then
             cliphist wipe
        fi
        ;;
 
-    *) cliphist list | rofi -dmenu -replace -config ~/.config/rofi/clipboard.rasi | cliphist decode | wl-copy
+    *) cliphist list | rofi -dmenu -replace -config ~/.config/rofi/custom/clipboard.rasi | cliphist decode | wl-copy
        ;;
 esac

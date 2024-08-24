@@ -19,7 +19,7 @@
 
 // positions generated based on config.ctl //
 
-	"modules-left": ["custom/padd","custom/power","custom/mode","custom/notification","custom/cliphist","custom/padd","clock",],
+	"modules-left": ["custom/notification","custom/padd","clock",],
 	"modules-center": ["custom/padd","hyprland/workspaces","custom/padd"],
 	"modules-right": ["tray","pulseaudio","pulseaudio#microphone","battery","custom/padd"],
 
