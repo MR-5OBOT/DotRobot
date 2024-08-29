@@ -27,6 +27,7 @@ require("lazy").setup({
  { import = "plugins.UI" },
  { import = "plugins.UX" },
  { import = "plugins.others" },
+ { import = "plugins.markdown" },
 
 })
 
@@ -35,8 +36,6 @@ performance = {
       -- disable some rtp plugins
       disabled_plugins = {
         "gzip",
-        -- "matchit",
-        -- "matchparen",
         "netrwPlugin",
         "tarPlugin",
         "tohtml",

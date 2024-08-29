@@ -41,10 +41,7 @@ keymap("n", "<leader>ff", "<cmd>Telescope find_files<cr>", { desc = "find_files"
 -- keymap("n", "<leader>fb", "<cmd>Telescope buffers<cr>", { desc = "find_buffers"})
 -- keymap("n", "<leader>fh", "<cmd>Telescope help_tags<cr>", { desc = "find_help"})
 ----------------------------------------------------------------------------------------------------------------
--- open zathura in the current file
-keymap('n', '<leader>z', ':!zathura %<CR>', { noremap = true, silent = true })
 
-----------------------------------------------------------------------------------------------------------------
 -- keymap("n", "<leader>/", "<C-W>v", { desc = "Split window right", remap = true })
 -- keymap("n", "<C-c>", "<cmd>close<CR>", { desc = "Close Split window" })
 
