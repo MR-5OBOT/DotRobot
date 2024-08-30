@@ -16,6 +16,8 @@ exec-once = dunst
 exec-once = devify
 exec-once = hypridle
 
+exec-once = clipse -listen  
+
 # clipboard deamon
 exec-once = wl-clip-persist --clipboard regular --write-timeout 1000
 exec-once = wl-paste --type text --watch cliphist store  # Stores only text data
@@ -23,6 +25,7 @@ exec-once = wl-paste --type image --watch cliphist store # Stores only image dat
 
 # scripts
 exec-once = ~/.local/bin/rame_check
+exec-once = $SCRIPTS/autostart/clipse-cpu-usage.sh
 exec-once = $SCRIPTS/autostart/Hypridle.sh
 exec-once = $SCRIPTS/autostart/xdgportals.sh
 exec-once = $SCRIPTS/autostart/pipewire_check.sh
