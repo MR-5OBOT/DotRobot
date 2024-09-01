@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# MR5OBOT script for searching fonts with exact names
+
+search=$(fc-list : family)  
+
+read -p "Type font name: " fname
+
+print_font=$(echo "$search" | grep -i "$fname")
+
+echo "$print_font"
+
