@@ -49,6 +49,7 @@ window#waybar > box {
 #pulseaudio {
   padding-top: 0px;
   padding-right: 7px;
+  font-size: 11px;
 }
 #pulseaudio.audio {
   padding-top: 0px;
