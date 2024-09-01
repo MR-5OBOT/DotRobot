@@ -21,9 +21,7 @@ export HISTORY_IGNORE="(ls|cd|pwd|exit|sudo reboot|history|cd -|cd ..)"
 export SUDO_PROMPT="Deploying root access for %u. Password pls: "
 
 # Set up the PATH
-if [ -d "$HOME/.local/bin" ] ;
-  then PATH="$HOME/.local/bin:$PATH"
-fi
+PATH="$HOME/.local/bin:$PATH"
 
 # Initialize Starship prompt
 eval "$(starship init zsh)"
@@ -49,6 +47,7 @@ HISTFILE=~/.zsh_history
 HISTSIZE=5000
 SAVEHIST=5000
 HISTDUP=erase
+
 setopt appendhistory
 setopt sharehistory
 setopt hist_ignore_space
@@ -102,10 +101,3 @@ alias fixdotfiles='sh ~/repos/DotRoboT/.setup/MR5OBOT-dotfiles-setup.sh'
 myip() {
     ip addr show | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*'
 }
-
-# colors for the man pages
-export LESS='-R --use-color -Dd+r$Du+b$'
-
-# snapd PATH
-export PATH="/var/lib/snapd/snap/bin:$PATH"
-
