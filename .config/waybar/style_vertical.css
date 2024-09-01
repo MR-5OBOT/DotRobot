@@ -1,5 +1,5 @@
 * {
-  font-family: noto-fonts-cjk, NovaMono, IosevkaTerm;
+  font-family: noto-fonts-cjk, NovaMono;
   font-size: 13px;
   min-height: 25px;
 }
@@ -47,7 +47,8 @@ window#waybar > box {
 }
 
 #pulseaudio {
-  padding-top: 5px;
+  padding-top: 0px;
+  padding-right: 7px;
 }
 #pulseaudio.audio {
   padding-top: 0px;
