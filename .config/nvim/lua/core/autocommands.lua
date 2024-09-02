@@ -35,20 +35,20 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 })
 
 -- Autocompile and run
-vim.api.nvim_create_augroup('compileAndRun', { clear = true })
-
--- LaTeX
-vim.api.nvim_create_autocmd({ 'FileType' }, {
-  group = 'compileAndRun',
-  pattern = { 'tex' },
-  callback = function()
-    vim.api.nvim_set_keymap(
-      'n',
-      '<Leader>c',
-      ':w<CR>:split|:terminal!latexmk -pvc -f -verbose -file-line-error -synctex=1 -interaction=nonstopmode -pdf % <CR>',
-      { noremap = true, silent = true }
-    )
-  end
-})
-
+-- vim.api.nvim_create_augroup('compileAndRun', { clear = true })
+--
+-- -- LaTeX
+-- vim.api.nvim_create_autocmd({ 'FileType' }, {
+--   group = 'compileAndRun',
+--   pattern = { 'tex' },
+--   callback = function()
+--     vim.api.nvim_set_keymap(
+--       'n',
+--       '<Leader>o',
+--       ':w<CR>:split|:terminal!latexmk -pvc -f -verbose -file-line-error -synctex=1 -interaction=nonstopmode -pdf % <CR>',
+--       { noremap = true, silent = true }
+--     )
+--   end
+-- })
+--
 
