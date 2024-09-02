@@ -1,27 +1,15 @@
-
 # Set the directory to store Zinit and plugins
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 
 # Download Zinit if not present
 if [ ! -d "$ZINIT_HOME" ]; then
-    mkdir -p "$(dirname "$ZINIT_HOME")"
-    git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+   mkdir -p "$(dirname "$ZINIT_HOME")"
+   echo "Downloading Zinit..."
+   git clone https://github.com/zdharma/zinit.git "$ZINIT_HOME" || { echo "Failed to clone Zinit"; exit 1; }
 fi
 
 # Source/Load Zinit
-if [ -f "${ZINIT_HOME}/zinit.zsh" ]; then
-    source "${ZINIT_HOME}/zinit.zsh"
-else
-    echo "Error: zinit.zsh not found in ${ZINIT_HOME}. Please check the installation."
-fi
-
-export VISUAL="${EDITOR}"
-export EDITOR='neovim'
-export HISTORY_IGNORE="(ls|cd|pwd|exit|sudo reboot|history|cd -|cd ..)"
-export SUDO_PROMPT="Deploying root access for %u. Password pls: "
-
-# Set up the PATH
-PATH="$HOME/.local/bin:$PATH"
+source "${ZINIT_HOME}/zinit.zsh"
 
 # Initialize Starship prompt
 eval "$(starship init zsh)"
@@ -30,7 +18,6 @@ eval "$(starship init zsh)"
 eval "$(zoxide init zsh)"
 
 # Add Zsh plugins
-zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
 zinit light aloxaf/fzf-tab
@@ -39,14 +26,10 @@ zinit light aloxaf/fzf-tab
 autoload -Uz compinit && compinit
 zinit cdreplay -q
 
-#  ┬ ┬┬┌─┐┌┬┐┌─┐┬─┐┬ ┬
-#  ├─┤│└─┐ │ │ │├┬┘└┬┘
-#  ┴ ┴┴└─┘ ┴ └─┘┴└─ ┴ 
-HISTFILE=~/.config/zsh/zhistory
+# History file configuration
 HISTFILE=~/.zsh_history
-HISTSIZE=5000
-SAVEHIST=5000
-HISTDUP=erase
+HISTSIZE=1000
+SAVEHIST=1000
 
 setopt appendhistory
 setopt sharehistory
@@ -56,9 +39,7 @@ setopt hist_save_no_dups
 setopt hist_ignore_dups
 setopt hist_find_no_dups
 
-#  ┌─┐┌─┐┬ ┬  ┌─┐┌─┐┌─┐┬    ┌─┐┌─┐┌┬┐┬┌─┐┌┐┌┌─┐
-#  ┌─┘└─┐├─┤  │  │ ││ ││    │ │├─┘ │ ││ ││││└─┐
-#  └─┘└─┘┴ ┴  └─┘└─┘└─┘┴─┘  └─┘┴   ┴ ┴└─┘┘└┘└─┘
+# Completion options
 setopt AUTOCD              # change directory just by typing its name
 setopt PROMPT_SUBST        # enable command substitution in prompt
 setopt MENU_COMPLETE       # Automatically highlight first element of completion menu
@@ -80,24 +61,16 @@ alias rm='trash -v'
 alias mkdir='mkdir -p -v'
 alias ..="cd .."
 alias ...="cd ../../"
-alias ls='eza -a --icons'
+alias ls='eza -a --icons'  # Ensure eza is installed
 alias l="ls -lah"
 alias lt="eza --tree --level=2 --long --icons --git"
 
 # CD to repos
 alias mlab='cd ~/repos/The-Lab/'
 alias vlab='v ~/repos/DotRoboT/.config/nvim/'
-alias tlab='cd ~/repos/Trading-Lab/'
+alias tlab='cd ~/repos/Dev-Lab/latex-projects/trading-journal/'
 alias .dots='cd ~/repos/DotRoboT/'
 
 # Edit config files
-alias vbashrc='nvim ~/.bashrc'
+# alias vbashrc='nvim ~/.bashrc'
 alias vzshrc='nvim ~/.zshrc'
-
-# update the dotfiles
-alias fixdotfiles='sh ~/repos/DotRoboT/.setup/MR5OBOT-dotfiles-setup.sh'
-
-# IP address lookup function
-myip() {
-    ip addr show | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*'
-}

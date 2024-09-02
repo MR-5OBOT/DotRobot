@@ -28,6 +28,7 @@ require("lazy").setup({
  { import = "plugins.UX" },
  { import = "plugins.others" },
  { import = "plugins.markdown" },
+ { import = "plugins.latex"},
 
 })
 
