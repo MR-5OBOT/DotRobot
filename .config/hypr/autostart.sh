@@ -19,7 +19,6 @@ exec-once = hypridle
 exec-once = clipse -listen  
 
 # clipboard deamon
-exec-once = wl-clip-persist --clipboard regular --write-timeout 1000
 exec-once = wl-paste --type text --watch cliphist store  # Stores only text data
 exec-once = wl-paste --type image --watch cliphist store # Stores only image data
 
