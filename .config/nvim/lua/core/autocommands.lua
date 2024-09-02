@@ -5,15 +5,16 @@ local au = vim.api.nvim_create_autocmd
 vim.cmd('autocmd BufEnter * set formatoptions-=cro')
 vim.cmd('autocmd BufEnter * setlocal formatoptions-=cro')
 
---  formatting
+-- python formatting
 vim.api.nvim_create_autocmd({"BufNewFile", "BufRead"}, {
   pattern = "*.py",
   callback = function()
     vim.opt.textwidth = 79
     vim.opt.colorcolumn = "79"
   end
-}) -- python formatting
+})
 
+-- javascript, css, lua, html formatting
 vim.api.nvim_create_autocmd({"BufNewFile", "BufRead"}, {
   pattern = {"*.js", "*.html", "*.css", "*.lua"},
   callback = function()
@@ -21,8 +22,9 @@ vim.api.nvim_create_autocmd({"BufNewFile", "BufRead"}, {
     vim.opt.softtabstop = 2
     vim.opt.shiftwidth = 2
   end
-}) -- javascript, css, lua, html formatting
+})
 
+-- return to last edit position when opening files
 vim.api.nvim_create_autocmd("BufReadPost", {
     pattern = "*",
     callback = function()
@@ -30,4 +32,23 @@ vim.api.nvim_create_autocmd("BufReadPost", {
         vim.cmd("normal! g`\"")
       end
     end
-}) -- return to last edit position when opening files
+})
+
+-- Autocompile and run
+vim.api.nvim_create_augroup('compileAndRun', { clear = true })
+
+-- LaTeX
+vim.api.nvim_create_autocmd({ 'FileType' }, {
+  group = 'compileAndRun',
+  pattern = { 'tex' },
+  callback = function()
+    vim.api.nvim_set_keymap(
+      'n',
+      '<Leader>c',
+      ':w<CR>:split|:terminal!latexmk -pvc -f -verbose -file-line-error -synctex=1 -interaction=nonstopmode -pdf % <CR>',
+      { noremap = true, silent = true }
+    )
+  end
+})
+
+

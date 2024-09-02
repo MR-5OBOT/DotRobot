@@ -20,12 +20,26 @@ packagesPacman=(
     "zoxide"
     "trash-cli"
     "mpv"
+    "tectonic"
+    # latex packages
+    "tree-sitter-cli"
+    "texlive-basic"
+    "texlive-latex"
+    "texlive-latexextra"
+    "texlive-fontsrecommended"
+    "texlive-fontsextra"
+    "texlive-lang"
+    "texlive-bibtexextra"
 )
 
 packagesYay=(
     "devify"
-#    "texlive-latex"
-#    "texlive-full"
+    # latex packages
+    "pdflatex"
+    "latexrun-git"
+    "latex-mk"
+    "texlive-binextra"
+    # "texlive-full"
 )
 
 # Function to install packages with Pacman, skipping already installed ones
