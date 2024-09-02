@@ -26,9 +26,6 @@ packagesPacman=(
     "texlive-basic"
     "texlive-latex"
     "texlive-latexextra"
-    "texlive-fontsrecommended"
-    "texlive-fontsextra"
-    "texlive-lang"
     "texlive-bibtexextra"
 )
 
