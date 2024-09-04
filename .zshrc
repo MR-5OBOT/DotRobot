@@ -8,6 +8,8 @@ if [ ! -d "$ZINIT_HOME" ]; then
    git clone https://github.com/zdharma/zinit.git "$ZINIT_HOME" || { echo "Failed to clone Zinit"; exit 1; }
 fi
 
+export PATH="$HOME/.local/bin:$PATH"
+
 # Source/Load Zinit
 source "${ZINIT_HOME}/zinit.zsh"
 

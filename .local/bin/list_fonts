@@ -2,11 +2,5 @@
 
 # MR5OBOT script for searching fonts with exact names
 
-search=$(fc-list : family)  
-
-read -p "Type font name: " fname
-
-print_font=$(echo "$search" | grep -i "$fname")
-
-echo "$print_font"
-
+read -p "Enter the font name prefix (e.g., IosevkaTerm): " prefix
+fc-list | grep -i "$prefix" | awk -F: '{print $2}' | tr ',' '\n' | sed 's/ *//g' | sort -u

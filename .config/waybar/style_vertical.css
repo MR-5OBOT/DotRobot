@@ -1,5 +1,5 @@
 * {
-  font-family: noto-fonts-cjk, NovaMono;
+  font-family: noto-fonts-cjk;
   font-size: 13px;
   min-height: 25px;
 }
@@ -42,7 +42,7 @@ window#waybar > box {
   padding-left: 1px;
   padding-right: 1px;
   padding-top: 5px;
-  font-family: NovaMono;
+  /* font-family: NovaMono; */
   font-size: 14px;
 }
 
