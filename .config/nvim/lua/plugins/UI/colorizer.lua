@@ -15,7 +15,8 @@ return {
 		hsl_fn = true,
 		css = true,
 		css_fn = true,
-		mode = "background",
+    -- Available modes for `mode`: foreground, background,  virtualtext
+    mode = "background", -- Set the display mode.
 		tailwind = true,
 		sass = { enable = true, parsers = { "css" }, },
 		virtualtext = "■",
