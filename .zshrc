@@ -30,8 +30,8 @@ zinit cdreplay -q
 
 # History file configuration
 HISTFILE=~/.zsh_history
-HISTSIZE=1000
-SAVEHIST=1000
+HISTSIZE=100
+SAVEHIST=100
 
 setopt appendhistory
 setopt sharehistory
@@ -45,7 +45,7 @@ setopt hist_find_no_dups
 setopt AUTOCD              # change directory just by typing its name
 setopt PROMPT_SUBST        # enable command substitution in prompt
 setopt MENU_COMPLETE       # Automatically highlight first element of completion menu
-setopt LIST_PACKED		   # The completion menu takes less space.
+setopt LIST_PACKED	   	   # The completion menu takes less space.
 setopt AUTO_LIST           # Automatically list choices on ambiguous completion.
 setopt COMPLETE_IN_WORD    # Complete from both ends of a word.
 
@@ -56,7 +56,6 @@ zstyle ':completion:*' menu no
 # Aliases
 alias ff='fd --type f --hidden --exclude .git | fzf --preview "bat {}" --reverse | xargs -x sh -c '"'"'[ -z "$1" ] || nvim "$1"'"'"' sh'
 alias v='nvim'
-alias c='clear'
 alias mv='mv -i'
 alias lg='lazygit'
 alias rm='trash -v'
@@ -74,5 +73,4 @@ alias tlab='cd ~/repos/Dev-Lab/latex-projects/trading-journal/'
 alias .dots='cd ~/repos/DotRoboT/'
 
 # Edit config files
-# alias vbashrc='nvim ~/.bashrc'
 alias vzshrc='nvim ~/.zshrc'

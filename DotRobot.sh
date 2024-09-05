@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Function to run a script and check its exit status
+#  Function to run a script and check its exit status
 run_script() {
     local script=$1
     echo "Running $script..."

@@ -24,7 +24,7 @@
     frame_width = 3 
     sort = yes
     idle_threshold = 0
-    font = GohuFont 14 Nerd Font Mono 11
+    font = IosevkaTermNFMMediumObl
     line_height = 0
     markup = full
     format = "<b>%s</b>\n%b"

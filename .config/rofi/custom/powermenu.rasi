@@ -8,7 +8,7 @@ configuration{
 @import                          "shared/custom_oxocarbon.rasi"
 
 * {
-    font: "GohuFont 14 Nerd Font Mono 12";
+    font: "Nova Mono12";
     handle-colour:               var(foreground);
     background-colour:           var(background);
     foreground-colour:           var(foreground);
