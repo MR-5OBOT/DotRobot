@@ -16,6 +16,11 @@
 	--tab-block-margin: 0 !important;
 }
 
+/* Hide the window control buttons */
+.titlebar-buttonbox-container { 
+    display: none !important; 
+}
+
 #tabs-newtab-button .toolbarbutton-icon,
 #alltabs-button .toolbarbutton-icon {
 	width: 32px !important;
@@ -25,15 +30,15 @@
 
 #navigator-toolbox {
 	/* Remove black border */
-	margin-bottom: -1px;
-	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important;
+	margin-bottom: 1px;
+	/* box-shadow: 0 10px 20px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important; */
 	z-index: 1000 !important;
 }
 
 /* Move close button to the left on hover */
 .tab-label-container {
 	order: 1;
-	font-size: 13px;
+	font-size: 12px;
 }
 
 .tabbrowser-tab .tab-content {
@@ -50,7 +55,7 @@
 
 /* Buttons color */
 .toolbarbutton-icon {
-    fill: #DB4740 !important;
+    fill: #94345D !important;
 }
 
 .tab-close-button {
@@ -62,73 +67,47 @@
 	width: 8px !important;
 }
 
-/***** URL BAR *****/
-.urlbar-input-box {
- 	font-style: italic !important;
-  text-align: center !important;
-}
-
+/* URL Bar */
 #nav-bar {
-	position: absolute !important;
-	top: 42px !important;
-	left: 10px !important;
-	right: 10px !important;
-	height: 0px !important;
-	border-radius: 8px !important;
-
-	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important;
-
-	z-index: 1001 !important;
-	min-height: 0px !important;
-	transition: height var(--animation-easing-function) 500ms 500ms,
-	  opacity var(--animation-easing-function) 500ms 500ms;
-	opacity: 0 !important;
-  background: #000 !important;
+    position: absolute !important;
+    top: 35px !important; /* Adjust this value as needed */
+    left: 100px !important;
+    right: 100px !important;
+    height: 30px !important; /* Set a fixed height */
+    border-radius: 0x !important;
+    background: #0A0A0A !important;
+    opacity: 0 !important; /* Start hidden */
+    transition: height 200ms ease-in, opacity 200ms ease-in-out; /* Smooth transitions */
+    z-index: 1001 !important;
 }
 
-:root[customizing] #nav-bar,
+/* Show URL bar on hover or focus */
 #navigator-toolbox:hover #nav-bar,
 #nav-bar:focus-within {
-	height: 30px !important;
-	opacity: 100 !important;
-	transition: height var(--animation-easing-function) 200ms,
-	opacity var(--animation-easing-function) 200ms;
+    opacity: 1 !important; /* Make it visible */
+    height: 30px !important; /* Maintain height */
 }
 
-#urlbar[breakout] {
-	top: unset !important;
-}
-
-#nav-bar:focus-within #urlbar-input {
-	height: 28px !important;
-}
-
+/* URL bar input adjustments */
 #urlbar-input-container {
-	width: 100% !important;
-	height: 100% !important;
+    width: 100% !important;
+    height: 10% !important;
 }
 
-.urlbarView {
-	position: absolute !important;
-	background: #000 !important;
-	border-radius: 4px !important;
-	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23) !important;
+#urlbar-input {
+    height: 28px !important; /* Adjust as needed */
+    padding-left: 0px !important;
+    border: 0px solid #101010 !important;
+    border-radius: 0px !important;
 }
 
-#urlbar-background {
-	border-radius: 0 4px 4px 0 !important;
-	margin-left: -4px;
-	z-index: -1;
-}
-
-#urlbar {
-	padding-left: 8px !important;
-  border: 1px solid #47423e !important;
-  border-radius: 5px !important;
+/* Optional: Highlight URL bar on focus */
+#urlbar:focus {
+    border: 1px solid #161616 !important; /* Highlight border color when focused */
 }
 
 #urlbar:hover {
-  border: 1px solid #db4740 !important;
+    border: 1px solid #A33966 !important; /* Change border color on hover */
 }
 
 #bookmarks-menu-button {
