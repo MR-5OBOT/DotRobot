@@ -1,3 +1,8 @@
+* {
+    /* font-family: "NovaMono", monospace !important; */
+    font-size: 13px !important;
+}
+
 /* Shrink tab bar */
 #tabbrowser-tabs,
 #tabbrowser-arrowscrollbox,
@@ -70,14 +75,14 @@
 /* URL Bar */
 #nav-bar {
     position: absolute !important;
-    top: 35px !important; /* Adjust this value as needed */
-    left: 100px !important;
-    right: 100px !important;
+    top: 55px !important; /* Adjust this value as needed */
+    left: 200px !important;
+    right: 200px !important;
     height: 30px !important; /* Set a fixed height */
     border-radius: 0x !important;
     background: #0A0A0A !important;
     opacity: 0 !important; /* Start hidden */
-    transition: height 200ms ease-in-out, opacity 100ms ease-in-out; /* Smooth transitions */
+    transition: height 200ms ease-in-out, opacity 200ms ease-in-out; /* Smooth transitions */
     z-index: 1001 !important;
 }
 

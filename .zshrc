@@ -71,6 +71,9 @@ alias codelab='cd ~/repos/Code-Lab/'
 alias nvlab='v ~/repos/DotRoboT/.config/nvim/'
 alias tlab='cd ~/repos/Trading-Lab/'
 alias .dots='cd ~/repos/DotRoboT/'
+alias todos='v ~/repos/Code-Lab/todos.md'
+alias ideas='v ~/repos/Code-Lab/ideas'
+
 
 # Edit config files
 alias vzshrc='nvim ~/.zshrc'

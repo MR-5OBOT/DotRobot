@@ -22,7 +22,7 @@ sleep 1
 
 # Start xdg-desktop-portal-hyprland
 echo "Starting xdg-desktop-portal-hyprland..."
-/usr/lib/xdg-desktop-portal-hyprland &
+/usr/lib/xdg-desktop-portal-wlr &
 
 sleep 2
 
