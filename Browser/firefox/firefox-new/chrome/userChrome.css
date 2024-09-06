@@ -77,7 +77,7 @@
     border-radius: 0x !important;
     background: #0A0A0A !important;
     opacity: 0 !important; /* Start hidden */
-    transition: height 200ms ease-in, opacity 200ms ease-in-out; /* Smooth transitions */
+    transition: height 200ms ease-in-out, opacity 100ms ease-in-out; /* Smooth transitions */
     z-index: 1001 !important;
 }
 
