@@ -21,7 +21,7 @@
 
 	"modules-left": ["custom/notification","custom/padd","clock",],
 	"modules-center": ["custom/padd","hyprland/workspaces","custom/padd"],
-	"modules-right": ["tray","pulseaudio","pulseaudio#microphone","battery","custom/padd"],
+	"modules-right": ["tray","pulseaudio","pulseaudio#microphone","custom/padd"],
 
 
 // sourced from modules based on config.ctl //

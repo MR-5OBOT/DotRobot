@@ -30,7 +30,7 @@ exec-once = $SCRIPTS/autostart/xdgportals.sh
 exec-once = $SCRIPTS/autostart/pipewire_check.sh
 exec-once = $SCRIPTS/wallpapers/random_walls.sh
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh
-exec-once = $SCRIPTS/autostart/batterynotify.sh
+exec-once = $SCRIPTS/autostart/BAT-check.sh
 
 
 

@@ -6,6 +6,6 @@ while true; do
     # Display notification
     notify-send "RAM Usage" "Current RAM Usage: $ram_usage"
     # Wait for 5 minutes (300 seconds)
-    sleep 300
+    sleep 600
 done
 one
