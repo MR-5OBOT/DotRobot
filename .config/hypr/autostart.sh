@@ -15,12 +15,12 @@ exec-once = dunst
 exec-once = devify
 exec-once = hypridle
 
-# exec-once = clipse -listen  
+exec-once = clipse -listen  
 
 # clipboard deamon
-exec-once = wl-clipboard-history -t
-exec-once = wl-paste --type text --watch cliphist store
-exec-once = wl-paste --type image --watch cliphist store
+# exec-once = wl-clipboard-history -t
+# exec-once = wl-paste --type text --watch cliphist store
+# exec-once = wl-paste --type image --watch cliphist store
 
 # scripts
 exec-once = ~/.local/bin/rame_check

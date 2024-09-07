@@ -10,15 +10,38 @@
 # by Stephan Raabe (2023) 
 # ----------------------------------------------------- 
 
-case $1 in
-    d) cliphist list | rofi -dmenu -replace -config ~/.config/rofi/custom/clipboard.rasi | cliphist delete
-       ;;
+# Check for required commands
+for cmd in cliphist rofi wl-copy; do
+    command -v "$cmd" >/dev/null 2>&1 || { echo >&2 "Error: $cmd is not installed. Please install it."; exit 1; }
+done
 
-    w) if [ `echo -e "Clear\nCancel" | rofi -dmenu -config ~/.config/rofi/custom/clipboard.rasi` == "Clear" ] ; then
+# Function to display the clipboard history
+show_clipboard_history() {
+    cliphist list | rofi -dmenu -replace -config ~/.config/rofi/custom/clipboard.rasi
+}
+
+# Main script logic
+case "$1" in
+    d) 
+        # Delete selected clipboard entry
+        selected_entry=$(show_clipboard_history)
+        [ -n "$selected_entry" ] && cliphist delete "$selected_entry" || echo "No entry selected."
+        ;;
+
+    w) 
+        # Wipe clipboard history
+        if [ "$(echo -e "Clear\nCancel" | rofi -dmenu -config ~/.config/rofi/custom/clipboard.rasi)" = "Clear" ]; then
             cliphist wipe
-       fi
-       ;;
+        fi
+        ;;
 
-    *) cliphist list | rofi -dmenu -replace -config ~/.config/rofi/custom/clipboard.rasi | cliphist decode | wl-copy
-       ;;
+    *) 
+        # Paste selected clipboard entry
+        selected_entry=$(show_clipboard_history | cliphist decode)
+        if [ -n "$selected_entry" ]; then
+            echo "$selected_entry" | wl-copy
+        else
+            echo "No entry selected."
+        fi
+        ;;
 esac

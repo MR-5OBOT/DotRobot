@@ -37,6 +37,7 @@ return {
         "prismals",
         "pyright",
         "texlab",
+        "clangd",
         "ltex"
       },
       -- auto-install configured servers (with lspconfig)

@@ -54,6 +54,7 @@ local options = {
   linebreak = true,                        -- companion to wrap, don't split words
   scrolloff = 5,                           -- minimal number of screen lines to keep above and below the cursor
   sidescrolloff = 8,                       -- minimal number of screen columns either side of cursor if wrap is `false`
+  guifont = "IosevkaTerm NFM Light Italic",     -- set the fonts
   hidden = true,
   showmode = false,
   pumheight = 10,

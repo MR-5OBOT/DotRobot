@@ -40,22 +40,8 @@
 	z-index: 1000 !important;
 }
 
-/* Move close button to the left on hover */
-.tab-label-container {
-	order: 1;
-	font-size: 12px;
-}
-
 .tabbrowser-tab .tab-content {
   background-color: #000 !important;
-}
-
-.tabbrowser-tab[selected="true"] .tab-content {
-    font-style: italic !important;
-}
-
-.tabbrowser-tab:not([selected]) .tab-content {
-    opacity: 0.5 !important; /* Oscurecer las pestañas no seleccionadas al 50% */
 }
 
 /* Buttons color */
@@ -67,6 +53,11 @@
 	display: none !important;
 }
 
+/* Hide all regular tabs */
+.tabbrowser-tab:not([pinned]) {
+    display: none !important;
+}
+
 /* Remove silly space */
 .titlebar-spacer {
 	width: 8px !important;
@@ -75,13 +66,13 @@
 /* URL Bar */
 #nav-bar {
     position: absolute !important;
-    top: 55px !important; /* Adjust this value as needed */
-    left: 200px !important;
-    right: 200px !important;
+    top: 0px !important; /* Adjust this value as needed */
+    left: 0px !important;
+    right: 0px !important;
     height: 30px !important; /* Set a fixed height */
     border-radius: 0x !important;
     background: #0A0A0A !important;
-    opacity: 0 !important; /* Start hidden */
+    /* opacity: 0 !important; /* Start hidden */ 
     transition: height 200ms ease-in-out, opacity 200ms ease-in-out; /* Smooth transitions */
     z-index: 1001 !important;
 }
