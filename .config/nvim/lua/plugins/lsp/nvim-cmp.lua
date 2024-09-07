@@ -1,23 +1,24 @@
 return {
-  "hrsh7th/nvim-cmp",
-  event = "InsertEnter",
+  "hrsh7th/nvim-cmp",  -- Main completion plugin
+  event = "InsertEnter",  -- Load on entering insert mode
   dependencies = {
-    "hrsh7th/cmp-buffer", -- source for text in buffer
-    "hrsh7th/cmp-path", -- source for file system paths
-    "L3MON4D3/LuaSnip", -- snippet engine
-    "saadparwaiz1/cmp_luasnip", -- for autocompletion
-    "rafamadriz/friendly-snippets", -- useful snippets
-    "onsails/lspkind.nvim", -- vs-code like pictograms
+    "hrsh7th/cmp-buffer",  -- Source for text in buffer
+    "hrsh7th/cmp-path",  -- Source for file system paths
+    "hrsh7th/cmp-cmdline",  -- Source for command line completion
+    "L3MON4D3/LuaSnip",  -- Snippet engine
+    "saadparwaiz1/cmp_luasnip",  -- For autocompletion with LuaSnip
+    "rafamadriz/friendly-snippets",  -- Useful snippets
+    "onsails/lspkind.nvim",  -- VS Code-like pictograms
   },
   config = function()
     local cmp = require("cmp")
-
     local luasnip = require("luasnip")
-
     local lspkind = require("lspkind")
 
-    -- loads vscode style snippets from installed plugins (e.g. friendly-snippets)
-    --   פּ ﯟ   some other good icons
+    -- Load VS Code style snippets from installed plugins (e.g., friendly-snippets)
+    require("luasnip.loaders.from_vscode").lazy_load()
+
+    -- Icons for completion items
     local kind_icons = {
       Text = "",
       Method = "m",
@@ -46,39 +47,56 @@ return {
       TypeParameter = "",
     }
 
-    -- loads vscode style snippets from installed plugins (e.g. friendly-snippets)
-    require("luasnip.loaders.from_vscode").lazy_load()
-
+    -- Setup nvim-cmp
     cmp.setup({
       completion = {
-        completeopt = "menu,menuone,preview,noselect",
+        completeopt = "menu,menuone,preview,noinsert,noselect",  -- Completion options
+        -- pumblend = 20,  -- Transparency of the completion menu
       },
-      snippet = { -- configure how nvim-cmp interacts with snippet engine
+      snippet = {
         expand = function(args)
-          luasnip.lsp_expand(args.body)
+          luasnip.lsp_expand(args.body)  -- Expand snippets
         end,
       },
       mapping = cmp.mapping.preset.insert({
-        ["<C-k>"] = cmp.mapping.select_prev_item(), -- previous suggestion
-        ["<C-j>"] = cmp.mapping.select_next_item(), -- next suggestion
-        ["<C-Space>"] = cmp.mapping.complete(), -- show completion suggestions
-        ["<C-x>"] = cmp.mapping.abort(), -- close completion window
-        ["<CR>"] = cmp.mapping.confirm({ select = false }),
+        ["<C-k>"] = cmp.mapping.select_prev_item(),  -- Previous suggestion
+        ["<C-j>"] = cmp.mapping.select_next_item(),  -- Next suggestion
+        ["<C-Space>"] = cmp.mapping.complete(),  -- Show completion suggestions
+        ["<C-x>"] = cmp.mapping.abort(),  -- Close completion window
+        ["<CR>"] = cmp.mapping.confirm({ select = false }),  -- Confirm selection
       }),
-      -- sources for autocompletion
       sources = cmp.config.sources({
-        { name = "nvim_lsp" }, -- for lsp cmp
-        { name = "luasnip" }, -- snippets
-        { name = "buffer" }, -- text within current buffer
-        { name = "path" }, -- file system paths
-        -- { name = "vimtex" }, -- latex cmp
+        { name = "nvim_lsp" },  -- LSP completion
+        { name = "luasnip" },  -- Snippets
+        { name = "buffer" },  -- Text within current buffer
+        { name = "path" },  -- File system paths
       }),
-      -- configure lspkind for vs-code like pictograms in completion menu
       formatting = {
         format = lspkind.cmp_format({
-          maxwidth = 50,
-          ellipsis_char = "...",
+          with_text = true,  -- Show icons alongside text
+          maxwidth = 50,  -- Max width of completion menu
+          ellipsis_char = "...",  -- Ellipsis character for overflow
+          menu = {
+            nvim_lsp = "[LSP]",
+            luasnip = "[Snippet]",
+            buffer = "[Buffer]",
+            path = "[Path]",
+          },
         }),
+      },
+    })
+
+    -- Setup command line completion
+    cmp.setup.cmdline(':', {
+      sources = {
+        { name = 'cmdline' },  -- Command line completion
+      },
+    })
+
+    -- Setup command line completion for '/'
+    cmp.setup.cmdline('/', {
+      sources = {
+        { name = 'buffer' },  -- Buffer completion for search
       },
     })
   end,
