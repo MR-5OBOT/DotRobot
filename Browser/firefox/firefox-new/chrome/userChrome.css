@@ -67,7 +67,7 @@
 #nav-bar {
     position: absolute !important;
     top: 0px !important; /* Adjust this value as needed */
-    left: 0px !important;
+    left: 230px !important;
     right: 0px !important;
     height: 30px !important; /* Set a fixed height */
     border-radius: 0x !important;
