@@ -78,11 +78,11 @@
 }
 
 /* Show URL bar on hover or focus */
-#navigator-toolbox:hover #nav-bar,
-#nav-bar:focus-within {
-    opacity: 1 !important; /* Make it visible */
-    height: 30px !important; /* Maintain height */
-}
+/* #navigator-toolbox:hover #nav-bar, */
+/* #nav-bar:focus-within { */
+/*     opacity: 1 !important; /* Make it visible */ */
+/*     height: 30px !important; /* Maintain height */ */
+/* } */
 
 /* URL bar input adjustments */
 #urlbar-input-container {
