@@ -4,7 +4,7 @@ return {
   dependencies = {
     "hrsh7th/cmp-buffer",  -- Source for text in buffer
     "hrsh7th/cmp-path",  -- Source for file system paths
-    "hrsh7th/cmp-cmdline",  -- Source for command line completion
+    -- "hrsh7th/cmp-cmdline",  -- Source for command line completion
     "L3MON4D3/LuaSnip",  -- Snippet engine
     "saadparwaiz1/cmp_luasnip",  -- For autocompletion with LuaSnip
     "rafamadriz/friendly-snippets",  -- Useful snippets

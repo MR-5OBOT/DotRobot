@@ -23,7 +23,7 @@ exec-once = clipse -listen
 # exec-once = wl-paste --type image --watch cliphist store
 
 # scripts
-exec-once = ~/.local/bin/rame_check
+# exec-once = ~/.local/bin/rame_check
 exec-once = $SCRIPTS/autostart/clipse-cpu-usage.sh
 exec-once = $SCRIPTS/autostart/Hypridle.sh
 exec-once = $SCRIPTS/autostart/xdgportals.sh
