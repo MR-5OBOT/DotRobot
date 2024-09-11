@@ -77,3 +77,7 @@ alias ideas='v ~/repos/Code-Lab/ideas'
 
 # Edit config files
 alias vzshrc='nvim ~/.zshrc'
+
+# npm path
+export PATH=$PATH:/home/ys/.npm-global/bin
+
