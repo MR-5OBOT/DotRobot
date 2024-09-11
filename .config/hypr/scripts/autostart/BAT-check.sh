@@ -13,15 +13,9 @@ while true; do
 get_percentage=$(acpi -b | grep -oP "\d+%" | head -n 1 | tr -d "%")
 bat0_percentage=$(acpi -b | head -n 1 )
 
-# check the BAT0 required Level
-if [[ "$get_percentage" -lt 50 ]]; then
-    # send notification
-    notify-send "$bat0_percentage"
-
-elif [[ "$get_percentage" -lt 20 ]]; then
+if [[ "$get_percentage" -lt 30 ]]; then
     # send notification
     notify-send -u critical "$bat0_percentage"
-  
 fi
 
 # check the battery for every 5 minutes 
