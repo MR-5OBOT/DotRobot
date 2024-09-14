@@ -1,5 +1,5 @@
 * {
-  font-family: noto-fonts-cjk, IosevkaTermNFMMedium;
+  font-family: noto-fonts-cjk, IosevkaTermNFM;
   font-size: 13px;
   min-height: 25px;
 }
@@ -9,22 +9,22 @@ window#waybar {
 }
 
 window#waybar > box {
- margin: 3px;
+ margin: 5px;
 }
 
 #workspaces {
  margin-left: 0px;
  margin-right: 0px;
- padding-top: 20px;
- padding-bottom: 20px;
+ padding-top: 0px;
+ padding-bottom: 0px;
 }
 
 #workspaces button {
  color: #B2B2B2;
  padding: 0;
  margin: 0;
- margin-top: 2px;
- margin-bottom: 2px;
+ margin-top: 0px;
+ margin-bottom: 0px;
  margin-right: 0px;
 }
 
@@ -33,20 +33,16 @@ window#waybar > box {
  color: #B53F71;;
 }
 
-#custom-power {
-  color: #B53F71;
-}
-
 #clock {
   /* padding-top: 15px; */
   padding-left: 1px;
   padding-right: 1px;
-  padding-top: 5px;
-  font-size: 14px;
+  padding-top: 0px;
+  /* font-size: 14px; */
 }
 
 #pulseaudio {
-  padding-top: 0px;
+  padding-top: 8px;
   padding-left: 1px;
   font-size: 23px;
 }
@@ -57,22 +53,20 @@ window#waybar > box {
 }
 #pulseaudio.microphone {
   padding: 0px;
-  font-size: 25px;
+  font-size: 26px;
 }
 
-#battery {
-  padding-top: 0px;
-  padding-bottom: 0px;
-}
+/* #battery { */
+/*   padding-top: 0px; */
+/*   padding-bottom: 0px; */
+/* } */
 
 #tray {
  background-color: transparent;
- padding-top: 4px;
- padding-bottom: 2px;
+ padding-top: 0px;
+ padding-bottom: 20px;
  /* font-size: 2px; */
 }
 
-#tray > .needs-attention {
- /* Replace with a valid property */
- background-color: #f279a1;
-}
+
+

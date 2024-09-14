@@ -12,7 +12,7 @@ choice=$(echo -e "$options" | rofi -dmenu -i -no-show-icons -l 2  -p "Take Scree
 
 case $choice in
     "$option2")
-        grimblast --notify  copysave area "$FILE_PATH"
+        grimblast --notify  copysave area "$FILE_NAME"
         ;;
     "$option3")
         sleep 1
