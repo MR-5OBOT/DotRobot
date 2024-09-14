@@ -11,7 +11,7 @@
 }
 
 #navigator-toolbox {
-  max-height: 0px;
+  max-height: 100px;
 }
 
 #sidebar-header {
@@ -133,7 +133,6 @@
   margin-top: 150px;
 }
 
-
 #bookmarksPanel,
 #sidebar-search-container,
 .sidebar-panel .sidebar-placesTree,
@@ -149,6 +148,5 @@
 #werbextpanels-window,
 #background,
 #main-window {
-  background-color: transparent !important;
+  background-color: #161616 !important;
 }
-

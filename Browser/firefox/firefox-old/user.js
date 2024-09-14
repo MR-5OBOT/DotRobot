@@ -84,13 +84,21 @@ user_pref("network.connectivity-service.enabled", false);
 /*** [GEOLOCATION / LANGUAGE / LOCALE ***/
 
 /* use Mozilla geolocation service instead of Google.*/
-user_pref("geo.provider.network.url", "https://location.services.mozilla.com/v1/geolocate?key=%MOZILLA_API_KEY%");
+user_pref(
+  "geo.provider.network.url",
+  "https://location.services.mozilla.com/v1/geolocate?key=%MOZILLA_API_KEY%",
+);
 /* disable using the OS's geolocation service ***/
 user_pref("geo.provider.ms-windows-location", false); // [WINDOWS]
 user_pref("geo.provider.use_corelocation", false); // [MAC]
 user_pref("geo.provider.use_gpsd", false); // [LINUX]
 user_pref("geo.provider.use_geoclue", false); // [FF102+] [LINUX]
 
-
 // Integrated calculator at urlbar
 user_pref("browser.urlbar.suggest.calculator", true);
+
+// content process limit
+user_pref("dom.ipc.processCount.web", 8); // or 4 if you conter issues
+
+// Optimize Memory Usage
+user_pref("browser.tabs.memory.gc_mode", 2);

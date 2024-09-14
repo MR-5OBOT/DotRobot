@@ -1,130 +1,83 @@
 /* --------------------- FONTS ----------------------------- */
-
 * {
-    font-family: "NovaMono", monospace !important;
-    font-size: 13px !important;
+  font-family: "NovaMono", monospace !important;
+  font-size: 13px !important;
 }
 
 /* --------------------- BUTTONS ----------------------------- */
-
-/* Hide forward button */
-#forward-button {
-    display: none !important;
+#nav-bar #new-tab-button,
+#forward-button,
+#alltabs-button {
+  display: none !important;
 }
 
-/* Direction and style adjustments for buttons */
 #back-button,
 #stop-reload-button {
-    direction: rtl;
+  direction: rtl;
 }
 
-/* Hide minimize, maximize, and close buttons */
-.titlebar-buttonbox-container {
-    display: none !important;
-}
-
-/* Navbar display on left */
 #nav-bar {
-    direction: rtl;
+  direction: rtl;
+  background-color: #161616 !important;
+  transition: background-color 0.5s ease-in-out;
 }
 
-/* Navbar custom background color */
-#nav-bar {
-    background-color: #161616 !important; /* Change to desired color */
-}
-
-/* Move the List All Tabs button to the navigation bar */
 #nav-bar-customization-target {
-    display: flex;
+  display: flex;
 }
 
-#alltabs-button {
-    -moz-box-ordinal-group: 0 !important;
+.titlebar-buttonbox-container {
+  display: none !important;
 }
 
 /* --------------------- TABS ----------------------------- */
-
-/* Hide the tab bar by default */
 #TabsToolbar {
-    visibility: collapse;
+  visibility: collapse;
 }
 
-/* Show the tab bar on hover */
 #navigator-toolbox:hover #TabsToolbar {
-    visibility: visible;
+  visibility: visible;
 }
 
-/* Add a fade-in animation to the tab on hover */
 .tabbrowser-tab {
-    opacity: 0.5; /* Set initial opacity */
-    transition: opacity 0.3s ease; /* Smooth transition */
+  opacity: 0.5;
+  transition: opacity 0.5s ease-in-out;
 }
 
 .tabbrowser-tab:hover {
-    opacity: 1; /* Full opacity on hover */
+  opacity: 1;
 }
 
 /* --------------------- OTHERS ----------------------------- */
-
-/* Hide the toolbar */
-#TabsToolbar {
-    visibility: collapse !important;
-}
-
-/* Variables for customization */
 :root {
-    --animation-speed: 0.2s;
-    --urlbar-min-height: 25px !important;
-    --moz-hidden-unscrollable: scroll !important;
-    --toolbarbutton-border-radius: 0px !important;
-    --tabs-border-color: transparent;
+  --animation-speed: 0.4s;
+  --urlbar-min-height: 25px !important;
+  --moz-hidden-unscrollable: scroll !important;
+  --toolbarbutton-border-radius: 0px !important;
+  --tabs-border-color: transparent;
 }
 
-/* Removes annoying border */
 #navigator-toolbox {
-    border: none !important;
+  border: none !important;
 }
 
-/* Removes the rainbow effect from the hamburger */
 #appMenu-fxa-separator {
-    border-image: none !important;
+  border-image: none !important;
 }
 
-/* --------------------- ANIMATIONS ----------------------------- */
-
-/* Smooth animations for better UX */
-:root {
-    --animation-duration: 0.3s;
-    --animation-timing-function: ease-in-out;
+body {
+  scroll-behavior: smooth;
 }
 
-#nav-bar {
-    transition: background-color var(--animation-duration) var(--animation-timing-function);
-}
-
-.tabbrowser-tab {
-    transition: opacity var(--animation-duration) var(--animation-timing-function);
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* --------------------- HOVER EFFECTS ----------------------------- */
-
-/* Stylish hover effects for buttons */
 #back-button:hover,
 #stop-reload-button:hover,
 #alltabs-button:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important; /* Light overlay on hover */
-    border-radius: 4px; /* Smooth corners */
-}
-
-/* --------------------- PERFORMANCE OPTIMIZATIONS ----------------------------- */
-
-/* Avoid redundant property declarations */
-body {
-    scroll-behavior: smooth;
-}
-
-/* Optimized font rendering */
-html {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 4px;
 }
