@@ -1,36 +1,36 @@
 * {
   font-family: noto-fonts-cjk, IosevkaTermNFM;
-  font-size: 13px;
+  /* font-size: 13px; */
   min-height: 25px;
 }
 
 window#waybar {
- color: #a3a5b6;
+  color: #a3a5b6;
 }
 
 window#waybar > box {
- margin: 5px;
+  margin: 0px;
 }
 
 #workspaces {
- margin-left: 0px;
- margin-right: 0px;
- padding-top: 0px;
- padding-bottom: 0px;
+  margin-left: 0px;
+  margin-right: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
 }
 
 #workspaces button {
- color: #B2B2B2;
- padding: 0;
- margin: 0;
- margin-top: 0px;
- margin-bottom: 0px;
- margin-right: 0px;
+  color: #b2b2b2;
+  padding: 0;
+  margin: 0;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  margin-right: 0px;
 }
 
 #workspaces button.focused,
 #workspaces button.active {
- color: #B53F71;;
+  color: #b53f71;
 }
 
 #clock {
@@ -56,17 +56,15 @@ window#waybar > box {
   font-size: 26px;
 }
 
-/* #battery { */
-/*   padding-top: 0px; */
-/*   padding-bottom: 0px; */
-/* } */
-
-#tray {
- background-color: transparent;
- padding-top: 0px;
- padding-bottom: 20px;
- /* font-size: 2px; */
+#battery {
+  font-size: 15px;
+  padding-top: 0px;
+  padding-bottom: 0px;
 }
 
-
-
+#tray {
+  background-color: transparent;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  font-size: 12px;
+}

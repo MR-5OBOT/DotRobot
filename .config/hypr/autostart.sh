@@ -12,6 +12,7 @@ exec-once = systemctl --user restart pipewire # RESTARTS PIPEWIRE (RECOMMENDED B
 exec-once = udiskie -a --tray # front-end that allows to manage removable media
 exec-once = nm-applet --indicator # systray app for Network/Wifi
 exec-once = dunst
+# exec-once = wired &
 exec-once = devify
 exec-once = hypridle
 
