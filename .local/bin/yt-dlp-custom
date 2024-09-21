@@ -1,0 +1,31 @@
+#!/usr/bin/bash
+
+# Choose to download playlist or a single video
+read -p "Enter (single | playlist): " playlist
+
+if [[ $playlist != "single" && $playlist != "playlist" ]]; then
+    echo "Invalid option selected. Please enter 'single' or 'playlist'."
+    exit 1
+fi
+
+# The video quality
+quality="(bv*[height<=1080]+ba/b)"
+
+# The video URL
+read -p "Video URL: " url 
+if [[ $url == "" ]]; then
+   echo "Invalid url. Please enter a valid location"
+   exit 1
+fi
+
+
+# Check if it's a single video or a playlist
+if [[ $playlist == "single" ]]; then
+    yt-dlp --no-playlist -o "%(title)s.%(ext)s" -f "$quality" "$url"
+
+elif [[ $playlist == "playlist" ]]; then
+    yt-dlp --yes-playlist -o "/%(title)s.%(ext)s" -f "$quality" "$url"
+
+else
+    exit 1
+fi

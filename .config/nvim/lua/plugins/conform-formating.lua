@@ -5,10 +5,11 @@ return {
     local conform = require("conform")
     conform.setup({
       formatters_by_ft = {
-        html = { "prettier" },  -- Use prettier for HTML formatting
-        css = { "prettier" },   -- Use prettier for CSS formatting
+        html = { "prettier" },       -- Use prettier for HTML formatting
+        css = { "prettier" },        -- Use prettier for CSS formatting
         javascript = { "prettier" }, -- Use prettier for JavaScript formatting
-        json = { "prettier" },  -- Use prettier for JSON formatting
+        json = { "prettier" },       -- Use prettier for JSON formatting
+        python = { "black" },        -- Use Black for Python formatting
         -- Add more file types and their respective formatters here
       },
       format_on_save = {
@@ -19,4 +20,3 @@ return {
     })
   end,
 }
-

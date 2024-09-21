@@ -32,6 +32,7 @@ packagesPacman=(
 
 packagesYay=(
     "devify"
+    "wired"
     # latex packages
     "pdflatex"
     "latexrun-git"

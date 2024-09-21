@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
 
 while true; do
-    # Get RAM usage
-    ram_usage=$(free -h | grep Mem | awk '{print $3 "/" $2}')
+
+# Get current RAM usage in GB (assuming you want to check against 5.6 GB)
+ram_usage=$(free -g | awk '/^Mem:/{print $3}')
+
+# Set limit for RAM usage in GB
+limit=4
+
+# Check if RAM usage exceeds the limit
+if (( $(echo "$ram_usage >= $limit") )); then
     # Display notification
-    notify-send "RAM Usage" "Current RAM Usage: $ram_usage"
+    notify-send "RAM Usage" "Current RAM Usage: $ram_usage GB"
+fi
     # Wait for 5 minutes (300 seconds)
-    sleep 600
+    sleep 300
+
 done
-one
