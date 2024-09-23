@@ -19,6 +19,7 @@ packagesPacman=(
     "thunar-archive-plugin"
     "thunar"
     "zoxide"
+    "glow"
     "trash-cli"
     "mpv"
     "tectonic"
