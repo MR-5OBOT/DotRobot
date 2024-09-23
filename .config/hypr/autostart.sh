@@ -9,7 +9,7 @@ exec-once = dbus-update-activation-environment --systemd --all
 exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP # make sure that xdg-portals get the required variables
 exec-once = systemctl --user restart pipewire # RESTARTS PIPEWIRE (RECOMMENDED BY HYPRLAND DOC)
 
-exec-once = udiskie -a --tray # front-end that allows to manage removable media
+# exec-once = udiskie -a --tray # front-end that allows to manage removable media
 exec-once = nm-applet --indicator # systray app for Network/Wifi
 exec-once = dunst
 # exec-once = wired &
