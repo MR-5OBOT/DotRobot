@@ -1,4 +1,3 @@
-
 -- ██╗      █████╗ ███████╗███████╗██╗   ██╗           ███╗   ██╗██╗   ██╗██╗███╗   ███╗
 -- ██║     ██╔══██╗╚══███╔╝╚══███╔╝╚██╗ ██╔╝           ████╗  ██║██║   ██║██║████╗ ████║
 -- ██║     ███████║  ███╔╝   ███╔╝  ╚████╔╝            ██╔██╗ ██║██║   ██║██║██╔████╔██║
@@ -20,21 +19,24 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
 
- { import = "plugins" },
- { import = "plugins.lualine" },
+  { import = "plugins" },
+  { import = "plugins.lualine" },
+  { "folke/neoconf.nvim",      cmd = "Neoconf" },
+  { "folke/neodev.nvim" },
+
 
 })
 
 performance = {
-    rtp = {
-      -- disable some rtp plugins
-      disabled_plugins = {
-        "gzip",
-        "netrwPlugin",
-        "tarPlugin",
-        "tohtml",
-        "tutor",
-        "zipPlugin",
-      },
+  rtp = {
+    -- disable some rtp plugins
+    disabled_plugins = {
+      "gzip",
+      "netrwPlugin",
+      "tarPlugin",
+      "tohtml",
+      "tutor",
+      "zipPlugin",
     },
-  }
+  },
+}
