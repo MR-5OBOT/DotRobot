@@ -23,7 +23,7 @@
     frame_width = 3 
     sort = yes
     idle_threshold = 0
-    font = "IosevkaTermNFMMediumObl 10, Noto Sans Arabic 10"
+    font = "IosevkaTerm Light Italic 10"
     line_height = 0
     markup = full
     format = "<b>%s</b>\n%b"
