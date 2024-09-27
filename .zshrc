@@ -71,8 +71,9 @@ alias codelab='cd ~/repos/Code-Lab/'
 alias nvlab='v ~/repos/DotRoboT/.config/nvim/'
 alias tlab='cd ~/repos/Trading-Lab/'
 alias .dots='cd ~/repos/DotRoboT/'
-alias todos='v ~/repos/Code-Lab/todos.md'
+alias todos='v ~/repos/todos.md'
 alias prjects='cd ~/repos/Code-Lab/projects/'
+alias plab='cd ~/repos/Code-Lab/Learning/python/'
 
 
 # Edit config files
