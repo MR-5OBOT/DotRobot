@@ -39,27 +39,32 @@ return {
 
     -- Setup LSP servers
     local capabilities = cmp_nvim_lsp.default_capabilities()
-    local servers = { html = {}, pyright = {}, clangd = {}, gopls = {} }
-
-    -- Add Lua LSP with specific configuration
-    servers["lua_ls"] = {
-      settings = {
-        Lua = {
-          runtime = {
-            version = 'LuaJIT', -- Tell the language server to use LuaJIT (for Neovim)
-          },
-          diagnostics = {
-            globals = { 'vim' }, -- Recognize the `vim` global
-          },
-          workspace = {
-            library = vim.api.nvim_get_runtime_file("", true), -- Make the server aware of Neovim runtime
-            checkThirdParty = false,                           -- Disable third-party library checking
-          },
-          telemetry = {
-            enable = false, -- Disable telemetry for privacy
+    local servers = {
+      html = {},
+      pyright = {},
+      clangd = {},
+      gopls = {},
+      lua_ls = {
+        settings = {
+          Lua = {
+            runtime = {
+              version = 'LuaJIT', -- LuaJIT for Neovim
+            },
+            diagnostics = {
+              globals = { 'vim' }, -- Recognize the `vim` global
+            },
+            workspace = {
+              library = {
+                vim.fn.stdpath('config') .. '/lua',
+              },
+              checkThirdParty = false,
+            },
+            telemetry = {
+              enable = false,
+            },
           },
         },
-      },
+      }
     }
 
     -- Configure all servers

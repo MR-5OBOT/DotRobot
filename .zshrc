@@ -68,12 +68,12 @@ alias lt="eza --tree --level=2 --long --icons --git"
 
 # CD to repos
 alias codelab='cd ~/repos/Code-Lab/'
-alias nvlab='v ~/repos/DotRoboT/.config/nvim/'
+alias nvlab='cd ~/repos/DotRoboT/.config/nvim/'
 alias tlab='cd ~/repos/Trading-Lab/'
 alias .dots='cd ~/repos/DotRoboT/'
-alias todos='v ~/repos/todos.md'
-alias prjects='cd ~/repos/Code-Lab/projects/'
-alias plab='cd ~/repos/Code-Lab/Learning/python/'
+alias todos='v ~/repos/Code-Lab/todos.md'
+# alias projects='cd ~/repos/Code-Lab/projects/'
+alias pylab='cd ~/repos/Code-Lab/python-lab/'
 
 
 # Edit config files

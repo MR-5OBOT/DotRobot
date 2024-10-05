@@ -3,6 +3,7 @@
 packagesPacman=(
     "viewnior"
     "gimp"
+    "xsiv"
     "tmux"
     "prettier"
     "swaybg"

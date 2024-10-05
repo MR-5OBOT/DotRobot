@@ -9,7 +9,9 @@ return {
   config = function()
     require("barbecue").setup({
       attach_navic = true,    -- Attach to nvim-navic for breadcrumbs
-      create_autocmd = false, -- prevent barbecue from updating itself automatically
+      create_autocmd = false, -- Prevent barbecue from updating itself automatically
+      theme = 'monochrome',   -- Set the theme, can be auto or any other available theme
+      show_modified = true,   -- Show modified flag if file is modified
     })
   end
 }

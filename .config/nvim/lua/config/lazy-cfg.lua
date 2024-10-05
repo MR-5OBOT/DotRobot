@@ -20,14 +20,14 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
 
   { import = "plugins" },
-  { import = "plugins.lualine" },
-  { "folke/neoconf.nvim",      cmd = "Neoconf" },
+  -- { import = "plugins.tabby" },
+  { "folke/neoconf.nvim", cmd = "Neoconf" },
   { "folke/neodev.nvim" },
 
 
 })
 
-performance = {
+Performance = {
   rtp = {
     -- disable some rtp plugins
     disabled_plugins = {
