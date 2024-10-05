@@ -32,9 +32,10 @@ keymap('n', '<leader>e', ':Explore<CR>', { noremap = true, silent = true })
 keymap("n", "<leader>ff", "<cmd>Telescope find_files<cr>", { desc = "find_files" })
 keymap("n", "<leader>fl", "<cmd>Telescope live_grep<cr>", { desc = "live_grep_find_text" })
 keymap("n", "<leader>fh", "<cmd>Telescope help_tags<cr>", { desc = "find_help" })
+
+
 ----------------------------------------------------------------------------------------------------------------
 -- keymap('n', '<leader>e', ':NvimTreeToggle<CR>', { noremap = true, silent = true })
-
 
 
 -- keymap("n", "<leader>/", "<C-W>v", { desc = "Split window right", remap = true })

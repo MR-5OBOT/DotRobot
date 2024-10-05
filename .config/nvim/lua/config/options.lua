@@ -9,6 +9,7 @@ opt.autoindent = true         -- Auto-indent new lines
 opt.shiftwidth = 4            -- Indentation level
 opt.tabstop = 4               -- Tab width
 opt.expandtab = true          -- Use spaces instead of tabs
+opt.showtabline = 2           -- display tab line
 opt.ignorecase = true         -- Ignore case in search
 opt.smartcase = true          -- Enable smart case search
 opt.hlsearch = true           -- Highlight search matches

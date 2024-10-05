@@ -5,20 +5,20 @@ local colors = {
   color6 = '#42be65',
   color7 = '#ee5396',
   color8 = '#3ddbd9',
-  color9 = '#dde1e6',
+  color9 = '#636567',
   color10 = '#8F70C0'
 }
 
 local custom_theme = {
   normal = {
-    a = { fg = colors.color3, bg = colors.color10 }, -- Normal mode color
-    b = { fg = colors.color9, bg = 'NONE' },         -- Transparent secondary
+    a = { fg = colors.color3, bg = colors.color9 }, -- Normal mode color
+    b = { fg = colors.color9, bg = 'NONE' },        -- Transparent secondary
   },
   insert = {
-    a = { fg = colors.color3, bg = colors.color8 }, -- Insert mode color
+    a = { fg = colors.color3, bg = colors.color6 }, -- Insert mode color
   },
   visual = {
-    a = { fg = colors.color3, bg = colors.color6 }, -- Visual mode color
+    a = { fg = colors.color3, bg = colors.color1 }, -- Visual mode color
   },
   command = {
     a = { fg = colors.color3, bg = colors.color2 }, -- Command mode color
