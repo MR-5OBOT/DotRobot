@@ -1,0 +1,67 @@
+/* ====================================================================== */
+/*                          General UI Adjustments                       */
+/* ====================================================================== */
+
+/* Hide the Firefox titlebar for a cleaner window appearance */
+#titlebar {
+  display: none;
+}
+
+/* Center the text inside the URL bar */
+.urlbar-input-box {
+  text-align: center;
+}
+
+/* Reduce the margin around the navigation bar */
+#nav-bar {
+  margin: 3px;
+}
+
+/* Hide the URL bar background when it's not focused */
+#urlbar:not([focused]) #urlbar-background {
+  opacity: 0 !important;
+}
+
+/* ====================================================================== */
+/*                           Font Adjustments                            */
+/* ====================================================================== */
+
+/* Set all text to use a monospace font */
+* {
+  font-family: "monospace";
+}
+
+/* ====================================================================== */
+/*                       Browser Container Styling                       */
+/* ====================================================================== */
+
+/* Add rounded corners to the browser container */
+.browserContainer browser {
+  border-radius: 5px !important;
+  /* Optional margin settings (currently commented out) */
+  /* margin: 0vh 1vh 2vh 0vh; */
+}
+
+/* ====================================================================== */
+/*                      Navigator Toolbox Handling                       */
+/* ====================================================================== */
+
+/* Minimize the navigator toolbox height */
+#navigator-toolbox {
+  max-height: 2vh;
+}
+
+/* Hide all child elements inside navigator-toolbox */
+#navigator-toolbox * {
+  opacity: 0;
+}
+
+/* Expand navigator-toolbox and show its child elements on hover */
+#navigator-toolbox:hover {
+  max-height: 100vh;
+  height: auto;
+}
+
+#navigator-toolbox:hover * {
+  opacity: 1;
+}
