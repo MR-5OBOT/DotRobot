@@ -17,7 +17,7 @@
  * SECTION: FASTFOX                                                         *
  ****************************************************************************/
 /** GENERAL ***/
-user_pref("content.notify.interval", 100000);
+user_pref("content.notify.interval", 100000); // Increase may reduce UI responsiveness
 
 /** GFX ***/
 user_pref("gfx.canvas.accelerated.cache-items", 4096);
@@ -36,11 +36,11 @@ user_pref("media.cache_resume_threshold", 3600);
 user_pref("image.mem.decode_bytes_at_a_time", 32768);
 
 /** NETWORK ***/
-user_pref("network.http.max-connections", 1800);
-user_pref("network.http.max-persistent-connections-per-server", 10);
+user_pref("network.http.max-connections", 1800); // Increase for more simultaneous connections
+user_pref("network.http.max-persistent-connections-per-server", 10); // Increased for better parallelism
 user_pref("network.http.max-urgent-start-excessive-connections-per-host", 5);
-user_pref("network.http.pacing.requests.enabled", false);
-user_pref("network.dnsCacheExpiration", 3600);
+user_pref("network.http.pacing.requests.enabled", false); // Disable pacing to speed up requests
+user_pref("network.dnsCacheExpiration", 3600); // Longer DNS cache
 user_pref("network.ssl_tokens_cache_capacity", 10240);
 
 /** SPECULATIVE LOADING ***/
@@ -60,11 +60,11 @@ user_pref("dom.enable_web_task_scheduling", true);
 user_pref("browser.contentblocking.category", "strict");
 user_pref(
   "urlclassifier.trackingSkipURLs",
-  "*.reddit.com, *.twitter.com, *.twimg.com, *.tiktok.com",
+  "*.reddit.com, *.twitter.com, *.twimg.com, *.tiktok.com"
 );
 user_pref(
   "urlclassifier.features.socialtracking.skipURLs",
-  "*.instagram.com, *.twitter.com, *.twimg.com",
+  "*.instagram.com, *.twitter.com, *.twimg.com"
 );
 user_pref("network.cookie.sameSite.noneRequiresSecure", true);
 user_pref("browser.download.start_downloads_in_tmp_dir", true);
@@ -73,7 +73,7 @@ user_pref("browser.uitour.enabled", false);
 user_pref("privacy.globalprivacycontrol.enabled", true);
 
 /** OCSP & CERTS / HPKP ***/
-user_pref("security.OCSP.enabled", 0);
+user_pref("security.OCSP.enabled", 0); // Disable OCSP checking (can speed up SSL handshakes)
 user_pref("security.remote_settings.crlite_filters.enabled", true);
 user_pref("security.pki.crlite_mode", 2);
 
@@ -134,7 +134,7 @@ user_pref("network.http.referer.XOriginTrimmingPolicy", 2);
 user_pref("privacy.userContext.ui.enabled", true);
 
 /** SAFE BROWSING ***/
-user_pref("browser.safebrowsing.downloads.remote.enabled", false);
+user_pref("browser.safebrowsing.downloads.remote.enabled", false); // Disable safe browsing downloads for speed
 
 /** MOZILLA ***/
 // PREF: allow websites to ask you to receive site notifications
