@@ -1,17 +1,11 @@
-# Set the directory to store Zinit and plugins
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+[ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)"
+[ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+source "${ZINIT_HOME}/zinit.zsh"
 
-# Download Zinit if not present
-if [ ! -d "$ZINIT_HOME" ]; then
-   mkdir -p "$(dirname "$ZINIT_HOME")"
-   echo "Downloading Zinit..."
-   git clone https://github.com/zdharma/zinit.git "$ZINIT_HOME" || { echo "Failed to clone Zinit"; exit 1; }
-fi
+
 
 export PATH="$HOME/.local/bin:$PATH"
-
-# Source/Load Zinit
-source "${ZINIT_HOME}/zinit.zsh"
 
 # Initialize Starship prompt
 eval "$(starship init zsh)"
@@ -70,7 +64,7 @@ alias lt="eza --tree --level=2 --long --icons --git"
 alias codelab='cd ~/repos/Code-Lab/'
 alias nvlab='cd ~/repos/DotRoboT/.config/nvim/'
 alias tlab='cd ~/repos/Trading-Lab/'
-alias .dots='cd ~/repos/DotRoboT/'
+alias .dots='cd ~/repos/DotRobot/'
 alias todos='v ~/repos/Code-Lab/todos.md'
 # alias projects='cd ~/repos/Code-Lab/projects/'
 alias pylab='cd ~/repos/Code-Lab/python-lab/'
