@@ -21,7 +21,7 @@ echo
 # echo "- custom-fonts.sh"
 echo "- dotfiles-setup."
 echo "- firefox.sh"
-echo "- neovim-setup.sh"
+# echo "- neovim-setup.sh"
 echo "- thunar-setup.sh"
 echo "- archives.sh"
 
