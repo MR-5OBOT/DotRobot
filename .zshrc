@@ -1,10 +1,10 @@
+# Set ZINIT_HOME and initialize Zinit
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 [ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)"
 [ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 source "${ZINIT_HOME}/zinit.zsh"
 
-
-
+# Add local bin to PATH
 export PATH="$HOME/.local/bin:$PATH"
 
 # Initialize Starship prompt
@@ -13,13 +13,14 @@ eval "$(starship init zsh)"
 # Initialize Zoxide
 eval "$(zoxide init zsh)"
 
-# Add Zsh plugins
+# Add Zsh plugins (lazy loading)
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
 zinit light aloxaf/fzf-tab
 
-# Load completions
-autoload -Uz compinit && compinit
+# Optimize completion
+autoload -Uz compinit
+compinit -C  # Use cache to speed up compinit
 zinit cdreplay -q
 
 # History file configuration
@@ -36,12 +37,12 @@ setopt hist_ignore_dups
 setopt hist_find_no_dups
 
 # Completion options
-setopt AUTOCD              # change directory just by typing its name
-setopt PROMPT_SUBST        # enable command substitution in prompt
-setopt MENU_COMPLETE       # Automatically highlight first element of completion menu
-setopt LIST_PACKED	   	   # The completion menu takes less space.
-setopt AUTO_LIST           # Automatically list choices on ambiguous completion.
-setopt COMPLETE_IN_WORD    # Complete from both ends of a word.
+setopt AUTOCD              # Change directory just by typing its name
+setopt PROMPT_SUBST        # Enable command substitution in prompt
+setopt MENU_COMPLETE        # Automatically highlight first element of completion menu
+setopt LIST_PACKED          # The completion menu takes less space
+setopt AUTO_LIST           # Automatically list choices on ambiguous completion
+setopt COMPLETE_IN_WORD    # Complete from both ends of a word
 
 # Completion styling
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
@@ -66,9 +67,7 @@ alias nvlab='cd ~/repos/DotRoboT/.config/nvim/'
 alias tlab='cd ~/repos/Trading-Lab/'
 alias .dots='cd ~/repos/DotRobot/'
 alias todos='v ~/repos/Code-Lab/todos.md'
-# alias projects='cd ~/repos/Code-Lab/projects/'
 alias pylab='cd ~/repos/Code-Lab/python-lab/'
-
 
 # Edit config files
 alias vzshrc='nvim ~/.zshrc'
@@ -76,3 +75,6 @@ alias vzshrc='nvim ~/.zshrc'
 # npm path
 export PATH=$PATH:/home/ys/.npm-global/bin
 
+# Regenerate the completion dump file for improved performance
+# rm -f ~/.zcompdump
+compinit -C
