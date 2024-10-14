@@ -1,7 +1,7 @@
 #!/usr//bin/env bash
 
 FILE_NAME="screenshots-$(date +%F-%T).png"
-FILE_PATH="${HOME}/Pictures/screenshots/${FILE_NAME}"
+FILE_PATH="${HOME}/Pictures/Screenshots/${FILE_NAME}"
 
 option2="Selected area"
 option3="Fullscreen (delay 1 sec)"
