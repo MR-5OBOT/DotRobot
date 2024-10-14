@@ -3,6 +3,7 @@
 packagesPacman=(
     "bluez"
     "bluez-utils"
+    "npm"
     "neovim"
     "wget"
     "unzip"

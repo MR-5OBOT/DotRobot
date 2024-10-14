@@ -7,7 +7,7 @@ set -e
 gum style --border normal --margin "1 2" --padding "1 2" --align center "MR5OBOT Firefox Setup"
 
 # Paths
-source="$HOME/repos/DotRoboT/Browser/firefox/"
+source="$HOME/repos/DotRobot/Browser/firefox/"
 destination="$HOME/.mozilla/firefox"
 default_release_dir=$(find "$destination" -type d -name "*.default-release")
 

@@ -3,7 +3,7 @@
 packagesPacman=(
     "viewnior"
     "gimp"
-    "xsiv"
+    "obsidian"
     "tmux"
     "prettier"
     "swaybg"
@@ -25,21 +25,21 @@ packagesPacman=(
     "mpv"
     "tectonic"
     # latex packages
-    "tree-sitter-cli"
-    "texlive-basic"
-    "texlive-latex"
-    "texlive-latexextra"
-    "texlive-bibtexextra"
+    # "tree-sitter-cli"
+    # "texlive-basic"
+    # "texlive-latex"
+    # "texlive-latexextra"
+    # "texlive-bibtexextra"
 )
 
 packagesYay=(
     "devify"
     "wired"
     # latex packages
-    "pdflatex"
-    "latexrun-git"
-    "latex-mk"
-    "texlive-binextra"
+    # "pdflatex"
+    # "latexrun-git"
+    # "latex-mk"
+    # "texlive-binextra"
     # "texlive-full"
 )
 

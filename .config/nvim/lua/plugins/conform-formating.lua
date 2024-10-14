@@ -5,12 +5,18 @@ return {
     local conform = require("conform")
     conform.setup({
       formatters_by_ft = {
-        html = { "prettier" },       -- Use prettier for HTML formatting
-        css = { "prettier" },        -- Use prettier for CSS formatting
-        javascript = { "prettier" }, -- Use prettier for JavaScript formatting
-        json = { "prettier" },       -- Use prettier for JSON formatting
-        python = { "black" },        -- Use Black for Python formatting
-        -- Add more file types and their respective formatters here
+        html = { "prettier" },
+        css = { "prettier" },
+        javascript = { "prettier" },
+        json = { "prettier" },
+        python = { "black" },
+        lua = { "stylua" },          -- Use Stylua for Lua formatting
+        go = { "gofmt" },            -- Use gofmt for Go formatting
+        markdown = { "prettier" },   -- Use prettier for Markdown formatting
+        ruby = { "rufo" },           -- Use Rufo for Ruby formatting
+        yaml = { "prettier" },       -- Use prettier for YAML formatting
+        typescript = { "prettier" }, -- Use prettier for TypeScript formatting
+        php = { "phpcsfixer" },      -- Use PHP-CS-Fixer for PHP formatting
       },
       format_on_save = {
         lsp_fallback = true,

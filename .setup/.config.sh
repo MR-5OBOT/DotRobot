@@ -27,7 +27,7 @@ if [[ $? -ne 0 ]]; then
 fi
 
 # Define variables
-Dotfiles="$HOME/repos/DotRoboT"
+Dotfiles="$HOME/repos/DotRobot"
 configs="$Dotfiles/.config"
 
 # Check if 'DotRoboT' directory exists

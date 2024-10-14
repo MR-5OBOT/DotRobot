@@ -1,3 +1,16 @@
+-- custom functions to replace plugings LOL
+
+-- toogle a terminal buffer
+vim.api.nvim_set_keymap('n', '<leader>t', ':lua ToggleTerm()<CR>', { noremap = true, silent = true })
+
+function ToggleTerm()
+  if vim.fn.bufwinnr('term://*') ~= -1 then
+    vim.cmd('bdelete! term://*')
+  else
+    vim.cmd('terminal')
+  end
+end
+
 -- function for making commands to open my newtrade template into new file
 vim.api.nvim_create_user_command('NewTrade', function()
   local date = os.date("%Y-%m-%d")
