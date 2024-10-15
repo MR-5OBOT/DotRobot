@@ -4,6 +4,7 @@
 packagesPacman=(
     "hyprland"
     "xdg-desktop-portal-hyprland"
+    "xdg-desktop-portal-wlr"
     "waybar"
     "slurp"
     "swappy"

@@ -9,8 +9,6 @@ $directory\
 $docker_context\
 $fill\
 $git_branch\
-$git_status\
-$git_commit\
 $status\
 $os\
 $container\

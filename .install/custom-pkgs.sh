@@ -10,6 +10,7 @@ packagesPacman=(
     "fd"
     "rclone"
     "figlet"
+    "imv"
     "neovim"
     "zsh"
     "kitty"
