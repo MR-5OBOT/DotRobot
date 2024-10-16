@@ -48,7 +48,7 @@
 
 /* Minimize the navigator toolbox height */
 #navigator-toolbox {
-  max-height: 1vh;
+  max-height: 0.1vh;
 }
 
 /* Hide all child elements inside navigator-toolbox */
