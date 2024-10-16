@@ -22,10 +22,10 @@ packagesPacman=(
 )
 
 packagesYay=(
-    "gtklock"
-    "swww"
+    # "gtklock"
+    # "swww"
     "grimblast-git"
-    "cliphist"
+    # "cliphist"
     "nwg-look"
     "hyprlock"
     "hypridle"
