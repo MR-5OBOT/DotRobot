@@ -49,7 +49,6 @@ zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 zstyle ':completion:*' menu no
 
 # Aliases
-alias ff='fd --type f --hidden --exclude .git | fzf --preview "bat {}" --reverse | xargs -x sh -c '"'"'[ -z "$1" ] || nvim "$1"'"'"' sh'
 alias v='nvim'
 alias mv='mv -i'
 alias lg='lazygit'
@@ -75,8 +74,3 @@ alias vzshrc='nvim ~/.zshrc'
 
 # npm path
 # export PATH="$HOME/.npm-global/bin:$PATH"
-
-
-# Regenerate the completion dump file for improved performance
-# rm -f ~/.zcompdump
-compinit -C
