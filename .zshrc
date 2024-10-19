@@ -60,13 +60,14 @@ alias ls='eza -a --icons'  # Ensure eza is installed
 alias l="ls -lah"
 alias lt="eza --tree --level=2 --long --icons --git"
 alias timeshift-gtk="sudo -E DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS timeshift-gtk"
+alias sc-im="sc-im"
 
 # CD to repos
 alias codelab='cd ~/repos/Code-Lab/'
 alias nvlab='cd ~/repos/DotRoboT/.config/nvim/'
 alias tlab='cd ~/repos/Trading-Lab/'
 alias .dots='cd ~/repos/DotRobot/'
-alias todos='v ~/repos/Code-Lab/todos.md'
+alias todos='v ~/repos/Todos.md'
 alias pylab='cd ~/repos/Code-Lab/python-lab/'
 
 # Edit config files

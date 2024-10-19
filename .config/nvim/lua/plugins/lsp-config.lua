@@ -9,6 +9,11 @@ return {
         local lspconfig = require("lspconfig")
         local cmp_nvim_lsp = require("cmp_nvim_lsp")
         local navic = require("nvim-navic")
+        require("barbecue").setup({
+            show_navic = true, -- Show navigation using nvim-navic
+            attach_navic = true,
+        })
+
 
         -- Set up key mappings
         local function setup_keymaps(bufnr)
@@ -74,9 +79,6 @@ return {
             }, config))
         end
 
-        -- Configure navic
-        navic.setup({
-            highlight = true,
-        })
+        -- Configure barbecue
     end,
 }
