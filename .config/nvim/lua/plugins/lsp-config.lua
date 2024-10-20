@@ -9,6 +9,7 @@ return {
         local lspconfig = require("lspconfig")
         local cmp_nvim_lsp = require("cmp_nvim_lsp")
         local navic = require("nvim-navic")
+        -- Configure barbecue
         require("barbecue").setup({
             show_navic = true, -- Show navigation using nvim-navic
             attach_navic = true,
@@ -25,8 +26,8 @@ return {
                 K = vim.lsp.buf.hover,
                 ["<leader>ca"] = vim.lsp.buf.code_action,
                 ["<leader>d"] = vim.diagnostic.open_float,
-                ["[d"] = vim.diagnostic.goto_prev,
-                ["]d"] = vim.diagnostic.goto_next,
+                -- ["[d"] = vim.diagnostic.goto_prev,
+                -- ["]d"] = vim.diagnostic.goto_next,
             }
             for k, v in pairs(mappings) do
                 vim.keymap.set("n", k, v, opts)
@@ -78,7 +79,5 @@ return {
                 on_attach = on_attach,
             }, config))
         end
-
-        -- Configure barbecue
     end,
 }
