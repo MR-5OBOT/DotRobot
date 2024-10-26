@@ -13,9 +13,9 @@
 }
 
 /* Reduce the margin around the navigation bar */
-#nav-bar {
-  margin: 3px;
-}
+/*#nav-bar {*/
+/*  margin: 5px;*/
+/*}*/
 
 /* Hide the URL bar background when it's not focused */
 #urlbar:not([focused]) #urlbar-background {
@@ -31,37 +31,3 @@
   font-family: "monospace" 13px;
 }
 
-/* ====================================================================== */
-/*                       Browser Container Styling                       */
-/* ====================================================================== */
-
-/* Add rounded corners to the browser container */
-.browserContainer browser {
-  border-radius: 5px !important;
-  /* Optional margin settings (currently commented out) */
-  /* margin: 0vh 1vh 2vh 0vh; */
-}
-
-/* ====================================================================== */
-/*                      Navigator Toolbox Handling                       */
-/* ====================================================================== */
-
-/* Minimize the navigator toolbox height */
-#navigator-toolbox {
-  max-height: 0.1vh;
-}
-
-/* Hide all child elements inside navigator-toolbox */
-#navigator-toolbox * {
-  opacity: 0;
-}
-
-/* Expand navigator-toolbox and show its child elements on hover */
-#navigator-toolbox:hover {
-  max-height: 100vh;
-  height: auto;
-}
-
-#navigator-toolbox:hover * {
-  opacity: 1;
-}

@@ -61,6 +61,8 @@ alias l="ls -lah"
 alias lt="eza --tree --level=2 --long --icons --git"
 alias timeshift-gtk="sudo -E DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS timeshift-gtk"
 alias sc-im="sc-im"
+alias makeenv='python3 -m venv env && source env/bin/activate'
+
 
 # CD to repos
 alias codelab='cd ~/repos/Code-Lab/'
