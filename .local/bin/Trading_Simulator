@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+# Define the environment location
+env_location="$HOME/repos/Code-Lab/Apps/trading_system-simulator/env"
+app_location="$HOME/repos/Code-Lab/Apps/trading_system-simulator/GUI_app.py"
+
+# Check if virtual environment exists
+if [ ! -d "$env_location" ]; then
+    echo "Creating new virtual environment..."
+    # Create the virtual environment
+    python -m venv "$env_location"
+    
+    # Activate the virtual environment
+    source "$env_location/bin/activate"
+    
+    # Install requirements
+    echo "Installing requirements..."
+    pip install -r "$HOME/repos/Code-Lab/Apps/trading_system-simulator/requirements.txt"
+else
+    echo "Virtual environment found, activating..."
+    # Just activate the existing environment
+    source "$env_location/bin/activate"
+fi
+
+# run the app
+echo "Starting application..."
+python3 "$app_location"
