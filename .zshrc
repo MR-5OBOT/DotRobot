@@ -4,8 +4,6 @@ ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 [ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 source "${ZINIT_HOME}/zinit.zsh"
 
-# Add local bin to PATH
-export PATH="$HOME/.local/bin:$PATH"
 
 # Initialize Starship prompt
 eval "$(starship init zsh)"
@@ -66,6 +64,7 @@ alias makeenv='python3 -m venv env && source env/bin/activate'
 
 # CD to repos
 alias codelab='cd ~/repos/Code-Lab/'
+alias apps="cd ~/repos/Code-Lab/Apps/"
 alias nvlab='cd ~/repos/DotRoboT/.config/nvim/'
 alias tlab='cd ~/repos/Trading-Lab/'
 alias .dots='cd ~/repos/DotRobot/'
@@ -74,6 +73,9 @@ alias pylab='cd ~/repos/Code-Lab/python-lab/'
 
 # Edit config files
 alias vzshrc='nvim ~/.zshrc'
+
+# Add local bin to PATH
+export PATH="$HOME/.local/bin:$PATH"
 
 # npm path
 # export PATH="$HOME/.npm-global/bin:$PATH"
