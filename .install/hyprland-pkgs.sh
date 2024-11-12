@@ -4,6 +4,7 @@
 packagesPacman=(
     "hyprland"
     "xdg-desktop-portal-hyprland"
+    "xdg-desktop-portal-wlr"
     "waybar"
     "slurp"
     "swappy"
@@ -21,10 +22,10 @@ packagesPacman=(
 )
 
 packagesYay=(
-    "gtklock"
-    "swww"
+    # "gtklock"
+    # "swww"
     "grimblast-git"
-    "cliphist"
+    # "cliphist"
     "nwg-look"
     "hyprlock"
     "hypridle"

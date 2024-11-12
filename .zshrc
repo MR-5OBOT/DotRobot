@@ -4,8 +4,6 @@ ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 [ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 source "${ZINIT_HOME}/zinit.zsh"
 
-# Add local bin to PATH
-export PATH="$HOME/.local/bin:$PATH"
 
 # Initialize Starship prompt
 eval "$(starship init zsh)"
@@ -25,8 +23,8 @@ zinit cdreplay -q
 
 # History file configuration
 HISTFILE=~/.zsh_history
-HISTSIZE=100
-SAVEHIST=100
+HISTSIZE=10000
+SAVEHIST=10000
 
 setopt appendhistory
 setopt sharehistory
@@ -49,7 +47,6 @@ zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 zstyle ':completion:*' menu no
 
 # Aliases
-alias ff='fd --type f --hidden --exclude .git | fzf --preview "bat {}" --reverse | xargs -x sh -c '"'"'[ -z "$1" ] || nvim "$1"'"'"' sh'
 alias v='nvim'
 alias mv='mv -i'
 alias lg='lazygit'
@@ -60,21 +57,24 @@ alias ...="cd ../../"
 alias ls='eza -a --icons'  # Ensure eza is installed
 alias l="ls -lah"
 alias lt="eza --tree --level=2 --long --icons --git"
+alias timeshift-gtk="sudo -E DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS timeshift-gtk"
+alias sc-im="sc-im"
+alias makeenv='python3 -m venv env && source env/bin/activate'
+
 
 # CD to repos
 alias codelab='cd ~/repos/Code-Lab/'
+alias apps="cd ~/repos/Code-Lab/Apps/"
 alias nvlab='cd ~/repos/DotRoboT/.config/nvim/'
 alias tlab='cd ~/repos/Trading-Lab/'
 alias .dots='cd ~/repos/DotRobot/'
-alias todos='v ~/repos/Code-Lab/todos.md'
-alias pylab='cd ~/repos/Code-Lab/python-lab/'
+alias todos='v ~/repos/Todos.md'
 
 # Edit config files
 alias vzshrc='nvim ~/.zshrc'
 
-# npm path
-export PATH=$PATH:/home/ys/.npm-global/bin
+# Add local bin to PATH
+export PATH="$HOME/.local/bin:$PATH"
 
-# Regenerate the completion dump file for improved performance
-# rm -f ~/.zcompdump
-compinit -C
+# npm path
+# export PATH="$HOME/.npm-global/bin:$PATH"

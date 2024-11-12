@@ -10,7 +10,7 @@ configuration {
 @import                          "shared/custom_oxocarbon.rasi"
 
 * {
-    font:                        "Nova Mono 12";
+    font:                        "Nova Mono 11";
     background-colour:           var(background);
     foreground-colour:           var(foreground);
     normal-background:           var(background);
@@ -24,13 +24,13 @@ configuration {
 }
 
 window {
-    locaton:                     0;
+    location:                     0;
     transparency:                "real";
     y-offset:                    0%;
     x-offset:                    0%;
-    width:                       20%;
+    width:                       18%;
     fullscreen:                  false;
-    margin:                      5px;
+    margin:                      0px;
     padding:                     0px;
     border:                      0px solid;
     border-radius:               0px;
@@ -39,16 +39,16 @@ window {
 }
 
 mainbox {
-    spacing:                     15px;
+    spacing:                     10px;
     margin:                      0px;
-    padding:                     10px;
+    padding:                     8px;
     border:                      0px solid;
     border-radius:               0px 0px 0px 0px;
     children:                    [ "inputbar", "listview" ];
 }
 
 inputbar {
-    spacing:                     10px;
+    spacing:                     8px;
     margin:                      0px;
     padding:                     0px;
     border:                      0px solid;
@@ -75,7 +75,7 @@ listview {
     lines: 1;
     scrollbar: false;
     columns:                     1;
-    spacing:                     5px;
+    spacing:                     2px;
     margin:                      0px;
     padding:                     0px;
     border:                      0px solid;

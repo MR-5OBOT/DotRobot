@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+# Define the environment location
+location="$HOME/repos/Code-Lab/Apps/Trading_System_simulator"
+app_location="$HOME/repos/Code-Lab/Apps/Trading_System_simulator/GUI_app.py"
+env_location="$location/env"
+
+# Check if directory exists
+if [ ! -d "$location" ]; then
+    echo "Error: Directory $location does not exist"
+    exit 1
+fi
+
+echo "Setting up Trading Simulator..."
+
+# Create the virtual environment if it doesn't exist
+if [ ! -d "$env_location" ]; then
+    echo "Creating new virtual environment..."
+    python3 -m venv "$env_location"
+fi
+
+# Activate the virtual environment
+echo "Activating virtual environment..."
+source "$env_location/bin/activate"
+
+# Install requirements if requirements.txt exists
+if [ -f "$location/requirements.txt" ]; then
+    echo "Installing requirements..."
+    pip install -r "$location/requirements.txt"
+else
+    echo "No requirements.txt found. Installing essential packages..."
+    pip install matplotlib pandas numpy
+fi
+
+# Verify matplotlib installation
+pip show matplotlib > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "Installing matplotlib..."
+    pip install matplotlib
+fi
+
+# Run the app
+echo "Starting application..."
+python3 "$app_location"
