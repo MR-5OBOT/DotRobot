@@ -23,8 +23,8 @@ zinit cdreplay -q
 
 # History file configuration
 HISTFILE=~/.zsh_history
-HISTSIZE=100
-SAVEHIST=100
+HISTSIZE=10000
+SAVEHIST=10000
 
 setopt appendhistory
 setopt sharehistory
