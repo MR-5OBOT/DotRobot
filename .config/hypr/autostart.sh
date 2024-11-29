@@ -7,7 +7,6 @@ exec-once = /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 
 exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 exec-once = sleep 1 && dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP # maket xdg-portals get required variables
-# exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 exec-once = systemctl --user restart pipewire # RESTARTS PIPEWIRE (RECOMMENDED BY HYPRLAND DOC)
 
 
@@ -18,11 +17,12 @@ exec-once = devify
 exec-once = hypridle
 exec-once = clipse -listen  
 
-exec-once = $SCRIPTS/autostart/clipse-cpu-usage.sh
+exec-once = swaybg -i ~/Pictures/wallpapers/mr-robot-4k-pz.jpg
+# exec-once = $SCRIPTS/autostart/clipse-cpu-usage.sh
+# exec-once = $SCRIPTS/wallpapers/random_walls.sh
 exec-once = $SCRIPTS/autostart/Hypridle.sh
 exec-once = $SCRIPTS/autostart/xdgportals.sh
 exec-once = $SCRIPTS/autostart/pipewire_check.sh
-exec-once = $SCRIPTS/wallpapers/random_walls.sh
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh
 exec-once = $SCRIPTS/autostart/BAT-check.sh
 
