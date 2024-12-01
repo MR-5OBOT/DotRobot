@@ -88,16 +88,16 @@ while true; do
 done
 
 # Create output directory if it doesn't exist
-output_dir="downloads"
-mkdir -p "$output_dir"
+# output_dir="downloads"
+# mkdir -p "$output_dir"
 
 # Set output template based on format
 if [ "$format" = "mp3" ]; then
-    output_template="$output_dir/%(title)s.%(ext)s"
+    output_template="%(title)s.%(ext)s"
     # Additional options for MP3 conversion
     additional_opts="-x --audio-format mp3 --audio-quality 0"
 else
-    output_template="$output_dir/%(title)s.%(ext)s"
+    output_template="/%(title)s.%(ext)s"
     additional_opts=""
 fi
 
@@ -124,7 +124,6 @@ fi
 # Check if download was successful
 if [ $? -eq 0 ]; then
     print_color "$GREEN" "Download completed successfully!"
-    print_color "$GREEN" "Files saved in $output_dir directory"
 else
     print_color "$RED" "An error occurred during download"
 fi

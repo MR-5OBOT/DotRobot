@@ -1,0 +1,200 @@
+{
+	"file": {
+		"type": "panoramaView",
+		"version": 1
+	},
+	"windows": [
+		{
+			"groups": [
+				{
+					"id": 0,
+					"name": "home",
+					"rect": {
+						"x": 0,
+						"y": 0,
+						"w": 0.5,
+						"h": 0.5,
+						"i": 0.5,
+						"j": 0.5
+					}
+				},
+				{
+					"id": 1,
+					"name": "trading",
+					"rect": {
+						"x": 0.5,
+						"y": 0,
+						"w": 0.5,
+						"h": 0.5,
+						"i": 1,
+						"j": 0.5
+					}
+				},
+				{
+					"id": 2,
+					"name": "Dev",
+					"rect": {
+						"x": 0,
+						"y": 0.5,
+						"w": 0.5,
+						"h": 0.5,
+						"i": 0.5,
+						"j": 1
+					}
+				},
+				{
+					"id": 3,
+					"name": "moview & series",
+					"rect": {
+						"x": 0.5,
+						"y": 0.5,
+						"w": 0.5,
+						"h": 0.5,
+						"i": 1,
+						"j": 1
+					}
+				}
+			],
+			"tabs": [
+				{
+					"url": "https://web.whatsapp.com/",
+					"title": "WhatsApp",
+					"groupId": 0,
+					"index": 0,
+					"lastAccessed": 1731455724412,
+					"pinned": true
+				},
+				{
+					"url": "https://docs.google.com/spreadsheets/d/1IgSVVuniPC5SKPNOv3-PnW74IzuU-dI4Skhj3-Tdh8I/edit?gid=1509251197#gid=1509251197",
+					"title": "THE LAB REPORTS - Google Sheets",
+					"groupId": 0,
+					"index": 1,
+					"lastAccessed": 1731426925748,
+					"pinned": true
+				},
+				{
+					"url": "https://theflixertv.to/watch-tv/watch-the-cage-full-116704.10790794",
+					"title": "Watch The Cage full HD Free - TheFlixer",
+					"groupId": 3,
+					"index": 2,
+					"lastAccessed": 1731263280521,
+					"pinned": false
+				},
+				{
+					"url": "https://hianime.to/watch/world-of-immortals-19412?ep=128992",
+					"title": "Watch World of Immortals ONA episodes English Sub/Dub online Free on HiAnime.to",
+					"groupId": 3,
+					"index": 3,
+					"lastAccessed": 1731167408326,
+					"pinned": false
+				},
+				{
+					"url": "https://www.youtube.com/playlist?list=PLBh2i93oe2qswFOC98oSFc37-0f4S3D4z",
+					"title": "(169) Probability Theory - YouTube",
+					"groupId": 1,
+					"index": 4,
+					"lastAccessed": 1731249576451,
+					"pinned": false
+				},
+				{
+					"url": "https://www.youtube.com/watch?v=3-rN-B-y4fs&list=PLtPb6FfCE5x71HyP85GxoW1C2B5v-Ocgi",
+					"title": "(169) Mark Douglas 4 of 7 - Probabilities - YouTube",
+					"groupId": 1,
+					"index": 5,
+					"lastAccessed": 1731250318755,
+					"pinned": false
+				},
+				{
+					"url": "https://www.youtube.com/watch?v=sQqniayndb4&list=PLMrJAkhIeNNR3sNYvfgiKgcStwuPSts9V",
+					"title": "(169) Probability and Statistics: Overview - YouTube",
+					"groupId": 1,
+					"index": 7,
+					"lastAccessed": 1731257602226,
+					"pinned": false
+				},
+				{
+					"url": "https://www.youtube.com/watch?v=udG9KhNMKJw&list=PLC58778F28211FA19&index=9",
+					"title": "(169) Exactly three heads in five flips | Probability and Statistics | Khan Academy - YouTube",
+					"groupId": 1,
+					"index": 8,
+					"lastAccessed": 1731275619043,
+					"pinned": false
+				},
+				{
+					"url": "https://x.com/home",
+					"title": "Home / X",
+					"groupId": 0,
+					"index": 9,
+					"lastAccessed": 1731455693333,
+					"pinned": false
+				},
+				{
+					"url": "https://www.youtube.com/watch?v=zzjNg-jNflY&list=PLSQl0a2vh4HDkbhG0sDW0b-VZXykEIAe5&index=1",
+					"title": "(169) Welcome to Intro to Computer Science! | Intro to CS - Python | Khan Academy - YouTube",
+					"groupId": 2,
+					"index": 10,
+					"lastAccessed": 1731248956080,
+					"pinned": false
+				},
+				{
+					"url": "https://www.khanacademy.org/computing/intro-to-python-fundamentals/x5279a44ae0ab15d6:simulating-phenomena-with-loops/x5279a44ae0ab15d6:module-imports/v/simulations-and-repetition",
+					"title": "Simulations and repetition (video) | Khan Academy",
+					"groupId": 2,
+					"index": 11,
+					"lastAccessed": 1731248956623,
+					"pinned": false
+				},
+				{
+					"url": "https://www.youtube.com/watch?v=S8aARDQzhto&list=PLAtoCfxWRIErTozMKGdHmUieMuQDGEoEJ&index=6",
+					"title": "(168) 5.1. Python - Writing Paragraph of code - YouTube",
+					"groupId": 2,
+					"index": 12,
+					"lastAccessed": 1731253950453,
+					"pinned": false
+				},
+				{
+					"url": "https://excalidraw.com/#token=oAHXTkj2W4Qa8eeyLQrDB",
+					"title": "Excalidraw",
+					"groupId": 1,
+					"index": 13,
+					"lastAccessed": 1731275470491,
+					"pinned": false
+				},
+				{
+					"url": "https://www.youtube.com/watch?v=isXicdayBwA",
+					"title": "(8) ICT Forex - The ICT Smart Money Technique or SMT - YouTube",
+					"groupId": 0,
+					"index": 14,
+					"lastAccessed": 1731455826462,
+					"pinned": false
+				},
+				{
+					"url": "http://127.0.0.1:8080/#content",
+					"title": "Home - Iptvwell",
+					"groupId": 0,
+					"index": 15,
+					"lastAccessed": 1731455699894,
+					"pinned": false
+				},
+				{
+					"url": "https://iptvwell.com/demo12/",
+					"title": "Home - Iptvwell",
+					"groupId": 0,
+					"index": 16,
+					"lastAccessed": 1731455704445,
+					"pinned": false
+				},
+				{
+					"url": "about:addons",
+					"title": "Add-ons Manager",
+					"groupId": 0,
+					"index": 17,
+					"lastAccessed": 1731455832209,
+					"pinned": false
+				}
+			],
+			"activeGroup": 0,
+			"groupIndex": 5
+		}
+	]
+}
