@@ -18,12 +18,10 @@ exec-once = hypridle
 exec-once = clipse -listen  
 
 exec-once = swaybg -i ~/Pictures/wallpapers/mr-robot-4k-pz.jpg
-# exec-once = $SCRIPTS/autostart/clipse-cpu-usage.sh
-# exec-once = $SCRIPTS/wallpapers/random_walls.sh
-exec-once = $SCRIPTS/autostart/Hypridle.sh
-exec-once = $SCRIPTS/autostart/xdgportals.sh
 exec-once = $SCRIPTS/autostart/pipewire_check.sh
+exec-once = $SCRIPTS/autostart/xdgportals.sh
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh
+exec-once = $SCRIPTS/autostart/Hypridle.sh
 exec-once = $SCRIPTS/autostart/BAT-check.sh
 
 
