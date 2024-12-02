@@ -17,7 +17,7 @@ exec-once = devify
 exec-once = hypridle
 exec-once = clipse -listen  
 
-exec-once = swaybg -i ~/Pictures/wallpapers/mr-robot-4k-pz.jpg
+exec-once = swaybg -i ~/Pictures/wallpapers/MR5OBOT.jpg
 exec-once = $SCRIPTS/autostart/pipewire_check.sh
 exec-once = $SCRIPTS/autostart/xdgportals.sh
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh
