@@ -4,11 +4,11 @@
 gum style --border normal --margin "1 2" --padding "1 2" --align center "MR5OBOT Archives Setup"
 
 # Define source and destination directories
-SOURCE_DIR="$HOME/repos/DotRoboT/.home/"
+SOURCE_DIR="$HOME/repos/DotRobot/.extra/.home/"
 DEST_DIR="$HOME"
 
 # Define the directories to copy
-DIRS_TO_COPY=(".themes" ".icons" ".fonts")
+DIRS_TO_COPY=(".themes" ".icons")
 
 # Ask for confirmation
 read -r -p "Copy directories? ${DIRS_TO_COPY[*]} ? (y/n): " CONFIRMATION

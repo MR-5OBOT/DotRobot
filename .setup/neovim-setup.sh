@@ -9,7 +9,7 @@ GREEN='\033[92m'
 NONE='\033[0m'
 
 # Check if the nvim repository exists
-if [ ! -d ~/repos/MR-NV/nvim ]; then
+if [ ! -d ~/repos/nvim ]; then
     echo -e "${RED}"
     figlet "Neovim Not Found"
     echo -e "${NONE}"
@@ -33,7 +33,7 @@ if gum confirm "Do you want to install the MR5OBOT Neovim configuration?"; then
         rm -rf ~/.config/nvim
     fi
     # Link the nvim repository to ~/.config
-    if ln -sf ~/repos/MR-NV/nvim ~/.config/nvim; then
+    if ln -sf ~/repos/nvim ~/.config/nvim; then
         notify-send ":: MR5OBOT Neovim configuration installed successfully"
     else
         echo -e "${RED}"

@@ -23,12 +23,15 @@ fi
 
 echo
 # Run the scripts in sequence
-run_script "./.setup/.config.sh"
+run_script "./.setup/.dotfiles.sh"
+run_script "./.setup/fonts-setup.sh"
 run_script "./.setup/zsh_setup.sh"
 run_script "./.setup/firefox.sh"
 run_script "./.setup/thunar-setup.sh"
 run_script "./.setup/themes.sh"
 run_script "./.setup/pacman.sh"
+run_scarip "./.setup/snapd-setup.sh"
+run_scarip "./.setup/thunar-setup.sh"
 
 echo -e "All scripts completed successfully."
 echo -e "Enjoy your system."

@@ -78,7 +78,7 @@ else
 fi
 
 # Link .bashrc and .zshrc
-echo "Linking Sell zsh"
+echo "Linking Sell config"
 # safe_link "$Dotfiles/.bashrc" "$HOME/.bashrc"
 safe_link "$Dotfiles/.zshrc" "$HOME/.zshrc"
 
@@ -92,10 +92,6 @@ done
 # Link wallpapers
 echo "Linking wallpapers"
 safe_link "$Dotfiles/wallpapers" "$HOME/Pictures/wallpapers"
-
-# Link .ssh configuration
-echo "Linking .ssh configuration"
-safe_link "$Dotfiles/.extra/.ssh" "$HOME/.ssh"
 
 echo "pls link post-checkout file i can't do it"
 # Notify success message

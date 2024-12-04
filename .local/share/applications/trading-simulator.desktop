@@ -1,9 +1,0 @@
-# Create this file at ~/.local/share/applications/trading-simulator.desktop
-[Desktop Entry]
-Name=Trading Simulator
-Exec=/home/mr5obot/repos/DotRobot/.local/bin/Trading_Simulator
-Icon=chart
-Terminal=false
-Type=Application
-Categories=Application;Finance;
-Comment=Trading System Simulator
