@@ -26,7 +26,7 @@ echo
 run_script "./.setup/.dotfiles.sh"
 run_script "./.setup/fonts-setup.sh"
 run_script "./.setup/zsh_setup.sh"
-run_script "./.setup/firefox.sh"
+# run_script "./.setup/firefox.sh"
 run_script "./.setup/thunar-setup.sh"
 run_script "./.setup/themes.sh"
 run_script "./.setup/pacman.sh"
