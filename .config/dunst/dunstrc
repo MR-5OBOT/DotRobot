@@ -1,7 +1,7 @@
 [global]
     monitor = 0
     width = 270
-    height = 200
+    height = 70
     origin = top-center
     offset = 20x20
     scale = 0
@@ -16,8 +16,8 @@
     indicate_hidden = yes
     transparency = 0
     separator_height = 2
-    gap_size = 5 
-    padding = 20
+    gap_size = 2 
+    padding = 10
     horizontal_padding = 16
     text_icon_padding = 0
     frame_width = 3 
