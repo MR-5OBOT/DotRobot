@@ -1,7 +1,7 @@
 [global]
     monitor = 0
     width = 270
-    height = 70
+    height = 75
     origin = top-center
     offset = 20x20
     scale = 0
