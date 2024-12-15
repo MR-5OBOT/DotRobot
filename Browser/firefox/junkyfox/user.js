@@ -19,13 +19,13 @@ user_pref('media.cache_readahead_limit', 7200);
 user_pref('media.cache_resume_threshold', 3600);
 
 /** NETWORK ***/
-user_pref('network.http.max-connections', 900);
-user_pref('network.http.max-persistent-connections-per-server', 6);
-user_pref('network.dns.disablePrefetch', false);
-user_pref('network.http.max-urgent-start-excessive-connections-per-host', 5);
-user_pref('network.http.pacing.requests.enabled', false);
-user_pref('network.dnsCacheExpiration', 3600);
-user_pref('network.ssl_tokens_cache_capacity', 10240);
+//user_pref('network.http.max-connections', 900);
+//user_pref('network.http.max-persistent-connections-per-server', 6);
+//user_pref('network.dns.disablePrefetch', false);
+//user_pref('network.http.max-urgent-start-excessive-connections-per-host', 5);
+//user_pref('network.http.pacing.requests.enabled', false);
+//user_pref('network.dnsCacheExpiration', 3600);
+//user_pref('network.ssl_tokens_cache_capacity', 10240);
 
 /** SPECULATIVE LOADING ***/
 user_pref('network.dns.disablePrefetch', true);
@@ -40,12 +40,12 @@ user_pref('network.predictor.enable-prefetch', false);
 /** TRACKING PROTECTION ***/
 user_pref('browser.contentblocking.category', 'strict');
 user_pref(
-  'urlclassifier.trackingSkipURLs',
-  '*.reddit.com, *.twitter.com, *.twimg.com, *.tiktok.com',
+    'urlclassifier.trackingSkipURLs',
+    '*.reddit.com, *.twitter.com, *.twimg.com, *.tiktok.com',
 );
 user_pref(
-  'urlclassifier.features.socialtracking.skipURLs',
-  '*.instagram.com, *.twitter.com, *.twimg.com',
+    'urlclassifier.features.socialtracking.skipURLs',
+    '*.instagram.com, *.twitter.com, *.twimg.com',
 );
 user_pref('network.cookie.sameSite.noneRequiresSecure', true);
 user_pref('privacy.globalprivacycontrol.enabled', true);

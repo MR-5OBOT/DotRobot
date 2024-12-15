@@ -1,0 +1,32 @@
+/* ====================================================================== */
+/*                          General UI Adjustments                       */
+/* ====================================================================== */
+
+/* Hide the Firefox titlebar for a cleaner window appearance */
+#titlebar {
+    display: none;
+}
+
+/* Center the text inside the URL bar */
+.urlbar-input-box {
+    text-align: center;
+}
+
+/* Reduce the margin around the navigation bar */
+/*#nav-bar {*/
+/*  margin: 5px;*/
+/*}*/
+
+/* Hide the URL bar background when it's not focused */
+#urlbar:not([focused]) #urlbar-background {
+    opacity: 0 !important;
+}
+
+/* ====================================================================== */
+/*                           Font Adjustments                            */
+/* ====================================================================== */
+
+/* Set all text to use a monospace font */
+* {
+    font-family: 'monospace' 13px;
+}
