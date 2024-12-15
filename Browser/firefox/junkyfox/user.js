@@ -1,6 +1,9 @@
 /****************************************************************************
  * SECTION: FASTFOX                                                         *
  ****************************************************************************/
+
+user_pref('toolkit.cosmeticAnimations.enabled', false);  // Disable cosmetic animations
+
 /** GENERAL ***/
 user_pref('content.notify.interval', 100000); // Keeps UI responsive without overload
 

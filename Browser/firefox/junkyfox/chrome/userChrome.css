@@ -12,21 +12,46 @@
     text-align: center;
 }
 
-/* Reduce the margin around the navigation bar */
-/*#nav-bar {*/
-/*  margin: 5px;*/
-/*}*/
-
 /* Hide the URL bar background when it's not focused */
 #urlbar:not([focused]) #urlbar-background {
     opacity: 0 !important;
 }
 
-/* ====================================================================== */
-/*                           Font Adjustments                            */
-/* ====================================================================== */
+/* Hide the bookmarks toolbar if not needed */
+#PersonalToolbar {
+    display: none !important;
+}
 
-/* Set all text to use a monospace font */
+/* Remove the Firefox button in the upper-left corner (Windows/Linux) */
+#titlebar #window-controls {
+    display: none !important;
+}
+
+/* Simplify the appearance of the URL bar when not in focus */
+#urlbar {
+    box-shadow: none !important;
+    /* Remove unnecessary box shadow */
+    transition: none !important;
+    /* Remove unnecessary transitions for faster rendering */
+}
+
+/* Speed up UI animations */
 * {
-    font-family: 'monospace' 13px;
+    transition-duration: 0.1s !important;
+    /* Reduce transition time */
+    animation-duration: 0.1s !important;
+    /* Speed up animations */
+}
+
+/* Enable smooth scrolling, but keep it minimal for better performance */
+html {
+    scroll-behavior: smooth !important;
+    -moz-appearance: none !important;
+    /* Ensure Firefox doesn’t overwrite this behavior */
+}
+
+/* Speed up tab switching animations */
+.tab-background {
+    transition-duration: 0.1s !important;
+    /* Instant tab switching */
 }
