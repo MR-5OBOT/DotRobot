@@ -2,11 +2,6 @@
 /*                          General UI Adjustments                       */
 /* ====================================================================== */
 
-/* Hide the Firefox titlebar for a cleaner window appearance */
-#titlebar {
-    display: none;
-}
-
 /* Center the text inside the URL bar */
 .urlbar-input-box {
     text-align: center;
@@ -35,23 +30,9 @@
     /* Remove unnecessary transitions for faster rendering */
 }
 
-/* Speed up UI animations */
-* {
-    transition-duration: 0.1s !important;
-    /* Reduce transition time */
-    animation-duration: 0.1s !important;
-    /* Speed up animations */
-}
-
 /* Enable smooth scrolling, but keep it minimal for better performance */
 html {
     scroll-behavior: smooth !important;
     -moz-appearance: none !important;
     /* Ensure Firefox doesn’t overwrite this behavior */
-}
-
-/* Speed up tab switching animations */
-.tab-background {
-    transition-duration: 0.1s !important;
-    /* Instant tab switching */
 }

@@ -25,4 +25,4 @@ exec-once = $SCRIPTS/autostart/Hypridle.sh
 exec-once = $SCRIPTS/autostart/BAT-check.sh
 
 
-
+exec-once = xdg-settings set default-web-browser thorium-browser.desktop
