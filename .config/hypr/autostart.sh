@@ -23,6 +23,7 @@ exec-once = $SCRIPTS/autostart/xdgportals.sh
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh
 exec-once = $SCRIPTS/autostart/Hypridle.sh
 exec-once = $SCRIPTS/autostart/BAT-check.sh
+exec-once = ~/.local/bin/mount_gdrive
 
 
 exec-once = xdg-settings set default-web-browser thorium-browser.desktop
