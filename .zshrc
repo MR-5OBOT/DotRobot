@@ -60,6 +60,7 @@ alias l="ls -lah"
 alias lt="eza --tree --level=2 --long --icons --git -la"
 alias makeenv='python3 -m venv env && source env/bin/activate'
 alias big="nvim -u NONE"
+alias drive="cd ~/repos/GoogleDrive/"
 
 
 # CD to repos
