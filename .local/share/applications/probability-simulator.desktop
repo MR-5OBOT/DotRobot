@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Probability Simulator
+GenericName=Probability Simulator
+Exec=env GDK_BACKEND=wayland,x11 /home/mr5obot/.local/bin/simulation_v1.0.0
+Icon=
+Terminal=false
+StartupNotify=true
+

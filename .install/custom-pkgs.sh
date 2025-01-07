@@ -25,6 +25,11 @@ packagesPacman=(
     "trash-cli"
     "mpv"
     "tectonic"
+    "gvfs-google"
+    "gnome-online-accounts"
+    "kio-gdrive"
+    "rclone"
+    "dolphin"
     # latex packages
     # "tree-sitter-cli"
     # "texlive-basic"

@@ -4,9 +4,10 @@ ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 [ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 source "${ZINIT_HOME}/zinit.zsh"
 
-
 # Initialize Starship prompt
 eval "$(starship init zsh)"
+
+export RCLONE_CONFIG_PASS="ys"
 
 # Initialize Zoxide
 # eval "$(zoxide init zsh)"
@@ -59,6 +60,10 @@ alias l="ls -lah"
 alias lt="eza --tree --level=2 --long --icons --git -la"
 alias makeenv='python3 -m venv env && source env/bin/activate'
 alias big="nvim -u NONE"
+alias drive="cd ~/repos/GoogleDrive/"
+alias dns-config"sudo nvim /etc/resolv.conf"
+alias simulation"~/.local/bin/simulation_v1.0.0"
+# alias fzd"fzf | cd $(awk '{print $2}')"
 
 
 # CD to repos
@@ -75,5 +80,4 @@ alias vzshrc='nvim ~/.zshrc'
 # Add local bin to PATH
 export PATH="$HOME/.local/bin:$PATH"
 
-# npm path
-# export PATH="$HOME/.npm-global/bin:$PATH"
+# export PATH=$PATH:$(npm bin -g)
