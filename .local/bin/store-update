@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+# Set the name of the branch to update
+branch_to_update="gh-pages"
+
+# Set the path of the directory in the main branch
+directory_in_main="website"
+
+# Fetch the latest changes from the remote repository
+git fetch origin
+
+# Checkout the branch to be updated
+git checkout "$branch_to_update"
+
+# Create a temporary branch to stage the changes
+git checkout -b temp_update
+
+# Copy the contents of the directory from the main branch to the temporary branch
+git checkout main -- "$directory_in_main"/*
+
+# Add the updated files to the staging area
+git add -A
+
+# Commit the changes to the temporary branch
+git commit -m "Update website content from main"
+
+# Merge the changes from the temporary branch into the target branch
+git checkout "$branch_to_update"
+git merge temp_update
+
+# Delete the temporary branch
+git branch -d temp_update
+
+# Push the updated branch to the remote repository
+git push origin "$branch_to_update"
