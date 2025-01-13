@@ -1,35 +1,34 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-# Set the name of the branch to update
-branch_to_update="gh-pages"
+# Switch to main branch
+git checkout main
 
-# Set the path of the directory in the main branch
-directory_in_main="website"
+# Create a temporary directory
+tmp_dir=$(mktemp -d)
 
-# Fetch the latest changes from the remote repository
-git fetch origin
+# Copy contents of dist/ to the temporary directory
+cp -r main/dist/* "$tmp_dir"
 
-# Checkout the branch to be updated
-git checkout "$branch_to_update"
+# Switch to gh-pages branch
+git checkout gh-pages
 
-# Create a temporary branch to stage the changes
-git checkout -b temp_update
+# Remove existing dist/ directory (if exists)
+rm -rf dist
 
-# Copy the contents of the directory from the main branch to the temporary branch
-git checkout main -- "$directory_in_main"/*
+# Move the copied contents to dist/ in gh-pages branch
+mv "$tmp_dir"/* dist/
 
-# Add the updated files to the staging area
-git add -A
+# Remove the temporary directory
+rm -rf "$tmp_dir"
 
-# Commit the changes to the temporary branch
-git commit -m "Update website content from main"
+# Add dist/ to staging area
+git add dist/
 
-# Merge the changes from the temporary branch into the target branch
-git checkout "$branch_to_update"
-git merge temp_update
+# Commit the changes
+git commit -m "chore: update gh-pages"
 
-# Delete the temporary branch
-git branch -d temp_update
+# Push the changes
+git push origin gh-pages
 
-# Push the updated branch to the remote repository
-git push origin "$branch_to_update"
+# Switch back to main branch
+git checkout main

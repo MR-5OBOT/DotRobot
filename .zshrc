@@ -7,10 +7,11 @@ source "${ZINIT_HOME}/zinit.zsh"
 # Initialize Starship prompt
 eval "$(starship init zsh)"
 
-export RCLONE_CONFIG_PASS="ys"
+
+# export RCLONE_CONFIG_PASS="ys"
 
 # Initialize Zoxide
-# eval "$(zoxide init zsh)"
+eval "$(zoxide init zsh)"
 
 # Add Zsh plugins (lazy loading)
 zinit light zsh-users/zsh-completions
@@ -81,3 +82,4 @@ alias vzshrc='nvim ~/.zshrc'
 export PATH="$HOME/.local/bin:$PATH"
 
 # export PATH=$PATH:$(npm bin -g)
+
