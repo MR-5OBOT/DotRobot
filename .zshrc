@@ -62,9 +62,7 @@ alias lt="eza --tree --level=2 --long --icons --git -la"
 alias makeenv='python3 -m venv env && source env/bin/activate'
 alias big="nvim -u NONE"
 alias drive="cd ~/repos/GoogleDrive/"
-alias dns-config"sudo nvim /etc/resolv.conf"
-alias simulation"~/.local/bin/simulation_v1.0.0"
-# alias fzd"fzf | cd $(awk '{print $2}')"
+alias dev-notes="v ~/repos/Code-Lab/dev-notes.md"
 
 
 # CD to repos

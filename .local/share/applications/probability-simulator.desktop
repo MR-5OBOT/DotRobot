@@ -2,8 +2,10 @@
 Type=Application
 Name=Probability Simulator
 GenericName=Probability Simulator
-Exec=env GDK_BACKEND=wayland,x11 /home/mr5obot/.local/bin/simulation_v1.0.0
+Exec=env GDK_BACKEND=wayland,x11 /home/mr5obot/repos/probability-simulator/dist/probability-simulator
 Icon=
 Terminal=false
 StartupNotify=true
+
+
 
