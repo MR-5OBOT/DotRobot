@@ -64,7 +64,6 @@ alias big="nvim -u NONE"
 alias drive="cd ~/repos/GoogleDrive/"
 alias dev-notes="v ~/repos/Code-Lab/dev-notes.md"
 
-
 # CD to repos
 alias codelab='cd ~/repos/Code-Lab/'
 alias apps="cd ~/repos/Code-Lab/Apps/"
