@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# Check if required tools are installed
+if ! command -v wf-recorder &>/dev/null || ! command -v rofi &>/dev/null || ! command -v grim &>/dev/null || ! command -v slurp &>/dev/null; then
+	echo "wf-recorder, rofi, grim or slurp not found. Please install them first."
+	exit 1
+fi
+
+# Function for full-screen recording
+record_full_screen() {
+	output_file="${HOME}/Videos/wayland_recording_$(date +'%Y-%m-%d_%H-%M-%S').mkv"
+	echo "Recording full screen to: $output_file"
+	wf-recorder -f "$output_file" & # Start recording
+	record_pid=$!
+	wait $record_pid
+	echo "Recording stopped. File saved as: $output_file"
+}
+
+# Function for mouse selection area recording
+record_mouse_area() {
+	output_file="${HOME}/Videos/wayland_recording_$(date +'%Y-%m-%d_%H-%M-%S').mkv"
+
+	# Capture the selected area with slurp and return the geometry coordinates
+	echo "Select a region to record with the mouse."
+	selected_area=$(slurp) # Get geometry from slurp
+
+	if [ $? -eq 0 ]; then
+		echo "Recording the selected area to: $output_file"
+		wf-recorder -g "$selected_area" -f "$output_file" & # Start recording the selected area
+		record_pid=$!
+		wait $record_pid
+		echo "Recording stopped. File saved as: $output_file"
+	else
+		echo "Region selection failed. Aborting."
+	fi
+}
+
+# Show the selection menu with rofi
+chosen=$(echo -e "Full Screen\nMouse Selection" | rofi -dmenu -p "Select Recording Option:")
+
+# Handle the user's choice
+if [ "$chosen" == "Full Screen" ]; then
+	record_full_screen
+elif [ "$chosen" == "Mouse Selection" ]; then
+	record_mouse_area
+else
+	echo "No valid option selected. Exiting."
+	exit 1
+fi
