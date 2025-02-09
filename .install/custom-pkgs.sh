@@ -4,6 +4,7 @@ packagesPacman=(
     "viewnior"
     "gimp"
     "obsidian"
+    "wf-recorder"
     "tmux"
     "prettier"
     "swaybg"
