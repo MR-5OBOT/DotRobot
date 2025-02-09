@@ -1,1 +1,6 @@
-/home/mr5obot/repos/DotRobot/.local/bin/rdunst
+#!/bin/bash
+
+killall dunst 
+pkill dunst 
+sleep 0.1
+dunst &

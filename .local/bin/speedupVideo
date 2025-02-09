@@ -1,1 +1,7 @@
-/home/mr5obot/repos/DotRobot/.local/bin/speedupVideo
+#!/usr/bin/env bash
+
+read -p "output file: " output_file
+read -p "input file: " input_file
+read -p "speed: -0.4=slow, 0.4=fast " speed 
+
+ffmpeg -i $input_file -filter:v "setpts=$speed*PTS" -an $output_file
