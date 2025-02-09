@@ -7,9 +7,6 @@ source "${ZINIT_HOME}/zinit.zsh"
 # Initialize Starship prompt
 eval "$(starship init zsh)"
 
-
-# export RCLONE_CONFIG_PASS="ys"
-
 # Initialize Zoxide
 eval "$(zoxide init zsh)"
 
