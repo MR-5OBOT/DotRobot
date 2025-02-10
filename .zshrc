@@ -57,23 +57,15 @@ alias ls='eza -a --icons'  # Ensure eza is installed
 alias l="ls -lah"
 alias lt="eza --tree --level=2 --long --icons --git -la"
 alias makeenv='python3 -m venv env && source env/bin/activate'
-alias big="nvim -u NONE"
-alias drive="cd ~/repos/GoogleDrive/"
-alias dev-notes="v ~/repos/Code-Lab/dev-notes.md"
 
 # CD to repos
 alias codelab='cd ~/repos/Code-Lab/'
-alias apps="cd ~/repos/Code-Lab/Apps/"
-alias nvlab='cd ~/repos/DotRoboT/.config/nvim/'
 alias tlab='cd ~/repos/Trading-Lab/'
 alias .dots='cd ~/repos/DotRobot/'
-alias todos='v ~/repos/Todos.md'
 
 # Edit config files
 alias vzshrc='nvim ~/.zshrc'
 
 # Add local bin to PATH
 export PATH="$HOME/.local/bin:$PATH"
-
-# export PATH=$PATH:$(npm bin -g)
 
