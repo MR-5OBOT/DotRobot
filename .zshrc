@@ -57,6 +57,7 @@ alias ls='eza -a --icons'  # Ensure eza is installed
 alias l="ls -lah"
 alias lt="eza --tree --level=2 --long --icons --git -la"
 alias makeenv='python3 -m venv env && source env/bin/activate'
+alias coding-notes='v ~/repos/Trading-Lab/coding_notes/'
 
 # CD to repos
 alias codelab='cd ~/repos/Code-Lab/'
