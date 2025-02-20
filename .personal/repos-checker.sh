@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the root directory containing all the git repos
-REPOS_DIR="/path/to/your/repos/directory" # Replace with your actual directory path
+REPOS_DIR="~/repos" # Replace with your actual directory path
 
 # Find and check each git repository for uncommitted changes
 changes_found=0
@@ -22,6 +22,7 @@ if [ $changes_found -eq 1 ]; then
 fi
 
 echo "Finished checking all repositories."
+sleep 60
 
 # To run this script every hour, you can use cron. Open your crontab file by running crontab -e in the terminal.
 # Add the following line to schedule the script to run every hour:
