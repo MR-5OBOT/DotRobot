@@ -5,7 +5,8 @@
 }
 
 window#waybar {
-  color: #a3a5b6;
+  /*color: #a3a5b6;*/
+  color: #c1c1c1;
 }
 
 window#waybar > box {
@@ -46,11 +47,13 @@ window#waybar > box {
   padding-left: 1px;
   font-size: 23px;
 }
+
 #pulseaudio.audio {
   margin: 0px;
   padding: 0px;
   font-size: 25px;
 }
+
 #pulseaudio.microphone {
   padding: 0px;
   font-size: 26px;
