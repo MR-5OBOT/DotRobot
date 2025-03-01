@@ -5,7 +5,6 @@
 format = """
 $username\
 $directory\
-$fill\
 $git_branch\
 $status\
 $os\
