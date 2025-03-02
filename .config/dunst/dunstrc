@@ -6,8 +6,8 @@
     offset = 20x20
     scale = 0
     notification_limit = 3
-    frame_color = "#94938F"
-    separator_color = "#94938F"
+    frame_color = "#333333"  
+    separator_color = "#333333"
     progress_bar = true
     progress_bar_height = 2
     progress_bar_frame_width = 0
@@ -23,7 +23,7 @@
     frame_width = 3 
     sort = yes
     idle_threshold = 0
-    font = "IosevkaTerm Light Italic 10"
+    font = "IosevkaTermNFLight 10"  # Verify this font exists; otherwise, use a fallback like "Monospace 10"
     line_height = 0
     markup = full
     format = "<b>%s</b>\n%b"
@@ -38,9 +38,9 @@
     icon_position = left
     min_icon_size = 0
     max_icon_size = 40
-    icon_path = /usr/share/icons/Adwita/16/status:/usr/share/icons/Adwita/16/devices/:/usr/share/icons/Adwita/16/apps/:/usr/share/pixmaps/
+    icon_path = /usr/share/icons/Adwaita/16/status:/usr/share/icons/Adwaita/16/devices/:/usr/share/icons/Adwaita/16/apps/:/usr/share/pixmaps/  # Fixed typo: Adwita -> Adwaita
     sticky_history = false
-    history_length = 0
+    history_length = 10  # Increased to keep some history; set to 0 if you prefer none
     dmenu = /usr/bin/dmenu -p dunst:
     browser = /usr/bin/xdg-open
     always_run_script = true
@@ -51,20 +51,19 @@
     force_xinerama = false
 
 [experimental]
-  per_monitor_dpi = false
+    per_monitor_dpi = false
 
 [urgency_low]
-  background = "#151515"
-  foreground = "#FF7A84"
-  timeout = 5
+    background = "#000000"  # Pure black
+    foreground = "#FF7A84"  # Keeping your foreground color for contrast
+    timeout = 5
 
 [urgency_normal]
-  background = "#151515"
-  foreground = "#FF7A84"
-  timeout = 10
+    background = "#000000"  # Pure black
+    foreground = "#FF7A84"  # Keeping your foreground color
+    timeout = 10
 
 [urgency_critical]
-  background = "#652840"
-  foreground = "#fff"
-  timeout = 20
-
+    background = "#000000"  # Pure black (changed from reddish tint)
+    foreground = "#FFFFFF"  # White for high contrast on critical notifications
+    timeout = 20
