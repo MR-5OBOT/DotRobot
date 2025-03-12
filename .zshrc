@@ -7,9 +7,6 @@ source "${ZINIT_HOME}/zinit.zsh"
 # Initialize Starship prompt
 eval "$(starship init zsh)"
 
-# Initialize Zoxide
-eval "$(zoxide init zsh)"
-
 # Add Zsh plugins (lazy loading)
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
@@ -22,8 +19,8 @@ zinit cdreplay -q
 
 # History file configuration
 HISTFILE=~/.zsh_history
-HISTSIZE=10000
-SAVEHIST=10000
+HISTSIZE=1000
+SAVEHIST=1000
 
 setopt appendhistory
 setopt sharehistory
@@ -53,14 +50,12 @@ alias rm='trash -v'
 alias mkdir='mkdir -p -v'
 alias ..="cd .."
 alias ...="cd ../../"
-alias ls='eza -a --icons'  # Ensure eza is installed
+alias ls='eza -a --icons'
 alias l="ls -lah"
 alias lt="eza --tree --level=2 --long --icons --git -la"
 alias makeenv='python3 -m venv env && source env/bin/activate'
-alias coding-notes='v ~/repos/Trading-Lab/coding_notes/'
 
 # CD to repos
-alias codelab='cd ~/repos/Code-Lab/'
 alias tlab='cd ~/repos/Trading-Lab/'
 alias .dots='cd ~/repos/DotRobot/'
 
@@ -69,4 +64,3 @@ alias vzshrc='nvim ~/.zshrc'
 
 # Add local bin to PATH
 export PATH="$HOME/.local/bin:$PATH"
-
