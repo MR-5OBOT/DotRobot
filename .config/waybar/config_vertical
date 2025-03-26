@@ -29,16 +29,20 @@
 "hyprland/workspaces": {
     "format": "{icon}",
 "format-icons": {
-    "1": "一",
-    "2": "二",
-    "3": "三",
-    "4": "四",
-    "5": "五",
-    "6": "六",
-    "7": "七",
-    "8": "八",
-    "9": "九",      
-    "default": "",
+    "1": "Ⅰ",
+    "2": "Ⅱ",
+    "3": "Ⅲ",
+    "4": "Ⅳ",
+    "5": "Ⅴ",
+    "6": "Ⅵ",
+    "7": "Ⅶ",
+    "8": "Ⅷ",
+    "9": "Ⅸ",
+    "10": "Ⅹ",
+    "11": "Ⅺ",
+    "urgent": "⚠",    // Warning symbol for urgent
+    "focused": "●",   // Filled circle for active workspace
+    "default": "○"    // Empty circle for inactive workspaces
     },
     "icon-size": 1,
     "on-click": "activate"
