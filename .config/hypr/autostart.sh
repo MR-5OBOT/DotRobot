@@ -14,9 +14,10 @@ exec-once = nm-applet --indicator # systray app for Network/Wifi
 exec-once = dunst
 exec-once = devify
 exec-once = hypridle
+
 exec-once = clipse -listen
-exec-once = wl-paste --type text --watch clipse --wl-store
-exec-once = wl-paste --type image/png --watch clipse --wl-store
+# exec-once = wl-paste --type text --watch clipse --wl-store
+# exec-once = wl-paste --type image/png --watch clipse --wl-store
 
 exec-once = swaybg -i ~/Pictures/wallpapers/MR5OBOT.jpg
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh
