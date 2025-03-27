@@ -14,16 +14,11 @@ exec-once = nm-applet --indicator # systray app for Network/Wifi
 exec-once = dunst
 exec-once = devify
 exec-once = hypridle
-
 exec-once = clipse -listen
-# exec-once = wl-paste --type text --watch clipse --wl-store
-# exec-once = wl-paste --type image/png --watch clipse --wl-store
 
 exec-once = swaybg -i ~/Pictures/wallpapers/MR5OBOT.jpg
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh
 exec-once = $SCRIPTS/autostart/pipewire_check.sh
 exec-once = $SCRIPTS/autostart/xdgportals.sh
-exec-once = $SCRIPTS/autostart/Hypridle.sh
+# exec-once = $SCRIPTS/autostart/Hypridle.sh
 exec-once = $SCRIPTS/autostart/BAT-check.sh
-
-exec-once = xdg-settings set default-web-browser thorium-browser.desktop
