@@ -13,9 +13,6 @@ exec-once = nm-applet --indicator
 exec-once = dunst
 exec-once = devify
 exec-once = hypridle
-# exec-once = clipse -listen
-
-# Load cliphist history
 exec-once = wl-paste --watch cliphist store
 
 exec-once = swaybg -i ~/Pictures/wallpapers/MR5OBOT.jpg
