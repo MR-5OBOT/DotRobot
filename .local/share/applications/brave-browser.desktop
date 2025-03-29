@@ -1,1 +1,1 @@
-Exec=brave --password-store=basic %U
+Exec=brave-browser --enable-features=UseOzonePlatform --ozone-platform=wayland %U

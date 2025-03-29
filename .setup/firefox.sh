@@ -1,41 +1,37 @@
 #!/usr/bin/env bash
 
-# Error checking
-set -e
+set -eo pipefail
 
-# MR5OBOT Header
-gum style --border normal --margin "1 2" --padding "1 2" --align center "MR5OBOT Firefox Setup"
+# Header
+gum style --border normal --margin "1 2" --padding "1 2" --align center "   MR5OBOT   "
 
 # Paths
-source="$HOME/repos/DotRobot/Browser/firefox/"
-destination="$HOME/.mozilla/firefox"
-default_release_dir=$(find "$destination" -type d -name "*.default-release")
+source_dir="$HOME/repos/DotRobot/.firefox/firefox"
+dest_dir="$HOME/.mozilla/firefox"
 
-# List available themes
+# Find default release directory
+default_release_dir=$(find "$dest_dir" -maxdepth 1 -type d -name "*.default-release" -print -quit)
+
+if [[ -z "$default_release_dir" ]]; then
+	echo "Error: No default-release directory found in $dest_dir"
+	exit 1
+fi
+
+# List and select theme
 echo "Available Firefox themes:"
-theme_folders=("$source"*/)
-for i in "${!theme_folders[@]}"; do
-    echo "$((i + 1)). $(basename "${theme_folders[$i]}")"
+mapfile -t themes < <(find "$source_dir" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
+
+select theme in "${themes[@]}" "Quit"; do
+	[[ "$theme" == "Quit" ]] && exit 0
+	[[ -n "$theme" ]] && break
+	echo "Invalid selection. Try again."
 done
 
-# Prompt for theme choice
-read -p "Enter the number of the theme you want to apply: " theme_choice
+# Create symlinks
+theme_dir="$source_dir/$theme"
+for item in "chrome" "user.js"; do
+	ln -sfn "$theme_dir/$item" "$default_release_dir/"
+done
 
-# Validate input and get chosen theme
-if (( theme_choice < 1 || theme_choice > ${#theme_folders[@]} )); then
-    echo "Invalid choice. Exiting..."
-    exit 1
-fi
-theme_folder="${theme_folders[$((theme_choice - 1))]}"
-
-if [ -n "$default_release_dir" ]; then
-    # Remove old links and create new ones
-    rm -rf "$default_release_dir/chrome" "$default_release_dir/user.js"
-    ln -sf "$theme_folder/chrome" "$default_release_dir"
-    ln -sf "$theme_folder/user.js" "$default_release_dir"
-
-    notify-send "$theme_folder linked enjoy now"
-    echo "Symlinks created in $default_release_dir."
-else
-    echo "The default-release directory of Firefox was not found."
-fi
+notify-send "Firefox Theme Applied" "$theme linked successfully"
+echo "Success: $theme theme applied to $default_release_dir"

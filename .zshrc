@@ -54,12 +54,8 @@ alias ls='eza -a --icons'
 alias l="ls -lah"
 alias lt="eza --tree --level=2 --long --icons --git -la"
 alias makeenv='python3 -m venv env && source env/bin/activate'
-
-# CD to repos
 alias tlab='cd ~/repos/Trading-Lab/'
 alias .dots='cd ~/repos/DotRobot/'
-
-# Edit config files
 alias vzshrc='nvim ~/.zshrc'
 
 # Add local bin to PATH
