@@ -1,0 +1,53 @@
+# #!/usr/bin/env bash
+# set -eo pipefail
+#
+# OUTPUT_DIR="$HOME/Videos/Recordings"
+#
+# # Check if recording is active
+# if [ ! -f /tmp/recording.pid ] || ! kill -0 $(cat /tmp/recording.pid) 2>/dev/null; then
+# 	notify-send -i dialog-error "No active recording found"
+# 	[ -f /tmp/recording.pid ] && rm /tmp/recording.pid
+# 	exit 0
+# fi
+#
+# # Stop recording gracefully
+# kill -INT $(cat /tmp/recording.pid) # SIGINT allows proper file finalization
+# sleep 1                             # Give time for file write
+#
+# # Verify output file
+# LATEST_FILE=$(ls -t "$OUTPUT_DIR"/rec-*.mp4 2>/dev/null | head -n1)
+# if [ -f "$LATEST_FILE" ] && [ $(stat -c%s "$LATEST_FILE") -gt 1024 ]; then
+# 	notify-send -i media-playback-stop "Recording Saved"
+# else
+# 	notify-send -i dialog-error "Recording Failed" "No valid output file created"
+# fi
+#
+# # Cleanup
+# rm -f /tmp/recording.pid
+
+#!/usr/bin/env bash
+set -eo pipefail
+
+OUTPUT_DIR="$HOME/Videos/Recordings"
+
+# Check if recording is active
+if [ ! -f /tmp/recording.pid ] || ! kill -0 $(cat /tmp/recording.pid) 2>/dev/null; then
+	notify-send -i dialog-error "No active recording found"
+	[ -f /tmp/recording.pid ] && rm /tmp/recording.pid
+	exit 0
+fi
+
+# Stop recording gracefully
+kill -INT $(cat /tmp/recording.pid) # SIGINT allows proper file finalization
+sleep 1                             # Give time for file write
+
+# Verify output file
+LATEST_FILE=$(ls -t "$OUTPUT_DIR"/rec-*.mp4 2>/dev/null | head -n1)
+if [ -f "$LATEST_FILE" ] && [ $(stat -c%s "$LATEST_FILE") -gt 1024 ]; then
+	notify-send -i media-playback-stop "Recording Saved"
+else
+	notify-send -i dialog-error "Recording Failed" "No valid output file created"
+fi
+
+# Cleanup
+rm -f /tmp/recording.pid

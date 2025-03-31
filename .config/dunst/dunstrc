@@ -56,14 +56,14 @@
 [urgency_low]
     background = "#000000"  # Pure black
     foreground = "#FF7A84"  # Keeping your foreground color for contrast
-    timeout = 5
+    timeout = 3
 
 [urgency_normal]
     background = "#000000"  # Pure black
     foreground = "#FF7A84"  # Keeping your foreground color
-    timeout = 10
+    timeout = 5
 
 [urgency_critical]
     background = "#000000"  # Pure black (changed from reddish tint)
     foreground = "#FFFFFF"  # White for high contrast on critical notifications
-    timeout = 20
+    timeout = 100

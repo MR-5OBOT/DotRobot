@@ -29,7 +29,7 @@ window {
     transparency:                "real";
     y-offset: 0%;
     x-offset: 0%;
-    width: 35%;
+    width: 20%;
     enabled:                     true;
     margin:                      0px;
     padding:                     10px;
@@ -71,7 +71,7 @@ entry {
 listview {
     enabled:                     true;
     columns:                     1;
-    lines:                       5;
+    lines:                       2;
     cycle:                       true;
     dynamic:                     true;
     scrollbar:                   false;
