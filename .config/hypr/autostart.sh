@@ -16,7 +16,6 @@ exec-once = hypridle
 exec-once = wl-paste --watch cliphist store
 
 exec-once = swaybg -i ~/Pictures/wallpapers/MR5OBOT.jpg
-exec-once = $SCRIPTS/autostart/systeminfo.sh
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh
 exec-once = $SCRIPTS/autostart/pipewire_check.sh
 exec-once = $SCRIPTS/autostart/xdgportals.sh

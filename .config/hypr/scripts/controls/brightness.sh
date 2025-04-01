@@ -3,7 +3,6 @@
 # Script for Monitor backlights (if supported) using brightnessctl
 
 iDIR="$HOME/.config/dunst/icons"
-notification_timeout=1000
 
 # Get brightness
 get_backlight() {
@@ -13,7 +12,7 @@ get_backlight() {
 # Get icons
 get_icon() {
 	current=$(get_backlight | sed 's/%//')
-	if   [ "$current" -le "20" ]; then
+	if [ "$current" -le "20" ]; then
 		icon="$iDIR/brightness-20.png"
 	elif [ "$current" -le "40" ]; then
 		icon="$iDIR/brightness-40.png"
@@ -38,16 +37,16 @@ change_backlight() {
 
 # Execute accordingly
 case "$1" in
-	"--get")
-		get_backlight
-		;;
-	"--inc")
-		change_backlight "+10%"
-		;;
-	"--dec")
-		change_backlight "10%-"
-		;;
-	*)
-		get_backlight
-		;;
+"--get")
+	get_backlight
+	;;
+"--inc")
+	change_backlight "+10%"
+	;;
+"--dec")
+	change_backlight "10%-"
+	;;
+*)
+	get_backlight
+	;;
 esac
