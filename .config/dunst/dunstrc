@@ -64,6 +64,6 @@
     timeout = 5
 
 [urgency_critical]
-    background = "#000000"  # Pure black (changed from reddish tint)
-    foreground = "#FFFFFF"  # White for high contrast on critical notifications
+    background = "#D75F87"  # Pure black (changed from reddish tint)
+    foreground = "#000000"  # White for high contrast on critical notifications
     timeout = 100
