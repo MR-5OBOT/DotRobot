@@ -42,14 +42,14 @@ safe_link "$Dotfiles/wallpapers" "$HOME/Pictures/wallpapers"
 # Link post-checkout file
 safe_link "$Dotfiles/.git/hooks/post-checkout" "$HOME/repos/DotRobot/.git/hooks/post-checkout"
 
-# Link custom fonts
-if [[ -d "$fonts" ]]; then
-	echo "Linking custom fonts..."
-	safe_link "$fonts" "$HOME/.fonts"
-	fc-cache -fv
-else
-	echo "No custom fonts found."
-fi
+# # Link custom fonts
+# if [[ -d "$fonts" ]]; then
+# 	echo "Linking custom fonts..."
+# 	safe_link "$fonts" "$HOME/.fonts"
+# 	fc-cache -fv
+# else
+# 	echo "No custom fonts found."
+# fi
 
 echo "Dotfiles setup complete!"
 command -v notify-send &>/dev/null && notify-send "Dotfiles linked successfully!" "Enjoy @MR5OBOT"

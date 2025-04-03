@@ -28,3 +28,4 @@ else
 		tmux new-session -c "$file_dir" "nvim '$selected_file' && $SHELL"
 	fi
 fi
+

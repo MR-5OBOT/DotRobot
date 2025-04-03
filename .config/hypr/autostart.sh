@@ -13,10 +13,13 @@ exec-once = nm-applet --indicator
 exec-once = dunst
 exec-once = devify
 exec-once = hypridle
-exec-once = wl-paste --watch cliphist store
+# exec-once = wl-paste --watch cliphist store
+exec-once = wl-paste --type text --watch cliphist store
+exec-once = wl-paste --type image --watch cliphist store
 
 exec-once = swaybg -i ~/Pictures/wallpapers/MR5OBOT.jpg
 exec-once = $SCRIPTS/autostart/toggle-waybar.sh
+exec-once = $SCRIPTS/autostart/gtk.sh
 exec-once = $SCRIPTS/autostart/pipewire_check.sh
 exec-once = $SCRIPTS/autostart/xdgportals.sh
 exec-once = $SCRIPTS/autostart/Hypridle.sh

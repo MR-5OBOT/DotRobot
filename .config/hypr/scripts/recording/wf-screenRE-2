@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+# Configuration
+OUTPUT_DIR="$HOME/Videos/Recordings"
+RESOLUTION="1920x1080"
+FPS=60
+CODEC="h264_vaapi"
+QUALITY="best"
+VIDEO_FILE="$OUTPUT_DIR/rec-$(date +%Y%m%d-%H%M%S).mp4"
+
+# Create output directory
+mkdir -p "$OUTPUT_DIR"
+
+# Check if recording is already running
+if [ -f /tmp/recording.pid ] && kill -0 $(cat /tmp/recording.pid) 2>/dev/null; then
+	notify-send -i media-record "Recording already in progress"
+	exit 0
+fi
+
+# Clean up stale PID
+rm -f /tmp/recording.pid
+
+# Start recording
+notify-send -i media-record "Recording Started"
+wf-recorder -f "$VIDEO_FILE" -c "$CODEC" -r "$FPS" -g "$RESOLUTION" --preset "$QUALITY" &>"$OUTPUT_DIR/recording.log" &
+echo $! >/tmp/recording.pid
+wait $(cat /tmp/recording.pid)
+
+# Finish recording
+rm -f /tmp/recording.pid
+notify-send -i media-record "Recording saved"

@@ -1,122 +1,86 @@
-# #!/usr/bin/env bash
-# set -eo pipefail
-#
-# # Configuration
-# OUTPUT_DIR="$HOME/Videos/Recordings"
-# RESOLUTION="1920x1080"  # hd+ resolution
-# FPS=60                  # High frame rate
-# CODEC="h264_vaapi"      # Hardware accelerated encoding
-# QUALITY="best"          # Highest quality preset
-#
-# # Create output directory
-# mkdir -p "$OUTPUT_DIR" || {
-#     notify-send -i dialog-error "Failed to create $OUTPUT_DIR"
-#     exit 1
-# }
-#
-# # Check existing recording
-# if [ -f /tmp/recording.pid ] && kill -0 $(cat /tmp/recording.pid) 2>/dev/null; then
-#     notify-send -i media-record "Recording already in progress"
-#     exit 0
-# fi
-#
-# # Clean stale PID
-# [ -f /tmp/recording.pid ] && rm /tmp/recording.pid
-#
-# # Start recording
-# notify-send -i media-record "Recording Started"
-# wf-recorder \
-#     -f "$OUTPUT_DIR/rec-$(date +%Y%m%d-%H%M%S).mp4" \
-#     -c "$CODEC" \
-#     -r "$FPS" \
-#     -d /dev/dri/renderD128 \
-#     --preset "$QUALITY" \
-#     -g "$RESOLUTION" &> "$OUTPUT_DIR/recording.log" &
-#
-# # Save PID and verify
-# REC_PID=$!
-# if kill -0 $REC_PID 2>/dev/null; then
-#     echo $REC_PID > /tmp/recording.pid
-# else
-#     notify-send -i dialog-error "Failed to start recording"
-#     exit 1
-# fi
-
-
 #!/usr/bin/env bash
 set -eo pipefail
 
 # Configuration
 OUTPUT_DIR="$HOME/Videos/Recordings"
-RESOLUTION="1920x1080"  # hd+ resolution
-FPS=60                  # High frame rate
-CODEC="h264_vaapi"      # Hardware accelerated encoding
-QUALITY="best"          # Highest quality preset
-AUDIO_SINK="alsa_output.pci-0000_00_1f.3.analog-stereo"  # Hardcoded to your system sound sink
+RESOLUTION="1920x1080"
+FPS=60
+CODEC="h264_vaapi"
+QUALITY="best"
+VIDEO_FILE="$OUTPUT_DIR/rec-$(date +%Y%m%d-%H%M%S).mp4"
+AUDIO_FILE="/tmp/audio_recording.wav"
+FINAL_FILE="$OUTPUT_DIR/final-$(date +%Y%m%d-%H%M%S).mp4"
 
 # Create output directory
 mkdir -p "$OUTPUT_DIR" || {
-    notify-send -i dialog-error "Failed to create $OUTPUT_DIR"
-    exit 1
+	notify-send -i dialog-error "Error: Failed to create $OUTPUT_DIR"
+	exit 1
 }
 
-# Check existing recording
+# Check if a recording is already running
 if [ -f /tmp/recording.pid ] && kill -0 $(cat /tmp/recording.pid) 2>/dev/null; then
-    notify-send -i media-record "Recording already in progress"
-    exit 0
+	notify-send -i media-record "Recording already in progress"
+	exit 0
 fi
 
-# Clean stale PID
-[ -f /tmp/recording.pid ] && rm /tmp/recording.pid
+# Clean up stale PID
+rm -f /tmp/recording.pid
 
-# Verify the sink exists
-if ! pw-dump | jq -r '.[] | select(.type == "PipeWire:Interface:Node" and .info.props."media.class" == "Audio/Sink") | .info.props."node.name"' | grep -q "$AUDIO_SINK"; then
-    notify-send -i dialog-error "System audio sink '$AUDIO_SINK' not found"
-    echo "Sink '$AUDIO_SINK' not found in PipeWire." >> "$OUTPUT_DIR/recording.log"
-    exit 1
-fi
-
-# Log the sink being used
-echo "Using audio sink: $AUDIO_SINK" >> "$OUTPUT_DIR/recording.log"
-
-# Rofi menu for audio selection
+# Select audio option using rofi
 AUDIO_OPTION=$(echo -e "Record with System Sound\nRecord without Sound" | rofi -dmenu -p "Select Recording Option" -i -lines 2 -width 30)
 
-# Check if rofi selection was canceled
+# If selection is empty (user canceled)
 if [ -z "$AUDIO_OPTION" ]; then
-    notify-send -i dialog-error "Recording canceled"
-    exit 0
+	notify-send -i dialog-error "Recording canceled"
+	exit 0
 fi
 
-# Start recording based on selection
+# Detect default PipeWire monitor source
+AUDIO_SOURCE=$(pw-dump | jq -r '.[] | select(.info.props."media.class" == "Audio/Source") | .info.props."node.name"' | head -n1)
+
+# Ensure PipeWire monitor source is available
+if [[ "$AUDIO_OPTION" == "Record with System Sound" && -z "$AUDIO_SOURCE" ]]; then
+	notify-send -i dialog-error "Error: No PipeWire audio monitor detected"
+	exit 1
+fi
+
+# Start recording
 notify-send -i media-record "Recording Started"
 case "$AUDIO_OPTION" in
-    "Record with System Sound")
-        wf-recorder \
-            -f "$OUTPUT_DIR/rec-$(date +%Y%m%d-%H%M%S).mp4" \
-            -c "$CODEC" \
-            -r "$FPS" \
-            -d /dev/dri/renderD128 \
-            --preset "$QUALITY" \
-            -g "$RESOLUTION" \
-            -a "$AUDIO_SINK" &>> "$OUTPUT_DIR/recording.log" &
-        ;;
-    "Record without Sound")
-        wf-recorder \
-            -f "$OUTPUT_DIR/rec-$(date +%Y%m%d-%H%M%S).mp4" \
-            -c "$CODEC" \
-            -r "$FPS" \
-            -d /dev/dri/renderD128 \
-            --preset "$QUALITY" \
-            -g "$RESOLUTION" &>> "$OUTPUT_DIR/recording.log" &
-        ;;
+"Record with System Sound")
+	# Start audio recording (correct PipeWire monitor source)
+	pw-record --target="$AUDIO_SOURCE" --rate=44100 "$AUDIO_FILE" &
+	AUDIO_PID=$!
+
+	# Start video recording
+	wf-recorder -f "$VIDEO_FILE" -c "$CODEC" -r "$FPS" -g "$RESOLUTION" --preset "$QUALITY" &>"$OUTPUT_DIR/recording.log" &
+	VIDEO_PID=$!
+	;;
+
+"Record without Sound")
+	wf-recorder -f "$VIDEO_FILE" -c "$CODEC" -r "$FPS" -g "$RESOLUTION" --preset "$QUALITY" &>"$OUTPUT_DIR/recording.log" &
+	VIDEO_PID=$!
+	;;
 esac
 
-# Save PID and verify
-REC_PID=$!
-if kill -0 $REC_PID 2>/dev/null; then
-    echo $REC_PID > /tmp/recording.pid
-else
-    notify-send -i dialog-error "Failed to start recording"
-    exit 1
+# Save PID
+echo $VIDEO_PID >/tmp/recording.pid
+if [[ "$AUDIO_OPTION" == "Record with System Sound" ]]; then
+	echo $AUDIO_PID >>/tmp/recording.pid
 fi
+
+# Wait for recording to finish
+wait $VIDEO_PID
+
+# Post-processing
+if [[ "$AUDIO_OPTION" == "Record with System Sound" ]]; then
+	kill $AUDIO_PID 2>/dev/null
+	ffmpeg -i "$VIDEO_FILE" -i "$AUDIO_FILE" -c:v copy -c:a aac "$FINAL_FILE"
+	rm -f "$AUDIO_FILE"
+	notify-send -i media-record "Recording saved with audio"
+else
+	notify-send -i media-record "Recording saved without audio"
+fi
+
+# Cleanup
+rm -f /tmp/recording.pid

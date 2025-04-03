@@ -1,51 +1,31 @@
-import os
-
-import yt_dlp
+import subprocess
 
 
-def download_yt_trimmed(video_url, start_time, end_time):
-    # Convert times to seconds if they're in "MM:SS" format
-    if ":" in start_time:
-        start_min, start_sec = map(int, start_time.split(":"))
-        start_seconds = start_min * 60 + start_sec
-    else:
-        start_seconds = int(start_time)
-
-    if ":" in end_time:
-        end_min, end_sec = map(int, end_time.split(":"))
-        end_seconds = end_min * 60 + end_sec
-    else:
-        end_seconds = int(end_time)
-
-    # Calculate duration
-    duration = end_seconds - start_seconds
-
-    # yt-dlp options
-    ydl_opts = {
-        "format": "bestvideo+bestaudio/best",  # Download best quality
-        "outtmpl": "%(title)s_trimmed.%(ext)s",  # Output filename
-        "postprocessors": [
-            {
-                "key": "FFmpegExtractAudio",  # Use FFmpeg to trim
-                "preferredcodec": "mp4",
-            }
-        ],
-        "postprocessor_args": ["-ss", str(start_seconds), "-t", str(duration)],  # Start time  # Duration
-        "merge_output_format": "mp4",  # Ensure output is in mp4 format
-    }
-
+def download_clip(video_url, start_time, end_time, output_filename):
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            print(f"Downloading trimmed video from {start_time} to {end_time}...")
-            ydl.download([video_url])
-            print("Download completed!")
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
+        # Get the direct video URL using yt-dlp
+        result = subprocess.run(["yt-dlp", "-f", "best", "-g", video_url], capture_output=True, text=True, check=True)
+        video_direct_url = result.stdout.strip()
+
+        if not video_direct_url:
+            print("Failed to retrieve video URL.")
+            return
+
+        # Run ffmpeg to download and trim the video
+        subprocess.run(
+            ["ffmpeg", "-ss", start_time, "-to", end_time, "-i", video_direct_url, "-c", "copy", output_filename], check=True
+        )
+
+        print(f"Clip saved as {output_filename}")
+    except subprocess.CalledProcessError as e:
+        print(f"Error: {e}")
 
 
-# Example usage
-video_url = input("Enter YouTube video URL: ")
-start = input("Enter start time (in seconds or MM:SS format): ")
-end = input("Enter end time (in seconds or MM:SS format): ")
+if __name__ == "__main__":
+    print("\nYouTube Clip Downloader\n----------------------")
+    video_url = input("Enter YouTube video URL: ")
+    start_time = input("Enter start time (hh:mm:ss): ")
+    end_time = input("Enter end time (hh:mm:ss): ")
+    output_filename = input("Enter output file name (e.g., clip.mp4): ")
 
-download_yt_trimmed(video_url, start, end)
+    download_clip(video_url, start_time, end_time, output_filename)
