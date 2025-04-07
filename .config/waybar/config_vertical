@@ -19,8 +19,8 @@
 
 // positions generated based on config.ctl //
 
-	"modules-left": ["custom/padd","clock",],
-	"modules-center": ["custom/padd","hyprland/workspaces","custom/padd"],
+	// "modules-left": ["custom/padd","clock",], //
+	"modules-center": ["hyprland/workspaces","custom/padd"],
 	"modules-right": ["tray","pulseaudio","pulseaudio#microphone","battery","custom/padd"],
 
 
@@ -123,7 +123,7 @@
 
     "tray": {
         "icon-size": 13,
-        "spacing": 5
+        "spacing": 4
     },
 
     "network": {
