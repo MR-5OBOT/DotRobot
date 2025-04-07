@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 # Function to display usage
 usage() {
@@ -8,80 +8,63 @@ usage() {
 	exit 1
 }
 
-# Check if an argument is provided
-if [ $# -ne 1 ]; then
-	usage
-fi
-
 # Proxy setup function
 setup_proxy() {
-	# Get the gateway IP
-	PROXY_IP=$(ip route | grep default | awk '{print $3}')
-	PROXY_PORT="8080" # Adjust if your proxy uses a different port
+	PROXY_IP=$(ip route | awk '/default/ {print $3}')
+	PROXY_PORT="8080" # Change port if needed
+	PROXY_URL="http://$PROXY_IP:$PROXY_PORT"
 
-	# Set temporary environment variables
-	export http_proxy="http://$PROXY_IP:$PROXY_PORT"
-	export https_proxy="http://$PROXY_IP:$PROXY_PORT"
-	export HTTP_PROXY="http://$PROXY_IP:$PROXY_PORT"
-	export HTTPS_PROXY="http://$PROXY_IP:$PROXY_PORT"
+	# Set environment variables
+	export http_proxy="$PROXY_URL"
+	export https_proxy="$PROXY_URL"
+	export HTTP_PROXY="$PROXY_URL"
+	export HTTPS_PROXY="$PROXY_URL"
 
-	# Add to /etc/environment if not already present
+	# Add to /etc/environment if not present
 	if ! grep -q "http_proxy" /etc/environment; then
 		echo "Adding proxy settings to /etc/environment"
-		sudo bash -c "echo 'http_proxy=\"http://$PROXY_IP:$PROXY_PORT\"' >> /etc/environment"
-		sudo bash -c "echo 'https_proxy=\"http://$PROXY_IP:$PROXY_PORT\"' >> /etc/environment"
-		sudo bash -c "echo 'HTTP_PROXY=\"http://$PROXY_IP:$PROXY_PORT\"' >> /etc/environment"
-		sudo bash -c "echo 'HTTPS_PROXY=\"http://$PROXY_IP:$PROXY_PORT\"' >> /etc/environment"
+		sudo sh -c "echo 'http_proxy=\"$PROXY_URL\"' >> /etc/environment"
+		sudo sh -c "echo 'https_proxy=\"$PROXY_URL\"' >> /etc/environment"
+		sudo sh -c "echo 'HTTP_PROXY=\"$PROXY_URL\"' >> /etc/environment"
+		sudo sh -c "echo 'HTTPS_PROXY=\"$PROXY_URL\"' >> /etc/environment"
 	fi
 
-	# Add to .zshrc if not already present
-	if [ -f ~/.zshrc ] && ! grep -q "http_proxy" ~/.zshrc; then
+	# Add to ~/.zshrc if not present
+	if ! grep -q "http_proxy" ~/.zshrc; then
 		echo "Adding proxy settings to ~/.zshrc"
-		echo "export http_proxy=\"http://$PROXY_IP:$PROXY_PORT\"" >>~/.zshrc
-		echo "export https_proxy=\"http://$PROXY_IP:$PROXY_PORT\"" >>~/.zshrc
-		echo "export HTTP_PROXY=\"http://$PROXY_IP:$PROXY_PORT\"" >>~/.zshrc
-		echo "export HTTPS_PROXY=\"http://$PROXY_IP:$PROXY_PORT\"" >>~/.zshrc
+		echo "export http_proxy=\"$PROXY_URL\"" >>~/.zshrc
+		echo "export https_proxy=\"$PROXY_URL\"" >>~/.zshrc
+		echo "export HTTP_PROXY=\"$PROXY_URL\"" >>~/.zshrc
+		echo "export HTTPS_PROXY=\"$PROXY_URL\"" >>~/.zshrc
 	fi
 
-	echo "Proxy set to: http://$PROXY_IP:$PROXY_PORT"
-	echo "Settings applied to current session, /etc/environment, and ~/.zshrc"
+	echo "Proxy set to: $PROXY_URL"
 }
 
 # Proxy reset function
 reset_proxy() {
-	# Unset environment variables from current session
-	unset http_proxy
-	unset https_proxy
-	unset HTTP_PROXY
-	unset HTTPS_PROXY
+	# Unset environment variables
+	unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
 
-	# Remove proxy settings from /etc/environment
-	if grep -q "http_proxy" /etc/environment; then
-		echo "Removing proxy settings from /etc/environment"
-		sudo sed -i '/http_proxy/d' /etc/environment
-		sudo sed -i '/https_proxy/d' /etc/environment
-		sudo sed -i '/HTTP_PROXY/d' /etc/environment
-		sudo sed -i '/HTTPS_PROXY/d' /etc/environment
-	fi
+	# Remove from /etc/environment
+	sudo sed -i '/http_proxy/d;/https_proxy/d;/HTTP_PROXY/d;/HTTPS_PROXY/d' /etc/environment
 
-	# Remove proxy settings from .zshrc
-	if [ -f ~/.zshrc ] && grep -q "http_proxy" ~/.zshrc; then
-		echo "Removing proxy settings from ~/.zshrc"
-		sed -i '/http_proxy/d' ~/.zshrc
-		sed -i '/https_proxy/d' ~/.zshrc
-		sed -i '/HTTP_PROXY/d' ~/.zshrc
-		sed -i '/HTTPS_PROXY/d' ~/.zshrc
-	fi
+	# Remove from ~/.zshrc
+	sed -i '/http_proxy/d;/https_proxy/d;/HTTP_PROXY/d;/HTTPS_PROXY/d' ~/.zshrc
 
-	echo "Proxy settings have been removed from current session, /etc/environment, and ~/.zshrc"
+	echo "Proxy settings removed"
 }
 
-# Main logic based on argument
+# Main logic
+if [ $# -ne 1 ]; then
+	usage
+fi
+
 case "$1" in
-"set")
+set)
 	setup_proxy
 	;;
-"reset")
+reset)
 	reset_proxy
 	;;
 *)
