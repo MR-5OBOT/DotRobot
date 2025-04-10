@@ -6,7 +6,7 @@ set -eo pipefail
 gum style --border normal --margin "1 2" --padding "1 2" --align center "   MR5OBOT   "
 
 # Paths
-source_dir="$HOME/repos/DotRobot/.firefox/firefox"
+source_dir="$HOME/repos/DotRobot/.extra/firefox"
 dest_dir="$HOME/.mozilla/firefox"
 
 # Find default release directory

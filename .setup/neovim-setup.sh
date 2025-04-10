@@ -34,7 +34,7 @@ if gum confirm "Do you want to install the MR5OBOT Neovim configuration?"; then
     fi
     # Link the nvim repository to ~/.config
     if ln -sf ~/repos/nvim ~/.config/nvim; then
-        notify-send ":: MR5OBOT Neovim configuration installed successfully"
+        echo ":: Successfully linked MR5OBOT Neovim configuration"
     else
         echo -e "${RED}"
         figlet "Error: Neovim Configuration Installation Failed"
@@ -42,4 +42,34 @@ if gum confirm "Do you want to install the MR5OBOT Neovim configuration?"; then
         echo ":: The script failed to install the MR5OBOT Neovim configuration."
         exit 1
     fi
+
+    # Check if lazy.nvim is installed
+    if [ ! -d ~/.local/share/nvim/site/pack/packer/start/lazy.nvim ]; then
+        echo -e "${GREEN}"
+        figlet "Installing lazy.nvim"
+        echo -e "${NONE}"
+        # Install lazy.nvim
+        git clone https://github.com/folke/lazy.nvim.git ~/.local/share/nvim/site/pack/packer/start/lazy.nvim
+    fi
+
+    # Ensure lazy.nvim is set up in the configuration
+    CONFIG_LAZY_PATH="$HOME/repos/nvim/lua/config/lazy-cfg.lua"
+    if ! grep -q "require('lazy').setup()" "$CONFIG_LAZY_PATH"; then
+        echo ":: Adding lazy.nvim setup to the configuration..."
+        # Add lazy.nvim setup to the config if it's not already there
+        echo "require('lazy').setup()" >> "$CONFIG_LAZY_PATH"
+    fi
+
+    # Modify init.lua to load the lazy.nvim plugin manager if not present
+    INIT_LUA_PATH="$HOME/repos/nvim/init.lua"
+    if ! grep -q "require('lazy').setup()" "$INIT_LUA_PATH"; then
+        echo ":: Adding lazy.nvim to init.lua..."
+        echo "require('lazy').setup()" >> "$INIT_LUA_PATH"
+    fi
+
+    # Notify the user that the setup is complete
+    notify-send ":: MR5OBOT Neovim configuration with lazy.nvim installed successfully"
+else
+    echo ":: Skipping MR5OBOT Neovim configuration installation."
 fi
+
