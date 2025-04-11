@@ -1,55 +1,65 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
-gum style --border normal --margin "1 2" --padding "1 2" --align center "MR5OBOT dotfiles setup"
-
-# Confirm setup
-gum confirm "Proceed with dotfiles setup?" || {
-	echo "Setup cancelled."
-	exit 1
-}
-
-# Ensure correct repository structure
+# Config
 Dotfiles="$HOME/repos/DotRobot"
 configs="$Dotfiles/.config"
-fonts="$Dotfiles/.extra/.home/.fonts"
+confirm=true
 
+# Args
+for arg in "$@"; do
+	case "$arg" in
+	--no-confirm) confirm=false ;;
+	esac
+done
+
+# Confirm setup
+if "$confirm"; then
+	command -v gum &>/dev/null && gum confirm "Proceed with dotfiles setup?" || {
+		echo "Setup cancelled."
+		exit 1
+	}
+fi
+
+# Check paths
 [[ -d "$Dotfiles" && -d "$configs" ]] || {
 	echo "Error: DotRobot repo or .config missing."
 	exit 1
 }
 
-# Safe linking function
+# Safe symlink without backup
 safe_link() {
 	mkdir -p "$(dirname "$2")"
-	[[ -e "$2" ]] && rm -rf "$2"
+	[[ -e "$2" || -L "$2" ]] && rm -rf "$2"
 	ln -sf "$1" "$2"
 }
 
-# Link .config files
-echo "Linking .config files..."
-for item in "$configs"/*; do safe_link "$item" "$HOME/.config/$(basename "$item")"; done
+echo "[*] Linking .config files..."
+for item in "$configs"/*; do
+	safe_link "$item" "$HOME/.config/$(basename "$item")"
+done
 
-# Link shell config and scripts
-echo "Linking shell config and scripts..."
-safe_link "$Dotfiles/.zshrc" "$HOME/.zshrc"
-mkdir -p "$HOME/.local/bin"
-for script in "$Dotfiles/.local/bin"/*; do safe_link "$script" "$HOME/.local/bin/$(basename "$script")"; done
+echo "[*] Linking shell configs..."
+if [[ -f "$Dotfiles/.zshrc" ]]; then
+	safe_link "$Dotfiles/.zshrc" "$HOME/.zshrc"
+fi
+if [[ -f "$Dotfiles/.bashrc" ]]; then
+	safe_link "$Dotfiles/.bashrc" "$HOME/.bashrc"
+fi
 
-# Link wallpapers
+echo "[*] Linking local scripts..."
+if [[ -d "$Dotfiles/.local/bin" ]]; then
+	mkdir -p "$HOME/.local/bin"
+	for script in "$Dotfiles/.local/bin"/*; do
+		safe_link "$script" "$HOME/.local/bin/$(basename "$script")"
+	done
+fi
+
+echo "[*] Linking wallpapers..."
 safe_link "$Dotfiles/wallpapers" "$HOME/Pictures/wallpapers"
 
-# Link post-checkout file
-safe_link "$Dotfiles/.git/hooks/post-checkout" "$HOME/repos/DotRobot/.git/hooks/post-checkout"
+echo "[*] Linking git hook..."
+safe_link "$Dotfiles/.git/hooks/post-checkout" "$Dotfiles/.git/hooks/post-checkout"
 
-# # Link custom fonts
-# if [[ -d "$fonts" ]]; then
-# 	echo "Linking custom fonts..."
-# 	safe_link "$fonts" "$HOME/.fonts"
-# 	fc-cache -fv
-# else
-# 	echo "No custom fonts found."
-# fi
-
-echo "Dotfiles setup complete!"
+echo "✅ Dotfiles setup complete!"
 command -v notify-send &>/dev/null && notify-send "Dotfiles linked successfully!" "Enjoy @MR5OBOT"

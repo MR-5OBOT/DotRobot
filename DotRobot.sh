@@ -29,7 +29,6 @@ run_script "./.setup/zsh_setup.sh"
 run_script "./.setup/firefox.sh"
 run_script "./.setup/thunar-setup.sh"
 run_script "./.setup/pacman.sh"
-# run_script "./.setup/snapd-setup.sh"
 run_script "./.setup/thunar-setup.sh"
 
 echo -e "All scripts completed successfully."
