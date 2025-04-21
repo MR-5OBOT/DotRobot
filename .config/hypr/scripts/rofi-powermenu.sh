@@ -1,21 +1,15 @@
 #!/usr/bin/bash
 
-powermenu=$(echo -e "Lock Screen\nQuit Hyprland\nReboot\nShutdown" | rofi -dmenu -config ~/.config/rofi/custom/powermenu.rasi)
-
-Lock_cfg="$HOME/repos/DotRoboT/.config/gtklock/style.css"
-lock_cmd="gtklock -i -s $Lock_cfg"
+powermenu=$(echo -e "Quit Hyprland\nReboot\nShutdown" | rofi -dmenu -config ~/.config/rofi/custom/powermenu.rasi)
 
 case "$powermenu" in
-"Lock Screen")
-	$lock_cmd
-	;;
 "Quit Hyprland")
-	pkill -u $USER
-	;;
+    pkill -u $USER
+    ;;
 "Reboot")
-	reboot
-	;;
+    reboot
+    ;;
 "Shutdown")
-	systemctl exit
-	;;
+    systemctl exit
+    ;;
 esac

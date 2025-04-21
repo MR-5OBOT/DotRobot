@@ -23,7 +23,7 @@
     frame_width = 3 
     sort = yes
     idle_threshold = 0
-    font = "IosevkaTermNFLight 10"  # Verify this font exists; otherwise, use a fallback like "Monospace 10"
+    font = "IosevkaTermNFMLight 10" 
     line_height = 0
     markup = full
     format = "<b>%s</b>\n%b"
@@ -64,6 +64,6 @@
     timeout = 5
 
 [urgency_critical]
-    background = "#D75F87"  # Pure black (changed from reddish tint)
-    foreground = "#000000"  # White for high contrast on critical notifications
+    background = "#6C2020"  # Pure black (changed from reddish tint)
+    foreground = "#E8E8E8"  # White for high contrast on critical notifications
     timeout = 100
