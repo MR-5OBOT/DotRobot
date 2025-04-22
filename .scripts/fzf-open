@@ -1,63 +1,29 @@
-# #!/usr/bin/env bash
-#
-# set -eo pipefail
-#
-# selected_file=$(find ~/repos -type d \( -name '.git' -o -name 'node_modules' \) -prune -o -type f \
-# 	! -name '*.png' ! -name '*.jpg' ! -name '*.jpeg' ! -name '*.gif' ! -name '*.bmp' \
-# 	! -name '*.mp4' ! -name '*.mov' ! -name '*.avi' ! -name '*.pdf' ! -name '*.bin' \
-# 	! -name '*.o' ! -name '*.exe' ! -name '*.zip' ! -name '*.tar.gz' \
-# 	! -name '*.oga' ! -name '*.wav' ! -name '*.mp3' ! -name '*.flac' -print |
-# 	fzf --height 100% --reverse --prompt="Select file: " --preview="cat {}" --preview-window=right:50%)
-#
-# [[ -z "$selected_file" ]] && exit 0
-#
-# file_dir=$(dirname "$selected_file")
-#
-# # Check if we're already inside a tmux session
-# if [[ -n "$TMUX" ]]; then
-# 	# If inside tmux, create a new window in the current session
-# 	tmux new-window -c "$file_dir" "nvim '$selected_file' && $SHELL"
-# else
-# 	# If no tmux session exists, check for existing sessions to attach to
-# 	if tmux list-sessions >/dev/null 2>&1; then
-# 		# Attach to the first existing session and open a new window
-# 		tmux attach-session -t "$(tmux list-sessions -F '#{session_name}' | head -n1)" \; \
-# 			new-window -c "$file_dir" "nvim '$selected_file' && $SHELL"
-# 	else
-# 		# No existing session, create a new one
-# 		tmux new-session -c "$file_dir" "nvim '$selected_file' && $SHELL"
-# 	fi
-# fi
-#
-
 #!/usr/bin/env bash
 
 set -eo pipefail
 
-selected_file=$(find ~/repos -type d \( -name '.git' -o -name 'node_modules' \) -prune -o -type f \
-	! -name '*.png' ! -name '*.jpg' ! -name '*.jpeg' ! -name '*.gif' ! -name '*.bmp' \
-	! -name '*.mp4' ! -name '*.mov' ! -name '*.avi' ! -name '*.pdf' ! -name '*.bin' \
-	! -name '*.o' ! -name '*.exe' ! -name '*.zip' ! -name '*.tar.gz' \
-	! -name '*.oga' ! -name '*.wav' ! -name '*.mp3' ! -name '*.flac' -print |
-	fzf --height 100% --reverse --prompt="Select file: " --preview="cat {}" --preview-window=right:50%)
+# List directories inside ~/repos and exclude unwanted ones
+selected_repo=$(find ~/repos -mindepth 1 -maxdepth 1 -type d \
+	\( -name '.git' -o -name 'node_modules' \) -prune -o -type d -print |
+	fzf --height 100% --reverse --prompt="Select repository: " --preview="echo {}" --preview-window=right:50%)
 
-[[ -z "$selected_file" ]] && exit 0
+# Exit if no selection is made
+[[ -z "$selected_repo" ]] && exit 0
 
-file_dir=$(dirname "$selected_file")
+# Change to the selected repo directory
+cd "$selected_repo" || exit 1
 
-# Check if we're already inside a tmux session
+# If we're already inside a tmux session, create a new window and just "cd" into the repo
 if [[ -n "$TMUX" ]]; then
-	# If inside tmux, create a new window in the current session
-	tmux new-window -c "$file_dir" "nvim '$selected_file' && $SHELL"
+	tmux new-window -c "$selected_repo" "cd '$selected_repo' && $SHELL"
 else
 	# If no tmux session exists, notify user to create one
 	if ! tmux list-sessions >/dev/null 2>&1; then
-		notify-send "No active tmux session found" \
-			"Please create a new tmux session manually"
+		notify-send "No active tmux session found" "Please create a new tmux session manually"
 		exit 0
 	fi
 
 	# Attach to the first existing session and open a new window
 	tmux attach-session -t "$(tmux list-sessions -F '#{session_name}' | head -n1)" \; \
-		new-window -c "$file_dir" "nvim '$selected_file' && $SHELL"
+		new-window -c "$selected_repo" "cd '$selected_repo' && $SHELL"
 fi
