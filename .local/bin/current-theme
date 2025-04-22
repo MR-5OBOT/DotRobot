@@ -1,0 +1,9 @@
+#!/bin/bash
+
+gtk_theme=$(gsettings get org.gnome.desktop.interface gtk-theme | sed -e "s/'//g")
+icon_theme=$(gsettings get org.gnome.desktop.interface icon-theme | sed -e "s/'//g")
+cursor_theme=$(gsettings get org.gnome.desktop.interface cursor-theme | sed -e "s/'//g")
+
+echo "Current GTK Theme: $gtk_theme"
+echo "Current Icon Theme: $icon_theme"
+echo "Current Cursor Theme: $cursor_theme"

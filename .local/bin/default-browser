@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Ask for browser name
+read -p "Enter the browser name (e.g., floorp, firefox, brave): " browser
+
+# Find the matching .desktop file
+desktop_file=$(ls /usr/share/applications | grep -i "^$browser.*\.desktop$" | head -n 1)
+
+if [ -z "$desktop_file" ]; then
+	echo "❌ Could not find a .desktop entry for '$browser'. Please make sure it's installed."
+	exit 1
+fi
+
+# Set GUI default browser
+echo "🌐 Setting $desktop_file as default GUI browser..."
+xdg-settings set default-web-browser "$desktop_file"
+
+# Confirm the setting
+current_default=$(xdg-settings get default-web-browser)
+echo "✅ Default GUI browser is now: $current_default"
+
+# Set terminal default BROWSER variable
+echo "🔧 Setting BROWSER environment variable..."
+
+# Add it to /etc/environment if not already present
+if grep -q "^BROWSER=" /etc/environment; then
+	sudo sed -i "s|^BROWSER=.*|BROWSER=$browser|" /etc/environment
+else
+	echo "BROWSER=$browser" | sudo tee -a /etc/environment >/dev/null
+fi
+
+# Also export it for this session
+export BROWSER=$browser
+
+echo "✅ BROWSER environment variable set to: $BROWSER"
+
+# Done!
+echo "🎉 All done! You may need to log out and back in for changes to fully apply."
