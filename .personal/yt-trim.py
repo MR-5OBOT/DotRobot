@@ -13,7 +13,8 @@ def download_clip(video_url, start_time, end_time, output_filename):
 
         # Run ffmpeg to download and trim the video
         subprocess.run(
-            ["ffmpeg", "-ss", start_time, "-to", end_time, "-i", video_direct_url, "-c", "copy", output_filename], check=True
+            ["ffmpeg", "-ss", start_time, "-to", end_time, "-i", video_direct_url, "-c", "copy", output_filename],
+            check=True,
         )
 
         print(f"Clip saved as {output_filename}")

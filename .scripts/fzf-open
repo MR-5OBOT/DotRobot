@@ -2,28 +2,32 @@
 
 set -eo pipefail
 
-# List directories inside ~/repos and exclude unwanted ones
+# Prompt user to select a repository from ~/repos, excluding .git and node_modules
 selected_repo=$(find ~/repos -mindepth 1 -maxdepth 1 -type d \
-	\( -name '.git' -o -name 'node_modules' \) -prune -o -type d -print |
-	fzf --height 100% --reverse --prompt="Select repository: " --preview="echo {}" --preview-window=right:50%)
+    \( -name '.git' -o -name 'node_modules' \) -prune -o -type d -print 2>/dev/null |
+    fzf --height=100% --reverse --prompt="Select repository: " \
+        --preview='tree -L 2 {} | head -200' --preview-window=right:60%)
 
-# Exit if no selection is made
+# Exit if user cancels the selection
 [[ -z "$selected_repo" ]] && exit 0
 
-# Change to the selected repo directory
+# Change to selected directory
 cd "$selected_repo" || exit 1
 
-# If we're already inside a tmux session, create a new window and just "cd" into the repo
-if [[ -n "$TMUX" ]]; then
-	tmux new-window -c "$selected_repo" "cd '$selected_repo' && $SHELL"
-else
-	# If no tmux session exists, notify user to create one
-	if ! tmux list-sessions >/dev/null 2>&1; then
-		notify-send "No active tmux session found" "Please create a new tmux session manually"
-		exit 0
-	fi
+# Generate a clean window name from repo basename
+window_name=$(basename "$selected_repo" | tr ' ' '-' | tr -cd '[:alnum:]-_')
 
-	# Attach to the first existing session and open a new window
-	tmux attach-session -t "$(tmux list-sessions -F '#{session_name}' | head -n1)" \; \
-		new-window -c "$selected_repo" "cd '$selected_repo' && $SHELL"
+# If inside a tmux session
+if [[ -n "$TMUX" ]]; then
+    tmux new-window -c "$selected_repo" -n "$window_name" "$SHELL -l"
+    exit 0
 fi
+
+# No active session found, create one if none exists
+if ! tmux has-session 2>/dev/null; then
+    session_name="main"
+    tmux new-session -d -s "$session_name" -c "$selected_repo" -n "$window_name" "$SHELL -l"
+fi
+
+# Attach and open new window
+tmux attach-session \; new-window -c "$selected_repo" -n "$window_name" "$SHELL -l"
