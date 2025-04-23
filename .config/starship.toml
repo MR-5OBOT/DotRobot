@@ -4,15 +4,24 @@
 
 add_newline = false
 
-# format = '''
-# [┌───────────────────>](bold green)
-# [│](bold green)$directory$rust$package
-# [└─>](bold green) '''
+format = '''
+[$directory](bold red)[$git_branch](bold green)[$python](yellow bold)[$cmd_duration](cyan)
+$character
+'''
 
-format = '''[$directory](red)[$git_branch](green)\$ '''
+[character]
+success_symbol = '[➜](bold green)' # Using ➜ as the prompt symbol
+error_symbol = '[➜](bold red)'
 
-[character] # The name of the module we are configuring is 'character'
-success_symbol = '[\$](bold green)' # The 'success_symbol' segment is being set to '➜' with the color 'bold green'
+[python]
+format = '[λ $virtualenv ]($style)' # Using λ to indicate Python venv
+style = 'yellow bold'
+detect_extensions = ['py']
+detect_folders = ['env', 'venv', '.venv']
+
+[cmd_duration]
+min_time = 500
+format = '[⏱ $duration](cyan)'
 
 [package]
 disabled = true
