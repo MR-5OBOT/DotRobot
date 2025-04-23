@@ -9,7 +9,7 @@
     "margin-right": 0,
     "layer": "bottom",
     "position": "left",
-    "mode": "panel",
+    // "mode": "panel", //
     "height": 30,
     "width":18,
     "exclusive": true,
