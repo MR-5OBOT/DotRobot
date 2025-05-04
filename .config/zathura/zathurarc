@@ -40,7 +40,7 @@ set notification-warning-bg "#D9BC8C"
 set notification-warning-fg "#424242"
 
 set recolor-darkcolor "#e8e3e3"
-set recolor-lightcolor "#151515"
+set recolor-lightcolor "#000000"
 
 set render-loading true
 set render-loading-bg "#e8e3e3"
