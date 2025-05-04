@@ -56,8 +56,7 @@ alias ls='eza -a --icons'
 alias l="ls -lah"
 alias c="clear"
 alias lt="eza --tree --level=2 --long --icons --git -la"
-alias makeenv='python3 -m venv env && source env/bin/activate'
-alias tlab='cd ~/repos/Trading-Lab/'
+alias makeenv='python3 -m venv venv && source venv/bin/activate'
 alias .dots='cd ~/repos/DotRobot/'
 alias vzshrc='nvim ~/.zshrc'
 
