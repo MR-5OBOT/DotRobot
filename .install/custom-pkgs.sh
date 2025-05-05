@@ -19,6 +19,7 @@ packagesPacman=(
     "zoxide"
     "trash-cli"
     "mpv"
+    "ttf-nerd-fonts-symbols-mono"
 )
 
 packagesYay=(
