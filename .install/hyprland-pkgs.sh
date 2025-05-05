@@ -22,10 +22,7 @@ packagesPacman=(
 )
 
 packagesYay=(
-    # "gtklock"
-    # "swww"
     "grimblast-git"
-    # "cliphist"
     "nwg-look"
     "hyprlock"
     "hypridle"
@@ -63,6 +60,3 @@ _installPackagesPacman "${packagesPacman[@]}"
 echo "Installing packages with Yay..."
 _installPackagesYay "${packagesYay[@]}"
 echo "Installation process completed successfully."
-
-
-

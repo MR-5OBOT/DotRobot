@@ -42,5 +42,5 @@ for item in "chrome" "user.js"; do
 done
 
 # Success messages
-notify-send "Firefox Theme Applied" "✔️ '$theme' linked successfully"
+notify-send "Firefox Theme Applied" "'$theme' linked successfully"
 echo "✅ Success: '$theme' theme applied to $default_release_dir"

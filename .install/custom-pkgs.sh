@@ -1,17 +1,12 @@
 #!/usr/bin/env bash
 
 packagesPacman=(
-    "viewnior"
+    "imv"
     "gimp"
-    "obsidian"
     "wf-recorder"
     "tmux"
-    "prettier"
     "swaybg"
     "fd"
-    "rclone"
-    "figlet"
-    "imv"
     "neovim"
     "zsh"
     "kitty"
@@ -22,32 +17,12 @@ packagesPacman=(
     "thunar-archive-plugin"
     "thunar"
     "zoxide"
-    "glow"
     "trash-cli"
     "mpv"
-    "tectonic"
-    "gvfs-google"
-    "gnome-online-accounts"
-    "kio-gdrive"
-    "rclone"
-    "dolphin"
-    # latex packages
-    # "tree-sitter-cli"
-    # "texlive-basic"
-    # "texlive-latex"
-    # "texlive-latexextra"
-    # "texlive-bibtexextra"
 )
 
 packagesYay=(
     "devify"
-    "wired"
-    # latex packages
-    # "pdflatex"
-    # "latexrun-git"
-    # "latex-mk"
-    # "texlive-binextra"
-    # "texlive-full"
 )
 
 # Function to install packages with Pacman, skipping already installed ones
