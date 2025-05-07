@@ -62,4 +62,3 @@ alias vzshrc='nvim ~/.zshrc'
 
 # Add local bin to PATH
 export PATH="$HOME/.local/bin:$PATH"
-
