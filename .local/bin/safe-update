@@ -1,9 +1,1 @@
-#!/usr/bin/env bash
-
-orphaned_packages=$(pacman -Qdtq)
-if [ -n "$orphaned_packages" ]; then
-    sudo pacman -Rns $orphaned_packages
-    echo "Cleaning completed."
-else
-    echo "No orphaned packages to remove."
-fi
+/home/mr5obot/repos/DotRobot/.local/bin/safe-update

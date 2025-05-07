@@ -23,7 +23,7 @@ fi
 
 echo
 # Run the scripts in sequence
-run_script "./.setup/.dotfiles.sh"
+run_script "./.setup/dotfiles.sh"
 run_script "./.setup/fonts-setup.sh"
 run_script "./.setup/zsh_setup.sh"
 run_script "./.setup/firefox.sh"
