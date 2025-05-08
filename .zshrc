@@ -63,11 +63,3 @@ alias vzshrc='nvim ~/.zshrc'
 # Add local bin to PATH
 export PATH="$HOME/.local/bin:$PATH"
 
-# custom proxy
-export http_proxy="http://192.168.166.128:8080"
-export https_proxy="http://192.168.166.128:8080"
-export HTTP_PROXY="http://192.168.166.128:8080"
-export HTTPS_PROXY="http://192.168.166.128:8080"
-
-# reset proxy settings
-# unset http_proxy https_proxy ftp_proxy all_proxy no_proxy
