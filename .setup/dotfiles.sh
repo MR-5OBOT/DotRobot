@@ -78,7 +78,6 @@ check_dir "/home/mr5obot/.config"
 check_dir "/home/mr5obot/.local/bin"
 check_dir "/home/mr5obot/Pictures"
 check_dir "/home/mr5obot"
-check_dir "/home/mr5obot/repos/DotRobot/.git/hooks"
 
 # Create symlinks only if directories exist
 if [ -d "/home/mr5obot/.config" ]; then
@@ -109,9 +108,3 @@ else
   echo "Skipping symlink creation for .zshrc"
 fi
 
-if [ -d "/home/mr5obot/repos/DotRobot/.git/hooks" ]; then
-  ln -sf /home/mr5obot/repos/DotRobot/.setup/post-checkout /home/mr5obot/repos/DotRobot/.git/hooks/
-  echo "Symlink created for Git post-checkout hook"
-else
-  echo "Skipping symlink creation for Git post-checkout hook"
-fi
