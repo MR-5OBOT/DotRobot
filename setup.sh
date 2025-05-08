@@ -30,6 +30,7 @@ run_script "./.setup/firefox.sh"
 run_script "./.setup/thunar-setup.sh"
 run_script "./.setup/pacman.sh"
 run_script "./.setup/thunar-setup.sh"
+run_script "./.setup/neovim-setup.sh"
 
 echo -e "All scripts completed successfully."
 echo -e "Enjoy your system."
