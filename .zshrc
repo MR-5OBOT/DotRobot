@@ -4,8 +4,6 @@ ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 [ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 source "${ZINIT_HOME}/zinit.zsh"
 
-neofetch
-
 # Initialize Starship prompt
 eval "$(starship init zsh)"
 
@@ -59,7 +57,9 @@ alias lt="eza --tree --level=2 --long --icons --git -la"
 alias makeenv='python3 -m venv venv && source venv/bin/activate'
 alias .dots='cd ~/repos/DotRobot/'
 alias vzshrc='nvim ~/.zshrc'
+alias docker-repos='docker run -it -v /home/mr5obot/repos:/root/repos archlinux'
 
 # Add local bin to PATH
 export PATH="$HOME/.local/bin:$PATH"
+
 
