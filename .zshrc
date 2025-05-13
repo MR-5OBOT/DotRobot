@@ -61,5 +61,5 @@ alias docker-repos='docker run -it -v /home/mr5obot/repos:/root/repos archlinux'
 
 # Add local bin to PATH
 export PATH="$HOME/.local/bin:$PATH"
-
-
+# npm globals
+export PATH="$HOME/.npm-global/bin:$PATH"
