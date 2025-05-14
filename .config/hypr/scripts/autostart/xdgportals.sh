@@ -6,6 +6,8 @@
 # /_/\_\____/ \____|
 #
 
+echo "starting xdgportals..."
+
 # Setup Timers
 _sleep1="0.1"
 _sleep2="0.5"
