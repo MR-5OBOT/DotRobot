@@ -1,18 +1,18 @@
 /* Monochromatic color definitions */
-@define-color cc-bg rgba(46, 46, 46, 0.7); /* Control center background */
-@define-color noti-border-color rgba(74, 74, 74, 0.5); /* Border */
-@define-color noti-bg rgba(46, 46, 46, 0.8); /* Notification background */
-@define-color noti-bg-opaque rgb(46, 46, 46); /* Opaque notification */
-@define-color noti-bg-darker rgb(30, 30, 30); /* Darker elements */
-@define-color noti-bg-hover rgb(62, 62, 62); /* Hover state */
-@define-color noti-bg-focus rgba(62, 62, 62, 0.6); /* Focus state */
-@define-color noti-close-bg rgba(160, 160, 160, 0.2); /* Close button */
-@define-color noti-close-bg-hover rgba(160, 160, 160, 0.3); /* Close button hover */
-@define-color text-color rgb(208, 208, 208); /* Primary text */
-@define-color text-color-disabled rgb(128, 128, 128); /* Disabled text */
-@define-color bg-selected rgb(160, 160, 160); /* Selected state (e.g., DND switch) */
-@define-color mpris-album-art-overlay rgba(30, 30, 30, 0.7); /* MPRIS overlay */
-@define-color mpris-button-hover rgba(62, 62, 62, 0.5); /* MPRIS button hover */
+@define-color cc-bg rgba(0, 0, 0, 0.7); /* Control center background */
+@define-color noti-border-color rgba(32, 32, 32, 0.6); /* Border */
+@define-color noti-bg rgba(0, 0, 0, 0.8); /* Notification background */
+@define-color noti-bg-opaque #000000; /* Opaque notification */
+@define-color noti-bg-darker #0a0a0a; /* Darker elements */
+@define-color noti-bg-hover #1a1a1a; /* Hover state */
+@define-color noti-bg-focus rgba(26, 26, 26, 0.6); /* Focus state */
+@define-color noti-close-bg rgba(100, 100, 100, 0.15); /* Close button */
+@define-color noti-close-bg-hover rgba(100, 100, 100, 0.3); /* Close button hover */
+@define-color text-color #d0d0d0; /* Primary text */
+@define-color text-color-disabled #7f7f7f; /* Disabled text */
+@define-color bg-selected #4d4d4d; /* Selected state (e.g., DND switch) */
+@define-color mpris-album-art-overlay rgba(0, 0, 0, 0.6); /* MPRIS overlay */
+@define-color mpris-button-hover rgba(26, 26, 26, 0.5); /* MPRIS button hover */
 
 /* Notification row */
 .notification-row {
@@ -158,6 +158,20 @@
   border-right: none;
 }
 
+/* Notification popups */
+#notification {
+    border: 2px solid #888888; /* light grey */
+    border-radius: 8px;
+    background-color: rgba(30, 30, 30, 0.95);
+}
+
+/* Control center */
+#control-center {
+    border: 2px solid #888888;
+    border-radius: 10px;
+    background-color: rgba(30, 30, 30, 0.95);
+}
+
 /* Grouped notifications */
 .notification-group.collapsed .notification-row .notification {
   background: @noti-bg-opaque;
@@ -187,7 +201,7 @@
 }
 
 .control-center .control-center-list .notification {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
 }
 
 /* Widgets */

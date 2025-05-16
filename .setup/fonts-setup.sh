@@ -21,7 +21,8 @@ fi
 # 1. Install Pacman fonts
 echo "📦 Installing fonts via pacman..."
 sudo pacman -S --needed --noconfirm \
-    noto-fonts-emoji
+    noto-fonts-emoji \
+    ttf-iosevkaterm-nerd
 
 # 2. Link local custom fonts
 font_source_dir="$HOME/repos/DotRobot/.home/.fonts"
