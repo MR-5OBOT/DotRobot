@@ -1,18 +1,17 @@
-/* Monochromatic color definitions */
-@define-color cc-bg rgba(0, 0, 0, 0.7); /* Control center background */
-@define-color noti-border-color rgba(32, 32, 32, 0.6); /* Border */
-@define-color noti-bg rgba(0, 0, 0, 0.8); /* Notification background */
-@define-color noti-bg-opaque #000000; /* Opaque notification */
-@define-color noti-bg-darker #0a0a0a; /* Darker elements */
-@define-color noti-bg-hover #1a1a1a; /* Hover state */
-@define-color noti-bg-focus rgba(26, 26, 26, 0.6); /* Focus state */
-@define-color noti-close-bg rgba(100, 100, 100, 0.15); /* Close button */
-@define-color noti-close-bg-hover rgba(100, 100, 100, 0.3); /* Close button hover */
-@define-color text-color #d0d0d0; /* Primary text */
-@define-color text-color-disabled #7f7f7f; /* Disabled text */
-@define-color bg-selected #4d4d4d; /* Selected state (e.g., DND switch) */
-@define-color mpris-album-art-overlay rgba(0, 0, 0, 0.6); /* MPRIS overlay */
-@define-color mpris-button-hover rgba(26, 26, 26, 0.5); /* MPRIS button hover */
+@define-color cc-bg #000000; /* Control center background (was rgba(0, 0, 0, 0.7)) */
+@define-color noti-border-color #202020; /* Border (was rgba(32, 32, 32, 0.6)) */
+@define-color noti-bg #000000; /* Notification background (was rgba(0, 0, 0, 0.8)) */
+@define-color noti-bg-opaque #000000; /* Opaque notification (unchanged) */
+@define-color noti-bg-darker #0a0a0a; /* Darker elements (unchanged) */
+@define-color noti-bg-hover #1a1a1a; /* Hover state (unchanged) */
+@define-color noti-bg-focus #1a1a1a; /* Focus state (was rgba(26, 26, 26, 0.6)) */
+@define-color noti-close-bg #646464; /* Close button (was rgba(100, 100, 100, 0.15)) */
+@define-color noti-close-bg-hover #646464; /* Close button hover (was rgba(100, 100, 100, 0.3)) */
+@define-color text-color #d0d0d0; /* Primary text (unchanged) */
+@define-color text-color-disabled #7f7f7f; /* Disabled text (unchanged) */
+@define-color bg-selected #4d4d4d; /* Selected state (unchanged) */
+@define-color mpris-album-art-overlay #000000; /* MPRIS overlay (was rgba(0, 0, 0, 0.6)) */
+@define-color mpris-button-hover #1a1a1a; /* MPRIS button hover (was rgba(26, 26, 26, 0.5)) */
 
 /* Notification row */
 .notification-row {
