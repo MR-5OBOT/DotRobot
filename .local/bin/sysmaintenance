@@ -3,7 +3,7 @@ echo "----------------------------------------------------"
 echo "UPDATING SYSTEM"
 echo "----------------------------------------------------"
 
-yay -Syu
+paru -Syu
 
 echo ""
 echo "----------------------------------------------------"
@@ -24,9 +24,9 @@ echo "----------------------------------------------------"
 echo "REMOVING ORPHANED PACKAGES"
 echo "----------------------------------------------------"
 
-orphaned=$(yay -Qdtq)
+orphaned=$(paru -Qdtq)
 if [ -n "$orphaned" ]; then
-    echo "$orphaned" | yay -Rns -
+    echo "$orphaned" | paru -Rns -
 else
     echo "No orphaned packages to remove."
 fi
