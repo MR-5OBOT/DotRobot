@@ -1,0 +1,69 @@
+(include "eww_widgets.yuck")
+
+(defwindow yearbox
+  :monitor '[0]'
+  :stacking "bg"
+  :namespace "eww"
+  :geometry (geometry
+    :x "50"
+    :y "50"
+    :width "100"
+    :height "100"
+    :anchor "bottom right")
+  (yearbox)
+)
+
+(defwindow monthbox
+  :monitor '[0]'
+  :stacking "bg"
+  :namespace "eww"
+  :geometry (geometry
+    :x "170"
+    :y "50"
+    :width "100"
+    :height "100"
+    :anchor "bottom right")
+  (monthbox)
+)
+
+(defwindow daybox
+  :monitor '[0]'
+  :stacking "bg"
+  :namespace "eww"
+  :geometry (geometry
+    :x "290"
+    :y "50"
+    :width "100"
+    :height "100"
+    :anchor "bottom right")
+  (daybox)
+)
+
+(defwindow timebox
+  :monitor '[0]'
+  :stacking "bg"
+  :namespace "eww"
+  :geometry (geometry
+    :x "50"
+    :y "170"
+    :width "100"
+    :height "100"
+    :anchor "bottom right")
+  (timebox)
+)
+
+(defwindow dashboard
+  :monitor '[0]'
+  :geometry (geometry
+    :x 0
+    :y 0
+    :width 1920
+    :height 1080
+    )
+   :stacking "fg"           ;; Makes it float above all windows
+   :layer "overlay"         ;; Ensures it shows above other surfaces (for Wayland)
+   :focusable true         ;; Optional: don't grab input
+   :anchor "top left"       ;; Start at the top-left
+   :exclusive false         ;; Don't take exclusive screen space
+   :visible false           ;; Initially hidden
+  (dashboard))

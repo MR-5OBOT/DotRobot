@@ -59,8 +59,27 @@ alias .dots='cd ~/repos/DotRobot/'
 alias vzshrc='nvim ~/.zshrc'
 alias docker-repos='docker run -it -v /home/mr5obot/repos:/root/repos archlinux'
 
+f() {
+  local dir 
+  dir=$(find "$HOME" -type d \
+    -not -path '*/node_modules*' \
+    -not -path '*/.cache*' \
+    -not -path '*/__pycache__' \
+    2> /dev/null | fzf \
+      --height=20% \
+      --layout=reverse \
+      --info=hidden \
+      --border \
+      --margin=0%,49%,0%,0% )
+  [ -n "$dir" ] && cd "$dir"
+}
+
 # Add local bin to PATH
 export PATH="$HOME/.local/bin:$PATH"
 
 # npm globals
 export PATH="$HOME/.npm-global/bin:$PATH"
+export http_proxy="http://192.168.135.2:8080"
+export https_proxy="http://192.168.135.2:8080"
+export HTTP_PROXY="http://192.168.135.2:8080"
+export HTTPS_PROXY="http://192.168.135.2:8080"
