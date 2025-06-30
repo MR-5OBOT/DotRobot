@@ -13,6 +13,18 @@
 @define-color mpris-album-art-overlay #000000; /* MPRIS overlay (was rgba(0, 0, 0, 0.6)) */
 @define-color mpris-button-hover #1a1a1a; /* MPRIS button hover (was rgba(26, 26, 26, 0.5)) */
 
+.notification-row .notification-background .close-button {
+  background: @noti-close-bg;
+  color: @text-color;
+  padding: 0;
+  border-radius: 50%;
+  margin: 2px; /* Smaller margin */
+  min-width: 18px; /* Reduced from 24px */
+  min-height: 18px; /* Reduced from 24px */
+  border: none;
+  font-size: 10px; /* Optional: smaller icon/text inside */
+}
+
 /* Notification row */
 .notification-row {
   outline: none;
@@ -27,17 +39,6 @@
 /* Notification background */
 .notification-row .notification-background {
   padding: 6px;
-}
-
-.notification-row .notification-background .close-button {
-  background: @noti-close-bg;
-  color: @text-color;
-  padding: 0;
-  border-radius: 50%;
-  margin: 5px;
-  min-width: 24px;
-  min-height: 24px;
-  border: none;
 }
 
 .notification-row .notification-background .close-button:hover {
@@ -148,9 +149,6 @@
   border-radius: 0;
 }
 
-.notification-row .notification-background .notification .notification-action:first-child {
-  border-bottom-left-radius: 8px;
-}
 
 .notification-row .notification-background .notification .notification-action:last-child {
   border-bottom-right-radius: 8px;

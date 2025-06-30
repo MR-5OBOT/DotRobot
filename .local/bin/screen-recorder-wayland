@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+# === CONFIG ===
+TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+VID_FILE="recording_${TIMESTAMP}.mp4"
+AUD_FILE="audio_${TIMESTAMP}.wav"
+OUT_FILE="screen_with_audio_${TIMESTAMP}.mp4"
+AUDIO_SOURCE="alsa_output.pci-0000_00_1f.3.analog-stereo.monitor"
+
+# === CHECK DEPENDENCIES ===
+for cmd in wf-recorder pw-record ffmpeg hyprctl; do
+    command -v "$cmd" >/dev/null 2>&1 || {
+        echo "❌ Error: '$cmd' is not installed or not in PATH."
+        exit 1
+    }
+done
+
+# === GET MONITOR ===
+MONITOR=$(hyprctl monitors | grep 'Monitor' | head -n 1 | awk '{print $2}')
+if [ -z "$MONITOR" ]; then
+    echo "❌ Failed to detect monitor with 'hyprctl'."
+    exit 1
+fi
+
+# === START RECORDING ===
+echo "🎥 Starting screen recording on monitor: $MONITOR"
+wf-recorder -o "$MONITOR" -f "$VID_FILE" &
+PID_VID=$!
+
+sleep 0.5  # slight delay to prevent overlap issues
+
+echo "🔊 Starting audio recording from: $AUDIO_SOURCE"
+pw-record --target "$AUDIO_SOURCE" "$AUD_FILE" &
+PID_AUD=$!
+
+# === CLEANUP HANDLER ===
+cleanup() {
+    echo -e "\n🛑 Stopping recordings..."
+    kill "$PID_VID" 2>/dev/null
+    kill "$PID_AUD" 2>/dev/null
+    wait "$PID_VID" "$PID_AUD" 2>/dev/null
+}
+
+trap cleanup INT TERM
+
+# === WAIT FOR USER INPUT ===
+read -rp "⏺️ Recording... Press ENTER to stop."
+
+cleanup
+
+# === MERGE AUDIO + VIDEO ===
+echo "🧪 Merging audio and video..."
+ffmpeg -y -i "$VID_FILE" -i "$AUD_FILE" -c:v copy -c:a aac "$OUT_FILE" >/dev/null 2>&1
+
+# === CLEANUP TEMP FILES ===
+rm -f "$VID_FILE" "$AUD_FILE"
+
+# === DONE ===
+echo "✅ Recording complete!"
+echo "📁 Saved to: $OUT_FILE"

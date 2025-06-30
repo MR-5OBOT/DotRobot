@@ -39,7 +39,7 @@
   (daybox)
 )
 
-(defwindow userinfo
+(defwindow timebox
   :monitor '[0]'
   :stacking "bg"
   :namespace "eww"
@@ -49,18 +49,21 @@
     :width "100"
     :height "100"
     :anchor "bottom right")
-  (userinfobox)
+  (timebox)
 )
 
-(defwindow powermenu
+(defwindow dashboard
   :monitor '[0]'
-  :stacking "bg"
-  :namespace "eww"
   :geometry (geometry
-    :x "50"
-    :y "170"
-    :width "100"
-    :height "100"
-    :anchor "bottom right")
-  (powermenu)
-)
+    :x 0
+    :y 0
+    :width 1920
+    :height 1080
+    )
+   :stacking "fg"           ;; Makes it float above all windows
+   :layer "overlay"         ;; Ensures it shows above other surfaces (for Wayland)
+   :focusable true         ;; Optional: don't grab input
+   :anchor "top left"       ;; Start at the top-left
+   :exclusive false         ;; Don't take exclusive screen space
+   :visible false           ;; Initially hidden
+  (dashboard))
