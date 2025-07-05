@@ -19,7 +19,7 @@
 
 /* Hide the bookmarks toolbar if not needed */
 /* #PersonalToolbar { */
-/* display: none !important; */
+/*   display: none !important; */
 /* } */
 
 /* Remove the Firefox button in the upper-left corner (Windows/Linux) */
@@ -29,15 +29,24 @@
 
 /* Simplify the appearance of the URL bar when not in focus */
 #urlbar {
-  box-shadow: none !important;
-  /* Remove unnecessary box shadow */
-  transition: none !important;
-  /* Remove unnecessary transitions for faster rendering */
+  box-shadow: none !important; /* Remove unnecessary box shadow */
+  transition: opacity 0.2s ease !important; /* Smooth transition for showing/hiding */
+  opacity: 0 !important; /* Hide URL bar by default */
+}
+
+/* Show URL bar on hover or focus */
+#urlbar:hover,
+#urlbar[focused] {
+  opacity: 1 !important; /* Fully visible on hover or focus */
+}
+
+/* Ensure the navigation bar remains visible to allow hover detection */
+#navigator-toolbox {
+  overflow: visible !important;
 }
 
 /* Enable smooth scrolling, but keep it minimal for better performance */
 html {
   scroll-behavior: smooth !important;
-  appearance: none !important;
-  /* Ensure Firefox doesn’t overwrite this behavior */
+  appearance: none !important; /* Ensure Firefox doesn’t overwrite this behavior */
 }
