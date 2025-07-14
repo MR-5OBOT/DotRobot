@@ -3,7 +3,7 @@
 @define-color noti-bg #000000; /* Notification background (was rgba(0, 0, 0, 0.8)) */
 @define-color noti-bg-opaque #000000; /* Opaque notification (unchanged) */
 @define-color noti-bg-darker #0a0a0a; /* Darker elements (unchanged) */
-@define-color noti-bg-hover #1a1a1a; /* Hover state (unchanged) */
+/* @define-color noti-bg-hover #1a1a1a; /* Hover state (unchanged) */ */
 @define-color noti-bg-focus #1a1a1a; /* Focus state (was rgba(26, 26, 26, 0.6)) */
 @define-color noti-close-bg #646464; /* Close button (was rgba(100, 100, 100, 0.15)) */
 @define-color noti-close-bg-hover #646464; /* Close button hover (was rgba(100, 100, 100, 0.3)) */
