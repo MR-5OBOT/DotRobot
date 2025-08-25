@@ -2,7 +2,7 @@
     monitor = 0
     width = 270
     height = 75
-    origin = top-center
+    origin = top-right
     offset = 20x20
     scale = 0
     notification_limit = 3

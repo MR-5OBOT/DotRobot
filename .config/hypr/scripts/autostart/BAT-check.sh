@@ -13,7 +13,7 @@ while true; do
 get_percentage=$(acpi -b | grep -oP "\d+%" | head -n 1 | tr -d "%")
 bat0_percentage=$(acpi -b | head -n 1 )
 
-if [[ "$get_percentage" -lt 30 ]]; then
+if [[ "$get_percentage" -lt 10 ]]; then
     # send notification
     notify-send -u critical "$bat0_percentage"
 fi
