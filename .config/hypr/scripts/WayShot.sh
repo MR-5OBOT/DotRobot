@@ -34,7 +34,7 @@ finalize_screenshot() {
 # Take a screenshot of a selected area
 area_screenshot() {
     sleep 0.2 # Small delay for rofi to disappear
-    local geometry=$(slurp -d -w 2 -c '#ff0000ff')
+    local geometry=$(slurp -d -w 0 -c '#ff0000ff')
     if [[ -n "$geometry" ]]; then
         grim -g "$geometry" "$filepath" && finalize_screenshot
     else
