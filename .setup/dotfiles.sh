@@ -65,46 +65,26 @@ echo "✅ Dotfiles setup complete!"
 command -v notify-send &>/dev/null && notify-send "Dotfiles linked successfully!" "Enjoy @MR5OBOT"
 =======
 #!/bin/bash
-# Function to check if a directory exists and print a warning if not
-check_dir() {
-  if [ ! -d "$1" ]; then
-    echo "Warning: Directory $1 does not exist!"
-    echo ""
-  fi
+
+# Base path
+DOTFILES="$HOME/repos/DotRobot"
+
+# Function to safely symlink (force overwrite)
+link() {
+  local src="$1"
+  local dest="$2"
+
+  ln -sfn "$src" "$dest"
+  echo "Linked $dest -> $src"
 }
 
-# Check the directories
-check_dir "/home/mr5obot/.config"
-check_dir "/home/mr5obot/.local/bin"
-check_dir "/home/mr5obot/Pictures"
-check_dir "/home/mr5obot"
+# .config subdirectories (safer than linking everything at once)
+for dir in "$DOTFILES/.config"/*; do
+  [ -d "$dir" ] || continue
+  link "$dir" "$HOME/.config/$(basename "$dir")"
+done
 
-# Create symlinks only if directories exist
-if [ -d "/home/mr5obot/.config" ]; then
-  ln -sf /home/mr5obot/repos/DotRobot/.config/* /home/mr5obot/.config/
-  echo "Symlink created for .config files"
-else
-  echo "Skipping symlink creation for .config files"
-fi
-
-if [ -d "/home/mr5obot/.local" ]; then
-  ln -sf /home/mr5obot/repos/DotRobot/.local/bin/ /home/mr5obot/.local/
-  echo "Symlink created for .local/bin"
-else
-  echo "Skipping symlink creation for .local/bin"
-fi
-
-if [ -d "/home/mr5obot/Pictures" ]; then
-  ln -sf /home/mr5obot/repos/DotRobot/wallpapers /home/mr5obot/Pictures/
-  echo "Symlink created for wallpapers"
-else
-  echo "Skipping symlink creation for wallpapers"
-fi
-
-if [ -d "/home/mr5obot" ]; then
-  ln -sf /home/mr5obot/repos/DotRobot/.zshrc /home/mr5obot/
-  echo "Symlink created for .zshrc"
-else
-  echo "Skipping symlink creation for .zshrc"
-fi
-
+# Other links
+link "$DOTFILES/.local/bin" "$HOME/.local/bin"
+link "$DOTFILES/wallpapers" "$HOME/Pictures/wallpapers"
+link "$DOTFILES/.zshrc" "$HOME/.zshrc"
