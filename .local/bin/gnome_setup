@@ -1,0 +1,100 @@
+
+#!/usr/bin/env bash
+#
+# Minimal GNOME installer/uninstaller for Arch Linux (Hyprland-friendly)
+# Includes GDM setup and cleanup, excludes gnome-polkit and bloat apps
+#
+
+set -e
+
+# ─────────────────────────────────────────────────────────────
+# Colors
+# ─────────────────────────────────────────────────────────────
+GREEN="\e[32m"
+RED="\e[31m"
+YELLOW="\e[33m"
+RESET="\e[0m"
+
+# ─────────────────────────────────────────────────────────────
+# Minimal GNOME packages (core + GDM, no bloat)
+# ─────────────────────────────────────────────────────────────
+GNOME_PACKAGES=(
+  gnome-shell
+  gnome-session
+  gnome-control-center
+  gnome-settings-daemon
+  gnome-keyring
+  gnome-shell-extensions
+  nautilus
+  eog
+  gnome-backgrounds
+  gnome-tweaks
+  gdm
+)
+
+# ─────────────────────────────────────────────────────────────
+# Install function
+# ─────────────────────────────────────────────────────────────
+install_gnome() {
+  echo -e "${GREEN}[*] Installing minimal GNOME environment with GDM...${RESET}"
+  sudo pacman -Syu --noconfirm "${GNOME_PACKAGES[@]}"
+
+  echo -e "${YELLOW}[*] Enabling GDM login manager...${RESET}"
+  sudo systemctl enable gdm.service
+
+  echo -e "${YELLOW}[*] Disabling Hyprland autostart (if any)...${RESET}"
+  if [ -f ~/.config/hypr/startup.conf ]; then
+    mv ~/.config/hypr/startup.conf ~/.config/hypr/startup.conf.bak
+    echo -e "${GREEN}→ Hyprland autostart temporarily disabled.${RESET}"
+  fi
+
+  echo -e "${GREEN}[✓] GNOME installation complete.${RESET}"
+  echo -e "You can reboot now to start GNOME (via GDM)."
+}
+
+# ─────────────────────────────────────────────────────────────
+# Uninstall function
+# ─────────────────────────────────────────────────────────────
+uninstall_gnome() {
+  echo -e "${RED}[*] Removing GNOME and GDM...${RESET}"
+  sudo systemctl disable gdm.service || true
+  sudo pacman -Rns --noconfirm "${GNOME_PACKAGES[@]}"
+
+  echo -e "${YELLOW}[*] Restoring Hyprland autostart (if backup exists)...${RESET}"
+  if [ -f ~/.config/hypr/startup.conf.bak ]; then
+    mv ~/.config/hypr/startup.conf.bak ~/.config/hypr/startup.conf
+    echo -e "${GREEN}→ Hyprland autostart restored.${RESET}"
+  fi
+
+  echo -e "${YELLOW}[*] Clean leftover GNOME configs?${RESET}"
+  read -rp "Remove GNOME configs (y/N): " confirm
+  if [[ $confirm =~ ^[Yy]$ ]]; then
+    rm -rf ~/.config/gnome* ~/.local/share/gnome* ~/.cache/gnome*
+    echo -e "${GREEN}[✓] GNOME configs removed.${RESET}"
+  fi
+
+  echo -e "${GREEN}[✓] GNOME and GDM fully uninstalled.${RESET}"
+  echo -e "You can reboot to go back to Hyprland."
+}
+
+# ─────────────────────────────────────────────────────────────
+# Menu
+# ─────────────────────────────────────────────────────────────
+menu() {
+  echo -e "${YELLOW}╭────────────────────────────────────────────╮"
+  echo -e "│   Arch GNOME Minimal Manager for Hyprland  │"
+  echo -e "╰────────────────────────────────────────────╯${RESET}"
+  echo "1) Install GNOME + GDM"
+  echo "2) Uninstall GNOME + GDM"
+  echo "3) Exit"
+  read -rp "Choose an option: " choice
+
+  case "$choice" in
+    1) install_gnome ;;
+    2) uninstall_gnome ;;
+    3) exit 0 ;;
+    *) echo "Invalid option."; exit 1 ;;
+  esac
+}
+
+menu
