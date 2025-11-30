@@ -1,8 +1,0 @@
-
-[Desktop Entry]
-Name=TradingView
-Exec=firefox https://www.tradingview.com/chart/
-Icon=tradingview
-Terminal=false
-Type=Application
-Categories=Finance;Network;
