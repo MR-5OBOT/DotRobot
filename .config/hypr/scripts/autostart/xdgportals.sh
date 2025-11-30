@@ -6,8 +6,13 @@
 # /_/\_\____/ \____|
 #
 
-echo "starting xdgportals..."
+# Setup Timers
+_sleep1="0.1"
+_sleep2="0.5"
+_sleep3="2"
+_sleep4="1"
 
+sleep $_sleep4
 
 # Kill all possible running xdg-desktop-portals
 killall -e xdg-desktop-portal-hyprland
@@ -16,17 +21,34 @@ killall -e xdg-desktop-portal-kde
 killall -e xdg-desktop-portal-lxqt
 killall -e xdg-desktop-portal-wlr
 killall -e xdg-desktop-portal-gtk
-killall xdg-desktop-portal
-sleep 1
+killall -e xdg-desktop-portal
 
-# set required environment variable
-# dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP # Set environment variables for XDG Desktop Portal
+# Stop all services
+systemctl --user stop pipewire
+systemctl --user stop wireplumber
+systemctl --user stop xdg-desktop-portal
+systemctl --user stop xdg-desktop-portal-gnome
+systemctl --user stop xdg-desktop-portal-kde
+systemctl --user stop xdg-desktop-portal-wlr
+systemctl --user stop xdg-desktop-portal-hyprland
+sleep $_sleep1
 
-# start xdg-desktop-portal-hyprland
+# Start xdg-desktop-portal-hyprland
 /usr/lib/xdg-desktop-portal-hyprland &
+sleep $_sleep3
+
+# Start xdg-desktop-portal-gtk
+if [ -f /usr/lib/xdg-desktop-portal-gtk ]; then
+    /usr/lib/xdg-desktop-portal-gtk &
+    sleep $_sleep1
+fi
+
+# Start xdg-desktop-portal
 /usr/lib/xdg-desktop-portal &
+sleep $_sleep2
 
-# start xdg-desktop-portal-gtk
-# /usr/lib/xdg-desktop-portal-gtk &
-
-echo "xdg portals script finish"
+# Start required services
+systemctl --user start pipewire
+systemctl --user start wireplumber
+systemctl --user start xdg-desktop-portal
+systemctl --user start xdg-desktop-portal-hyprland

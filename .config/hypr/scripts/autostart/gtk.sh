@@ -4,6 +4,8 @@
 # / (_ / / / / ,<
 # \___/ /_/ /_/|_|
 #
+
+echo "gtk settings"
 # Source: https://github.com/swaywm/sway/wiki/GTK-3-settings-on-Wayland
 
 # Check that settings file exists

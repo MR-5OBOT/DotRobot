@@ -1,0 +1,9 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Terminal=false
+Type=Application
+Name=TradingView
+Exec=/opt/brave-bin/brave --profile-directory=Default --app-id=knojlbibkfmpiekeiifbljpfojlioonl
+Icon=brave-knojlbibkfmpiekeiifbljpfojlioonl-Default
+StartupWMClass=crx_knojlbibkfmpiekeiifbljpfojlioonl
