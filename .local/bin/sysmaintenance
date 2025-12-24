@@ -1,0 +1,55 @@
+#!/bin/bash
+set -e
+
+echo "----------------------------------------------------"
+echo "UPDATING SYSTEM"
+echo "----------------------------------------------------"
+paru -Syu --noconfirm
+
+echo ""
+echo "----------------------------------------------------"
+echo "CLEARING PACMAN CACHE"
+echo "----------------------------------------------------"
+pacman_cache_before="$(sudo du -sh /var/cache/pacman/pkg/ 2>/dev/null | cut -f1)"
+echo "Space before: $pacman_cache_before"
+
+echo "Clearing cache, leaving newest 2 versions..."
+sudo paccache -vrk2 >/dev/null
+
+echo "Clearing all uninstalled packages..."
+sudo paccache -ruk0 >/dev/null
+
+pacman_cache_after="$(sudo du -sh /var/cache/pacman/pkg/ 2>/dev/null | cut -f1)"
+echo "Space after: $pacman_cache_after"
+
+echo ""
+echo "----------------------------------------------------"
+echo "REMOVING ORPHANED PACKAGES"
+echo "----------------------------------------------------"
+orphaned=$(paru -Qdtq)
+if [ -n "$orphaned" ]; then
+    echo "Removing orphaned packages..."
+    echo "$orphaned" | paru -Rns --noconfirm -
+else
+    echo "No orphaned packages to remove."
+fi
+
+echo ""
+echo "----------------------------------------------------"
+echo "CLEARING HOME CACHE"
+echo "----------------------------------------------------"
+home_cache_before="$(du -sh ~/.cache 2>/dev/null | cut -f1)"
+rm -rf ~/.cache/*
+home_cache_after="$(du -sh ~/.cache 2>/dev/null | cut -f1)"
+echo "Space before: $home_cache_before | After: $home_cache_after"
+
+echo ""
+echo "----------------------------------------------------"
+echo "CLEARING SYSTEM LOGS"
+echo "----------------------------------------------------"
+sudo journalctl --vacuum-time=7d >/dev/null
+
+echo ""
+echo "----------------------------------------------------"
+echo "✅ System maintenance completed successfully!"
+echo "----------------------------------------------------"
