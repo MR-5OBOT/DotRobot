@@ -1,1 +1,15 @@
 [MIME Cache]
+application/pdf=brave-browser-nightly.desktop;
+application/rdf+xml=brave-browser-nightly.desktop;
+application/rss+xml=brave-browser-nightly.desktop;
+application/xhtml+xml=brave-browser-nightly.desktop;
+application/xhtml_xml=brave-browser-nightly.desktop;
+application/xml=brave-browser-nightly.desktop;
+image/gif=brave-browser-nightly.desktop;
+image/jpeg=brave-browser-nightly.desktop;
+image/png=brave-browser-nightly.desktop;
+image/webp=brave-browser-nightly.desktop;
+text/html=brave-browser-nightly.desktop;
+text/xml=brave-browser-nightly.desktop;
+x-scheme-handler/http=brave-browser-nightly.desktop;
+x-scheme-handler/https=brave-browser-nightly.desktop;
