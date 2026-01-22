@@ -7,10 +7,16 @@ source "${ZINIT_HOME}/zinit.zsh"
 # Initialize Starship prompt
 eval "$(starship init zsh)"
 
-# Add Zsh plugins (lazy loading)
+# Add Zsh plugins
+# Load completions normally (before compinit)
 zinit light zsh-users/zsh-completions
-zinit light zsh-users/zsh-autosuggestions
-zinit light aloxaf/fzf-tab
+
+# Load these AFTER the prompt appears (wait) for instant startup
+# Includes fast-syntax-highlighting for better colorization
+zinit wait lucid light-mode for \
+  zsh-users/zsh-autosuggestions \
+  zdharma-continuum/fast-syntax-highlighting \
+  aloxaf/fzf-tab
 
 # Optimize completion
 autoload -Uz compinit
@@ -33,14 +39,16 @@ setopt hist_find_no_dups
 # Completion options
 setopt AUTOCD              # Change directory just by typing its name
 setopt PROMPT_SUBST        # Enable command substitution in prompt
-setopt MENU_COMPLETE        # Automatically highlight first element of completion menu
-setopt LIST_PACKED          # The completion menu takes less space
+setopt MENU_COMPLETE       # Automatically highlight first element of completion menu
+setopt LIST_PACKED         # The completion menu takes less space
 setopt AUTO_LIST           # Automatically list choices on ambiguous completion
 setopt COMPLETE_IN_WORD    # Complete from both ends of a word
 
 # Completion styling
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 zstyle ':completion:*' menu no
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "$HOME/.zcompcache"
 
 # Aliases
 alias v='nvim'
@@ -59,18 +67,15 @@ alias .dots='cd ~/repos/DotRobot/'
 alias vzshrc='nvim ~/.zshrc'
 alias docker-repos='docker run -it -v /home/mr5obot/repos:/root/repos archlinux'
 
+# Optimized f() using fd
 f() {
-  local dir 
-  dir=$(find "$HOME" -type d \
-    -not -path '*/node_modules*' \
-    -not -path '*/.cache*' \
-    -not -path '*/__pycache__' \
-    2> /dev/null | fzf \
-      --height=20% \
+  local dir
+  # fd is much faster, respects .gitignore, and handles exclusions automatically
+  dir=$(fd --type d --hidden --exclude .git . "$HOME" | fzf \
+      --height=40% \
       --layout=reverse \
       --info=hidden \
-      --border \
-      --margin=0%,49%,0%,0% )
+      --border)
   [ -n "$dir" ] && cd "$dir"
 }
 
