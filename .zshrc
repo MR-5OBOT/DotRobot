@@ -5,6 +5,8 @@ export HISTSIZE=10000
 export SAVEHIST=10000
 export EDITOR='nvim'
 
+neofetch
+
 # [FIX] Add user bin folders to PATH so you can run scripts from anywhere
 if [[ -d "$HOME/bin" ]]; then export PATH="$HOME/bin:$PATH"; fi
 if [[ -d "$HOME/.local/bin" ]]; then export PATH="$HOME/.local/bin:$PATH"; fi
@@ -118,13 +120,4 @@ f() {
 # Keybindings
 bindkey '^ ' autosuggest-accept
 bindkey '^[[C' forward-word
-
-# Final setup
-if [[ -o interactive ]]; then
-    if command -v fastfetch > /dev/null; then
-        fastfetch
-    elif command -v neofetch > /dev/null; then
-        neofetch
-    fi
-fi
 
