@@ -8,161 +8,202 @@
 @define-color accent #cccccc;
 @define-color accent-dim #555555;
 @define-color critical rgba(255, 85, 85, 0.9);
+
 * {
     font-family: "JetBrainsMono Nerd Font", "Fira Code", monospace;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 500;
     color: @text;
 }
+
 /* Control Center */
 .control-center {
     background-color: @bg;
     border: 1px solid @border;
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.6);
 }
+
+/* Header Label */
+#header {
+    font-size: 16px;
+    font-weight: 800;
+    margin: 4px 0 10px 0;
+    color: @accent;
+}
+
 /* Title row (Clear inline, right aligned) */
 .widget-title {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: transparent;
-    border-bottom: none;                /* removed separator */
-    padding-bottom: 4px;
-    margin-bottom: 8px;
-    margin-top: 0;
-    min-height: 32px;
+    margin-top: 10px;
+    margin-bottom: 6px;
 }
+
 .widget-title button {
-    background-color: transparent;
+    background-color: @surface;
     border: 1px solid @border;
-    border-radius: 10px;
-    padding: 6px 12px;
-    font-size: 12px;
-    color: @text-muted;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 10px;
+    color: @text;
     transition: all 0.2s ease;
 }
+
 .widget-title button:hover {
     background-color: @surface-hover;
     border-color: @accent;
-    color: @text;
 }
+
 /* Buttons Grid */
 .widget-buttons-grid {
-    margin: 0 0 16px 0;
+    margin: 4px 0 10px 0;
 }
+
 .widget-buttons-grid flowboxchild {
-    padding: 6px;
+    padding: 4px;
 }
+
 .widget-buttons-grid button {
     background-color: @surface;
     border: 1px solid @border;
-    border-radius: 16px;
-    padding: 24px;
-    min-width: 90px;
-    min-height: 80px;
-    font-size: 32px;
+    border-radius: 8px;
+    padding: 6px;
+    min-width: 60px;
+    min-height: 48px;
+    font-size: 16px;
     transition: all 0.2s ease;
 }
+
 .widget-buttons-grid button:hover {
     background-color: @surface-hover;
     border-color: @accent;
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
+
 .widget-buttons-grid button.active {
     background-color: @accent;
     color: @bg;
 }
-/* Menubar */
-.widget-menubar {
+
+/* Sliders (Volume & Backlight) */
+.widget-volume,
+.widget-backlight {
     background-color: @surface;
     border: 1px solid @border;
-    border-radius: 12px;
-    padding: 14px;
-    margin: 0 0 8px 0;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 3px 0;
 }
-.widget-menubar button {
-    background-color: transparent;
-    border: 1px solid @border;
-    border-radius: 10px;
-    padding: 16px 28px;
-    font-size: 16px;
-    font-weight: 600;
-    transition: all 0.2s ease;
+
+.widget-volume label,
+.widget-backlight label {
+    font-size: 14px;
+    margin-right: 10px;
+    color: @accent;
 }
-.widget-menubar button:hover {
-    background-color: @surface-hover;
-    border-color: @accent;
+
+.widget-volume trough,
+.widget-backlight trough {
+    background-color: @accent-dim;
+    border-radius: 99px;
+    min-height: 5px;
+    min-width: 180px;
 }
+
+.widget-volume highlight,
+.widget-backlight highlight {
+    background-color: @accent;
+    border-radius: 99px;
+}
+
 /* DND */
 .widget-dnd {
     background-color: @surface;
     border: 1px solid @border;
-    border-radius: 12px;
-    padding: 16px;
-    margin: 8px 0 4px 0;                 /* tightened bottom margin */
-    font-size: 15px;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 3px 0;
+    font-size: 12px;
     font-weight: 600;
 }
+
 .widget-dnd switch {
     background-color: @accent-dim;
     border-radius: 99px;
-    min-width: 50px;
-    min-height: 26px;
+    min-width: 32px;
+    min-height: 16px;
 }
+
 .widget-dnd switch:checked {
     background-color: @accent;
 }
+
 .widget-dnd slider {
     background-color: @text;
     border-radius: 50%;
-    min-width: 22px;
-    min-height: 22px;
+    min-width: 14px;
+    min-height: 14px;
 }
+
 /* MPRIS */
 .widget-mpris {
     background-color: @surface;
     border: 1px solid @border;
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 16px;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 6px 0;
 }
+
+.widget-mpris-player {
+    padding: 4px;
+}
+
 .widget-mpris button {
     background-color: transparent;
     border: 1px solid @border;
     border-radius: 50%;
-    padding: 12px;
-    min-width: 48px;
-    min-height: 48px;
+    padding: 6px;
+    min-width: 28px;
+    min-height: 28px;
+    font-size: 12px;
 }
+
 .widget-mpris button:hover {
     background-color: @surface-hover;
     border-color: @accent;
 }
+
 /* Notifications */
 .widget-notifications {
     margin: 4px 0;
 }
+
 .notification {
     background-color: @surface;
     border: 1px solid @border;
-    border-radius: 12px;
-    padding: 14px;
-    margin: 8px 0;
+    border-radius: 8px;
+    padding: 8px;
+    margin: 5px 0;
 }
+
 .notification:hover {
     background-color: @surface-hover;
 }
+
 .notification.critical {
-    border-left: 3px solid @critical;
+    border-left: 2px solid @critical;
 }
+
 /* Scrollbar */
 scrollbar slider {
     background-color: @accent-dim;
     border-radius: 99px;
-    min-width: 8px;
+    min-width: 4px;
 }
+
 scrollbar slider:hover {
     background-color: @accent;
 }

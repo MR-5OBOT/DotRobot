@@ -1,59 +1,75 @@
 {
   "positionX": "right",
   "positionY": "top",
-  "control-center-margin-top": 14,
-  "control-center-margin-right": 14,
-  "control-center-margin-bottom": 14,
-  "control-center-width": 380,
+  "control-center-margin-top": 10,
+  "control-center-margin-right": 10,
+  "control-center-margin-bottom": 10,
+  "control-center-width": 390,
   "control-center-height": 0,
   "fit-to-screen": true,
   "control-center-exclusive-zone": false,
   "layer-shell": true,
   "cssPriority": "user",
-  "notification-window-width": 400,
+  "notification-window-width": 300,
   "timeout": 8,
   "timeout-low": 4,
   "widgets": [
+    "label#header",
     "buttons-grid",
-    "menubar",
+    "volume",
+    "backlight",
     "mpris",
     "dnd",
     "title",
     "notifications"
   ],
   "widget-config": {
-    "title": {
-      "text": "",
-      "clear-all-button": true,
-      "button-text": "Clear"
+    "label#header": {
+      "text": "Control Center",
+      "margin-top": 5,
+      "margin-bottom": 5
     },
-    "menubar": {
-      "menu#network": {
-        "label": "󰤨 WiFi",
-        "position": "left",
-        "animation-type": "slide_down",
-        "actions": [
-          { "label": "Open Network Manager", "command": "nm-applet" },
-          { "label": "Connection Editor", "command": "nm-connection-editor" },
-          { "label": "Turn Off WiFi", "command": "nmcli radio wifi off" }
-        ]
-      },
-      "menu#power": {
-        "label": "⏻ Power",
-        "position": "right",
-        "animation-type": "slide_down",
-        "actions": [
-          { "label": "󰌾 Lock", "command": "hyprlock" },
-          { "label": "󰍃 Logout", "command": "hyprctl dispatch exit" },
-          { "label": "󰑖 Reboot", "command": "systemctl reboot" },
-          { "label": "󰐥 Shutdown", "command": "systemctl poweroff" }
-        ]
-      }
+    "title": {
+      "text": "Notifications",
+      "clear-all-button": true,
+      "button-text": "󰎟 Clear All"
+    },
+    "buttons-grid": {
+      "n-columns": 2,
+      "actions": [
+        {
+          "label": "󰖩",
+          "command": "nm-connection-editor"
+        },
+        {
+          "label": "󰂯",
+          "command": "blueman-manager"
+        },
+        {
+          "label": "󰝟",
+          "command": "pactl set-sink-mute @DEFAULT_SINK@ toggle"
+        },
+        {
+          "label": "󰍬",
+          "command": "pactl set-source-mute @DEFAULT_SOURCE@ toggle"
+        },
+        {
+          "label": "󰐥",
+          "command": "wlogout"
+        }
+      ]
     },
     "mpris": {
-      "image-size": 70,
-      "image-radius": 6,
+      "image-size": 64,
+      "image-radius": 8,
       "blur": true
+    },
+    "volume": {
+      "label": "󰕾",
+      "show-per-app": true
+    },
+    "backlight": {
+      "label": "󰃠"
     },
     "dnd": {
       "text": "Do Not Disturb"
