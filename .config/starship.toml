@@ -1,27 +1,35 @@
-## ░█▀▀░▀█▀░█▀█░█▀▄░█▀▀░█░█░▀█▀░█▀█
-## ░▀▀█░░█░░█▀█░█▀▄░▀▀█░█▀█░░█░░█▀▀
-## ░▀▀▀░░▀░░▀░▀░▀░▀░▀▀▀░▀░▀░▀▀▀░▀░░
-
 add_newline = false
 
 format = '''
-[$directory](bold red)[$git_branch](bold green)[$python](yellow bold)[$cmd_duration](cyan)
+[$directory](bright-white) [$git_branch](gray) [$python](medium-gray bold) [$cmd_duration](dim-gray)
 $character
 '''
 
 [character]
-success_symbol = '[➜](bold green)' # Using ➜ as the prompt symbol
-error_symbol = '[➜](bold red)'
+success_symbol = '[➜](bold bright-white)'
+error_symbol = '[➜](bold red)'  # Red kept only here for instant error spotting — removable if you want pure mono
 
 [python]
-format = '[λ $virtualenv ]($style)' # Using λ to indicate Python venv
-style = 'yellow bold'
+format = '[λ $virtualenv ](medium-gray bold)'
+style = 'medium-gray bold'
 detect_extensions = ['py']
 detect_folders = ['env', 'venv', '.venv']
 
 [cmd_duration]
 min_time = 500
-format = '[⏱ $duration](cyan)'
+format = '[⏱ $duration](dim-gray)'
 
-[package]
-disabled = true
+[directory]
+style = 'bright-white bold'
+truncation_length = 4  # Optional: shortens deep paths for cleanliness
+truncation_symbol = '…/'
+
+[git_branch]
+style = 'gray'
+
+# Optional subtle git status if you ever want a tiny bit more info without clutter
+[git_status]
+style = 'dim-gray'
+staged = '+'
+modified = '~'
+deleted = '×'
