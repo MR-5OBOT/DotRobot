@@ -4,15 +4,15 @@
   "control-center-margin-top": 10,
   "control-center-margin-right": 10,
   "control-center-margin-bottom": 10,
-  "control-center-width": 390,
+  "control-center-width": 400,
   "control-center-height": 0,
   "fit-to-screen": true,
   "control-center-exclusive-zone": false,
   "layer-shell": true,
   "cssPriority": "user",
   "notification-window-width": 300,
-  "timeout": 8,
-  "timeout-low": 4,
+  "timeout": 15,
+  "timeout-low": 8,
   "widgets": [
     "label#header",
     "buttons-grid",
@@ -26,8 +26,8 @@
   "widget-config": {
     "label#header": {
       "text": "Control Center",
-      "margin-top": 5,
-      "margin-bottom": 5
+      "margin-top": 0,
+      "margin-bottom": 0
     },
     "title": {
       "text": "Notifications",
@@ -35,11 +35,11 @@
       "button-text": "󰎟 Clear All"
     },
     "buttons-grid": {
-      "n-columns": 2,
+      "n-columns": 1,
       "actions": [
         {
           "label": "󰖩",
-          "command": "nm-connection-editor"
+          "command": "nm-applet --indicator"
         },
         {
           "label": "󰂯",
@@ -52,10 +52,6 @@
         {
           "label": "󰍬",
           "command": "pactl set-source-mute @DEFAULT_SOURCE@ toggle"
-        },
-        {
-          "label": "󰐥",
-          "command": "wlogout"
         }
       ]
     },

@@ -181,6 +181,55 @@
     margin: 4px 0;
 }
 
+/* General Notification Container */
+.notification {
+    border-radius: 10px;
+    margin: 6px 12px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+    padding: 0;
+}
+
+/* The Main Large Icon/Image (like a profile pic or screenshot) */
+.notification-content image {
+    margin: 8px;
+    min-width: 40px;  /* Small size */
+    min-height: 40px; /* Small size */
+}
+
+/* The Small App Icon (usually in the corner) */
+.notification-default-icon {
+    margin: 4px;
+    min-width: 16px;
+    min-height: 16px;
+}
+
+/* MPRIS Media Controls */
+.mpris {
+    padding: 8px;
+}
+
+.mpris-image {
+    /* This matches the 48px from your config.json */
+    border-radius: 8px;
+}
+
+/* Control Center Header */
+#header {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Buttons Grid Layout */
+.buttons-grid {
+    padding: 5px;
+}
+
+.buttons-grid button {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    margin: 3px;
+    padding: 10px;
+}
 .notification {
     background-color: @surface;
     border: 1px solid @border;
