@@ -4,38 +4,31 @@
   "control-center-margin-top": 10,
   "control-center-margin-right": 10,
   "control-center-margin-bottom": 10,
-  "control-center-width": 400,
+  "control-center-width": 380,
   "control-center-height": 0,
   "fit-to-screen": true,
   "control-center-exclusive-zone": false,
   "layer-shell": true,
   "cssPriority": "user",
-  "notification-window-width": 300,
+  "notification-window-width": 320,
   "timeout": 15,
   "timeout-low": 8,
   "widgets": [
-    "label#header",
     "buttons-grid",
     "volume",
     "backlight",
     "mpris",
     "dnd",
-    "title",
     "notifications"
   ],
   "widget-config": {
-    "label#header": {
-      "text": "Control Center",
-      "margin-top": 0,
-      "margin-bottom": 0
-    },
     "title": {
       "text": "Notifications",
       "clear-all-button": true,
       "button-text": "󰎟 Clear All"
     },
     "buttons-grid": {
-      "n-columns": 1,
+      "n-columns": 2,
       "actions": [
         {
           "label": "󰖩",
@@ -56,8 +49,8 @@
       ]
     },
     "mpris": {
-      "image-size": 64,
-      "image-radius": 8,
+      "image-size": 80,
+      "image-radius": 0,
       "blur": true
     },
     "volume": {

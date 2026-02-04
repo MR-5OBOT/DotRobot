@@ -1,258 +1,116 @@
-/* Monochrome Dark - Hyprland Optimized */
-@define-color bg rgba(13, 13, 13, 0.94);
-@define-color surface rgba(22, 22, 22, 0.96);
-@define-color surface-hover rgba(35, 35, 35, 1);
-@define-color border rgba(60, 60, 60, 0.5);
-@define-color text #e4e4e4;
-@define-color text-muted #888888;
-@define-color accent #cccccc;
-@define-color accent-dim #555555;
-@define-color critical rgba(255, 85, 85, 0.9);
+/* Monochrome Dark - Ultra Minimal Sharp & Compact */
+@define-color bg rgba(10, 10, 10, 0.96);
+@define-color surface rgba(15, 15, 15, 0.98);
+@define-color surface-hover rgba(32, 32, 32, 1);
+@define-color border rgba(55, 55, 55, 0.6);
+@define-color text #dddddd;
+@define-color text-muted #777777;
+@define-color accent #bbbbbb;
+@define-color accent-dim #444444;
+@define-color critical rgba(200, 70, 70, 0.9);
 
 * {
-    font-family: "JetBrainsMono Nerd Font", "Fira Code", monospace;
+    font-family: "JetBrainsMono NF", monospace;
     font-size: 11px;
     font-weight: 500;
     color: @text;
+    transition: all 0.15s ease;
 }
 
-/* Control Center */
+/* Control Center - for subtle blur, add to hyprland.conf:
+   layerrule = blur, swaync-notification-center
+   layerrule = ignorealpha, 0.6, swaync-notification-center */
 .control-center {
     background-color: @bg;
     border: 1px solid @border;
-    border-radius: 12px;
-    padding: 12px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.6);
+    border-radius: 0px;
+    padding: 8px;   /* Reduced from 10px for overall compactness */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
 }
 
-/* Header Label */
-#header {
-    font-size: 16px;
-    font-weight: 800;
-    margin: 4px 0 10px 0;
-    color: @accent;
+/* Tighten gaps between major sections (targets the red-marked areas) */
+.widget-buttons-grid,
+.widget-volume,
+.widget-backlight,
+.widget-mpris,
+.widget-dnd,
+.widget-title,
+.widget-notifications {
+    margin: 1px 0 !important;   /* Minimal vertical separation */
+    font-size: 18px;
 }
 
-/* Title row (Clear inline, right aligned) */
-.widget-title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 10px;
-    margin-bottom: 6px;
-}
-
-.widget-title button {
-    background-color: @surface;
-    border: 1px solid @border;
-    border-radius: 6px;
-    padding: 4px 10px;
-    font-size: 10px;
-    color: @text;
-    transition: all 0.2s ease;
-}
-
-.widget-title button:hover {
-    background-color: @surface-hover;
-    border-color: @accent;
-}
-
-/* Buttons Grid */
-.widget-buttons-grid {
-    margin: 4px 0 10px 0;
-}
-
-.widget-buttons-grid flowboxchild {
-    padding: 4px;
-}
-
+/* Quick actions grid */
 .widget-buttons-grid button {
     background-color: @surface;
     border: 1px solid @border;
-    border-radius: 8px;
-    padding: 6px;
-    min-width: 60px;
-    min-height: 48px;
-    font-size: 16px;
-    transition: all 0.2s ease;
+    border-radius: 0px;
+    padding: 8px;
+    min-width: 50px;
+    min-height: 50px;
+    font-size: 18px;
 }
-
 .widget-buttons-grid button:hover {
     background-color: @surface-hover;
     border-color: @accent;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
 }
 
-.widget-buttons-grid button.active {
-    background-color: @accent;
-    color: @bg;
-}
-
-/* Sliders (Volume & Backlight) */
+/* Sliders & Media - ultra-tight internal spacing */
 .widget-volume,
-.widget-backlight {
-    background-color: @surface;
-    border: 1px solid @border;
-    border-radius: 8px;
-    padding: 10px;
-    margin: 3px 0;
-}
-
-.widget-volume label,
-.widget-backlight label {
-    font-size: 14px;
-    margin-right: 10px;
-    color: @accent;
-}
-
-.widget-volume trough,
-.widget-backlight trough {
-    background-color: @accent-dim;
-    border-radius: 99px;
-    min-height: 5px;
-    min-width: 180px;
-}
-
-.widget-volume highlight,
-.widget-backlight highlight {
-    background-color: @accent;
-    border-radius: 99px;
-}
-
-/* DND */
-.widget-dnd {
-    background-color: @surface;
-    border: 1px solid @border;
-    border-radius: 8px;
-    padding: 12px;
-    margin: 3px 0;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.widget-dnd switch {
-    background-color: @accent-dim;
-    border-radius: 99px;
-    min-width: 32px;
-    min-height: 16px;
-}
-
-.widget-dnd switch:checked {
-    background-color: @accent;
-}
-
-.widget-dnd slider {
-    background-color: @text;
-    border-radius: 50%;
-    min-width: 14px;
-    min-height: 14px;
-}
-
-/* MPRIS */
+.widget-backlight,
 .widget-mpris {
     background-color: @surface;
-    border: 1px solid @border;
-    border-radius: 8px;
-    padding: 12px;
-    margin: 6px 0;
+    border-radius: 0px;
+    padding: 5px 8px;   /* Very tight — horizontal for alignment, vertical minimized */
+    margin: 2px 0 !important;
+    font-size: 20px;   /* Or 24px — try values that feel bold but balanced */
 }
 
-.widget-mpris-player {
-    padding: 4px;
+.widget-volume trough, .widget-backlight trough {
+    min-height: 6px;
+    background-color: @accent-dim;
+}
+.widget-volume highlight, .widget-backlight highlight {
+    background-color: @accent;
 }
 
-.widget-mpris button {
-    background-color: transparent;
-    border: 1px solid @border;
-    border-radius: 50%;
-    padding: 6px;
-    min-width: 28px;
-    min-height: 28px;
-    font-size: 12px;
+/* DND - snug fit */
+.widget-dnd {
+    background-color: @surface;
+    border-radius: 0px;
+    padding: 5px 8px;
+    margin: 2px 0 3px 0 !important;   /* Tiny extra bottom before title */
 }
 
-.widget-mpris button:hover {
-    background-color: @surface-hover;
-    border-color: @accent;
+/* Notifications title */
+.widget-title {
+    margin: 3px 0 2px 0 !important;   /* Closes the gap you circled */
+    padding: 0 4px;
+}
+.widget-title button {
+    padding: 3px 8px;
+    font-size: 9px;
 }
 
-/* Notifications */
+/* Notifications area */
 .widget-notifications {
-    margin: 4px 0;
+    margin-top: 2px !important;
 }
 
-/* General Notification Container */
-.notification {
-    border-radius: 10px;
-    margin: 6px 12px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.5);
-    padding: 0;
-}
-
-/* The Main Large Icon/Image (like a profile pic or screenshot) */
-.notification-content image {
-    margin: 8px;
-    min-width: 40px;  /* Small size */
-    min-height: 40px; /* Small size */
-}
-
-/* The Small App Icon (usually in the corner) */
-.notification-default-icon {
-    margin: 4px;
-    min-width: 16px;
-    min-height: 16px;
-}
-
-/* MPRIS Media Controls */
-.mpris {
-    padding: 8px;
-}
-
-.mpris-image {
-    /* This matches the 48px from your config.json */
-    border-radius: 8px;
-}
-
-/* Control Center Header */
-#header {
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
-/* Buttons Grid Layout */
-.buttons-grid {
-    padding: 5px;
-}
-
-.buttons-grid button {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 5px;
-    margin: 3px;
-    padding: 10px;
-}
 .notification {
     background-color: @surface;
     border: 1px solid @border;
-    border-radius: 8px;
-    padding: 8px;
-    margin: 5px 0;
+    border-radius: 0px;
+    padding: 10px;
+    margin: 6px 0;
 }
-
 .notification:hover {
     background-color: @surface-hover;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
-
 .notification.critical {
-    border-left: 2px solid @critical;
-}
-
-/* Scrollbar */
-scrollbar slider {
-    background-color: @accent-dim;
-    border-radius: 99px;
-    min-width: 4px;
-}
-
-scrollbar slider:hover {
-    background-color: @accent;
+    border-left: 3px solid @critical;
 }
