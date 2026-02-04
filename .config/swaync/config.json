@@ -32,7 +32,7 @@
       "actions": [
         {
           "label": "󰖩",
-          "command": "mn-connection-editor"
+          "command": "nm-connection-editor"
         },
         {
           "label": "󰂯",
