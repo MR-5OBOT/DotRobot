@@ -32,7 +32,7 @@
       "actions": [
         {
           "label": "󰖩",
-          "command": "nm-applet --indicator"
+          "command": "mn-connection-editor"
         },
         {
           "label": "󰂯",
