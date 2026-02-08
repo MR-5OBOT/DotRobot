@@ -96,3 +96,11 @@ f() {
 # Keybindings
 bindkey '^ ' autosuggest-accept
 bindkey '^[[C' forward-word
+
+
+# Auto-install TPM (Tmux Plugin Manager) if not installed
+if [[ ! -d ~/.tmux/plugins/tpm ]]; then
+  echo "Installing TPM (Tmux Plugin Manager)..."
+  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+  echo "TPM installed successfully!"
+fi
