@@ -2,7 +2,7 @@
 ## /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  ##
 # Script for Monitor backlights (if supported) using brightnessctl
 
-iDIR="$HOME/.config/dunst/icons"
+# iDIR="$HOME/.config/dunst/icons"
 
 # Get brightness
 get_backlight() {
