@@ -2,7 +2,7 @@
 ## /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  ##
 # Scripts for volume controls for audio and mic
 
-iDIR="$HOME/.config/dunst/icons"
+# iDIR="$HOME/.config/dunst/icons"
 
 # Get Volume
 get_volume() {
