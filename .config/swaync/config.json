@@ -14,7 +14,6 @@
   "timeout": 15,
   "timeout-low": 8,
   "widgets": [
-    "buttons-grid",
     "volume",
     "backlight",
     "mpris",
@@ -26,27 +25,6 @@
       "text": "Notifications",
       "clear-all-button": true,
       "button-text": "󰎟 Clear All"
-    },
-    "buttons-grid": {
-      "n-columns": 2,
-      "actions": [
-        {
-          "label": "󰖩",
-          "command": "nm-connection-editor"
-        },
-        {
-          "label": "󰂯",
-          "command": "blueman-manager"
-        },
-        {
-          "label": "󰝟",
-          "command": "pactl set-sink-mute @DEFAULT_SINK@ toggle"
-        },
-        {
-          "label": "󰍬",
-          "command": "pactl set-source-mute @DEFAULT_SOURCE@ toggle"
-        }
-      ]
     },
     "mpris": {
       "image-size": 80,
