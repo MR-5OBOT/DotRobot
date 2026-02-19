@@ -1,8 +1,8 @@
 # --- 1. Environment & Paths ---
 export ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 export HISTFILE=~/.zsh_history
-export HISTSIZE=10000   # A bit larger history — why not?
-export SAVEHIST=10000
+export HISTSIZE=100000   # A bit larger history — why not?
+export SAVEHIST=100000
 export EDITOR='nvim'
 
 alias nf='neofetch'

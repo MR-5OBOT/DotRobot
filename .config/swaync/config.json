@@ -11,8 +11,8 @@
   "layer-shell": true,
   "cssPriority": "user",
   "notification-window-width": 320,
-  "timeout": 15,
-  "timeout-low": 8,
+  "timeout": 8,
+  "timeout-low": 4,
   "widgets": [
     "volume",
     "backlight",
