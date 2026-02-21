@@ -10,6 +10,7 @@ alias nf='neofetch'
 # Add user bin folders to PATH
 if [[ -d "$HOME/bin" ]]; then export PATH="$HOME/bin:$PATH"; fi
 if [[ -d "$HOME/.local/bin" ]]; then export PATH="$HOME/.local/bin:$PATH"; fi
+export PATH=$HOME/.npm-global/bin:$PATH
 
 # FZF Layout Options (Dracula-ish styling)
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border --inline-info'
@@ -104,3 +105,4 @@ if [[ ! -d ~/.tmux/plugins/tpm ]]; then
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
   echo "TPM installed successfully!"
 fi
+
