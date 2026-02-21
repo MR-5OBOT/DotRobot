@@ -15,7 +15,7 @@ bat0_percentage=$(acpi -b | head -n 1 )
 
 if [[ "$get_percentage" -lt 10 ]]; then
     # send notification
-    notify-send -u critical "$bat0_percentage"
+    notify-send -u critical "⚠️ Low Battery" "$bat0_percentage - Plug in your charger!"
 fi
 
 # check the battery for every 5 minutes 

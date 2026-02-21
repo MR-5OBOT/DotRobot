@@ -7,5 +7,5 @@ local_time=$(date +"%a, %b %d %I:%M %p")
 new_york_time=$(TZ="America/New_York" date +"%a, %b %d %I:%M %p")
 
 # Send notification with both times in separate lines
-notify-send -t 10000 "Morocco: $local_time"
-notify-send -t 10000 "New York: $new_york_time"
+notify-send -t 10000 "🇲🇦 Local Time" "Morocco: $local_time"
+notify-send -t 10000 "🇺🇸 New York Time" "$new_york_time"
