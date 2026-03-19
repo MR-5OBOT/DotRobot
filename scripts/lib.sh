@@ -46,20 +46,6 @@ prompt_step() {
   done
 }
 
-backup_target() {
-  local target="$1"
-  local backup_dir="${HOME}/.local/share/dotrobot-backups/$(date +%Y%m%d-%H%M%S)"
-  local relative_target
-
-  [[ -e "${target}" || -L "${target}" ]] || return 0
-  relative_target="${target#${HOME}/}"
-  [[ "${relative_target}" == "${target}" ]] && relative_target="$(basename "${target}")"
-
-  mkdir -p "${backup_dir}/$(dirname "${relative_target}")"
-  mv "${target}" "${backup_dir}/${relative_target}"
-  log "Backed up ${target} to ${backup_dir}/${relative_target}"
-}
-
 symlink_path() {
   local source="$1"
   local target="$2"
@@ -70,7 +56,7 @@ symlink_path() {
     return 0
   fi
 
-  backup_target "${target}"
+  rm -rf "${target}"
   ln -sfn "${source}" "${target}"
   log "Linked ${target} -> ${source}"
 }

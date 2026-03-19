@@ -30,6 +30,6 @@ Run individual pieces:
 ## Notes
 
 - This repo targets Arch Linux only.
-- Existing files are backed up before symlinks are created.
+- Existing files are replaced directly when symlinks are created.
 - Shell startup no longer installs plugins automatically. Use `./scripts/setup-shell-tools.sh` for that.
 - A setup log is written to `${XDG_STATE_HOME:-$HOME/.local/state}/dotrobot/install.log`.

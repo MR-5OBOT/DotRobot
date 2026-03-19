@@ -26,7 +26,6 @@ starship
 fastfetch
 figlet
 gum
-neofetch
 python-pip
 python-black
 python-debugpy
