@@ -1,0 +1,6 @@
+bottles
+clipse
+devify
+grimblast-git
+localsend-bin
+telegram-desktop-bin
