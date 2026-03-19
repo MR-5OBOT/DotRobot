@@ -12,12 +12,8 @@ link_config_tree() {
 }
 
 link_local_bin() {
-  mkdir -p "${HOME}/.local/bin"
-  local item
-  for item in "${DOTFILES_DIR}/.local/bin"/*; do
-    [[ -e "${item}" ]] || continue
-    symlink_path "${item}" "${HOME}/.local/bin/$(basename "${item}")"
-  done
+  mkdir -p "${HOME}/.local"
+  symlink_path "${DOTFILES_DIR}/.local/bin" "${HOME}/.local/bin"
 }
 
 main() {

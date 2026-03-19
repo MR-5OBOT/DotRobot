@@ -56,8 +56,12 @@ symlink_path() {
     return 0
   fi
 
-  rm -rf "${target}"
-  ln -sfn "${source}" "${target}"
+  if [[ -e "${target}" || -L "${target}" ]]; then
+    rm -rf "${target}"
+    log "Removed existing ${target}"
+  fi
+
+  ln -sfnT "${source}" "${target}"
   log "Linked ${target} -> ${source}"
 }
 
