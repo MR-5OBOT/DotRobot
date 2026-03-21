@@ -2,8 +2,6 @@
 ## /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  ##
 # Script for Monitor backlights (if supported) using brightnessctl
 
-# iDIR="$HOME/.config/dunst/icons"
-
 # Get brightness
 get_backlight() {
 	echo $(brightnessctl -m | cut -d, -f4)
@@ -13,21 +11,21 @@ get_backlight() {
 get_icon() {
 	current=$(get_backlight | sed 's/%//')
 	if [ "$current" -le "20" ]; then
-		icon="$iDIR/brightness-20.png"
+		icon=""
 	elif [ "$current" -le "40" ]; then
-		icon="$iDIR/brightness-40.png"
+		icon=""
 	elif [ "$current" -le "60" ]; then
-		icon="$iDIR/brightness-60.png"
+		icon=""
 	elif [ "$current" -le "80" ]; then
-		icon="$iDIR/brightness-80.png"
+		icon=""
 	else
-		icon="$iDIR/brightness-100.png"
+		icon=""
 	fi
 }
 
 # Notify
 notify_user() {
-	notify-send -e -h string:x-canonical-private-synchronous:brightness_notif -h int:value:$current -u low -i "$icon" "Brightness : $current%"
+	notify-send -e -h string:x-canonical-private-synchronous:brightness_notif -h int:value:$current -u low "Brightness : $current%"
 }
 
 # Change brightness

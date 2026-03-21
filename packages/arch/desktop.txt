@@ -24,6 +24,7 @@ hyprpaper
 hyprpicker
 imv
 kitty
+libnotify
 mpv
 network-manager-applet
 networkmanager
