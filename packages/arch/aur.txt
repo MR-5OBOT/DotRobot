@@ -4,3 +4,4 @@ devify
 grimblast-git
 localsend-bin
 telegram-desktop-bin
+pixie-sddm-git

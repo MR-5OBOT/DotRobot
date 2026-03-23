@@ -1,15 +1,20 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
-powermenu=$(echo -e "Quit Hyprland\nReboot\nShutdown" | rofi -dmenu -config ~/.config/rofi/custom/powermenu.rasi)
+theme="${HOME}/.config/rofi/powermenu.rasi"
+
+powermenu=$(
+    printf '%s\n' "Quit Hyprland" "Reboot" "Shutdown" |
+        rofi -dmenu -theme "${theme}"
+)
 
 case "$powermenu" in
 "Quit Hyprland")
-    pkill -u $USER
+    hyprctl dispatch exit
     ;;
 "Reboot")
-    reboot
+    systemctl reboot
     ;;
 "Shutdown")
-    systemctl exit
+    systemctl poweroff
     ;;
 esac

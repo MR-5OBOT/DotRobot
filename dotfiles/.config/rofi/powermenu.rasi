@@ -51,6 +51,23 @@ mainbox {
     children:                    [ "listview" ];
 }
 
+inputbar {
+    enabled:                     false;
+}
+
+prompt {
+    enabled:                     false;
+}
+
+entry {
+    enabled:                     false;
+}
+
+textbox {
+    background-color:            transparent;
+    text-color:                  inherit;
+}
+
 listview {
     enabled:                     true;
     cycle:                       true;
@@ -84,6 +101,16 @@ element {
     cursor:                      pointer;
 }
 
+element selected {
+    background-color:            @selected-normal-background;
+    text-color:                  @selected-normal-foreground;
+}
+
+element-text {
+    background-color:            transparent;
+    text-color:                  inherit;
+}
+
 error-message {
     padding:                     10px;
     border:                      0px solid;
@@ -96,4 +123,3 @@ listview {
   columns: 1;
   lines: 3;
 }
-
