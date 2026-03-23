@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=MNQ Position Sizer
-Comment=My Python app for contract sizing
-Exec=/home/mr5obot/repos/projects/MNQ_position_sizer/dist/main/main
-Icon=utilities-terminal
-Terminal=false
-Type=Application
-Categories=Utility;

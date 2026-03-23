@@ -1,9 +1,0 @@
-#!/usr/bin/env xdg-open
-[Desktop Entry]
-Version=1.0
-Terminal=false
-Type=Application
-Name=TradingView
-Exec=/opt/brave.com/brave-nightly/brave-browser-nightly --profile-directory=Default --app-id=knojlbibkfmpiekeiifbljpfojlioonl
-Icon=brave-knojlbibkfmpiekeiifbljpfojlioonl-Default
-StartupWMClass=crx_knojlbibkfmpiekeiifbljpfojlioonl

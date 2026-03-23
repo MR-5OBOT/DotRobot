@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=Risk Model Simulator
-Comment=My Python app to simulat diff risk models
-Exec=/home/mr5obot/repos/projects/risk-model-tester/dist/risk_model_sim_gui
-Icon=utilities-terminal
-Terminal=false
-Type=Application
-Categories=Utility;
