@@ -80,3 +80,8 @@ f() {
 
 bindkey '^ ' autosuggest-accept
 bindkey '^[[C' forward-word
+
+bindkey -v
+export KEYTIMEOUT=1
+bindkey -M viins '^?' backward-delete-char
+bindkey -M viins '^H' backward-delete-char
