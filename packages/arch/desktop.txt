@@ -45,7 +45,6 @@ rofi
 slurp
 swaybg
 swaync
-swappy
 speedtest-cli
 thunar
 thunar-archive-plugin
@@ -64,4 +63,3 @@ yt-dlp
 zathura
 zathura-pdf-mupdf
 ttf-iosevkaterm-nerd
-hyprshot
