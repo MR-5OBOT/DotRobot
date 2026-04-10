@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+WINEPREFIX="${MT5_WINEPREFIX:-$HOME/.mt5}"
+INSTALL_DIR="${MT5_INSTALL_DIR:-$WINEPREFIX/drive_c/Program Files/MetaTrader 5}"
+TERMINAL_EXE="${MT5_EXE:-$INSTALL_DIR/terminal64.exe}"
+
+if [[ ! -x "${TERMINAL_EXE}" ]]; then
+  message="MetaTrader 5 executable not found: ${TERMINAL_EXE}"
+  if command -v notify-send >/dev/null 2>&1; then
+    notify-send -u critical "MetaTrader 5 launch failed" "${message}"
+  fi
+  printf '%s\n' "${message}" >&2
+  exit 1
+fi
+
+export WINEPREFIX
+export WINEARCH="${WINEARCH:-win64}"
+export WINEDEBUG="${WINEDEBUG:--all}"
+
+if [[ -n "${WINEDLLOVERRIDES:-}" ]]; then
+  export WINEDLLOVERRIDES="${WINEDLLOVERRIDES};winemenubuilder.exe=d"
+else
+  export WINEDLLOVERRIDES="winemenubuilder.exe=d"
+fi
+
+cd "${INSTALL_DIR}"
+exec wine "${TERMINAL_EXE}" "$@"
