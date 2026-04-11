@@ -1,0 +1,1280 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+program_name="${0##*/}"
+
+default_server="${EASY_RDP_SERVER:-185.190.140.81}"
+default_port="${EASY_RDP_PORT:-}"
+default_user="${EASY_RDP_USER:-.\\administrator}"
+default_network="${EASY_RDP_NETWORK:-auto}"
+default_bpp="${EASY_RDP_BPP:-auto}"
+default_cert="${EASY_RDP_CERT:-tofu}"
+default_size="${EASY_RDP_SIZE:-}"
+default_fullscreen="${EASY_RDP_FULLSCREEN:-auto}"
+default_profile="${EASY_RDP_PROFILE:-auto}"
+default_audio="${EASY_RDP_AUDIO:-auto}"
+default_dynamic_resolution="${EASY_RDP_DYNAMIC_RESOLUTION:-auto}"
+default_cache="${EASY_RDP_CACHE:-auto}"
+default_gdi="${EASY_RDP_GDI:-auto}"
+default_gfx="${EASY_RDP_GFX:-auto}"
+default_share="${EASY_RDP_SHARE:-auto}"
+
+die() {
+  printf '%s: %s\n' "${program_name}" "$*" >&2
+  exit 1
+}
+
+usage() {
+  cat <<EOF
+Usage: ${program_name} [options] [xfreerdp args...]
+
+Launch xfreerdp3 (or xfreerdp) with system-aware defaults tuned for Linux:
+  auto network tuning, reconnect, async updates, dynamic resolution,
+  JPEG/compression tuning, clipboard, audio backend detection, and a
+  fullscreen/window-size recommendation based on the current display.
+
+If you run ${program_name} without arguments in a terminal, it prompts for the
+server, port, username and display mode before connecting.
+
+Options:
+  -s, --server HOST        RDP server or IP address
+      --port PORT          RDP port
+  -u, --user USER          Username, for example '.\\administrator'
+  -f, --fullscreen         Start in fullscreen
+      --windowed           Force windowed mode
+      --size WxH           Window size, for example 1280x720
+      --profile MODE       auto, balanced, quality, performance, low-bandwidth
+      --network TYPE       auto, lan, wan, broadband, broadband-low, ...
+      --bpp DEPTH          auto or a numeric color depth like 16, 24 or 32
+      --audio MODE         auto, off, pulse, alsa
+      --cache MODE         auto, off, memory, on, persist
+      --gdi MODE           auto, hw, sw
+      --gfx MODE           auto, off, avc
+      --share SPEC         Share a folder; use PATH or NAME=PATH
+      --no-share           Disable the default shared folder
+      --cert MODE          Certificate mode, for example tofu or ignore
+      --dynamic-resolution Enable dynamic resolution explicitly
+      --no-dynamic-resolution
+                           Disable dynamic resolution explicitly
+      --prompt             Always prompt for connection values
+      --no-prompt          Never prompt; use args/env/defaults directly
+      --show-specs         Print detected host tuning and exit
+  -n, --dry-run            Print the xfreerdp command and exit
+  -h, --help               Show this help
+
+Notes:
+  - Passwords are intentionally not accepted as a script flag to avoid leaking
+    them through shell history or process lists. xfreerdp will prompt when the
+    server requests credentials.
+  - Extra xfreerdp flags can be appended directly, for example:
+      ${program_name} --server 10.0.0.15 -- /clipboard /sound:sys:pulse
+
+Environment overrides:
+  EASY_RDP_SERVER, EASY_RDP_PORT, EASY_RDP_USER, EASY_RDP_NETWORK,
+  EASY_RDP_BPP, EASY_RDP_CERT, EASY_RDP_SIZE, EASY_RDP_FULLSCREEN,
+  EASY_RDP_PROFILE, EASY_RDP_AUDIO, EASY_RDP_DYNAMIC_RESOLUTION,
+  EASY_RDP_CACHE, EASY_RDP_GDI, EASY_RDP_GFX, EASY_RDP_SHARE
+EOF
+}
+
+trim() {
+  local value="${1-}"
+  value="${value#"${value%%[![:space:]]*}"}"
+  value="${value%"${value##*[![:space:]]}"}"
+  printf '%s' "${value}"
+}
+
+require_value() {
+  local option="$1"
+  local value="${2-}"
+
+  [[ -n "${value}" ]] || die "${option} requires a value"
+}
+
+normalize_toggle() {
+  local value="${1-}"
+  value="${value,,}"
+
+  case "${value}" in
+    1|true|yes|y|on) printf 'true' ;;
+    0|false|no|n|off) printf 'false' ;;
+    auto|"") printf 'auto' ;;
+    *) die "invalid toggle value: ${1}" ;;
+  esac
+}
+
+validate_port() {
+  local value="$1"
+
+  [[ -z "${value}" ]] && return 0
+  [[ "${value}" =~ ^[0-9]+$ ]] || die "invalid port: ${value}"
+  (( value >= 1 && value <= 65535 )) || die "port must be between 1 and 65535"
+}
+
+validate_bpp() {
+  local value="$1"
+
+  [[ "${value}" == "auto" ]] && return 0
+  [[ "${value}" =~ ^[0-9]+$ ]] || die "invalid bpp value: ${value}"
+}
+
+validate_network() {
+  local value="$1"
+
+  case "${value}" in
+    auto|invalid|modem|broadband|broadband-low|broadband-high|wan|lan) ;;
+    *) die "invalid network profile: ${value}" ;;
+  esac
+}
+
+validate_profile() {
+  local value="$1"
+
+  case "${value}" in
+    auto|balanced|quality|performance|low-bandwidth) ;;
+    *) die "invalid profile: ${value}" ;;
+  esac
+}
+
+validate_audio_mode() {
+  local value="$1"
+
+  case "${value}" in
+    auto|off|pulse|alsa) ;;
+    *) die "invalid audio mode: ${value}" ;;
+  esac
+}
+
+validate_cache_mode() {
+  local value="$1"
+
+  case "${value}" in
+    auto|off|memory|on|persist) ;;
+    *) die "invalid cache mode: ${value}" ;;
+  esac
+}
+
+validate_gdi_mode() {
+  local value="$1"
+
+  case "${value}" in
+    auto|hw|sw) ;;
+    *) die "invalid gdi mode: ${value}" ;;
+  esac
+}
+
+validate_gfx_mode() {
+  local value="$1"
+
+  case "${value}" in
+    auto|off|avc) ;;
+    *) die "invalid gfx mode: ${value}" ;;
+  esac
+}
+
+validate_share_mode() {
+  local value="$1"
+
+  [[ -n "${value}" ]] || die "invalid share setting"
+}
+
+validate_size() {
+  local value="$1"
+
+  [[ -z "${value}" ]] && return 0
+  [[ "${value}" =~ ^[0-9]+x[0-9]+$ ]] || die "size must look like WIDTHxHEIGHT, for example 1280x720"
+}
+
+pick_rdp_client() {
+  if command -v xfreerdp3 >/dev/null 2>&1; then
+    command -v xfreerdp3
+    return
+  fi
+
+  if command -v xfreerdp >/dev/null 2>&1; then
+    command -v xfreerdp
+    return
+  fi
+
+  die "xfreerdp3 (or xfreerdp) is not installed or not in PATH"
+}
+
+detect_os_name() {
+  if [[ -r /etc/os-release ]]; then
+    while IFS='=' read -r key value; do
+      if [[ "${key}" == "PRETTY_NAME" ]]; then
+        value="${value%\"}"
+        value="${value#\"}"
+        printf '%s' "${value}"
+        return
+      fi
+    done < /etc/os-release
+  fi
+
+  printf 'Linux'
+}
+
+detect_cpu_threads() {
+  getconf _NPROCESSORS_ONLN 2>/dev/null || printf '1'
+}
+
+detect_total_mem_mib() {
+  local mem_kib
+
+  mem_kib="$(awk '/^MemTotal:/ { print $2; exit }' /proc/meminfo 2>/dev/null || printf '0')"
+  [[ -n "${mem_kib}" ]] || mem_kib=0
+  printf '%s' "$(( mem_kib / 1024 ))"
+}
+
+detect_power_state() {
+  local ac_file
+
+  for ac_file in /sys/class/power_supply/AC*/online; do
+    [[ -e "${ac_file}" ]] || continue
+    if [[ "$(cat "${ac_file}" 2>/dev/null)" == "1" ]]; then
+      printf 'ac'
+      return
+    fi
+  done
+
+  if compgen -G '/sys/class/power_supply/BAT*/status' >/dev/null 2>&1; then
+    printf 'battery'
+    return
+  fi
+
+  printf 'unknown'
+}
+
+detect_session_type() {
+  printf '%s' "${XDG_SESSION_TYPE:-unknown}"
+}
+
+detect_desktop_session() {
+  if [[ -n "${DESKTOP_SESSION:-}" ]]; then
+    printf '%s' "${DESKTOP_SESSION}"
+  else
+    printf 'unknown'
+  fi
+}
+
+detect_screen_size() {
+  local status_file mode_file mode best_mode="" best_area=0
+  local width height area
+
+  for status_file in /sys/class/drm/card*-*/status; do
+    [[ -e "${status_file}" ]] || continue
+    [[ "$(cat "${status_file}" 2>/dev/null)" == "connected" ]] || continue
+
+    mode_file="${status_file%/status}/modes"
+    [[ -r "${mode_file}" ]] || continue
+
+    while IFS= read -r mode; do
+      [[ "${mode}" =~ ^([0-9]+)x([0-9]+)$ ]] || continue
+      width="${BASH_REMATCH[1]}"
+      height="${BASH_REMATCH[2]}"
+      area=$(( width * height ))
+      if (( area > best_area )); then
+        best_area="${area}"
+        best_mode="${mode}"
+      fi
+    done < "${mode_file}"
+  done
+
+  printf '%s' "${best_mode}"
+}
+
+detect_audio_backend() {
+  local uid runtime_dir pulse_socket
+
+  uid="$(id -u)"
+  runtime_dir="${XDG_RUNTIME_DIR:-/run/user/${uid}}"
+  pulse_socket="${runtime_dir}/pulse/native"
+
+  if [[ -S "${pulse_socket}" || -S "/run/user/${uid}/pulse/native" ]]; then
+    printf 'pulse'
+    return
+  fi
+
+  if [[ -r /proc/asound/cards ]] && ! grep -qi 'no soundcards' /proc/asound/cards; then
+    printf 'alsa'
+    return
+  fi
+
+  printf 'off'
+}
+
+detect_downloads_dir() {
+  local downloads_dir=""
+
+  if command -v xdg-user-dir >/dev/null 2>&1; then
+    downloads_dir="$(xdg-user-dir DOWNLOAD 2>/dev/null || true)"
+  fi
+
+  downloads_dir="$(trim "${downloads_dir}")"
+
+  if [[ -z "${downloads_dir}" ]]; then
+    downloads_dir="${HOME}/Downloads"
+  fi
+
+  printf '%s' "${downloads_dir}"
+}
+
+is_private_ipv4() {
+  local host="$1"
+  local second_octet
+
+  case "${host}" in
+    10.*|127.*|192.168.*|169.254.*) return 0 ;;
+    172.*)
+      second_octet="${host#172.}"
+      second_octet="${second_octet%%.*}"
+      [[ "${second_octet}" =~ ^[0-9]+$ ]] || return 1
+      (( second_octet >= 16 && second_octet <= 31 ))
+      return
+      ;;
+  esac
+
+  return 1
+}
+
+is_localish_host() {
+  local host="${1,,}"
+
+  case "${host}" in
+    localhost|*.local|*.lan|*.home|*.internal|*.localdomain) return 0 ;;
+    ::1|fe80:*|fc*|fd*) return 0 ;;
+  esac
+
+  is_private_ipv4 "${host}"
+}
+
+resolve_network_profile() {
+  local requested="$1"
+  local host="$2"
+
+  if [[ "${requested}" != "auto" ]]; then
+    printf '%s' "${requested}"
+    return
+  fi
+
+  if is_localish_host "${host}"; then
+    printf 'lan'
+  else
+    printf 'wan'
+  fi
+}
+
+resolve_profile() {
+  local requested="$1"
+  local power_state="$2"
+  local mem_mib="$3"
+  local network_profile="$4"
+  local screen_width="$5"
+
+  if [[ "${requested}" != "auto" ]]; then
+    printf '%s' "${requested}"
+    return
+  fi
+
+  if [[ "${power_state}" == "battery" || "${mem_mib}" -lt 6144 ]]; then
+    printf 'performance'
+    return
+  fi
+
+  if [[ "${network_profile}" == "lan" && "${screen_width}" -ge 1920 ]]; then
+    printf 'quality'
+    return
+  fi
+
+  printf 'balanced'
+}
+
+resolve_bpp() {
+  local requested="$1"
+  local profile="$2"
+  local network_profile="$3"
+  local power_state="$4"
+
+  if [[ "${requested}" != "auto" ]]; then
+    printf '%s' "${requested}"
+    return
+  fi
+
+  case "${profile}" in
+    quality)
+      if [[ "${network_profile}" == "lan" && "${power_state}" == "ac" ]]; then
+        printf '32'
+      else
+        printf '24'
+      fi
+      ;;
+    performance|low-bandwidth)
+      printf '16'
+      ;;
+    balanced)
+      if [[ "${network_profile}" == "lan" && "${power_state}" == "ac" ]]; then
+        printf '24'
+      else
+        printf '16'
+      fi
+      ;;
+    *)
+      printf '16'
+      ;;
+  esac
+}
+
+resolve_compression_level() {
+  local profile="$1"
+  local network_profile="$2"
+
+  if [[ "${profile}" == "quality" && "${network_profile}" == "lan" ]]; then
+    printf '1'
+  else
+    printf '2'
+  fi
+}
+
+resolve_jpeg_quality() {
+  local profile="$1"
+  local network_profile="$2"
+
+  case "${profile}" in
+    quality)
+      if [[ "${network_profile}" == "lan" ]]; then
+        printf '90'
+      else
+        printf '82'
+      fi
+      ;;
+    balanced)
+      if [[ "${network_profile}" == "lan" ]]; then
+        printf '82'
+      else
+        printf '70'
+      fi
+      ;;
+    performance)
+      printf '60'
+      ;;
+    low-bandwidth)
+      printf '45'
+      ;;
+    *)
+      printf '70'
+      ;;
+  esac
+}
+
+resolve_audio_mode() {
+  local requested="$1"
+  local detected="$2"
+
+  if [[ "${requested}" == "auto" ]]; then
+    printf '%s' "${detected}"
+  else
+    printf '%s' "${requested}"
+  fi
+}
+
+resolve_cache_mode() {
+  local requested="$1"
+  local session_type="$2"
+  local network_profile="$3"
+
+  case "${requested}" in
+    on) printf 'persist' ;;
+    persist|memory|off) printf '%s' "${requested}" ;;
+    auto)
+      if [[ "${session_type}" == "wayland" ]]; then
+        printf 'off'
+      elif [[ "${network_profile}" == "lan" ]]; then
+        printf 'persist'
+      else
+        printf 'memory'
+      fi
+      ;;
+    *)
+      printf '%s' "${requested}"
+      ;;
+  esac
+}
+
+resolve_cache_codec() {
+  local profile="$1"
+  local network_profile="$2"
+
+  if [[ "${profile}" == "quality" && "${network_profile}" == "lan" ]]; then
+    printf 'nsc'
+  else
+    printf 'rfx'
+  fi
+}
+
+resolve_gdi_mode() {
+  local requested="$1"
+  local session_type="$2"
+  local gfx_mode="$3"
+
+  if [[ "${requested}" != "auto" ]]; then
+    printf '%s' "${requested}"
+    return
+  fi
+
+  if [[ "${session_type}" == "wayland" || "${gfx_mode}" == "off" ]]; then
+    printf 'sw'
+  elif [[ "${session_type}" == "x11" ]]; then
+    printf 'hw'
+  else
+    printf 'sw'
+  fi
+}
+
+resolve_dynamic_resolution() {
+  local requested="$1"
+  local session_type="$2"
+
+  if [[ "${requested}" == "true" || "${requested}" == "false" ]]; then
+    printf '%s' "${requested}"
+    return
+  fi
+
+  case "${session_type}" in
+    wayland|x11) printf 'true' ;;
+    *) printf 'false' ;;
+  esac
+}
+
+resolve_gfx_mode() {
+  local requested="$1"
+  local session_type="$2"
+  local network_profile="$3"
+  local profile="$4"
+
+  if [[ "${requested}" != "auto" ]]; then
+    printf '%s' "${requested}"
+    return
+  fi
+
+  if [[ "${session_type}" == "wayland" ]]; then
+    printf 'off'
+    return
+  fi
+
+  if [[ "${network_profile}" == "lan" && "${profile}" != "low-bandwidth" && "${profile}" != "performance" ]]; then
+    printf 'avc'
+  else
+    printf 'off'
+  fi
+}
+
+resolve_gfx_spec() {
+  local gfx_mode="$1"
+  local profile="$2"
+  local network_profile="$3"
+  local mem_mib="$4"
+  local cpu_threads="$5"
+  local small_cache="off"
+  local thin_client="off"
+
+  if [[ "${gfx_mode}" == "off" ]]; then
+    printf ''
+    return
+  fi
+
+  if [[ "${profile}" == "performance" || "${profile}" == "low-bandwidth" || "${network_profile}" != "lan" || "${mem_mib}" -lt 8192 || "${cpu_threads}" -le 4 ]]; then
+    small_cache="on"
+    thin_client="on"
+  fi
+
+  printf 'AVC420:on,AVC444:off,progressive:on,small-cache:%s,thin-client:%s,frame-ack:on' "${small_cache}" "${thin_client}"
+}
+
+sanitize_cache_component() {
+  local value="$1"
+  local sanitized
+
+  sanitized="$(printf '%s' "${value}" | tr -cs '[:alnum:]._-' '_')"
+  sanitized="${sanitized##_}"
+  sanitized="${sanitized%%_}"
+
+  if [[ -z "${sanitized}" ]]; then
+    sanitized="session"
+  fi
+
+  printf '%s' "${sanitized}"
+}
+
+sanitize_share_name() {
+  local value="$1"
+  local sanitized
+
+  sanitized="$(trim "${value}")"
+  sanitized="$(printf '%s' "${sanitized}" | tr -cs '[:alnum:]._-' '_')"
+  sanitized="${sanitized##_}"
+  sanitized="${sanitized%%_}"
+
+  if [[ -z "${sanitized}" ]]; then
+    sanitized="share"
+  fi
+
+  printf '%s' "${sanitized}"
+}
+
+resolve_share_name_from_path() {
+  local path="$1"
+  local basename_value
+
+  basename_value="${path%/}"
+  basename_value="${basename_value##*/}"
+
+  if [[ -z "${basename_value}" || "${basename_value}" == "." || "${basename_value}" == ".." ]]; then
+    basename_value="share"
+  fi
+
+  sanitize_share_name "${basename_value}"
+}
+
+resolve_share_spec() {
+  local requested="$1"
+  local downloads_dir="$2"
+  local share_name
+  local share_path
+
+  resolved_share_name=""
+  resolved_share_path=""
+
+  case "${requested}" in
+    off)
+      return
+      ;;
+    auto|"")
+      if [[ -d "${downloads_dir}" ]]; then
+        resolved_share_name="downloads"
+        resolved_share_path="${downloads_dir}"
+      fi
+      return
+      ;;
+    *=*)
+      share_name="${requested%%=*}"
+      share_path="${requested#*=}"
+      share_name="$(sanitize_share_name "${share_name}")"
+      share_path="$(trim "${share_path}")"
+      ;;
+    *)
+      share_path="$(trim "${requested}")"
+      share_name="$(resolve_share_name_from_path "${share_path}")"
+      ;;
+  esac
+
+  [[ -n "${share_path}" ]] || die "share path must not be empty"
+  [[ -d "${share_path}" ]] || die "share path does not exist or is not a directory: ${share_path}"
+
+  resolved_share_name="${share_name}"
+  resolved_share_path="${share_path}"
+}
+
+cache_state_dir() {
+  printf '%s' "${XDG_STATE_HOME:-$HOME/.local/state}/easyRdp"
+}
+
+build_cache_file() {
+  local target="$1"
+  local user="$2"
+  local cache_codec="$3"
+  local gfx_mode="$4"
+  local cache_dir
+  local safe_target
+  local safe_user
+  local safe_codec
+  local safe_gfx
+
+  cache_dir="$(cache_state_dir)"
+  safe_target="$(sanitize_cache_component "${target}")"
+  safe_user="$(sanitize_cache_component "${user}")"
+  safe_codec="$(sanitize_cache_component "${cache_codec}")"
+  safe_gfx="$(sanitize_cache_component "${gfx_mode}")"
+  printf '%s/%s__%s__%s__%s.bmc' "${cache_dir}" "${safe_target}" "${safe_user}" "${safe_codec}" "${safe_gfx}"
+}
+
+split_size() {
+  local size="$1"
+
+  printf '%s %s' "${size%x*}" "${size#*x}"
+}
+
+recommended_window_size() {
+  local detected_size="$1"
+  local width height
+
+  if [[ -z "${detected_size}" ]]; then
+    printf '1280x720'
+    return
+  fi
+
+  read -r width height <<< "$(split_size "${detected_size}")"
+
+  if (( width >= 2560 )); then
+    printf '1920x1080'
+  elif (( width >= 1920 )); then
+    printf '1600x900'
+  elif (( width >= 1600 )); then
+    printf '1366x768'
+  elif (( width >= 1366 )); then
+    printf '1280x720'
+  elif (( width >= 1280 )); then
+    printf '1152x648'
+  else
+    printf '%s' "${detected_size}"
+  fi
+}
+
+recommended_fullscreen() {
+  local detected_size="$1"
+  local width height
+
+  if [[ -z "${detected_size}" ]]; then
+    printf 'false'
+    return
+  fi
+
+  read -r width height <<< "$(split_size "${detected_size}")"
+
+  if (( width <= 1366 || height <= 768 )); then
+    printf 'true'
+  else
+    printf 'false'
+  fi
+}
+
+print_specs() {
+  local client="$1"
+  local os_name="$2"
+  local session_type="$3"
+  local desktop_session="$4"
+  local screen_size="$5"
+  local power_state="$6"
+  local cpu_threads="$7"
+  local mem_mib="$8"
+  local detected_audio="$9"
+  local resolved_network="${10}"
+  local resolved_profile="${11}"
+  local resolved_bpp="${12}"
+  local resolved_audio="${13}"
+  local resolved_dynamic_resolution="${14}"
+  local resolved_fullscreen="${15}"
+  local resolved_size="${16}"
+  local jpeg_quality="${17}"
+  local compression_level="${18}"
+  local host="${19}"
+  local resolved_cache="${20}"
+  local resolved_cache_codec="${21}"
+  local cache_file="${22}"
+  local resolved_gdi="${23}"
+  local gfx_spec="${24}"
+  local resolved_gfx_mode="${25}"
+  local resolved_share_name="${26}"
+  local resolved_share_path="${27}"
+
+  printf 'Host detection:\n'
+  printf '  client: %s\n' "${client##*/}"
+  printf '  os: %s\n' "${os_name}"
+  printf '  session: %s (%s)\n' "${session_type}" "${desktop_session}"
+  printf '  screen: %s\n' "${screen_size:-unknown}"
+  printf '  power: %s\n' "${power_state}"
+  printf '  cpu threads: %s\n' "${cpu_threads}"
+  printf '  memory: %s MiB\n' "${mem_mib}"
+  printf '  detected audio: %s\n' "${detected_audio}"
+  printf '\n'
+  printf 'Resolved tuning for %s:\n' "${host}"
+  printf '  profile: %s\n' "${resolved_profile}"
+  printf '  network: %s\n' "${resolved_network}"
+  printf '  bpp: %s\n' "${resolved_bpp}"
+  printf '  audio: %s\n' "${resolved_audio}"
+  printf '  dynamic resolution: %s\n' "${resolved_dynamic_resolution}"
+  printf '  fullscreen: %s\n' "${resolved_fullscreen}"
+  printf '  size: %s\n' "${resolved_size:-auto}"
+  printf '  jpeg quality: %s\n' "${jpeg_quality}"
+  printf '  compression level: %s\n' "${compression_level}"
+  printf '  cache: %s\n' "${resolved_cache}"
+  printf '  cache codec: %s\n' "${resolved_cache_codec}"
+  printf '  cache file: %s\n' "${cache_file:-disabled}"
+  printf '  gdi: %s\n' "${resolved_gdi}"
+  printf '  gfx mode: %s\n' "${resolved_gfx_mode}"
+  printf '  gfx: %s\n' "${gfx_spec:-disabled}"
+  printf '  share: %s\n' "${resolved_share_name:-disabled}"
+  printf '  share path: %s\n' "${resolved_share_path:-disabled}"
+  printf '  cert policy: %s\n' "${cert}"
+}
+
+prompt_with_default() {
+  local label="$1"
+  local default_value="$2"
+  local reply
+
+  read -r -p "${label} [${default_value}]: " reply || true
+  reply="$(trim "${reply}")"
+
+  if [[ -z "${reply}" ]]; then
+    printf '%s' "${default_value}"
+  else
+    printf '%s' "${reply}"
+  fi
+}
+
+prompt_optional() {
+  local label="$1"
+  local default_value="$2"
+  local reply
+
+  if [[ -n "${default_value}" ]]; then
+    read -r -p "${label} [${default_value}]: " reply || true
+  else
+    read -r -p "${label}: " reply || true
+  fi
+
+  reply="$(trim "${reply}")"
+
+  if [[ -z "${reply}" ]]; then
+    printf '%s' "${default_value}"
+  else
+    printf '%s' "${reply}"
+  fi
+}
+
+prompt_yes_no() {
+  local label="$1"
+  local default_choice="$2"
+  local suffix
+  local reply
+
+  case "${default_choice}" in
+    true) suffix="Y/n" ;;
+    false) suffix="y/N" ;;
+    *) die "invalid yes/no default: ${default_choice}" ;;
+  esac
+
+  while true; do
+    read -r -p "${label} [${suffix}]: " reply || true
+    reply="$(trim "${reply}")"
+    reply="${reply,,}"
+
+    if [[ -z "${reply}" ]]; then
+      [[ "${default_choice}" == "true" ]]
+      return
+    fi
+
+    case "${reply}" in
+      y|yes) return 0 ;;
+      n|no) return 1 ;;
+    esac
+
+    printf 'Please answer yes or no.\n' >&2
+  done
+}
+
+client="$(pick_rdp_client)"
+os_name="$(detect_os_name)"
+session_type="$(detect_session_type)"
+desktop_session="$(detect_desktop_session)"
+screen_size="$(detect_screen_size)"
+power_state="$(detect_power_state)"
+cpu_threads="$(detect_cpu_threads)"
+mem_mib="$(detect_total_mem_mib)"
+detected_audio="$(detect_audio_backend)"
+recommended_size="$(recommended_window_size "${screen_size}")"
+recommended_fullscreen_default="$(recommended_fullscreen "${screen_size}")"
+downloads_dir="$(detect_downloads_dir)"
+
+server="${default_server}"
+port="${default_port}"
+user="${default_user}"
+network="${default_network}"
+bpp="${default_bpp}"
+cert="${default_cert}"
+size="${default_size}"
+fullscreen_mode="$(normalize_toggle "${default_fullscreen}")"
+profile="${default_profile}"
+audio="${default_audio}"
+dynamic_resolution_mode="$(normalize_toggle "${default_dynamic_resolution}")"
+cache_mode="${default_cache}"
+gdi_mode="${default_gdi}"
+gfx_mode="${default_gfx}"
+share_mode="${default_share}"
+prompt_mode="auto"
+dry_run=false
+show_specs=false
+explicit_options=false
+passthrough_args=()
+
+validate_network "${network}"
+validate_bpp "${bpp}"
+validate_profile "${profile}"
+validate_audio_mode "${audio}"
+validate_cache_mode "${cache_mode}"
+validate_gdi_mode "${gdi_mode}"
+validate_gfx_mode "${gfx_mode}"
+validate_share_mode "${share_mode}"
+validate_size "${size}"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -s|--server)
+      shift
+      require_value "--server" "${1-}"
+      server="$1"
+      explicit_options=true
+      ;;
+    --port)
+      shift
+      require_value "--port" "${1-}"
+      port="$1"
+      explicit_options=true
+      ;;
+    -u|--user)
+      shift
+      require_value "--user" "${1-}"
+      user="$1"
+      explicit_options=true
+      ;;
+    -f|--fullscreen)
+      fullscreen_mode="true"
+      size=""
+      explicit_options=true
+      ;;
+    --windowed)
+      fullscreen_mode="false"
+      explicit_options=true
+      ;;
+    --size)
+      shift
+      require_value "--size" "${1-}"
+      size="$1"
+      fullscreen_mode="false"
+      explicit_options=true
+      ;;
+    --profile)
+      shift
+      require_value "--profile" "${1-}"
+      profile="$1"
+      explicit_options=true
+      ;;
+    --network)
+      shift
+      require_value "--network" "${1-}"
+      network="$1"
+      explicit_options=true
+      ;;
+    --bpp)
+      shift
+      require_value "--bpp" "${1-}"
+      bpp="$1"
+      explicit_options=true
+      ;;
+    --audio)
+      shift
+      require_value "--audio" "${1-}"
+      audio="$1"
+      explicit_options=true
+      ;;
+    --cache)
+      shift
+      require_value "--cache" "${1-}"
+      cache_mode="$1"
+      explicit_options=true
+      ;;
+    --gdi)
+      shift
+      require_value "--gdi" "${1-}"
+      gdi_mode="$1"
+      explicit_options=true
+      ;;
+    --gfx)
+      shift
+      require_value "--gfx" "${1-}"
+      gfx_mode="$1"
+      explicit_options=true
+      ;;
+    --share)
+      shift
+      require_value "--share" "${1-}"
+      share_mode="$1"
+      explicit_options=true
+      ;;
+    --no-share)
+      share_mode="off"
+      explicit_options=true
+      ;;
+    --cert)
+      shift
+      require_value "--cert" "${1-}"
+      cert="$1"
+      explicit_options=true
+      ;;
+    --dynamic-resolution)
+      dynamic_resolution_mode="true"
+      explicit_options=true
+      ;;
+    --no-dynamic-resolution)
+      dynamic_resolution_mode="false"
+      explicit_options=true
+      ;;
+    --show-specs)
+      show_specs=true
+      prompt_mode="never"
+      ;;
+    --prompt)
+      prompt_mode="always"
+      ;;
+    --no-prompt)
+      prompt_mode="never"
+      ;;
+    -n|--dry-run)
+      dry_run=true
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      passthrough_args+=("$@")
+      break
+      ;;
+    --*)
+      die "unknown option: $1"
+      ;;
+    /*|+*)
+      passthrough_args+=("$1")
+      ;;
+    -*)
+      passthrough_args+=("$1")
+      ;;
+    *)
+      if [[ "${server}" == "${default_server}" ]]; then
+        server="$1"
+        explicit_options=true
+      else
+        passthrough_args+=("$1")
+      fi
+      ;;
+  esac
+  shift
+done
+
+validate_port "${port}"
+validate_network "${network}"
+validate_bpp "${bpp}"
+validate_profile "${profile}"
+validate_audio_mode "${audio}"
+validate_cache_mode "${cache_mode}"
+validate_gdi_mode "${gdi_mode}"
+validate_gfx_mode "${gfx_mode}"
+validate_share_mode "${share_mode}"
+validate_size "${size}"
+
+should_prompt=false
+case "${prompt_mode}" in
+  always)
+    should_prompt=true
+    ;;
+  never)
+    should_prompt=false
+    ;;
+  auto)
+    if [[ "${explicit_options}" == false && -t 0 ]]; then
+      should_prompt=true
+    fi
+    ;;
+  *)
+    die "invalid prompt mode: ${prompt_mode}"
+    ;;
+esac
+
+if [[ "${should_prompt}" == true ]]; then
+  [[ -t 0 ]] || die "cannot prompt without an interactive terminal"
+
+  server="$(prompt_with_default "Server or IP" "${server}")"
+  port="$(prompt_optional "Port (leave blank for default RDP port)" "${port}")"
+  user="$(prompt_with_default "Username" "${user}")"
+
+  if [[ "${fullscreen_mode}" == "auto" ]]; then
+    fullscreen_mode="${recommended_fullscreen_default}"
+  fi
+
+  if prompt_yes_no "Use fullscreen" "${fullscreen_mode}"; then
+    fullscreen_mode="true"
+    size=""
+  else
+    fullscreen_mode="false"
+    if [[ -z "${size}" ]]; then
+      size="${recommended_size}"
+    fi
+    size="$(prompt_optional "Window size like 1280x720" "${size}")"
+  fi
+fi
+
+[[ -n "${server}" ]] || die "server must not be empty"
+[[ -n "${user}" ]] || die "user must not be empty"
+
+validate_port "${port}"
+validate_size "${size}"
+
+resolved_network="$(resolve_network_profile "${network}" "${server}")"
+screen_width="${screen_size%x*}"
+[[ "${screen_width}" =~ ^[0-9]+$ ]] || screen_width=0
+resolved_profile="$(resolve_profile "${profile}" "${power_state}" "${mem_mib}" "${resolved_network}" "${screen_width}")"
+resolved_bpp="$(resolve_bpp "${bpp}" "${resolved_profile}" "${resolved_network}" "${power_state}")"
+resolved_audio="$(resolve_audio_mode "${audio}" "${detected_audio}")"
+resolved_cache="$(resolve_cache_mode "${cache_mode}" "${session_type}" "${resolved_network}")"
+resolved_cache_codec="$(resolve_cache_codec "${resolved_profile}" "${resolved_network}")"
+resolved_gfx_mode="$(resolve_gfx_mode "${gfx_mode}" "${session_type}" "${resolved_network}" "${resolved_profile}")"
+resolved_gdi="$(resolve_gdi_mode "${gdi_mode}" "${session_type}" "${resolved_gfx_mode}")"
+resolved_dynamic_resolution="$(resolve_dynamic_resolution "${dynamic_resolution_mode}" "${session_type}")"
+gfx_spec="$(resolve_gfx_spec "${resolved_gfx_mode}" "${resolved_profile}" "${resolved_network}" "${mem_mib}" "${cpu_threads}")"
+resolve_share_spec "${share_mode}" "${downloads_dir}"
+
+if [[ "${fullscreen_mode}" == "auto" ]]; then
+  fullscreen="${recommended_fullscreen_default}"
+else
+  fullscreen="${fullscreen_mode}"
+fi
+
+if [[ "${fullscreen}" == "true" ]]; then
+  resolved_size=""
+else
+  if [[ -n "${size}" ]]; then
+    resolved_size="${size}"
+  else
+    resolved_size="${recommended_size}"
+  fi
+fi
+
+validate_bpp "${resolved_bpp}"
+validate_network "${resolved_network}"
+validate_audio_mode "${resolved_audio}"
+validate_cache_mode "${resolved_cache}"
+validate_gdi_mode "${resolved_gdi}"
+validate_gfx_mode "${resolved_gfx_mode}"
+validate_size "${resolved_size}"
+
+jpeg_quality="$(resolve_jpeg_quality "${resolved_profile}" "${resolved_network}")"
+compression_level="$(resolve_compression_level "${resolved_profile}" "${resolved_network}")"
+
+target="${server}"
+if [[ -n "${port}" ]]; then
+  target="${server}:${port}"
+fi
+
+cache_file=""
+if [[ "${resolved_cache}" == "persist" ]]; then
+  cache_file="$(build_cache_file "${target}" "${user}" "${resolved_cache_codec}" "${resolved_gfx_mode}")"
+fi
+
+if [[ "${show_specs}" == true ]]; then
+  print_specs \
+    "${client}" \
+    "${os_name}" \
+    "${session_type}" \
+    "${desktop_session}" \
+    "${screen_size}" \
+    "${power_state}" \
+    "${cpu_threads}" \
+    "${mem_mib}" \
+    "${detected_audio}" \
+    "${resolved_network}" \
+    "${resolved_profile}" \
+    "${resolved_bpp}" \
+    "${resolved_audio}" \
+    "${resolved_dynamic_resolution}" \
+    "${fullscreen}" \
+    "${resolved_size}" \
+    "${jpeg_quality}" \
+    "${compression_level}" \
+    "${target}" \
+    "${resolved_cache}" \
+    "${resolved_cache_codec}" \
+    "${cache_file}" \
+    "${resolved_gdi}" \
+    "${gfx_spec}" \
+    "${resolved_gfx_mode}" \
+    "${resolved_share_name}" \
+    "${resolved_share_path}"
+  exit 0
+fi
+
+cmd=(
+  "${client}"
+  "/v:${target}"
+  "/u:${user}"
+  "/cert:${cert}"
+  "/network:${resolved_network}"
+  "/bpp:${resolved_bpp}"
+  "/compression"
+  "/compression-level:${compression_level}"
+  "/gdi:${resolved_gdi}"
+  "+jpeg"
+  "/jpeg-quality:${jpeg_quality}"
+  "+auto-reconnect"
+  "/auto-reconnect-max-retries:20"
+  "+async-update"
+  "+async-channels"
+  "/clipboard"
+  "+disp"
+  "-wallpaper"
+  "-themes"
+  "-menu-anims"
+  "-window-drag"
+)
+
+if [[ "${resolved_cache}" == "persist" ]]; then
+  if [[ "${dry_run}" == false ]]; then
+    cache_dir="$(dirname "${cache_file}")"
+    if ! mkdir -p "${cache_dir}" 2>/dev/null; then
+      cache_file=""
+    fi
+  fi
+
+  if [[ -n "${cache_file}" ]]; then
+    cmd+=("/cache:bitmap:on,codec:${resolved_cache_codec},glyph:on,offscreen:on,persist,persist-file:${cache_file}")
+  else
+    cmd+=("/cache:bitmap:on,codec:${resolved_cache_codec},glyph:on,offscreen:on")
+  fi
+elif [[ "${resolved_cache}" == "memory" ]]; then
+  cmd+=("/cache:bitmap:on,codec:${resolved_cache_codec},glyph:on,offscreen:on")
+fi
+
+if [[ -n "${gfx_spec}" ]]; then
+  cmd+=("/gfx:${gfx_spec}")
+fi
+
+if [[ -n "${resolved_share_path}" ]]; then
+  cmd+=("/drive:${resolved_share_name},${resolved_share_path}")
+fi
+
+if [[ "${resolved_dynamic_resolution}" == "true" ]]; then
+  cmd+=("+dynamic-resolution")
+fi
+
+if [[ "${resolved_audio}" == "pulse" || "${resolved_audio}" == "alsa" ]]; then
+  cmd+=("/sound:sys:${resolved_audio}")
+fi
+
+if [[ "${fullscreen}" == "true" ]]; then
+  cmd+=("+f")
+else
+  read -r width height <<< "$(split_size "${resolved_size}")"
+  cmd+=("/w:${width}" "/h:${height}")
+fi
+
+cmd+=("${passthrough_args[@]}")
+
+if [[ "${dry_run}" == true ]]; then
+  printf 'Command:\n'
+  printf '  '
+  printf '%q ' "${cmd[@]}"
+  printf '\n'
+  exit 0
+fi
+
+exec "${cmd[@]}"
