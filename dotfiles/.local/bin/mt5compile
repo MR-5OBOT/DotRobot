@@ -11,7 +11,7 @@
 set -euo pipefail
 
 # ── Config ──────────────────────────────────────────────────────────
-SRC_ROOT="${SRC_ROOT:-$HOME/repos/Quant_Tester}"
+SRC_ROOT="${SRC_ROOT:-$HOME/repos/fsociety_algos}"
 WINEPREFIX_DEFAULT="$HOME/.mt5"
 MT5_ROOT_DEFAULT="$WINEPREFIX_DEFAULT/drive_c/Program Files/MetaTrader 5"
 METAEDITOR="${METAEDITOR:-$MT5_ROOT_DEFAULT/MetaEditor64.exe}"
@@ -72,6 +72,11 @@ compile_and_deploy() {
 
    install -m 644 "$ex5" "$dest_dir/"
    echo "  Deployed: $dest_dir/$(basename "$ex5")"
+
+   # Clean build artefacts from source dir — keep it mq5-only
+   rm -f "$ex5"
+   [[ -f "$log" ]] && rm -f "$log"
+   echo "  Cleaned:  $(basename "$ex5") + log removed from source"
 
    # Copy any local .mqh helpers referenced via #include "..."
    local src_dir inc rel target
