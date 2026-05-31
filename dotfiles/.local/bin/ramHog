@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+BLD='\033[1m'; RST='\033[0m'
+GRN='\033[0;32m'; YEL='\033[0;33m'; RED='\033[0;31m'
+
+echo
+echo -e "${BLD}── RAM by Application (all instances summed) ────────${RST}"
+printf "\n  ${BLD}%-20s %10s %8s${RST}\n" "APP" "Total MiB" "Instances"
+echo "  ──────────────────────────────────────────"
+
+ps -eo comm,rss --no-headers \
+  | awk '{sum[$1]+=$2; count[$1]++} END {for(k in sum) printf "%s %d %d\n", k, sum[k], count[k]}' \
+  | sort -k2 -rn \
+  | head -20 \
+  | while read name total_kb count; do
+      mb=$(echo "scale=1; $total_kb/1024" | bc)
+      color=$GRN
+      (( total_kb > 1000000 )) && color=$RED
+      (( total_kb > 200000 && total_kb <= 1000000 )) && color=$YEL
+      printf "  ${color}%-20s %10s %8s${RST}\n" \
+        "${name:0:20}" "${mb} MiB" "x${count}"
+    done
+
+echo
