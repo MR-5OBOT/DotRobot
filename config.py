@@ -1,1 +1,0 @@
-/home/ys/repos/DotRobot/dotfiles/.config/visidata/config.py
