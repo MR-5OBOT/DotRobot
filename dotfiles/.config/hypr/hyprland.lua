@@ -12,5 +12,11 @@ require("lua_configs.autostart")
 -- Load any specific configurations for swaync or other modules if needed
 -- require("lua_configs.swaync")
 
+hl.config({
+	general = {
+		resize_on_border = true,
+	},
+})
+
 -- HyprMod managed settings
 require("hyprland-gui")
