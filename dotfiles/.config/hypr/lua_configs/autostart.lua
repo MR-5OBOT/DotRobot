@@ -19,7 +19,7 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("hyprsunset")
 
 	-- Launch Scripts
-	hl.exec_cmd(SCRIPTS .. "/autostart/gtk.sh >> ~/.hyprland-autostart.log 2>&1")
+	-- hl.exec_cmd(SCRIPTS .. "/autostart/gtk.sh >> ~/.hyprland-autostart.log 2>&1") #only if you see dark mode bugs in GNOME apps
 	hl.exec_cmd(SCRIPTS .. "/autostart/toggle-waybar.sh >> ~/.hyprland-autostart.log 2>&1")
 	hl.exec_cmd(SCRIPTS .. "/autostart/BAT-check.sh >> ~/.hyprland-autostart.log 2>&1")
 end)
