@@ -8,6 +8,7 @@ export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --inline-info"
 [[ -d "${HOME}/bin" ]] && export PATH="${HOME}/bin:${PATH}"
 [[ -d "${HOME}/.local/bin" ]] && export PATH="${HOME}/.local/bin:${PATH}"
 export PATH="${HOME}/.npm-global/bin:${PATH}"
+export PATH="${HOME}/.cargo/bin:${PATH}"
 
 alias nf="fastfetch"
 alias v="nvim"
