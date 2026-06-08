@@ -11,8 +11,8 @@ hl.window_rule({ match = { class = "mpv" }, workspace = 8 })
 hl.window_rule({ match = { class = "^(terminal64.exe)$" }, workspace = 4 })
 hl.window_rule({ match = { class = "^(concord)$" }, workspace = 9 })
 
--- TradingView (Brave PWA)
-hl.window_rule({ match = { class = "^(brave-knojlbibkfmpiekeiifbljpfojlioonl-Default)$" }, workspace = 4 })
+-- TradingView (Brave PWA — match by title since class hashes are unstable)
+hl.window_rule({ match = { title = "^(TradingView)" }, workspace = 4 })
 
 -- Floating rules with size/center
 hl.window_rule({ match = { class = "kitty" }, float = true, center = true, size = "620 360" })
