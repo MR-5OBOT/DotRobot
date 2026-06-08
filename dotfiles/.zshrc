@@ -86,3 +86,6 @@ bindkey -v
 export KEYTIMEOUT=1
 bindkey -M viins '^?' backward-delete-char
 bindkey -M viins '^H' backward-delete-char
+
+# opencode
+export PATH=/home/ys/.opencode/bin:$PATH
