@@ -8,7 +8,7 @@ hl.window_rule({ match = { class = "^(org.telegram.desktop)$" }, workspace = 3 }
 hl.window_rule({ match = { class = "^(gimp-.*)" }, workspace = 5 })
 hl.window_rule({ match = { class = "^(com.obsproject.Studio)$" }, workspace = 6 })
 hl.window_rule({ match = { class = "mpv" }, workspace = 8 })
-hl.window_rule({ match = { class = "^(terminal64.exe)$" }, workspace = 4 })
+hl.window_rule({ match = { class = "^(terminal64.exe)$" }, workspace = 5 })
 hl.window_rule({ match = { class = "^(concord)$" }, workspace = 9 })
 
 -- TradingView (Brave PWA — match by title since class hashes are unstable)
