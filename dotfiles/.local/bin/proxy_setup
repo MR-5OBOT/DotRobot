@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
 
 # Function to display usage
 usage() {
@@ -48,8 +50,8 @@ reset_proxy() {
 	# Remove from /etc/environment
 	sudo sed -i '/http_proxy/d;/https_proxy/d;/HTTP_PROXY/d;/HTTPS_PROXY/d' /etc/environment
 
-	# Remove from ~/.zshrc
-	sed -i '/http_proxy/d;/https_proxy/d;/HTTP_PROXY/d;/HTTPS_PROXY/d' ~/.zshrc
+	# Remove from ~/.zshrc (--follow-symlinks so the dotfiles symlink survives)
+	sed --follow-symlinks -i '/http_proxy/d;/https_proxy/d;/HTTP_PROXY/d;/HTTPS_PROXY/d' ~/.zshrc
 
 	echo "Proxy settings removed"
 }

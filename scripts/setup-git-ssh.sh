@@ -21,14 +21,20 @@ main() {
     log "SSH key already exists at ${key_path}"
   fi
 
-  cat > "${HOME}/.ssh/config" <<'EOF'
+  local ssh_config="${HOME}/.ssh/config"
+  if [[ ! -f "${ssh_config}" ]] || ! grep -qiE '^[[:space:]]*Host[[:space:]]+github\.com([[:space:]]|$)' "${ssh_config}"; then
+    cat >> "${ssh_config}" <<'EOF'
 Host github.com
   HostName github.com
   User git
   IdentityFile ~/.ssh/id_ed25519
   IdentitiesOnly yes
 EOF
-  chmod 600 "${HOME}/.ssh/config"
+    log "Added github.com entry to ${ssh_config}"
+  else
+    log "github.com entry already present in ${ssh_config}"
+  fi
+  chmod 600 "${ssh_config}"
 
   if ! pgrep -u "${USER}" ssh-agent >/dev/null 2>&1; then
     eval "$(ssh-agent -s)" >/dev/null

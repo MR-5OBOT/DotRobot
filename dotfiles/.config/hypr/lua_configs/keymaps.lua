@@ -24,7 +24,6 @@ hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("sh " .. SCRIPTS .. "/wallpapers/wall
 hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("kitty --class clipse -e 'clipse'"))
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("hyprpicker -a -n"))
 -- hl.bind("ALT + C", hl.dsp.exec_cmd("qalculate-gtk"))
-hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("python " .. SCRIPTS .. "/time-notify.py"))
 
 -- Waybar Controls
 hl.bind(mainMod .. " + SHIFT + K", hl.dsp.exec_cmd("pkill -SIGUSR1 '^waybar$'"))
