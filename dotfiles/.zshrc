@@ -25,6 +25,7 @@ alias lt="eza --tree --level=2 --long --icons --git -la"
 alias vzshrc="nvim ~/.zshrc"
 alias szshrc="source ~/.zshrc"
 alias goo="start-hyprland"
+alias quick-wifi-scan='sudo nmcli dev wifi rescan && nmcli dev wifi list'
 
 setopt AUTO_CD
 setopt HIST_IGNORE_ALL_DUPS
