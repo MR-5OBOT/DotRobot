@@ -88,4 +88,4 @@ bindkey -M viins '^?' backward-delete-char
 bindkey -M viins '^H' backward-delete-char
 
 # opencode
-export PATH=/home/ys/.opencode/bin:$PATH
+export PATH="${HOME}/.opencode/bin:${PATH}"

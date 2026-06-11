@@ -12,8 +12,19 @@ link_config_tree() {
 }
 
 link_local_bin() {
-  mkdir -p "${HOME}/.local"
-  symlink_path "${DOTFILES_DIR}/.local/bin" "${HOME}/.local/bin"
+  local item
+
+  # Link scripts one by one so tool installers (uv, claude) can drop their
+  # own shims into ~/.local/bin without writing into the repo.
+  if [[ -L "${HOME}/.local/bin" ]]; then
+    rm "${HOME}/.local/bin"
+    log "Removed legacy ~/.local/bin directory symlink"
+  fi
+  mkdir -p "${HOME}/.local/bin"
+  for item in "${DOTFILES_DIR}/.local/bin"/*; do
+    [[ -e "${item}" ]] || continue
+    symlink_path "${item}" "${HOME}/.local/bin/$(basename "${item}")"
+  done
 }
 
 link_local_share_applications() {

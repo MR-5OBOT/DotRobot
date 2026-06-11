@@ -1,0 +1,4 @@
+# Runtime state written by apps into linked config dirs
+dotfiles/.config/clipse/clipboard_history.json
+dotfiles/.config/clipse/tmp_files/
+dotfiles/.config/clipse/clipse.log
