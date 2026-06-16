@@ -3,6 +3,7 @@ configuration{
     drun-display-format: " => {name}";
     disable-history: false;
     hide-scrollbar: true;
+    click-to-exit: true;
 }
 
 @import                          "colors.rasi"

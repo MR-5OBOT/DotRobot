@@ -80,3 +80,7 @@ end
 -- Move/Resize mouse bindings
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
+
+-- Right-click on the bare wallpaper opens the power menu.
+-- non_consuming = the click still passes through to apps/waybar normally.
+hl.bind("mouse:273", hl.dsp.exec_cmd(SCRIPTS .. "/empty-rightclick.sh"), { non_consuming = true })
