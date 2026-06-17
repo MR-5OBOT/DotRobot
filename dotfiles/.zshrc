@@ -97,3 +97,5 @@ bindkey -M viins '^H' backward-delete-char
 bindkey '^ ' autosuggest-accept
 bindkey '\ef' forward-word           
 
+
+fastfetch
