@@ -5,11 +5,11 @@
 set -e
 
 URL="$1"
-OUTPUT="${2:-.}"
+BASE_OUTPUT="${2:-.}"
 
 if [[ -z "$URL" ]]; then
   echo "Usage: git_dir_fetcher <github_url> [output_dir]"
-  echo "Example: git_dir_fetcher https://github.com/user/repo/tree/master/some/dir"
+  echo "Example: git_dir_fetcher https://github.com/user/repo/tree/master/some/dir ~/.config"
   exit 1
 fi
 
@@ -29,6 +29,10 @@ USER_REPO=$(echo "$STRIPPED" | cut -d'/' -f1-2)
 BRANCH=$(echo "$STRIPPED" | cut -d'/' -f4)
 DIR_PATH=$(echo "$STRIPPED" | cut -d'/' -f5-)
 
+# Use the folder name as the output subdir
+DIR_NAME=$(basename "$DIR_PATH")
+OUTPUT="${BASE_OUTPUT}/${DIR_NAME}"
+
 DEGIT_TARGET="${USER_REPO}/${DIR_PATH}#${BRANCH}"
 
 echo "→ Runner : $RUNNER"
@@ -38,5 +42,6 @@ echo "→ Path   : $DIR_PATH"
 echo "→ Output : $OUTPUT"
 echo ""
 
+mkdir -p "$OUTPUT"
 $RUNNER degit "$DEGIT_TARGET" "$OUTPUT" --force
-echo "✓ Done"
+echo "✓ Done → $OUTPUT"
