@@ -28,21 +28,6 @@
 
     "hyprland/workspaces": {
       "format": "{icon}",
-      "show-special": false,
-      "active-only": false,
-      "on-click": "activate",
-      "on-scroll-up": "hyprctl dispatch workspace e+1",
-      "on-scroll-down": "hyprctl dispatch workspace e-1",
-      "all-outputs": true,
-      "sort-by-number": true,
-      //"icon-size": 1,
-      "persistent-workspaces": {
-        "1": [],
-        "2": [],
-        "3": [],
-        "4": [],
-      },
-
       "format-icons": {
         "1": "Ⅰ",
         "2": "Ⅱ",
@@ -59,6 +44,10 @@
         "focused": "●",   // Filled circle for active workspace
         "default": "○"    // Empty circle for inactive workspaces
       },
+      "icon-size": 1,
+      "on-click": "activate",
+      "on-scroll-up": "hyprctl dispatch workspace e+1",
+      "on-scroll-down": "hyprctl dispatch workspace e-1"
     },
     "custom/notification": {
       "tooltip": false,
@@ -116,8 +105,8 @@
         "critical": 20
       },
       "format": " {icon} ",
-      "format-charging": "  ",
-      "format-plugged": " 󱘖 ",
+      "format-charging": "",
+      "format-plugged": "",
       "format-alt": "{time} {icon}",
       "tooltip-format": "{capacity}%",
       "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
@@ -159,24 +148,25 @@
       "tooltip-format-enumerate-connected": " {device_alias}"
     },
 
-"pulseaudio": {
-	"format": "{icon} {volume}%",
-	"format-bluetooth": "{icon}",
-	"format-muted": "󰖁",
-	"format-icons": {
-		"headphone": "",
-		"hands-free": "",
-		"headset": "",
-		"default": [
-			"", "", "󰕾",  ""
-		],
-		"ignored-sinks": [
-			"Easy Effects Sink"
-		],
-	},
-	"on-click-right": "pavucontrol -t 3",
-	"tooltip-format": "{icon} {desc} | {volume}%",
-},
+    "pulseaudio": {
+      "format": "",
+      "format-muted": "󰝟",
+      "format-bluetooth": "{icon}",
+      "on-click": "pavucontrol -t 3",
+      "on-click-middle": "swayosd-client --output-volume mute-toggle ",
+      "on-scroll-up": "swayosd-client --output-volume raise",
+      "on-scroll-down": "swayosd-client --output-volume lower",
+      "tooltip-format": "{icon} {desc} // {volume}%",
+      "scroll-step": 5,
+      "format-icons": {
+        "headphone": "",
+        "hands-free": "",
+        "headset": "",
+        "phone": "",
+        "portable": "",
+        "car": "",
+      }
+    },
 
     "pulseaudio#microphone": {
       "format": "{format_source}",
