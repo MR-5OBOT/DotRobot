@@ -7,6 +7,7 @@ hyprsunset
 hyprshutdown
 satty
 wlhc
+rnote
 brightnessctl
 btop
 discord
