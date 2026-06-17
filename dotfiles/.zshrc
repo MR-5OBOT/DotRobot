@@ -9,6 +9,9 @@ export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --inline-info"
 export PATH="${HOME}/.npm-global/bin:${PATH}"
 export PATH="${HOME}/.cargo/bin:${PATH}"
 
+export EDITOR="nvim"
+export MANPAGER="$EDITOR +Man!"
+
 # ── Aliases ───────────────────────────────────────────────────────────────
 alias ff="fastfetch"
 alias v="nvim"
@@ -94,5 +97,3 @@ bindkey -M viins '^H' backward-delete-char
 bindkey '^ ' autosuggest-accept
 bindkey '\ef' forward-word           
 
-# ── PATH extras ───────────────────────────────────────────────────────────
-export PATH="$PATH:$HOME/.spicetify" 
