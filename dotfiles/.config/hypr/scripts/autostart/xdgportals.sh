@@ -5,50 +5,33 @@
 #  /  \| |_| | |_| |
 # /_/\_\____/ \____|
 #
+# Ensure xdg-desktop-portal runs in BOTH session types, so GTK/libadwaita apps
+# (rnote, etc.) follow the system color-scheme set in nwg-look (dark mode).
+#
+#   * uwsm session    -> graphical-session.target is active; systemd D-Bus-activates
+#                        the portal on demand. This script does NOTHING.
+#   * plain Hyprland  -> no graphical-session.target, so the portal would refuse to
+#                        start. This script launches the backends manually (fallback).
+#
+# Check which branch ran:  cat ~/.cache/xdgportals.log
 
-# Setup Timers
-_sleep1="0.1"
-_sleep2="0.5"
-_sleep3="2"
-_sleep4="1"
+LOG="$HOME/.cache/xdgportals.log"
+log() { echo "$(date '+%F %T') $*" >>"$LOG"; }
 
-sleep $_sleep4
+# Make sure systemd/D-Bus know our Wayland session (harmless under uwsm).
+dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE 2>/dev/null
 
-# Kill all possible running xdg-desktop-portals
-killall -e xdg-desktop-portal-hyprland
-killall -e xdg-desktop-portal-gnome
-killall -e xdg-desktop-portal-kde
-killall -e xdg-desktop-portal-lxqt
-killall -e xdg-desktop-portal-wlr
-killall -e xdg-desktop-portal-gtk
-killall -e xdg-desktop-portal
-
-# Stop all services
-systemctl --user stop pipewire
-systemctl --user stop wireplumber
-systemctl --user stop xdg-desktop-portal
-systemctl --user stop xdg-desktop-portal-gnome
-systemctl --user stop xdg-desktop-portal-kde
-systemctl --user stop xdg-desktop-portal-wlr
-systemctl --user stop xdg-desktop-portal-hyprland
-sleep $_sleep1
-
-# Start xdg-desktop-portal-hyprland
-/usr/lib/xdg-desktop-portal-hyprland &
-sleep $_sleep3
-
-# Start xdg-desktop-portal-gtk
-if [ -f /usr/lib/xdg-desktop-portal-gtk ]; then
-    /usr/lib/xdg-desktop-portal-gtk &
-    sleep $_sleep1
+# ---- Fix 1: uwsm / systemd-managed session ----
+if systemctl --user is-active --quiet graphical-session.target; then
+    log "uwsm session (graphical-session.target active) -> portal handled by systemd, nothing to do."
+    exit 0
 fi
 
-# Start xdg-desktop-portal
+# ---- Fix 2: plain Hyprland session (manual fallback) ----
+log "plain Hyprland session (no graphical-session.target) -> starting portals manually."
+/usr/lib/xdg-desktop-portal-hyprland &
+sleep 1
+/usr/lib/xdg-desktop-portal-gtk &
+sleep 0.5
 /usr/lib/xdg-desktop-portal &
-sleep $_sleep2
-
-# Start required services
-systemctl --user start pipewire
-systemctl --user start wireplumber
-systemctl --user start xdg-desktop-portal
-systemctl --user start xdg-desktop-portal-hyprland
+log "manual portal backends launched."

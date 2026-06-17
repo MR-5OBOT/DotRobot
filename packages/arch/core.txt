@@ -2,6 +2,7 @@ base
 base-devel
 git
 openssh
+hyprqt6engine
 curl
 wget
 zsh

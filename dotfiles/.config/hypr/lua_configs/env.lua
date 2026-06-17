@@ -11,7 +11,7 @@ hl.env("XDG_SESSION_TYPE", "wayland")
 hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
 hl.env("XDG_SESSION_DESKTOP", "Hyprland")
 
-hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
+hl.env("QT_QPA_PLATFORMTHEME", "hyprqt6engine")
 hl.env("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1")
 hl.env("QT_AUTO_SCREEN_SCALE_FACTOR", "1")
 
@@ -20,8 +20,12 @@ hl.env("CLUTTER_BACKEND", "wayland")
 hl.env("XCURSOR_THEME", "volantes_light_cursors")
 hl.env("XCURSOR_SIZE", "26")
 
+-- Dark Theme (add these with your existing env block)
+hl.env("GTK_THEME", "paradise")
+hl.env("COLOR_SCHEME", "prefer-dark")
+
 hl.config({
-    xwayland = {
-        force_zero_scaling = true
-    }
+	xwayland = {
+		force_zero_scaling = true,
+	},
 })

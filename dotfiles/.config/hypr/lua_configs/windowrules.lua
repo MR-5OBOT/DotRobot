@@ -36,7 +36,7 @@ local float_classes = {
 	"vlc",
 	"kvantummanager",
 	"qt5ct",
-	"qt6ct",
+	"hyprqt6engine",
 	"nwg-look",
 }
 for _, cls in ipairs(float_classes) do
