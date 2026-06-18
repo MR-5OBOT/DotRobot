@@ -41,7 +41,6 @@ link_local_share_applications() {
 }
 
 main() {
-  symlink_path "${DOTFILES_DIR}/.zshrc" "${HOME}/.zshrc"
   symlink_path "${DOTFILES_DIR}/.gitconfig" "${HOME}/.gitconfig"
   link_config_tree
   link_local_bin
