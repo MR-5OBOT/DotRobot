@@ -47,6 +47,7 @@ qalculate-gtk
 qt5-wayland
 qt5ct
 hyprqt6engine
+satty
 rofi
 slurp
 swaybg
