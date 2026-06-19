@@ -18,7 +18,6 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd(SCRIPTS .. "/autostart/clipse.sh")
 	hl.exec_cmd("devify")
 	hl.exec_cmd("hypridle")
-	hl.exec_cmd("hyprsunset")
 
 	hl.exec_cmd(SCRIPTS .. "/autostart/toggle-waybar.sh")
 	hl.exec_cmd(SCRIPTS .. "/autostart/BAT-check.sh")

@@ -3,7 +3,6 @@ blueman
 bluez
 bluez-utils
 visidata
-hyprsunset
 hyprshutdown
 satty
 wlhc

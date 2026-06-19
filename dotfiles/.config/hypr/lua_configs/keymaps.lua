@@ -6,7 +6,6 @@ local SCRIPT = SCRIPTS .. "/controls"
 
 -- Window Management
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
-hl.bind(mainMod .. " + SHIFT + Q", hl.dsp.exit())
 hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 hl.bind(mainMod .. " + G", hl.dsp.group.toggle())
 hl.bind(mainMod .. " + C", hl.dsp.window.center())
@@ -23,6 +22,8 @@ hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("sh " .. SCRIPTS .. "/rofi-powermenu.
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("sh " .. SCRIPTS .. "/wallpapers/walls-picker.sh"))
 hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("kitty --class clipse -e 'clipse'"))
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("hyprpicker -a -n"))
+hl.bind(mainMod .. " + SHIFT + I", hl.dsp.exec_cmd(SCRIPTS .. "/speedtest.sh"))
+hl.bind(mainMod .. " + SHIFT + Space", hl.dsp.exec_cmd(SCRIPTS .. "/whichkey.sh"))
 -- hl.bind("ALT + C", hl.dsp.exec_cmd("qalculate-gtk"))
 
 -- Waybar Controls
@@ -80,6 +81,24 @@ end
 -- Move/Resize mouse bindings
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
+
+-- Thumb side buttons:
+--   lower / back  (BTN_SIDE)   -> toggle mic mute
+--   upper / forward (BTN_EXTRA) -> region screenshot (see alternatives below)
+hl.bind("mouse:275", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --toggle-mic"))
+hl.bind(
+	"mouse:276",
+	hl.dsp.exec_cmd(
+		'bash -c "grim -t ppm -g \\"$(slurp -d)\\" - | satty --filename - --fullscreen --copy-command wl-copy --early-exit"'
+	)
+)
+
+-- Alternatives for mouse:276 -- comment out the line above and uncomment one:
+-- hl.bind("mouse:276", hl.dsp.exec_cmd("gtklock"))                                           -- lock screen
+-- hl.bind("mouse:276", hl.dsp.exec_cmd("kitty --class clipse -e 'clipse'"))                  -- clipboard history
+-- hl.bind("mouse:276", hl.dsp.window.close())                                                -- close window
+-- hl.bind("mouse:276", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" })) -- fullscreen
+-- hl.bind("mouse:276", hl.dsp.exec_cmd("hyprlauncher"))                                      -- launcher
 
 -- Right-click on the bare wallpaper opens the power menu.
 -- non_consuming = the click still passes through to apps/waybar normally.
