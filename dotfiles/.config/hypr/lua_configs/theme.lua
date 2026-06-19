@@ -9,7 +9,13 @@ hl.config({
             active_border = 0x323232,
             inactive_border = 0x323232
         },
-        resize_on_border = false
+        resize_on_border = false,
+        allow_tearing = true,
+        hover_icon_on_border = true,
+        snap = {
+            enabled = true,
+            respect_gaps = true,
+        },
     },
     decoration = {
         rounding = 0,

@@ -12,6 +12,3 @@ require("lua_configs.misc")
 
 -- Load any specific configurations for swaync or other modules if needed
 -- require("lua_configs.swaync")
-
--- HyprMod managed settings
-require("hyprland-gui")

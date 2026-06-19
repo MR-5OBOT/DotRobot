@@ -6,7 +6,6 @@
 # /_/\_\____/ \____|
 #
 # Ensure xdg-desktop-portal runs in BOTH session types, so GTK/libadwaita apps
-# (rnote, etc.) follow the system color-scheme set in nwg-look (dark mode).
 #
 #   * uwsm session    -> graphical-session.target is active; systemd D-Bus-activates
 #                        the portal on demand. This script does NOTHING.

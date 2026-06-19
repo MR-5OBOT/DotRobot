@@ -12,6 +12,9 @@ hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
 hl.env("XDG_SESSION_DESKTOP", "Hyprland")
 
 hl.env("QT_QPA_PLATFORMTHEME", "hyprqt6engine")
+-- QML / Qt Quick Controls apps (e.g. hyprpolkitagent) ignore the widget style;
+-- the Fusion QML style follows hyprqt6engine's dark palette (hyprqt6engine-dark.colors).
+hl.env("QT_QUICK_CONTROLS_STYLE", "Fusion")
 hl.env("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1")
 hl.env("QT_AUTO_SCREEN_SCALE_FACTOR", "1")
 
