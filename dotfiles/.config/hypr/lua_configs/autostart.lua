@@ -6,7 +6,7 @@ hl.on("hyprland.start", function()
 	-- Critical Services
 	hl.exec_cmd("sleep 1 && dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
 	-- hl.exec_cmd("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1")
-	hl.exec_cmd("/usr/lib/hyprpolkitagent")
+	hl.exec_cmd("/usr/lib/hyprpolkitagent/hyprpolkitagent")
 	-- xdg-desktop-portal: no-op under uwsm, manual fallback under plain Hyprland
 	hl.exec_cmd(SCRIPTS .. "/autostart/xdgportals.sh")
 
