@@ -84,14 +84,33 @@
     margin: 2px 0 3px 0 !important;   /* Tiny extra bottom before title */
 }
 
-/* Notifications title */
+/* Notifications title row */
 .widget-title {
-    margin: 3px 0 2px 0 !important;   /* Closes the gap you circled */
-    padding: 0 4px;
+    margin: 6px 2px 6px 2px !important;
+    padding: 0 2px;
 }
-.widget-title button {
-    padding: 3px 8px;
-    font-size: 9px;
+.widget-title > label {
+    color: @text-muted;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+/* Clear All button — matched to the monochrome theme */
+.widget-title > button {
+    background-color: transparent;
+    border: 1px solid @accent-dim;   /* opaque so the corners don't anti-alias away */
+    border-radius: 0px;
+    box-shadow: none;
+    outline: none;
+    color: @text-muted;
+    padding: 2px 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+.widget-title > button:hover {
+    background-color: @surface-hover;
+    border-color: @accent;
+    color: @text;
 }
 
 /* Notifications area */
