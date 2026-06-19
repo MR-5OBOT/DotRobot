@@ -21,7 +21,7 @@ window {
     border-color:     @accent;
     border-radius:    0px;
     background-color: @bg;
-    padding:          20px;
+    padding:          20px 20px 8px 20px;
     cursor:           "default";
 }
 
@@ -51,7 +51,7 @@ entry    { enabled: false; }
 
 listview {
     columns:          1;
-    lines:            18;
+    lines:            17;
     dynamic:          true;
     scrollbar:        false;
     cycle:            false;
