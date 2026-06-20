@@ -11,7 +11,6 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd(SCRIPTS .. "/autostart/xdgportals.sh")
 
 	-- Daemons
-	hl.exec_cmd("hyprlauncher -d")
 	hl.exec_cmd("hyprpaper")
 	hl.exec_cmd("swaync")
 	hl.exec_cmd("nm-applet --indicator")
