@@ -4,6 +4,7 @@ bluez
 bluez-utils
 visidata
 hyprshutdown
+scrcpy
 satty
 wlhc
 rnote
