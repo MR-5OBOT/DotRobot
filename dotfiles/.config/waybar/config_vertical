@@ -65,7 +65,7 @@
   },
 
   "pulseaudio": {
-    "format": "󰕾",
+    "format": "{icon}",
     "format-muted": "󰝟",
     "on-click": "pavucontrol -t 3",
     "on-click-middle": "swayosd-client --output-volume mute-toggle",
@@ -74,12 +74,13 @@
     "tooltip-format": "{icon} {desc} // {volume}%",
     "scroll-step": 5,
     "format-icons": {
-      "headphone": "",
-      "hands-free": "",
-      "headset": "",
-      "phone": "",
-      "portable": "",
-      "car": ""
+      "default": ["󰕿", "󰖀", "󰕾"],
+      "headphone": "󰋋",
+      "hands-free": "󰋎",
+      "headset": "󰋎",
+      "phone": "󰏲",
+      "portable": "󰦧",
+      "car": "󰄋"
     }
   },
 
