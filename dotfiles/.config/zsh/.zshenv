@@ -23,7 +23,7 @@ fi
 export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --inline-info"
 
 # ---------- GPG ----------
-export GPG_TTY="$(tty)"
+export GPG_TTY=$TTY   # zsh builtin param, no `tty` subprocess fork
 
 # ---------- Starship ----------
 export STARSHIP_CONFIG="${ZDOTDIR:-$HOME/.config/zsh}/starship.toml"
