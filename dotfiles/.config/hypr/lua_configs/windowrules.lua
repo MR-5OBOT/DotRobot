@@ -9,6 +9,9 @@ hl.window_rule({ match = { class = "^(terminal64.exe)$" }, workspace = 5 })
 hl.window_rule({ match = { class = "^(com.obsproject.Studio)$" }, workspace = 6 })
 hl.window_rule({ match = { class = "mpv" }, workspace = 8 })
 
+-- Flatpak apps (no "is-flatpak" matcher exists — match by class/app-id).
+hl.window_rule({ match = { class = "^(dev.fredol.open-tv)$" }, float = true, center = true, size = "1280 720" })
+
 -- Floating rules with size/center
 hl.window_rule({ match = { class = "kitty" }, float = true, center = true, size = "620 360" })
 hl.window_rule({ match = { class = "^(qalculate-gtk)$" }, float = true, center = true, size = "700 600" })
