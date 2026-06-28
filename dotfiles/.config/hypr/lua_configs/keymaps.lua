@@ -30,12 +30,7 @@ hl.bind(mainMod .. " + SHIFT + K", hl.dsp.exec_cmd("pkill -SIGUSR1 '^waybar$'"))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd("sh " .. SCRIPTS .. "/autostart/toggle-waybar.sh"))
 
 -- Screenshots & Recording
-hl.bind(
-	"Print",
-	hl.dsp.exec_cmd(
-		'bash -c "grim -t ppm -g \\"$(slurp -d)\\" - | satty --filename - --fullscreen --copy-command wl-copy --early-exit"'
-	)
-)
+hl.bind("Print", hl.dsp.exec_cmd("bash " .. SCRIPTS .. "/screenshot.sh"))
 
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(SCRIPTS .. "/recording/wf-screenRE"))
 hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd(SCRIPTS .. "/recording/stop-recording"))
@@ -85,12 +80,7 @@ hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 --   lower / back  (BTN_SIDE)   -> toggle mic mute
 --   upper / forward (BTN_EXTRA) -> region screenshot (see alternatives below)
 hl.bind("mouse:275", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --toggle-mic"))
-hl.bind(
-	"mouse:276",
-	hl.dsp.exec_cmd(
-		'bash -c "grim -t ppm -g \\"$(slurp -d)\\" - | satty --filename - --fullscreen --copy-command wl-copy --early-exit"'
-	)
-)
+hl.bind("mouse:276", hl.dsp.exec_cmd("bash " .. SCRIPTS .. "/screenshot.sh"))
 
 -- Alternatives for mouse:276 -- comment out the line above and uncomment one:
 -- hl.bind("mouse:276", hl.dsp.exec_cmd("gtklock"))                                           -- lock screen

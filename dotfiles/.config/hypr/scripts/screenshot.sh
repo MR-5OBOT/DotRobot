@@ -2,18 +2,13 @@
 
 set -euo pipefail
 
-SCREENSHOT_DIR="${XDG_PICTURES_DIR:-$HOME/Pictures}/Screenshots"
-TIMESTAMP="$(date '+%Y-%m-%d_%H-%M-%S')"
-FILE_PATH="${SCREENSHOT_DIR}/Screenshot_${TIMESTAMP}.png"
+# rofi menu -> capture -> edit in satty -> copy to clipboard
+args=()
+case "$(printf 'area\nwindow\ndelay 5s' | rofi -dmenu -p screenshot -theme ~/.config/rofi/screenshot.rasi)" in
+    area)       args=(-g "$(slurp -d)") ;;
+    window)     args=(-g "$(hyprctl activewindow -j | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')") ;;
+    'delay 5s')  sleep 5 ;;  # ponytail: whole output; slurp/window won't survive a sleep
+    *) exit 0 ;;             # dismissed
+esac
 
-mkdir -p "$SCREENSHOT_DIR"
-
-if ! command -v grimblast >/dev/null 2>&1; then
-    exit 1
-fi
-
-if ! command -v slurp >/dev/null 2>&1; then
-    exit 1
-fi
-
-grimblast --notify copysave area "$FILE_PATH"
+grim -t ppm "${args[@]}" - | satty --filename - --fullscreen --copy-command wl-copy --early-exit
