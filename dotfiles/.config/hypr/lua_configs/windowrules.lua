@@ -14,7 +14,7 @@ hl.window_rule({ match = { class = "^(dev.fredol.open-tv)$" }, float = true, cen
 
 -- Floating rules with size/center
 hl.window_rule({ match = { class = "kitty" }, float = true, center = true, size = "620 360" })
-hl.window_rule({ match = { class = "^(qalculate-gtk)$" }, float = true, center = true, size = "700 600" })
+hl.window_rule({ match = { class = "^(galculator)$" }, float = true, center = true, size = "280 340" })
 hl.window_rule({ match = { class = "^(thunar)$" }, float = true, center = true, size = "700 600" })
 hl.window_rule({
 	match = { class = "hyprland-share-picker" },
@@ -26,41 +26,41 @@ hl.window_rule({
 hl.window_rule({ match = { class = "nwg-look" }, float = true, center = true, size = "500 400", pin = true })
 hl.window_rule({ match = { class = "clipse" }, float = true, center = true, size = "522 552" })
 
--- Floating utilities and dialogs
 local float_classes = {
 	"Tk",
-	"thunar",
 	"pavucontrol",
 	"nm-connection-editor",
 	"blueman-manager",
 	"file-roller",
-	"mpv",
 	"org.kde.polkit-kde-authentication-agent-1",
 	"vlc",
 	"kvantummanager",
 	"qt5ct",
 	"hyprqt6engine",
-	"nwg-look",
+	"Picture-in-Picture",
+	"Viewnior",
+	"file_progress",
+	"confirm",
+	"dialog",
+	"download",
+	"notification",
+	"error",
+	"Confirm to replace files",
+	"File Operation Progress",
 }
 for _, cls in ipairs(float_classes) do
 	hl.window_rule({ match = { class = "^(" .. cls .. ")$" }, float = true })
 end
 
-hl.window_rule({ match = { class = "^(pavucontrol)$" }, float = true, pin = true })
-hl.window_rule({ match = { title = "^(Media viewer)$" }, float = true })
-hl.window_rule({ match = { title = "^(Volume Control)$" }, float = true })
-hl.window_rule({ match = { class = "^(Picture-in-Picture)$" }, float = true })
-hl.window_rule({ match = { class = "^(Viewnior)$" }, float = true })
-hl.window_rule({ match = { class = "^(file_progress)$" }, float = true })
-hl.window_rule({ match = { class = "^(confirm)$" }, float = true })
-hl.window_rule({ match = { class = "^(dialog)$" }, float = true })
-hl.window_rule({ match = { class = "^(download)$" }, float = true })
-hl.window_rule({ match = { class = "^(notification)$" }, float = true })
-hl.window_rule({ match = { class = "^(error)$" }, float = true })
-hl.window_rule({ match = { title = "^(Open File)$" }, float = true })
-hl.window_rule({ match = { title = "^(File Operation Progress)$" }, float = true })
-hl.window_rule({ match = { class = "^(Confirm to replace files)$" }, float = true })
-hl.window_rule({ match = { class = "^(File Operation Progress)$" }, float = true })
+local float_titles = {
+	"Media viewer",
+	"Volume Control",
+	"Open File",
+	"File Operation Progress",
+}
+for _, t in ipairs(float_titles) do
+	hl.window_rule({ match = { title = "^(" .. t .. ")$" }, float = true })
+end
 
 -- File dialogs
 hl.window_rule({

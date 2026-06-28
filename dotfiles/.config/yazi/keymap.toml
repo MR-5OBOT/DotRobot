@@ -1,0 +1,10 @@
+# Enter / l -> enter dir or open file (never xdg-open a directory)
+[[mgr.prepend_keymap]]
+on   = "<Enter>"
+run  = "plugin smart-enter"
+desc = "Enter dir / open file"
+
+[[mgr.prepend_keymap]]
+on   = "l"
+run  = "plugin smart-enter"
+desc = "Enter dir / open file"
