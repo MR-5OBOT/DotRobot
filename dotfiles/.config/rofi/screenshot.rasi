@@ -33,7 +33,7 @@ prompt {
 }
 
 listview {
-    lines:            3;
+    lines:            2;
     columns:          1;
     scrollbar:        false;
     spacing:          4px;

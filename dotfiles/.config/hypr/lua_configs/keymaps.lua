@@ -30,7 +30,7 @@ hl.bind(mainMod .. " + SHIFT + K", hl.dsp.exec_cmd("pkill -SIGUSR1 '^waybar$'"))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd("sh " .. SCRIPTS .. "/autostart/toggle-waybar.sh"))
 
 -- Screenshots & Recording
-hl.bind("Print", hl.dsp.exec_cmd("bash " .. SCRIPTS .. "/screenshot.sh"))
+hl.bind("Print", hl.dsp.exec_cmd("bash " .. SCRIPTS .. "/screenshot.sh menu"))
 
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(SCRIPTS .. "/recording/wf-screenRE"))
 hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd(SCRIPTS .. "/recording/stop-recording"))
