@@ -1,53 +1,25 @@
-# #!/usr/bin/env bash
-# set -eo pipefail
-#
-# OUTPUT_DIR="$HOME/Videos/Recordings"
-#
-# # Check if recording is active
-# if [ ! -f /tmp/recording.pid ] || ! kill -0 $(cat /tmp/recording.pid) 2>/dev/null; then
-# 	notify-send -i dialog-error "No active recording found"
-# 	[ -f /tmp/recording.pid ] && rm /tmp/recording.pid
-# 	exit 0
-# fi
-#
-# # Stop recording gracefully
-# kill -INT $(cat /tmp/recording.pid) # SIGINT allows proper file finalization
-# sleep 1                             # Give time for file write
-#
-# # Verify output file
-# LATEST_FILE=$(ls -t "$OUTPUT_DIR"/rec-*.mp4 2>/dev/null | head -n1)
-# if [ -f "$LATEST_FILE" ] && [ $(stat -c%s "$LATEST_FILE") -gt 1024 ]; then
-# 	notify-send -i media-playback-stop "Recording Saved"
-# else
-# 	notify-send -i dialog-error "Recording Failed" "No valid output file created"
-# fi
-#
-# # Cleanup
-# rm -f /tmp/recording.pid
-
 #!/usr/bin/env bash
-set -eo pipefail
+# Stop the active wf-recorder cleanly (SIGINT) and report the saved file.
+set -euo pipefail
 
-OUTPUT_DIR="$HOME/Videos/Recordings"
+PIDFILE="/tmp/wf-recording.pid"
+PATHFILE="/tmp/wf-recording.path"
 
-# Check if recording is active
-if [ ! -f /tmp/recording.pid ] || ! kill -0 $(cat /tmp/recording.pid) 2>/dev/null; then
-	notify-send -i dialog-error "No active recording found"
-	[ -f /tmp/recording.pid ] && rm /tmp/recording.pid
+if [[ ! -f "$PIDFILE" ]] || ! kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+	notify-send -i dialog-error "Recorder" "No active recording"
+	rm -f "$PIDFILE"
 	exit 0
 fi
 
-# Stop recording gracefully
-kill -INT $(cat /tmp/recording.pid) # SIGINT allows proper file finalization
-sleep 1                             # Give time for file write
+pid=$(cat "$PIDFILE")
+kill -INT "$pid" # SIGINT lets wf-recorder finalize the mp4 (moov atom)
+for _ in $(seq 1 50); do kill -0 "$pid" 2>/dev/null || break; sleep 0.1; done
+rm -f "$PIDFILE"
 
-# Verify output file
-LATEST_FILE=$(ls -t "$OUTPUT_DIR"/rec-*.mp4 2>/dev/null | head -n1)
-if [ -f "$LATEST_FILE" ] && [ $(stat -c%s "$LATEST_FILE") -gt 1024 ]; then
-	notify-send -i media-playback-stop "Recording Saved"
+file=$(cat "$PATHFILE" 2>/dev/null || true)
+rm -f "$PATHFILE"
+if [[ -n "$file" && -f "$file" && $(stat -c%s "$file") -gt 1024 ]]; then
+	notify-send -i media-playback-stop "Recorder" "Saved: $(basename "$file")"
 else
-	notify-send -i dialog-error "Recording Failed" "No valid output file created"
+	notify-send -i dialog-error "Recorder" "Recording failed — no valid output"
 fi
-
-# Cleanup
-rm -f /tmp/recording.pid

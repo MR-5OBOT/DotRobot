@@ -5,6 +5,9 @@ bluez-utils
 visidata
 hyprshutdown
 scrcpy
+tumbler  
+ffmpegthumbnailer
+webp-pixbuf-loader
 satty
 wlhc
 rnote

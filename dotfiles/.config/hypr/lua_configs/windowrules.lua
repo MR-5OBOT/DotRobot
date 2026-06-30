@@ -8,6 +8,7 @@ hl.window_rule({ match = { title = "^(TradingView)" }, workspace = 4 })
 hl.window_rule({ match = { class = "^(terminal64.exe)$" }, workspace = 5 })
 hl.window_rule({ match = { class = "^(com.obsproject.Studio)$" }, workspace = 6 })
 hl.window_rule({ match = { class = "mpv" }, workspace = 8 })
+hl.window_rule({ match = { class = "^(com.github.flxzt.rnote)$" }, workspace = 8 })
 
 -- Flatpak apps (no "is-flatpak" matcher exists — match by class/app-id).
 hl.window_rule({ match = { class = "^(dev.fredol.open-tv)$" }, float = true, center = true, size = "1280 720" })

@@ -3,7 +3,9 @@ base-devel
 git
 openssh
 hyprqt6engine
+intel-media-driver 
 curl
+libva-utils
 wget
 zsh
 tmux
