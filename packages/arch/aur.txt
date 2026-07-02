@@ -2,6 +2,8 @@ bottles
 clipse
 devify
 grimblast-git
+hyprqt6engine
 localsend-bin
-telegram-desktop-bin
 pixie-sddm-git
+telegram-desktop-bin
+wlhc

@@ -35,13 +35,13 @@ prompt_step() {
   local answer
 
   while true; do
-    printf '%s [Y/n/s]: ' "${label}"
+    printf '%s [Y/n]: ' "${label}"
     read -r answer
     answer="${answer:-y}"
     case "${answer}" in
       [Yy]) return 0 ;;
-      [Nn]|[Ss]) return 1 ;;
-      *) warn "Answer with y, n, or s." ;;
+      [Nn]) return 1 ;;
+      *) warn "Answer with y or n." ;;
     esac
   done
 }
@@ -67,5 +67,5 @@ symlink_path() {
 
 read_package_file() {
   local file="$1"
-  grep -Ev '^\s*($|#)' "${file}"
+  grep -Ev '^\s*($|#)' "${file}" | sed 's/[[:space:]]*$//'
 }

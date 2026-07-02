@@ -1,17 +1,12 @@
 #!/usr/bin/env bash
+# Pick a wallpaper via rofi and hand it to the already-running hyprpaper daemon.
+set -euo pipefail
 
-# Set directory to wallpaper folder
-dir="$HOME/Pictures/wallpapers/"
+dir="$HOME/Pictures/wallpapers"
 
-# Create array of images in directory
-images=( $(ls $dir) )
+selected=$(find "$dir" -maxdepth 1 -type f -printf '%f\n' | sort |
+    rofi -dmenu -p "Select wallpaper image" -lines 3 -columns 2 -width 50 -markup-rows)
 
-# Use Rofi to display image selection menu
-selected=$(printf '%s\n' "${images[@]}" | rofi -dmenu -p "Select wallpaper image" -lines 3 -columns 2 -width 50 -markup-rows)
+[[ -n "$selected" ]] || exit 0
 
-
-# If user selects an image, run command with selected image as argument
-if [[ -n $selected ]]; then
-  # swww img "$dir/$selected" --transition-step 60 --transition-type random --transition-fps 60
-  swaybg -i  "$dir/$selected"
-fi
+hyprctl hyprpaper reload ,"$dir/$selected"

@@ -26,7 +26,7 @@ echo ""
 echo "----------------------------------------------------"
 echo "REMOVING ORPHANED PACKAGES"
 echo "----------------------------------------------------"
-orphaned=$(paru -Qdtq)
+orphaned=$(paru -Qdtq || true)
 if [ -n "$orphaned" ]; then
     echo "Removing orphaned packages..."
     echo "$orphaned" | paru -Rns --noconfirm -

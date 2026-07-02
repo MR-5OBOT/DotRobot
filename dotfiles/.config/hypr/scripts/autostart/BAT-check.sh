@@ -1,24 +1,16 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
+# Low-battery notifier. Exits quietly on desktops (no battery / no acpi).
 
-if command -v acpi; then
-    echo "acpi is installed"
-else
-    echo "acpi is not installed"
-fi
+command -v acpi >/dev/null 2>&1 || exit 0
+acpi -b 2>/dev/null | grep -q 'Battery' || exit 0   # no battery -> nothing to watch
 
-# infinite loop for the script to make it check the BAT0 every 5 minutes
 while true; do
+    pct=$(acpi -b 2>/dev/null | grep -oP '\d+%' | head -n1 | tr -d '%')
+    status=$(acpi -b 2>/dev/null | head -n1)
 
-# get the battery levels
-get_percentage=$(acpi -b | grep -oP "\d+%" | head -n 1 | tr -d "%")
-bat0_percentage=$(acpi -b | head -n 1 )
+    if [[ -n "$pct" && "$pct" -lt 10 && "$status" != *Charging* ]]; then
+        notify-send -u critical "⚠️ Low Battery" "$status - Plug in your charger!"
+    fi
 
-if [[ "$get_percentage" -lt 10 ]]; then
-    # send notification
-    notify-send -u critical "⚠️ Low Battery" "$bat0_percentage - Plug in your charger!"
-fi
-
-# check the battery for every 5 minutes 
-sleep 300
-
+    sleep 300
 done

@@ -3,7 +3,7 @@ set -euo pipefail
 
 program_name="${0##*/}"
 
-default_server="${EASY_RDP_SERVER:-185.190.140.81}"
+default_server="${EASY_RDP_SERVER:-}"
 default_port="${EASY_RDP_PORT:-}"
 default_user="${EASY_RDP_USER:-.\\administrator}"
 default_network="${EASY_RDP_NETWORK:-auto}"
