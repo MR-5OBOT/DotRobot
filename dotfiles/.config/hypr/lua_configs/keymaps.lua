@@ -25,6 +25,9 @@ hl.bind(mainMod .. " + SHIFT + I", hl.dsp.exec_cmd(SCRIPTS .. "/speedtest.sh"))
 hl.bind(mainMod .. " + SHIFT + Space", hl.dsp.exec_cmd(SCRIPTS .. "/whichkey.sh"))
 -- hl.bind("ALT + C", hl.dsp.exec_cmd("qalculate-gtk"))
 
+-- wayscriber screen annotations
+hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("wayscriber --active"))
+
 -- Waybar Controls
 hl.bind(mainMod .. " + SHIFT + K", hl.dsp.exec_cmd("pkill -SIGUSR1 '^waybar$'"))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd("sh " .. SCRIPTS .. "/autostart/toggle-waybar.sh"))
