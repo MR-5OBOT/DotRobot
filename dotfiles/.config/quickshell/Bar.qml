@@ -59,62 +59,97 @@ PanelWindow {
             }
         }
 
-        Icon {  // app menu -> launcher
-            id: appsBtn
+        // grouped "child frame": raised surface, square corners, matching vibe
+        component Frame: Rectangle {
+            color: Theme.surface
+            border.width: 1
+            border.color: Theme.border
+            radius: Theme.radius   // 0
+            implicitWidth: 34
+        }
+
+        Frame {  // launcher
+            id: appsFrame
             anchors.top: parent.top
-            anchors.topMargin: 12
+            anchors.topMargin: 8
             anchors.horizontalCenter: parent.horizontalCenter
-            text: "apps"
-            size: 18
-            color: appsMA.containsMouse ? Theme.pink : Theme.dim
-            Behavior on color { ColorAnimation { duration: 120 } }
-            MouseArea {
-                id: appsMA
-                anchors.fill: parent
-                anchors.margins: -4
-                hoverEnabled: true
-                onClicked: BarState.launcherOpen = !BarState.launcherOpen
+            width: 34
+            height: 34
+            Icon {
+                id: appsBtn
+                anchors.centerIn: parent
+                text: "apps"
+                size: 18
+                color: appsMA.containsMouse ? Theme.pink : Theme.dim
+                Behavior on color { ColorAnimation { duration: 120 } }
+                MouseArea {
+                    id: appsMA
+                    anchors.fill: parent
+                    anchors.margins: -6
+                    hoverEnabled: true
+                    onClicked: BarState.launcherOpen = !BarState.launcherOpen
+                }
             }
         }
 
-        Clock {
-            id: clock
-            anchors.top: appsBtn.bottom
-            anchors.topMargin: 10
-            width: parent.width
+        Frame {  // time + calendar
+            id: clockFrame
+            anchors.top: appsFrame.bottom
+            anchors.topMargin: 8
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: 34
+            height: clock.implicitHeight + 12
+            Clock {
+                id: clock
+                anchors.centerIn: parent
+                width: parent.width
+            }
         }
 
-        Workspaces {
+        Frame {  // workspaces
             anchors.centerIn: parent
-            width: parent.width
+            width: 34
+            height: wsInner.implicitHeight + 14
+            Workspaces {
+                id: wsInner
+                anchors.centerIn: parent
+                width: parent.width
+            }
         }
 
         ColumnLayout {
             id: statusCol
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 14
+            anchors.bottomMargin: 12
             anchors.horizontalCenter: parent.horizontalCenter
-            width: parent.width
-            spacing: 6
+            spacing: 8
 
-            Tray {
-                id: tray
-                Layout.alignment: Qt.AlignHCenter
-            }
-
-            Rectangle {  // separator, only when tray has icons
+            Frame {  // system tray, only when it has icons
                 Layout.alignment: Qt.AlignHCenter
                 visible: tray.children.length > 0
-                width: 16
-                height: 1
-                color: Theme.border
+                implicitHeight: tray.implicitHeight + 14
+                Tray {
+                    id: tray
+                    anchors.centerIn: parent
+                }
             }
 
-            Media { Layout.fillWidth: true }
-            Bluetooth { Layout.fillWidth: true }
-            Network { Layout.fillWidth: true }
-            Volume { Layout.fillWidth: true }
-            Battery { Layout.fillWidth: true }
+            Frame {  // media + system status
+                Layout.alignment: Qt.AlignHCenter
+                implicitHeight: sysCol.implicitHeight + 14
+                ColumnLayout {
+                    id: sysCol
+                    anchors.centerIn: parent
+                    width: parent.width
+                    spacing: 8
+
+                    Media { Layout.fillWidth: true }
+                    Bluetooth { Layout.fillWidth: true }
+                    Network { Layout.fillWidth: true }
+                    Volume { Layout.fillWidth: true }
+                    Battery { Layout.fillWidth: true }
+                }
+            }
         }
     }
 }

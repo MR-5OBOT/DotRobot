@@ -19,7 +19,7 @@ hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("qs ipc call launcher toggle"))
 -- hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t -sw")) -- TODO: qs notification center
 hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("pkill -x qs; qs")) -- restart quickshell
 hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("sh " .. SCRIPTS .. "/rofi-powermenu.sh"))
-hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("sh " .. SCRIPTS .. "/wallpapers/walls-picker.sh"))
+hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("qs ipc call wallpaper toggle"))
 hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("kitty --class clipse -e 'clipse'"))
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("hyprpicker -a -n"))
 hl.bind(mainMod .. " + SHIFT + I", hl.dsp.exec_cmd(SCRIPTS .. "/speedtest.sh"))
