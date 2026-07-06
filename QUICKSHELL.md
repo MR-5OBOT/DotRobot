@@ -31,11 +31,13 @@ TODO polish: rotated scrolling track title; volume drag slider; tray right-click
 
 ## Full replacements
 
-- [x] **waybar** → built in `.config/quickshell/` (see "Bar — DONE" above). waybar left running in parallel for now. Next: `toggle-waybar.sh`-style toggle via `IpcHandler` (`qs ipc call`).
+- [x] **waybar** → built in `.config/quickshell/` (see "Bar — DONE" above). Switched: waybar out of
+      autostart (Super+B still toggles it back as fallback), `qs` autostarts.
 - [x] **swaync + dunst** → `NotificationServer` toasts DONE (`Notifications.qml` + `NotifCard.qml`).
       Top-right stack, content-hug width, urgency timeouts (low 4s/normal 8s/critical persists), markdown
       body, actions, app-icon fallback, drag-to-dismiss, animated close button. **Exclusive D-Bus name**:
-      swaync must be OFF (stopped it live; TODO: remove from `autostart.lua`, rebind Super+N).
+      swaync removed from `autostart.lua` (qs autostarts instead, waybar line commented out;
+      Super+Shift+N restarts qs, Super+N parked until the notification center exists).
       (Top-panel calendar experiment was purged — the bar clock popout covers it, now with
       prev/next month nav.) TODO: notification center UI, DND toggle, sounds.
 - [ ] **rofi powermenu** (`powermenu.rasi`, `rofi-powermenu.sh`, `empty-rightclick.sh`) → popup window + `HyprlandFocusGrab`

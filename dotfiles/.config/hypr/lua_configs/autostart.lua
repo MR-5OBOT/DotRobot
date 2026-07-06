@@ -12,12 +12,12 @@ hl.on("hyprland.start", function()
 
 	-- Daemons
 	hl.exec_cmd("hyprpaper")
-	hl.exec_cmd("swaync")
+	hl.exec_cmd("qs") -- quickshell: bar + notifications + launcher (replaces swaync/waybar/rofi-drun)
 	hl.exec_cmd("nm-applet --indicator")
 	hl.exec_cmd(SCRIPTS .. "/autostart/clipse.sh")
 	hl.exec_cmd("devify")
 	hl.exec_cmd("hypridle")
 
-	hl.exec_cmd(SCRIPTS .. "/autostart/toggle-waybar.sh")
+	-- hl.exec_cmd(SCRIPTS .. "/autostart/toggle-waybar.sh") -- replaced by qs bar (Super+B brings it back)
 	hl.exec_cmd(SCRIPTS .. "/autostart/BAT-check.sh")
 end)
