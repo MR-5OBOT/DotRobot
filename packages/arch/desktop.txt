@@ -44,6 +44,7 @@ pipewire-alsa
 pipewire-jack
 pipewire-pulse
 qalculate-gtk
+quickshell
 qt5-wayland
 qt5ct
 rnote
@@ -61,6 +62,7 @@ thunar-shares-plugin
 thunar-volman
 tk
 ttf-iosevkaterm-nerd
+ttf-material-symbols-variable
 tumbler
 uwsm
 visidata

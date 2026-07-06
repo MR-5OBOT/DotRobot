@@ -5,6 +5,7 @@ bat
 curl
 eza
 wayscriber
+ttf-material-symbols-variable
 fastfetch
 fd
 figlet

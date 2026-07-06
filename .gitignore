@@ -3,3 +3,6 @@ dotfiles/.config/clipse/clipboard_history.json
 dotfiles/.config/clipse/tmp_files/
 dotfiles/.config/clipse/clipse.log
 claude
+
+# External reference clones (quickshell migration)
+quickshell-refs/

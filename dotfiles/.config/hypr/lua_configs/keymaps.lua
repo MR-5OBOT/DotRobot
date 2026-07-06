@@ -14,7 +14,8 @@ hl.bind("ALT + L", hl.dsp.exec_cmd("gtklock"))
 
 -- Application Launchers
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd("[float]kitty"))
-hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("rofi -show drun"))
+-- hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("rofi -show drun"))
+hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("qs ipc call launcher toggle"))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t -sw"))
 hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("killall swaync && swaync"))
 hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("sh " .. SCRIPTS .. "/rofi-powermenu.sh"))
