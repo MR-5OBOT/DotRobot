@@ -7,35 +7,25 @@ local SCRIPT = SCRIPTS .. "/controls"
 -- Window Management
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
-hl.bind(mainMod .. " + G", hl.dsp.group.toggle())
 hl.bind(mainMod .. " + C", hl.dsp.window.center())
 hl.bind("ALT + Space", hl.dsp.window.float({ action = "toggle" }))
 hl.bind("ALT + L", hl.dsp.exec_cmd("gtklock"))
 
 -- Application Launchers
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd("[float]kitty"))
--- hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("rofi -show drun"))
 hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("qs ipc call launcher toggle"))
--- hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("swaync-client -t -sw")) -- TODO: qs notification center
 hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("pkill -x qs; qs")) -- restart quickshell
 hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("sh " .. SCRIPTS .. "/rofi-powermenu.sh"))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("qs ipc call wallpaper toggle"))
-hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("kitty --class clipse -e 'clipse'"))
+hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("qs ipc call clipboard toggle"))
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("hyprpicker -a -n"))
 hl.bind(mainMod .. " + SHIFT + I", hl.dsp.exec_cmd(SCRIPTS .. "/speedtest.sh"))
-hl.bind(mainMod .. " + SHIFT + Space", hl.dsp.exec_cmd(SCRIPTS .. "/whichkey.sh"))
--- hl.bind("ALT + C", hl.dsp.exec_cmd("qalculate-gtk"))
 
 -- wayscriber screen annotations
 hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("wayscriber --active"))
 
--- Waybar Controls
-hl.bind(mainMod .. " + SHIFT + K", hl.dsp.exec_cmd("pkill -SIGUSR1 '^waybar$'"))
-hl.bind(mainMod .. " + B", hl.dsp.exec_cmd("sh " .. SCRIPTS .. "/autostart/toggle-waybar.sh"))
-
 -- Screenshots & Recording
 hl.bind("Print", hl.dsp.exec_cmd("bash " .. SCRIPTS .. "/screenshot.sh menu"))
-
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(SCRIPTS .. "/recording/wf-screenRE"))
 hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd(SCRIPTS .. "/recording/stop-recording"))
 
@@ -85,14 +75,3 @@ hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 --   upper / forward (BTN_EXTRA) -> region screenshot (see alternatives below)
 hl.bind("mouse:275", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --toggle-mic"))
 hl.bind("mouse:276", hl.dsp.exec_cmd("bash " .. SCRIPTS .. "/screenshot.sh"))
-
--- Alternatives for mouse:276 -- comment out the line above and uncomment one:
--- hl.bind("mouse:276", hl.dsp.exec_cmd("gtklock"))                                           -- lock screen
--- hl.bind("mouse:276", hl.dsp.exec_cmd("kitty --class clipse -e 'clipse'"))                  -- clipboard history
--- hl.bind("mouse:276", hl.dsp.window.close())                                                -- close window
--- hl.bind("mouse:276", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" })) -- fullscreen
--- hl.bind("mouse:276", hl.dsp.exec_cmd("rofi -show drun"))                                   -- launcher
-
--- Right-click on the bare wallpaper opens the power menu.
--- non_consuming = the click still passes through to apps/waybar normally.
-hl.bind("mouse:273", hl.dsp.exec_cmd(SCRIPTS .. "/empty-rightclick.sh"), { non_consuming = true })

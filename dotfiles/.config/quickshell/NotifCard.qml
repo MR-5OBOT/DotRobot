@@ -35,8 +35,6 @@ Item {
         width: parent.width
         implicitHeight: row.implicitHeight + 24
         color: Theme.bg
-        border.width: 1
-        border.color: Theme.border
 
         // drag-to-dismiss: follow finger, fade with distance, fling off past 30%
         opacity: 1 - Math.min(1, Math.abs(x) / (width * 0.55)) * 0.9
@@ -65,7 +63,10 @@ Item {
         // TapHandler coexists with DragHandler (tap vs drag gesture).
         TapHandler {
             onTapped: {
-                const def = root.notif.actions.find(a => a.identifier === "default");
+                // "default" action raises the sending app; if none was tagged but a
+                // single action exists, use it (some apps skip the identifier).
+                const acts = root.notif.actions;
+                const def = acts.find(a => a.identifier === "default") ?? (acts.length === 1 ? acts[0] : null);
                 if (def)
                     def.invoke();
                 root.notif.dismiss();
@@ -195,10 +196,11 @@ Item {
 
                 RowLayout {
                     Layout.topMargin: 4
-                    visible: root.notif.actions.length > 0
+                    // "default" is the click-the-body action, never a button
+                    visible: root.notif.actions.some(a => a.identifier !== "default")
                     spacing: 8
                     Repeater {
-                        model: root.notif.actions
+                        model: root.notif.actions.filter(a => a.identifier !== "default")
                         delegate: Rectangle {
                             id: actBtn
                             required property var modelData

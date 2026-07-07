@@ -17,4 +17,7 @@ ShellRoot {
     Notifications {}
     Launcher {}
     WallpaperPicker {}
+    WorkspaceOSD {}
+    Clipboard {}
+    Osd {}
 }

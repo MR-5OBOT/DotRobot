@@ -82,8 +82,6 @@ PanelWindow {
         width: 270
         height: col.implicitHeight + 2
         color: Theme.bg
-        border.width: 1
-        border.color: Theme.border
 
         MouseArea { anchors.fill: parent }  // swallow clicks on the card itself
 

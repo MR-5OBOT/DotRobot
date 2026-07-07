@@ -7,32 +7,7 @@ link_config_tree() {
   local item
   for item in "${DOTFILES_DIR}/.config"/*; do
     [[ -e "${item}" ]] || continue
-    # clipse writes clipboard history, logs and temp screenshots into its config
-    # dir at runtime. Symlink only the tracked config files so that runtime state
-    # stays in ~/.config and never leaks back into the repo.
-    if [[ "$(basename "${item}")" == "clipse" ]]; then
-      link_clipse
-      continue
-    fi
     symlink_path "${item}" "${HOME}/.config/$(basename "${item}")"
-  done
-}
-
-link_clipse() {
-  local target="${HOME}/.config/clipse"
-  local file
-
-  # Migrate away from the old whole-dir symlink so clipse's runtime state
-  # (history, logs, tmp screenshots) lives in ~/.config, not back in the repo.
-  if [[ -L "${target}" ]]; then
-    rm "${target}"
-    log "Removed legacy ~/.config/clipse directory symlink"
-  fi
-
-  mkdir -p "${target}"
-  for file in config.json custom_theme.json; do
-    [[ -e "${DOTFILES_DIR}/.config/clipse/${file}" ]] || continue
-    symlink_path "${DOTFILES_DIR}/.config/clipse/${file}" "${target}/${file}"
   done
 }
 

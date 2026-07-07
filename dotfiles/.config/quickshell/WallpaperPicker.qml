@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Effects
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
@@ -72,18 +71,6 @@ PanelWindow {
         y: 48                       // float near the top
         width: card.width
         height: card.height
-
-        MultiEffect {               // soft dark shadow, no border
-            source: card
-            anchors.fill: card
-            z: -1
-            shadowEnabled: true
-            shadowColor: "#000000"
-            shadowBlur: 0.9
-            shadowOpacity: 0.6
-            shadowVerticalOffset: 4
-            autoPaddingEnabled: true
-        }
 
         Rectangle {
             id: card

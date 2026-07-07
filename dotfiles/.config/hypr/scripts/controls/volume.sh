@@ -2,6 +2,10 @@
 ## /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  ##
 # Scripts for volume controls for audio and mic
 
+# Show the quickshell OSD island (icon + progress bar); it reads the level
+# itself. No-op if qs is down.  $1 = volume | mic
+osd() { qs ipc call osd "$1" >/dev/null 2>&1; }
+
 # Get Volume
 get_volume() {
 	volume=$(pamixer --get-volume)
@@ -28,11 +32,7 @@ get_icon() {
 
 # Notify
 notify_user() {
-	if [[ "$(get_volume)" == "Muted" ]]; then
-		notify-send -e -h string:x-canonical-private-synchronous:volume_notif -u low "Volume: Muted"
-	else
-		notify-send -e -h int:value:"$(get_volume | sed 's/%//')" -h string:x-canonical-private-synchronous:volume_notif -u low "Volume: $(get_volume)"
-	fi
+	osd volume
 }
 
 # Increase Volume
@@ -54,18 +54,18 @@ dec_volume() {
 # Toggle Mute
 toggle_mute() {
 	if [ "$(pamixer --get-mute)" == "false" ]; then
-		pamixer -m && notify-send -e -u low "Volume Switched OFF"
+		pamixer -m && osd volume
 	elif [ "$(pamixer --get-mute)" == "true" ]; then
-		pamixer -u && notify-send -e -u low "Volume Switched ON"
+		pamixer -u && osd volume
 	fi
 }
 
 # Toggle Mic
 toggle_mic() {
 	if [ "$(pamixer --default-source --get-mute)" == "false" ]; then
-		pamixer --default-source -m && notify-send -e -u low "Microphone Switched OFF"
+		pamixer --default-source -m && osd mic
 	elif [ "$(pamixer --default-source --get-mute)" == "true" ]; then
-		pamixer --default-source -u && notify-send -e -u low "Microphone Switched ON"
+		pamixer --default-source -u && osd mic
 	fi
 }
 # Get Mic Icon
@@ -90,8 +90,7 @@ get_mic_volume() {
 
 # Notify for Microphone
 notify_mic_user() {
-	volume=$(get_mic_volume)
-	notify-send -e -h int:value:"$volume" -h "string:x-canonical-private-synchronous:volume_notif" -u low "Mic-Level: $volume"
+	osd mic
 }
 
 # Increase MIC Volume

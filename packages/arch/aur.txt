@@ -1,5 +1,4 @@
 bottles
-clipse
 devify
 grimblast-git
 hyprqt6engine

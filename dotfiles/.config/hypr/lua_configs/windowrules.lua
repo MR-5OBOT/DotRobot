@@ -25,7 +25,6 @@ hl.window_rule({
 	pin = true,
 })
 hl.window_rule({ match = { class = "nwg-look" }, float = true, center = true, size = "500 400", pin = true })
-hl.window_rule({ match = { class = "clipse" }, float = true, center = true, size = "522 552" })
 
 local float_classes = {
 	"Tk",

@@ -4,6 +4,7 @@ bluez
 bluez-utils
 brightnessctl
 btop
+cliphist
 discord
 docker
 dunst
