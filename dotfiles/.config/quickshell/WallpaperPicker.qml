@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
@@ -14,7 +13,6 @@ PanelWindow {
     property bool open: false
     property var files: []
     property int sel: 0
-    onSelChanged: strip.positionViewAtIndex(sel, ListView.Contain)
 
     function apply() {
         const p = files[sel];
@@ -28,6 +26,7 @@ PanelWindow {
     onOpenChanged: {
         if (open) {
             sel = 0;
+            carousel.pos = 0;
             lister.running = true;
         }
     }
@@ -70,7 +69,7 @@ PanelWindow {
         // top-center, drops in from the top edge (matches the workspace island)
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        anchors.topMargin: win.open ? 8 : -height
+        anchors.topMargin: win.open ? 5 : -height   // match the window gap
         width: card.width
         height: card.height
         opacity: win.open ? 1 : 0
@@ -79,94 +78,107 @@ PanelWindow {
 
         Rectangle {
             id: card
-            width: col.implicitWidth + 24
-            height: col.implicitHeight + 24
+            width: win.width - 10   // full width minus the 5px window gap each side
+            height: 150
             color: Theme.bg
 
-            MouseArea { anchors.fill: parent }  // swallow clicks on the card
+            MouseArea { anchors.fill: parent }  // clicking the panel bg shouldn't close it
 
-            ColumnLayout {
-                id: col
-                anchors.centerIn: parent
-                spacing: 12
+            // coverflow: focused thumb centered + large, neighbours shrink and
+            // dim as they slide out (ported from ref/pill/Wallpaper.qml, flat).
+            Item {
+                id: carousel
+                anchors.fill: parent
+                clip: true
+                focus: true
 
-                Text {
-                    text: "Wallpaper"
-                    font.family: Theme.font
-                    font.pixelSize: 13
-                    color: Theme.text
+                property real pos: 0
+                readonly property var slotW:  [196, 126, 104, 88, 74]
+                readonly property var slotH:  [110, 71, 59, 50, 42]
+                readonly property var slotCX: [0, 143, 244, 326, 393]
+                readonly property var slotB:  [1, 0.56, 0.42, 0.30, 0.22]
+                function lerp(a, ao) {
+                    if (ao >= 4)
+                        return a[4];
+                    var i = Math.floor(ao), f = ao - i;
+                    return a[i] + (a[i + 1] - a[i]) * f;
+                }
+                function offX(off) {
+                    var ao = Math.abs(off);
+                    var cx = ao <= 4 ? lerp(slotCX, ao) : slotCX[4] + (ao - 4) * 60;
+                    return off < 0 ? -cx : cx;
                 }
 
-                ListView {
-                    id: strip
-                    readonly property int cellW: 160
-                    orientation: ListView.Horizontal
-                    // show up to 6 at once; scroll (arrows follow selection) for more
-                    Layout.preferredWidth: Math.min(win.files.length, 6) * cellW
-                    Layout.preferredHeight: 100
-                    clip: true
-                    focus: true
+                // pos chases sel with an exponential ease, so any input rate stays smooth
+                FrameAnimation {
+                    running: win.open && carousel.pos !== win.sel
+                    onTriggered: {
+                        var k = 1 - Math.exp(-frameTime / 0.07);
+                        var next = carousel.pos + (win.sel - carousel.pos) * k;
+                        carousel.pos = Math.abs(next - win.sel) < 0.001 ? win.sel : next;
+                    }
+                }
+
+                Keys.onEscapePressed: win.open = false
+                Keys.onReturnPressed: win.apply()
+                Keys.onEnterPressed: win.apply()
+                Keys.onLeftPressed: win.sel = Math.max(win.sel - 1, 0)
+                Keys.onRightPressed: win.sel = Math.min(win.sel + 1, win.files.length - 1)
+
+                Repeater {
                     model: win.files
-                    boundsBehavior: Flickable.StopAtBounds
-
-                    Keys.onEscapePressed: win.open = false
-                    Keys.onReturnPressed: win.apply()
-                    Keys.onEnterPressed: win.apply()
-                    Keys.onLeftPressed: win.sel = Math.max(win.sel - 1, 0)
-                    Keys.onRightPressed: win.sel = Math.min(win.sel + 1, win.files.length - 1)
-
                     delegate: Item {
-                        id: cell
-                        required property var modelData
+                        id: tile
                         required property int index
-                        readonly property bool current: index === win.sel
-                        width: strip.cellW
-                        height: strip.height
+                        required property var modelData
+                        readonly property real off: index - carousel.pos
+                        readonly property real ao: Math.abs(off)
+                        readonly property bool focused: index === win.sel
+                        readonly property real bright: carousel.lerp(carousel.slotB, ao)
 
-                        Rectangle {
-                            anchors { fill: parent; margins: 6 }
-                            color: Theme.surface
+                        width: carousel.lerp(carousel.slotW, ao)
+                        height: carousel.lerp(carousel.slotH, ao)
+                        x: carousel.width / 2 + carousel.offX(off) - width / 2
+                        y: (carousel.height - height) / 2
+                        z: 10 - ao
+                        visible: ao <= 5
+                        opacity: ao <= 4 ? 1 : Math.max(0, 5 - ao)
 
-                            Image {
-                                anchors.fill: parent
-                                source: "file://" + cell.modelData
-                                fillMode: Image.PreserveAspectCrop
-                                sourceSize.width: 400
-                                asynchronous: true
-                                clip: true
-                            }
-
-                            HoverHandler { id: hov }
-
-                            Rectangle {  // selection / hover outline, on top of the image
-                                anchors.fill: parent
-                                visible: cell.current || hov.hovered
-                                color: "transparent"
-                                border.width: 2
-                                border.color: cell.current ? Theme.pink : Theme.dim
-                            }
-
-                            Rectangle {  // label strip
-                                anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-                                height: 20
-                                color: "#cc101010"
-                                Text {
-                                    anchors { fill: parent; leftMargin: 6; rightMargin: 6 }
-                                    verticalAlignment: Text.AlignVCenter
-                                    text: cell.modelData.split("/").pop()
-                                    elide: Text.ElideRight
-                                    font.family: Theme.font
-                                    font.pixelSize: 11
-                                    color: (cell.current || hov.hovered) ? "#ffffff" : Theme.dim
-                                }
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: { win.sel = cell.index; win.apply(); }
-                            }
+                        Image {
+                            anchors.fill: parent
+                            source: tile.ao <= 6 ? "file://" + tile.modelData : ""
+                            sourceSize.width: 400
+                            fillMode: Image.PreserveAspectCrop
+                            asynchronous: true
+                            smooth: true
+                        }
+                        Rectangle {  // depth dimming for neighbours
+                            anchors.fill: parent
+                            color: "black"
+                            opacity: 1 - tile.bright
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: tile.focused ? win.apply() : (win.sel = tile.index)
                         }
                     }
+                }
+            }
+
+            MouseArea {  // wheel scroll (NoButton: clicks fall through to tiles)
+                anchors.fill: parent
+                z: 15
+                acceptedButtons: Qt.NoButton
+                property real acc: 0
+                onWheel: e => {
+                    acc += e.angleDelta.y / 120;
+                    const n = Math.trunc(acc);
+                    if (n !== 0) {
+                        win.sel = Math.max(0, Math.min(win.files.length - 1, win.sel - n));
+                        acc -= n;
+                    }
+                    e.accepted = true;
                 }
             }
         }

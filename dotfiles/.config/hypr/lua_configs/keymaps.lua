@@ -3,6 +3,7 @@
 local mainMod = "SUPER"
 local SCRIPTS = os.getenv("HOME") .. "/.config/hypr/scripts"
 local SCRIPT = SCRIPTS .. "/controls"
+local RISHOT = os.getenv("HOME") .. "/.config/quickshell/rishot/bin/rishot"
 
 -- Window Management
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
@@ -25,7 +26,8 @@ hl.bind(mainMod .. " + SHIFT + I", hl.dsp.exec_cmd(SCRIPTS .. "/speedtest.sh"))
 hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("wayscriber --active"))
 
 -- Screenshots & Recording
-hl.bind("Print", hl.dsp.exec_cmd("bash " .. SCRIPTS .. "/screenshot.sh menu"))
+hl.bind("Print", hl.dsp.exec_cmd(RISHOT))                     -- drag region or click a window
+hl.bind("SHIFT + Print", hl.dsp.exec_cmd(RISHOT .. " monitor")) -- whole output
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(SCRIPTS .. "/recording/wf-screenRE"))
 hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd(SCRIPTS .. "/recording/stop-recording"))
 
@@ -74,4 +76,4 @@ hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 --   lower / back  (BTN_SIDE)   -> toggle mic mute
 --   upper / forward (BTN_EXTRA) -> region screenshot (see alternatives below)
 hl.bind("mouse:275", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --toggle-mic"))
-hl.bind("mouse:276", hl.dsp.exec_cmd("bash " .. SCRIPTS .. "/screenshot.sh"))
+hl.bind("mouse:276", hl.dsp.exec_cmd(RISHOT))
