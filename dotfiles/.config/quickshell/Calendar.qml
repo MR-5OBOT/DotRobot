@@ -1,8 +1,8 @@
 import QtQuick
 import QtQuick.Layouts
 
-// Month grid with prev/next navigation. `now` drives the today highlight,
-// `monthOffset` is the viewed month relative to the current one.
+// Month grid with prev/next navigation, sized naturally (no stretch). `now`
+// drives the today highlight, `monthOffset` is the viewed month relative to now.
 ColumnLayout {
     id: root
     required property var now
@@ -13,6 +13,10 @@ ColumnLayout {
     readonly property int month: shown.getMonth()
     readonly property int today: now.getDate()
     readonly property bool currentMonth: monthOffset === 0
+
+    // cell metrics — bump these to resize the whole calendar
+    readonly property int cellW: 36
+    readonly property int cellH: 32
 
     spacing: 10
 
@@ -29,8 +33,7 @@ ColumnLayout {
     }
 
     RowLayout {
-        // month label left, nav chevrons grouped right (date-picker pattern);
-        // row width == grid width so the edges align.
+        // month label left, nav chevrons grouped right; width == grid width
         Layout.preferredWidth: grid.width
         Layout.alignment: Qt.AlignHCenter
 
@@ -41,7 +44,6 @@ ColumnLayout {
             font.pixelSize: 13
             font.bold: true
             color: Theme.pink
-            // click the title to jump back to the current month
             MouseArea {
                 anchors.fill: parent
                 visible: !root.currentMonth
@@ -97,8 +99,8 @@ ColumnLayout {
             model: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
             delegate: Text {
                 required property string modelData
-                width: 26
-                height: 20
+                width: root.cellW
+                height: 22
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 text: modelData
@@ -112,8 +114,8 @@ ColumnLayout {
             model: root.cells
             delegate: Rectangle {
                 required property int modelData
-                width: 26
-                height: 24
+                width: root.cellW
+                height: root.cellH
                 radius: Theme.radius
                 color: modelData === root.today && root.currentMonth ? Theme.pink : "transparent"
 

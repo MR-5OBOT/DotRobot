@@ -11,7 +11,8 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd(SCRIPTS .. "/autostart/xdgportals.sh")
 
 	-- Daemons
-	hl.exec_cmd("hyprpaper")
+	hl.exec_cmd("awww-daemon")
+	hl.exec_cmd("sleep 1 && awww img " .. os.getenv("HOME") .. "/Pictures/wallpapers/MR5OBOT.jpg --transition-type none")
 	hl.exec_cmd("qs") -- quickshell: bar + notifications + launcher (replaces swaync/waybar/rofi-drun)
 	hl.exec_cmd("nm-applet --indicator")
 	hl.exec_cmd(SCRIPTS .. "/autostart/cliphist.sh")

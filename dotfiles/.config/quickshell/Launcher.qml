@@ -127,6 +127,7 @@ PanelWindow {
                     Keys.onDownPressed: win.sel = Math.min(win.sel + 1, win.matches.length - 1)
                     Keys.onUpPressed: win.sel = Math.max(win.sel - 1, 0)
                     Keys.onTabPressed: win.sel = (win.sel + 1) % Math.max(1, win.matches.length)
+                    Keys.onBacktabPressed: win.sel = (win.sel - 1 + win.matches.length) % Math.max(1, win.matches.length)
                 }
             }
 

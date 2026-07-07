@@ -6,22 +6,33 @@ import Quickshell.Hyprland
 
 // Wallpaper picker: a horizontal filmstrip of thumbnails, flat/dark, drops in
 // from the top-center. Toggle: qs ipc call wallpaper toggle (Super+W).
-// Click or Enter applies via hyprpaper; not persisted to hyprpaper.conf.
+// Click or Enter applies via swww; not persisted across reboots.
 PanelWindow {
     id: win
 
     property bool open: false
     property var files: []
-    property int sel: 0
+    property int sel: 0   // unbounded step counter; wraps via cur
+    readonly property int cur: files.length ? ((sel % files.length) + files.length) % files.length : 0
 
     function apply() {
-        const p = files[sel];
+        const p = files[cur];
         if (p) {
-            // hyprpaper 0.8: `wallpaper` auto-preloads; `reload` is rejected here
-            Quickshell.execDetached(["hyprctl", "hyprpaper", "wallpaper", "," + p]);
+            // awww animates the new wall in (grows from center), hiding the
+            // decode — no fallback flash. swap --transition-type for a different
+            // animation: wipe | wave | outer | fade | any | random.
+            Quickshell.execDetached(["awww", "img", p,
+                "--transition-type", "grow",
+                "--transition-pos", "center",
+                "--transition-fps", "60",
+                "--transition-duration", "0.8"]);
             win.open = false;
         }
     }
+
+    // list once at startup so thumbs decode ahead of the first open (esp. the
+    // large focused one); re-list on open only to catch newly-added walls.
+    Component.onCompleted: lister.running = true
 
     onOpenChanged: {
         if (open) {
@@ -55,7 +66,13 @@ PanelWindow {
         // -L: ~/Pictures/wallpapers is a symlink; find won't descend it otherwise.
         command: ["bash", "-c", "find -L \"$HOME/Pictures/wallpapers\" -maxdepth 1 -type f \\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \\) | sort"]
         stdout: StdioCollector {
-            onStreamFinished: win.files = text.split("\n").filter(l => l.length > 0)
+            onStreamFinished: {
+                const next = text.split("\n").filter(l => l.length > 0);
+                // only swap the model when it actually changed — otherwise the
+                // Repeater rebuilds every tile and redecodes every image on open.
+                if (next.join("\n") !== win.files.join("\n"))
+                    win.files = next;
+            }
         }
     }
 
@@ -108,6 +125,16 @@ PanelWindow {
                     var cx = ao <= 4 ? lerp(slotCX, ao) : slotCX[4] + (ao - 4) * 60;
                     return off < 0 ? -cx : cx;
                 }
+                // shortest signed offset on the wrapped ring, so both sides stay full.
+                // ponytail: needs ~12+ wallpapers or the far seam peeks in on-screen.
+                function woff(off) {
+                    var n = win.files.length;
+                    if (n <= 0) return off;
+                    var o = off % n;
+                    if (o > n / 2) o -= n;
+                    else if (o < -n / 2) o += n;
+                    return o;
+                }
 
                 // pos chases sel with an exponential ease, so any input rate stays smooth
                 FrameAnimation {
@@ -122,8 +149,10 @@ PanelWindow {
                 Keys.onEscapePressed: win.open = false
                 Keys.onReturnPressed: win.apply()
                 Keys.onEnterPressed: win.apply()
-                Keys.onLeftPressed: win.sel = Math.max(win.sel - 1, 0)
-                Keys.onRightPressed: win.sel = Math.min(win.sel + 1, win.files.length - 1)
+                Keys.onLeftPressed: win.sel -= 1
+                Keys.onRightPressed: win.sel += 1
+                Keys.onTabPressed: win.sel += 1        // Tab: next (wraps via cur)
+                Keys.onBacktabPressed: win.sel -= 1    // Shift+Tab: previous
 
                 Repeater {
                     model: win.files
@@ -131,9 +160,9 @@ PanelWindow {
                         id: tile
                         required property int index
                         required property var modelData
-                        readonly property real off: index - carousel.pos
+                        readonly property real off: carousel.woff(index - carousel.pos)
                         readonly property real ao: Math.abs(off)
-                        readonly property bool focused: index === win.sel
+                        readonly property bool focused: index === win.cur
                         readonly property real bright: carousel.lerp(carousel.slotB, ao)
 
                         width: carousel.lerp(carousel.slotW, ao)
@@ -160,7 +189,7 @@ PanelWindow {
                         MouseArea {
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
-                            onClicked: tile.focused ? win.apply() : (win.sel = tile.index)
+                            onClicked: tile.focused ? win.apply() : (win.sel += carousel.woff(tile.index - win.cur))
                         }
                     }
                 }
@@ -175,7 +204,7 @@ PanelWindow {
                     acc += e.angleDelta.y / 120;
                     const n = Math.trunc(acc);
                     if (n !== 0) {
-                        win.sel = Math.max(0, Math.min(win.files.length - 1, win.sel - n));
+                        win.sel -= n;
                         acc -= n;
                     }
                     e.accepted = true;

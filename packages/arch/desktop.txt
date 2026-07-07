@@ -1,4 +1,5 @@
 acpi
+awww
 blueman
 bluez
 bluez-utils
@@ -25,7 +26,6 @@ gvfs-smb
 hypridle
 hyprland
 hyprlock
-hyprpaper
 hyprpicker
 hyprpolkitagent
 hyprshutdown

@@ -21,11 +21,13 @@ PanelWindow {
     // input region: invisible peek strip at the edge when hidden, full bar shown.
     // The bar draws nothing when collapsed (content is fully off-screen), so this
     // strip is an invisible hover trigger.
+    // only the compact bar's own vertical band is interactive; the rest of the
+    // left edge stays click-through and won't trigger the reveal
     mask: Region {
         x: 0
-        y: 0
+        y: content.y
         width: BarState.revealed ? bar.width : bar.peek
-        height: bar.height
+        height: content.height
     }
 
     // hover detection spans the window but input is limited by the mask above
@@ -36,7 +38,8 @@ PanelWindow {
     Rectangle {
         id: content
         width: Theme.barWidth
-        height: parent.height
+        height: col.implicitHeight + 24            // compact: only as tall as its widgets
+        anchors.verticalCenter: parent.verticalCenter
         color: Theme.bg
 
         // slide fully off when hidden -> nothing visible until hovered
@@ -68,61 +71,42 @@ PanelWindow {
             implicitWidth: 34
         }
 
-        Frame {  // launcher
-            id: appsFrame
-            anchors.top: parent.top
-            anchors.topMargin: 8
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: 34
-            height: 34
-            Icon {
-                id: appsBtn
-                anchors.centerIn: parent
-                text: "apps"
-                size: 18
-                color: appsMA.containsMouse ? Theme.pink : Theme.dim
-                Behavior on color { ColorAnimation { duration: 120 } }
-                MouseArea {
-                    id: appsMA
-                    anchors.fill: parent
-                    anchors.margins: -6
-                    hoverEnabled: true
-                    onClicked: BarState.launcherOpen = !BarState.launcherOpen
+        // one centered column now (workspaces dropped — the WorkspaceOSD island
+        // already shows the workspace on switch)
+        ColumnLayout {
+            id: col
+            anchors.centerIn: parent
+            spacing: 8
+
+            Frame {  // launcher
+                Layout.alignment: Qt.AlignHCenter
+                implicitHeight: 34
+                Icon {
+                    anchors.centerIn: parent
+                    text: "apps"
+                    size: 18
+                    color: appsMA.containsMouse ? Theme.pink : Theme.dim
+                    Behavior on color { ColorAnimation { duration: 120 } }
+                    MouseArea {
+                        id: appsMA
+                        anchors.fill: parent
+                        anchors.margins: -6
+                        hoverEnabled: true
+                        onClicked: BarState.launcherOpen = !BarState.launcherOpen
+                    }
                 }
             }
-        }
 
-        Frame {  // time + calendar
-            id: clockFrame
-            anchors.top: appsFrame.bottom
-            anchors.topMargin: 8
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: 34
-            height: clock.implicitHeight + 12
-            Clock {
-                id: clock
-                anchors.centerIn: parent
-                width: parent.width
+            Frame {  // time + calendar
+                Layout.alignment: Qt.AlignHCenter
+                implicitHeight: clock.implicitHeight + 12
+                Clock {
+                    id: clock
+                    anchors.centerIn: parent
+                    width: parent.width
+                    barContent: content
+                }
             }
-        }
-
-        Frame {  // workspaces
-            anchors.centerIn: parent
-            width: 34
-            height: wsInner.implicitHeight + 14
-            Workspaces {
-                id: wsInner
-                anchors.centerIn: parent
-                width: parent.width
-            }
-        }
-
-        ColumnLayout {
-            id: statusCol
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 12
-            anchors.horizontalCenter: parent.horizontalCenter
-            spacing: 8
 
             Frame {  // system tray, only when it has icons
                 Layout.alignment: Qt.AlignHCenter

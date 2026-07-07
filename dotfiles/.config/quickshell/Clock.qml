@@ -8,6 +8,9 @@ Item {
     implicitWidth: parent.width
     implicitHeight: col.implicitHeight + 12
 
+    // the bar's content rect, so the calendar popout can match its height
+    property Item barContent
+
     SystemClock {
         id: clock
         precision: SystemClock.Seconds
@@ -43,6 +46,7 @@ Item {
         }
 
         Icon {  // calendar below the time; hovering it shows the calendar popup
+            id: calIcon
             Layout.alignment: Qt.AlignHCenter
             Layout.topMargin: 4
             text: "calendar_month"
@@ -57,7 +61,9 @@ Item {
 
     Popout {
         id: pop
-        anchorItem: root
+        // top-align with the bar; fall back to the icon if unset
+        anchorItem: root.barContent ? root.barContent : calIcon
+        topAligned: root.barContent !== null
         contentComponent: Component {
             Calendar {
                 now: clock.date
