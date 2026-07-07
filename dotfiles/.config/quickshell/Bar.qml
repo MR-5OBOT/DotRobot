@@ -78,25 +78,6 @@ PanelWindow {
             anchors.centerIn: parent
             spacing: 8
 
-            Frame {  // launcher
-                Layout.alignment: Qt.AlignHCenter
-                implicitHeight: 34
-                Icon {
-                    anchors.centerIn: parent
-                    text: "apps"
-                    size: 18
-                    color: appsMA.containsMouse ? Theme.pink : Theme.dim
-                    Behavior on color { ColorAnimation { duration: 120 } }
-                    MouseArea {
-                        id: appsMA
-                        anchors.fill: parent
-                        anchors.margins: -6
-                        hoverEnabled: true
-                        onClicked: BarState.launcherOpen = !BarState.launcherOpen
-                    }
-                }
-            }
-
             Frame {  // time + calendar
                 Layout.alignment: Qt.AlignHCenter
                 implicitHeight: clock.implicitHeight + 12
