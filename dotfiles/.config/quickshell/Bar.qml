@@ -104,7 +104,6 @@ PanelWindow {
                     id: clock
                     anchors.centerIn: parent
                     width: parent.width
-                    barContent: content
                 }
             }
 

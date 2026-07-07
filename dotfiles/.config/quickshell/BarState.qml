@@ -17,4 +17,7 @@ QtObject {
 
     // launcher visibility lives here so both the bar button and IPC can toggle it
     property bool launcherOpen: false
+
+    // calendar overlay: opened by hovering the bar clock icon, closed by click-outside
+    property bool calendarOpen: false
 }

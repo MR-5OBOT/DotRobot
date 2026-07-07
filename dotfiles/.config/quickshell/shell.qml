@@ -20,4 +20,5 @@ ShellRoot {
     WorkspaceOSD {}
     Clipboard {}
     Osd {}
+    CalendarPopup {}
 }

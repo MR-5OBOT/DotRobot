@@ -8,9 +8,6 @@ Item {
     implicitWidth: parent.width
     implicitHeight: col.implicitHeight + 12
 
-    // the bar's content rect, so the calendar popout can match its height
-    property Item barContent
-
     SystemClock {
         id: clock
         precision: SystemClock.Seconds
@@ -45,29 +42,18 @@ Item {
             color: Theme.dim
         }
 
-        Icon {  // calendar below the time; hovering it shows the calendar popup
-            id: calIcon
+        Icon {  // calendar; a short hover opens the top-center calendar overlay
             Layout.alignment: Qt.AlignHCenter
             Layout.topMargin: 4
             text: "calendar_month"
             size: 15
-            color: pop.open ? Theme.pink : Theme.dim
+            color: BarState.calendarOpen ? Theme.pink : Theme.dim
             Behavior on color { ColorAnimation { duration: 120 } }
             HoverHandler {
-                onHoveredChanged: pop.itemHovered = hovered
+                onHoveredChanged: hovered ? dwell.restart() : dwell.stop()
             }
-        }
-    }
-
-    Popout {
-        id: pop
-        // top-align with the bar; fall back to the icon if unset
-        anchorItem: root.barContent ? root.barContent : calIcon
-        topAligned: root.barContent !== null
-        contentComponent: Component {
-            Calendar {
-                now: clock.date
-            }
+            // small dwell so passing over the icon doesn't pop the overlay
+            Timer { id: dwell; interval: 180; onTriggered: BarState.calendarOpen = true }
         }
     }
 }
