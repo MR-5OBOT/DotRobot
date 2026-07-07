@@ -71,7 +71,7 @@ PanelWindow {
         }
     }
 
-    anchors.bottom: true
+    anchors.top: true
     exclusiveZone: 0
     color: "transparent"
     WlrLayershell.layer: WlrLayer.Overlay
@@ -80,20 +80,20 @@ PanelWindow {
 
     visible: shown || island.opacity > 0.01
     implicitWidth: island.implicitWidth
-    implicitHeight: island.implicitHeight + 76
+    implicitHeight: island.implicitHeight + 8
 
     Rectangle {
         id: island
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: osd.shown ? 60 : 46   // float ~60px up, subtle rise on show
+        anchors.top: parent.top
+        anchors.topMargin: osd.shown ? 4 : -implicitHeight   // drops from the top edge
         implicitWidth: 280
         implicitHeight: content.implicitHeight + 20
         color: Theme.bg
 
         opacity: osd.shown ? 1 : 0
-        Behavior on opacity { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
-        Behavior on anchors.bottomMargin { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+        Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+        Behavior on anchors.topMargin { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
 
         RowLayout {
             id: content

@@ -5,9 +5,8 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
 
-// Wallpaper grid, square/dark style, soft shadow (no border). Spans the
-// maximized-window area: anchored top, full width, inset by the same gap a
-// tiled window leaves. Toggle: qs ipc call wallpaper toggle (Super+W).
+// Wallpaper picker: a horizontal filmstrip of thumbnails, flat/dark, drops in
+// from the top-center. Toggle: qs ipc call wallpaper toggle (Super+W).
 // Click or Enter applies via hyprpaper; not persisted to hyprpaper.conf.
 PanelWindow {
     id: win
@@ -15,12 +14,13 @@ PanelWindow {
     property bool open: false
     property var files: []
     property int sel: 0
-    onSelChanged: grid.positionViewAtIndex(sel, GridView.Contain)
+    onSelChanged: strip.positionViewAtIndex(sel, ListView.Contain)
 
     function apply() {
         const p = files[sel];
         if (p) {
-            Quickshell.execDetached(["hyprctl", "hyprpaper", "reload", "," + p]);
+            // hyprpaper 0.8: `wallpaper` auto-preloads; `reload` is rejected here
+            Quickshell.execDetached(["hyprctl", "hyprpaper", "wallpaper", "," + p]);
             win.open = false;
         }
     }
@@ -32,7 +32,7 @@ PanelWindow {
         }
     }
 
-    visible: open
+    visible: open || cardWrap.opacity > 0.01
     anchors { top: true; bottom: true; left: true; right: true }
     exclusiveZone: 0
     color: "transparent"
@@ -67,10 +67,15 @@ PanelWindow {
 
     Item {
         id: cardWrap
+        // top-center, drops in from the top edge (matches the workspace island)
         anchors.horizontalCenter: parent.horizontalCenter
-        y: 48                       // float near the top
+        anchors.top: parent.top
+        anchors.topMargin: win.open ? 8 : -height
         width: card.width
         height: card.height
+        opacity: win.open ? 1 : 0
+        Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+        Behavior on anchors.topMargin { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
 
         Rectangle {
             id: card
@@ -92,33 +97,31 @@ PanelWindow {
                     color: Theme.text
                 }
 
-                GridView {
-                    id: grid
-                    readonly property int cols: 3
-                    readonly property int rows: Math.ceil(win.files.length / cols)
-                    cellWidth: 160
-                    cellHeight: 100
-                    Layout.preferredWidth: cellWidth * cols
-                    Layout.preferredHeight: cellHeight * Math.min(rows, 3)
+                ListView {
+                    id: strip
+                    readonly property int cellW: 160
+                    orientation: ListView.Horizontal
+                    // show up to 6 at once; scroll (arrows follow selection) for more
+                    Layout.preferredWidth: Math.min(win.files.length, 6) * cellW
+                    Layout.preferredHeight: 100
                     clip: true
                     focus: true
                     model: win.files
+                    boundsBehavior: Flickable.StopAtBounds
 
                     Keys.onEscapePressed: win.open = false
                     Keys.onReturnPressed: win.apply()
                     Keys.onEnterPressed: win.apply()
                     Keys.onLeftPressed: win.sel = Math.max(win.sel - 1, 0)
                     Keys.onRightPressed: win.sel = Math.min(win.sel + 1, win.files.length - 1)
-                    Keys.onUpPressed: win.sel = Math.max(win.sel - cols, 0)
-                    Keys.onDownPressed: win.sel = Math.min(win.sel + cols, win.files.length - 1)
 
                     delegate: Item {
                         id: cell
                         required property var modelData
                         required property int index
                         readonly property bool current: index === win.sel
-                        width: grid.cellWidth
-                        height: grid.cellHeight
+                        width: strip.cellW
+                        height: strip.height
 
                         Rectangle {
                             anchors { fill: parent; margins: 6 }

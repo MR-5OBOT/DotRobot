@@ -47,7 +47,7 @@ PanelWindow {
         }
     }
 
-    visible: open
+    visible: open || card.opacity > 0.01
     // fullscreen transparent overlay: any click outside the card closes it
     anchors { top: true; bottom: true; left: true; right: true }
     exclusiveZone: 0   // float over windows, don't reserve space (kitty was shrinking)
@@ -76,12 +76,17 @@ PanelWindow {
 
     Rectangle {
         id: card
-        // search row pinned at vertical center; results grow downward
+        // top-center, drops in from the top edge (matches the workspace island)
         anchors.horizontalCenter: parent.horizontalCenter
-        y: Math.round((parent.height - 38) / 2)
+        anchors.top: parent.top
+        anchors.topMargin: win.open ? 8 : -height
         width: 270
         height: col.implicitHeight + 2
         color: Theme.bg
+
+        opacity: win.open ? 1 : 0
+        Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+        Behavior on anchors.topMargin { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
 
         MouseArea { anchors.fill: parent }  // swallow clicks on the card itself
 
