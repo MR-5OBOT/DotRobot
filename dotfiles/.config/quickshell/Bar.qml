@@ -20,9 +20,8 @@ PanelWindow {
 
     // input region: invisible peek strip at the edge when hidden, full bar shown.
     // The bar draws nothing when collapsed (content is fully off-screen), so this
-    // strip is an invisible hover trigger.
-    // only the compact bar's own vertical band is interactive; the rest of the
-    // left edge stays click-through and won't trigger the reveal
+    // strip is an invisible hover trigger. Only the centered band where the bar
+    // sits is interactive; the rest of the left edge stays click-through.
     mask: Region {
         x: 0
         y: content.y
@@ -41,6 +40,8 @@ PanelWindow {
         height: col.implicitHeight + 24            // compact: only as tall as its widgets
         anchors.verticalCenter: parent.verticalCenter
         color: Theme.bg
+
+        Component.onCompleted: BarState.barContent = content
 
         // slide fully off when hidden -> nothing visible until hovered
         x: BarState.revealed ? 0 : -Theme.barWidth
@@ -78,19 +79,9 @@ PanelWindow {
             anchors.centerIn: parent
             spacing: 8
 
-            Frame {  // time + calendar
-                Layout.alignment: Qt.AlignHCenter
-                implicitHeight: clock.implicitHeight + 12
-                Clock {
-                    id: clock
-                    anchors.centerIn: parent
-                    width: parent.width
-                }
-            }
-
             Frame {  // system tray, only when it has icons
                 Layout.alignment: Qt.AlignHCenter
-                visible: tray.children.length > 0
+                visible: tray.count > 0
                 implicitHeight: tray.implicitHeight + 14
                 Tray {
                     id: tray

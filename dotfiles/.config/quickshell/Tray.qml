@@ -9,6 +9,9 @@ ColumnLayout {
     id: root
     spacing: 10
 
+    // the Repeater itself is a child, so children.length can't gate visibility
+    readonly property alias count: rep.count
+
     // network + bluetooth are rendered natively, so hide their tray applets
     readonly property var hidden: /nm-applet|network|blueman|bluetooth/i
     function keep(item) {
@@ -16,6 +19,7 @@ ColumnLayout {
     }
 
     Repeater {
+        id: rep
         model: SystemTray.items.values.filter(root.keep)
 
         delegate: IconImage {

@@ -10,7 +10,6 @@ Scope {
     required property Item anchorItem
     property Component contentComponent
     property int pad: 14
-    property bool topAligned: false   // open flush-right but top-aligned (else vertically centred)
 
     property bool itemHovered: false
     property bool popHovered: false
@@ -47,10 +46,14 @@ Scope {
     PopupWindow {
         id: win
 
-        anchor.item: root.anchorItem
-        // top-aligned (open downward) or flush-right vertically centred
-        anchor.edges: root.topAligned ? (Edges.Top | Edges.Right) : Edges.Right
-        anchor.gravity: root.topAligned ? (Edges.Bottom | Edges.Right) : Edges.Right
+        // anchored to the bar's visible band, flush right and vertically centred
+        // on it — every popout opens in the same spot, always inside the bar height
+        readonly property Item band: BarState.barContent ?? root.anchorItem
+        anchor.item: band
+        anchor.edges: Edges.Top | Edges.Right
+        anchor.gravity: Edges.Bottom | Edges.Right
+        anchor.rect.x: band.width              // right edge of the band
+        anchor.rect.y: (band.height - implicitHeight) / 2
 
         // stay visible through the fade-out so closing animates too
         visible: root.open || card.opacity > 0.01
