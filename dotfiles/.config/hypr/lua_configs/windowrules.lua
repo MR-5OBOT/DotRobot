@@ -4,7 +4,7 @@
 hl.window_rule({ match = { class = "^(brave-.*)" }, workspace = 1 })
 hl.window_rule({ match = { class = "kitty" }, workspace = 2 })
 hl.window_rule({ match = { class = "^(org.telegram.desktop)$" }, workspace = 3 })
-hl.window_rule({ match = { title = "^(TradingView)" }, workspace = 4 })
+hl.window_rule({ match = { class = "^(vesktop)$" }, workspace = 4 })
 hl.window_rule({ match = { class = "^(terminal64.exe)$" }, workspace = 5 })
 hl.window_rule({ match = { class = "^(com.obsproject.Studio)$" }, workspace = 6 })
 hl.window_rule({ match = { class = "mpv" }, workspace = 8 })

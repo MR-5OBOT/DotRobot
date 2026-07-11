@@ -48,7 +48,6 @@ quickshell
 qt5-wayland
 qt5ct
 rnote
-rofi
 scrcpy
 slurp
 speedtest-cli

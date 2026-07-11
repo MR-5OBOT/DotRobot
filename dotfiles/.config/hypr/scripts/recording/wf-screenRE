@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Screen recorder — wf-recorder + Intel VAAPI (h264), CFR for smooth playback.
-# Modes: full | region | audio | region-audio   (no arg -> rofi picker)
+# Modes: full | region | audio | region-audio   (pick via qs: Super+R)
 # Stop with stop-recording (Super+Shift+R).
 set -euo pipefail
 
@@ -23,8 +23,8 @@ rm -f "$PIDFILE"
 
 mode="${1:-}"
 if [[ -z "$mode" ]]; then
-	mode=$(printf 'full\nregion\naudio\nregion-audio' |
-		rofi -dmenu -i -p "Record" -theme-str 'window {width: 14em;}') || exit 0
+	notify-send -i dialog-error "Recorder" "Usage: wf-screenRE full|region|audio|region-audio"
+	exit 1
 fi
 
 # Quality/perf args shared by all modes. -r forces constant framerate (smooth).
