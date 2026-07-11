@@ -13,4 +13,7 @@ done
 unset _frag
 
 # Greeting
-command -v fastfetch >/dev/null 2>&1 && fastfetch
+# kitty-direct images stick over tmux panes; use text logo inside tmux
+if command -v fastfetch >/dev/null 2>&1; then
+  [[ -n $TMUX ]] && fastfetch --logo none || fastfetch
+fi
