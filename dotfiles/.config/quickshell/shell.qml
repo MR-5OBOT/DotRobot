@@ -2,7 +2,7 @@
 //@ pragma DefaultEnv QS_NO_RELOAD_POPUP=1
 import Quickshell
 
-// One bar per screen. Run with:  qs -c quickshell   (waybar stays as-is)
+// One bar per screen. Run with:  qs -c quickshell
 ShellRoot {
     settings.watchFiles: true
 

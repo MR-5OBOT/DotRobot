@@ -8,7 +8,6 @@ btop
 cliphist
 discord
 docker
-dunst
 glow
 ffmpegthumbnailer
 file-roller
@@ -50,12 +49,10 @@ qt5-wayland
 qt5ct
 rnote
 rofi
-satty
 scrcpy
 slurp
 speedtest-cli
 swaybg
-swaync
 thunar
 thunar-archive-plugin
 thunar-media-tags-plugin
@@ -67,7 +64,6 @@ ttf-material-symbols-variable
 tumbler
 uwsm
 visidata
-waybar
 webp-pixbuf-loader
 wf-recorder
 wireplumber
