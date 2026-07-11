@@ -25,5 +25,5 @@ alias vzshrc="nvim ${ZDOTDIR:-$HOME/.config/zsh}/.zshrc"
 alias szshrc="source ${ZDOTDIR:-$HOME/.config/zsh}/.zshrc"
 
 # ---------- Misc ----------
-alias goo="start-hyprland"
+alias hypr-start="uwsm start -e -D Hyprland hyprland.desktop"  # uwsm/systemd-managed session from TTY
 alias quick-wifi-scan='sudo nmcli dev wifi rescan && nmcli dev wifi list'
