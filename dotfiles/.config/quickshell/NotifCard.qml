@@ -186,8 +186,10 @@ Item {
                     text: root.notif.body
                     textFormat: Text.MarkdownText
                     wrapMode: Text.Wrap
-                    maximumLineCount: 5
-                    elide: Text.ElideRight
+                    // maximumLineCount/elide are ignored for rich text (markdown),
+                    // so clamp the height instead or a long message fills the screen
+                    Layout.maximumHeight: 90
+                    clip: true
                     font.family: Theme.font
                     font.pixelSize: 11
                     color: Theme.dim

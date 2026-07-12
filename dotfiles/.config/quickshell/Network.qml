@@ -68,7 +68,7 @@ Item {
 
     MouseArea {
         anchors.fill: parent
-        onClicked: Quickshell.execDetached(["kitty", "-e", "nmtui"])
+        onClicked: BarState.networkOpen = !BarState.networkOpen
     }
 
     Popout {

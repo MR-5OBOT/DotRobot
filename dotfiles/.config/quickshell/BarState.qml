@@ -24,4 +24,10 @@ QtObject {
 
     // calendar overlay: opened by hovering the top-center screen edge, closed on hover-out
     property bool calendarOpen: false
+
+    // network menu (nm-applet-style): toggled by clicking the wifi icon
+    property bool networkOpen: false
+
+    // calculator: keypad + paper/tape modes
+    property bool calcOpen: false
 }

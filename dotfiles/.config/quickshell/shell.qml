@@ -21,6 +21,9 @@ ShellRoot {
     Clipboard {}
     Osd {}
     CalendarPopup {}
+    NetworkMenu {}
+    Calculator {}
+    Lock {}
 
     ActionMenu {
         ipcTarget: "powermenu"

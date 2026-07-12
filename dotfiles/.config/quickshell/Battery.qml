@@ -62,9 +62,26 @@ Item {
                 root.charging = chg;
                 root.discharging = dis;
                 root.pct = f > 0 ? Math.round(n / f * 100) : 0;
+                root.checkLow();
             }
         }
     }
+
+    // Low-battery notifier (folds in the old BAT-check.sh; drops the acpi dep).
+    // Fires once when crossing below 10% on battery; re-arms when charging or
+    // back above the threshold.
+    property bool lowNotified: false
+    function checkLow() {
+        if (full <= 0) return;
+        if (charging || pct > 10) { lowNotified = false; return; }
+        if (pct < 10 && !lowNotified) {
+            lowNotified = true;
+            lowProc.command = ["notify-send", "-u", "critical", "-i", "battery-caution",
+                "⚠️ Low Battery", pct + "% — plug in your charger!"];
+            lowProc.running = true;
+        }
+    }
+    Process { id: lowProc }
 
     Timer {
         interval: 10000
