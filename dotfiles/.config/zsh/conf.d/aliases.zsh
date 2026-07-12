@@ -16,9 +16,9 @@ alias ..="cd .."
 alias ...="cd ../../"
 
 # ---------- eza (ls replacement) ----------
-alias ls="eza -a --icons"
-alias l="eza -lah --icons"
-alias lt="eza --tree --level=2 --long --icons --git -la"
+alias ls="eza -a --icons=auto"
+alias l="eza -lah --icons=auto"
+alias lt="eza --tree --level=2 --long --icons=auto --git -la"
 
 # ---------- zsh config ----------
 alias vzshrc="nvim ${ZDOTDIR:-$HOME/.config/zsh}/.zshrc"

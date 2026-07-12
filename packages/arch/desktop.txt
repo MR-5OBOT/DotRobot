@@ -18,7 +18,6 @@ gimp
 gparted
 grim
 gtk4
-gtklock
 gvfs
 gvfs-mtp
 gvfs-smb
