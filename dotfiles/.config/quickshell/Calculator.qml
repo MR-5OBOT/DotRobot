@@ -2,25 +2,25 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
-import Quickshell.Wayland
-import Quickshell.Hyprland
 
 // Simple calculator with two modes:
 //   pad   — classic keypad + display (Super+equal / XF86Calculator)
 //   paper — a running tape: type an expression, Enter, it stacks up
-// One evaluator for both. Toggle: qs ipc call calc toggle
-PanelWindow {
+// One evaluator for both. Draggable floating window. Toggle: qs ipc call calc toggle
+FloatingWindow {
     id: win
 
-    readonly property bool open: BarState.calcOpen
     property string input: ""
     property bool paper: false
     property var tape: []          // [{expr, res}]
 
-    onOpenChanged: {
-        BarState.activePopup = open ? win : (BarState.activePopup === win ? null : BarState.activePopup);
-        if (open) inputFocus();
-    }
+    title: "Calculator"
+    color: Theme.bg
+    implicitWidth: 272
+    implicitHeight: content.implicitHeight + 2
+
+    visible: BarState.calcOpen
+    onVisibleChanged: if (visible) inputFocus()
     function inputFocus() { Qt.callLater(() => { (paper ? paperInput : padInput).forceActiveFocus(); }); }
 
     // ---- evaluator: whitelist chars, then Function-eval. Local input only. ---
@@ -57,45 +57,21 @@ PanelWindow {
 
     readonly property var keys: ["C", "⌫", "%", "÷", "7", "8", "9", "×", "4", "5", "6", "−", "1", "2", "3", "+", "√", "0", ".", "="]
 
-    // ---- window --------------------------------------------------------------
-    visible: open || card.opacity > 0.01
-    anchors { top: true; bottom: true; left: true; right: true }
-    exclusiveZone: 0
-    color: "transparent"
-    WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.namespace: "quickshell-calc"
-    WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
-
     IpcHandler {
         target: "calc"
         function toggle(): void { BarState.calcOpen = !BarState.calcOpen; }
     }
-    HyprlandFocusGrab {
-        active: win.open
-        windows: [win]
-        onCleared: BarState.calcOpen = false
-    }
-    MouseArea { anchors.fill: parent; onClicked: BarState.calcOpen = false }
 
     Rectangle {
-        id: card
-        anchors.centerIn: parent
-        width: 272
-        height: content.implicitHeight
+        anchors.fill: parent
         color: Theme.bg
         border.width: 1
         border.color: Theme.border
 
-        opacity: win.open ? 1 : 0
-        scale: win.open ? 1 : 0.96
-        Behavior on opacity { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
-        Behavior on scale { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
-
-        MouseArea { anchors.fill: parent }   // swallow clicks
-
         ColumnLayout {
             id: content
-            anchors { left: parent.left; right: parent.right; top: parent.top; margins: 1 }
+            anchors.fill: parent
+            anchors.margins: 1
             spacing: 0
 
             RowLayout {   // header: title + mode toggle
@@ -146,12 +122,13 @@ PanelWindow {
             ColumnLayout {
                 visible: win.paper
                 Layout.fillWidth: true
+                Layout.fillHeight: true
                 spacing: 0
 
                 ListView {
                     id: tapeView
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 220
+                    Layout.fillHeight: true
                     clip: true
                     model: win.tape
                     onCountChanged: positionViewAtEnd()
@@ -186,6 +163,7 @@ PanelWindow {
                 Rectangle { Layout.fillWidth: true; height: 1; color: Theme.border }
                 RowLayout {
                     Layout.fillWidth: true
+                    Layout.fillHeight: false   // nested layouts default fillHeight=true; keep this row at 44
                     Layout.preferredHeight: 44
                     spacing: 0
                     TextInput {
