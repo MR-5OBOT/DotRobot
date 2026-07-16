@@ -72,8 +72,8 @@ PanelWindow {
             implicitWidth: 34
         }
 
-        // one centered column now (workspaces dropped — the WorkspaceOSD island
-        // already shows the workspace on switch)
+        // one centered column (workspaces live in the hover-revealable
+        // WorkspaceOSD island at the top edge)
         ColumnLayout {
             id: col
             anchors.centerIn: parent

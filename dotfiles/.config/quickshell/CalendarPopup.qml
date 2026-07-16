@@ -3,14 +3,17 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 
-// Time + calendar as a top-center drop-in overlay. An invisible strip at the
-// top-center screen edge is the hover trigger (like the bar's peek strip);
-// leaving the card closes it. No keyboard focus, so a hover can't steal the keyboard.
+// Time + calendar centered on the screen. Invisible strips at the top-left
+// and top-right corners are the hover triggers; the card fades in at screen
+// center. Leaving both the strip and the card closes it after a short grace
+// (long enough to travel from corner to card). No keyboard focus, so a hover
+// can't steal the keyboard.
 PanelWindow {
     id: win
 
     readonly property bool open: BarState.calendarOpen
-    property int peekH: 8   // invisible hover-trigger strip height at the top edge
+    property int peekH: 8    // invisible hover-trigger strip height at the top edge
+    property int corner: 80  // width of each corner trigger strip
 
     visible: true
     anchors { top: true; bottom: true; left: true; right: true }
@@ -21,49 +24,58 @@ PanelWindow {
 
     SystemClock { id: sysClock; precision: SystemClock.Seconds }
 
-    // input region: card-wide strip at the top edge, plus the card itself while
-    // it's on-screen (off-screen when closed -> only the strip is interactive).
+    // input region: a strip in each top corner, plus the card itself while
+    // it's on-screen (off-screen when closed -> only the strips are interactive).
     // Everything else stays click-through.
     mask: Region {
-        x: card.x
+        x: 0
         y: 0
-        width: card.width
+        width: win.corner
         height: win.peekH
+        Region {
+            x: win.width - win.corner
+            y: 0
+            width: win.corner
+            height: win.peekH
+        }
         Region {
             x: card.x
             y: card.y
-            width: card.width
+            width: card.visible ? card.width : 0   // no dead zone mid-screen when closed
             height: card.height
         }
     }
 
-    // hover spans the window but input is limited by the mask: entering the
-    // strip opens (after a small dwell), leaving the card closes.
+    // hover spans the window but input is limited by the mask: entering a
+    // corner strip opens (after a small dwell); leaving strip and card closes
+    // after a grace long enough to reach the centered card.
     HoverHandler {
         onHoveredChanged: {
-            if (hovered)
+            if (hovered) {
                 dwell.restart();
-            else {
+                closeGrace.stop();
+            } else {
                 dwell.stop();
-                BarState.calendarOpen = false;
+                closeGrace.restart();
             }
         }
     }
     Timer { id: dwell; interval: 180; onTriggered: BarState.calendarOpen = true }
+    Timer { id: closeGrace; interval: 500; onTriggered: BarState.calendarOpen = false }
 
     Rectangle {
         id: card
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        // drops in flush with the strip so the pointer never leaves the mask
-        anchors.topMargin: win.open ? win.peekH : -height
+        anchors.centerIn: parent
         width: content.implicitWidth + 28
         height: content.implicitHeight + 28
         color: Theme.bg
+        // keep it out of the input mask while closed
+        visible: opacity > 0.01
 
         opacity: win.open ? 1 : 0
+        scale: win.open ? 1 : 0.96
         Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
-        Behavior on anchors.topMargin { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+        Behavior on scale { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
 
         ColumnLayout {
             id: content
