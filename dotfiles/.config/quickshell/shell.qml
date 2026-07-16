@@ -24,6 +24,10 @@ ShellRoot {
     NetworkMenu {}
     Calculator {}
     Lock {}
+    // FIXME: GoSleep window never maps (backingWindowVisible=true but Hyprland
+    // gets no layer surface), and qs restarts on reload while it's loaded.
+    // Debug before re-enabling.
+    // GoSleep {}
 
     ActionMenu {
         ipcTarget: "powermenu"
