@@ -1,13 +1,10 @@
 /**
- * @name system24
- * @description a tui-style discord theme.
- * @author refact0r
+ * @name mr5obot-tui
+ * @description a tui-style discord theme. based on refact0r/system24.
+ * @author mr5obot
  * @version 2.0.0
- * @invite nz87hXyvcy
- * @website https://github.com/refact0r/system24
- * @source https://github.com/refact0r/system24/blob/master/theme/system24.theme.css
- * @authorId 508863359777505290
- * @authorLink https://www.refact0r.dev
+ * @website https://github.com/MR-5OBOT/DotRobot
+ * @authorLink https://github.com/MR-5OBOT
 */
 
 /* import theme modules */
@@ -15,8 +12,8 @@
 
 body {
     /* font, change to '' for default discord font */
-    --font: 'DM Mono'; /* change to '' for default discord font */
-    --code-font: 'DM Mono'; /* change to '' for default discord font */
+    --font: 'IosevkaTerm Nerd Font Mono'; /* change to '' for default discord font */
+    --code-font: 'IosevkaTerm Nerd Font Mono'; /* change to '' for default discord font */
     font-weight: 300; /* text font weight. 300 is light, 400 is normal. DOES NOT AFFECT BOLD TEXT */
     letter-spacing: -0.05ch; /* decreases letter spacing for better readability. recommended on monospace fonts.*/
 
@@ -72,7 +69,7 @@ body {
 
     /* styling options */
     --custom-spotify-bar: on; /* off: default, on: custom text-like spotify progress bar */
-    --ascii-titles: on; /* off: default, on: use ascii font for titles at the start of a channel */
+    --ascii-titles: off; /* off: default, on: use ascii font for titles at the start of a channel */
     --ascii-loader: system24; /* off: default, system24: use system24 ascii loader, cats: use cats loader */
 
     /* panel labels */
