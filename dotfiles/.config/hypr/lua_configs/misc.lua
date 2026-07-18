@@ -14,6 +14,6 @@ hl.config({
 	misc = {
 		-- let apps raise themselves on activation (e.g. clicking a notification
 		-- switches to WhatsApp/Telegram); Hyprland defaults this off
-		focus_on_activate = true,
+		focus_on_activate = false,
 	},
 })
