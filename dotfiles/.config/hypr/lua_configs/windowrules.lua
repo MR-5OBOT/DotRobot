@@ -9,10 +9,10 @@ hl.window_rule({ match = { class = "^(terminal64.exe)$" }, workspace = 5 })
 hl.window_rule({ match = { class = "^(Foliate)$" }, workspace = 6 })
 
 -- Anything without a workspace rule above -> workspace 9
-hl.window_rule({
-	match = { class = "negative:^(brave-.*|kitty|org.telegram.desktop|vesktop|terminal64.exe|Foliate)$" },
-	workspace = 9,
-})
+-- hl.window_rule({
+-- 	match = { class = "negative:^(brave-.*|kitty|org.telegram.desktop|vesktop|terminal64.exe|Foliate)$" },
+-- 	workspace = 9,
+-- })
 
 -- Floating rules with size/center
 hl.window_rule({ match = { class = "kitty" }, float = true, center = true, size = "620 360" })
