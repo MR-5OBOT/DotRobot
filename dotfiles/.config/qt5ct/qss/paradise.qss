@@ -22,20 +22,20 @@ QRadioButton::indicator {
 QCheckBox::indicator:hover,
 QRadioButton::indicator:hover,
 QGroupBox::indicator:hover {
-    border-color: #b53f71;
+    border-color: #702645;
 }
 
 QCheckBox::indicator:checked,
 QRadioButton::indicator:checked,
 QGroupBox::indicator:checked {
-    background: #b53f71;
-    border-color: #b53f71;
+    background: #702645;
+    border-color: #702645;
 }
 
 QCheckBox::indicator:checked:hover,
 QRadioButton::indicator:checked:hover {
-    background: #c65086;
-    border-color: #c65086;
+    background: #8a3457;
+    border-color: #8a3457;
 }
 
 QCheckBox::indicator:disabled,

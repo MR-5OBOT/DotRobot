@@ -6,7 +6,7 @@
  */
 @define-color paradise_bg     #101010;
 @define-color paradise_fg     #E8E3E3;
-@define-color paradise_accent #b53f71;
+@define-color paradise_accent #702645;
 
 @define-color window_bg_color    @paradise_bg;
 @define-color window_fg_color    @paradise_fg;
