@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Ventoy
+GenericName=Bootable USB Creator
+Comment=Create bootable Ventoy USB drives
+Exec=pkexec env DISPLAY=$DISPLAY WAYLAND_DISPLAY=$WAYLAND_DISPLAY XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR /opt/ventoy/tool/x86_64/Ventoy2Disk.gtk3
+Icon=/opt/ventoy/WebUI/static/favicon.png
+Terminal=false
+Categories=System;Utility;
+StartupNotify=true
+Keywords=usb;boot;iso;ventoy;
