@@ -1,0 +1,45 @@
+/* paradise — make Fusion checkbox/radio indicators visible on #101010
+ * (default Fusion draws a near-black box on the near-black window). */
+
+QCheckBox::indicator,
+QRadioButton::indicator,
+QGroupBox::indicator {
+    width: 14px;
+    height: 14px;
+    border: 1px solid #555555;
+    background: #1a1a1a;
+}
+
+QCheckBox::indicator,
+QGroupBox::indicator {
+    border-radius: 0px;
+}
+
+QRadioButton::indicator {
+    border-radius: 8px;
+}
+
+QCheckBox::indicator:hover,
+QRadioButton::indicator:hover,
+QGroupBox::indicator:hover {
+    border-color: #b53f71;
+}
+
+QCheckBox::indicator:checked,
+QRadioButton::indicator:checked,
+QGroupBox::indicator:checked {
+    background: #b53f71;
+    border-color: #b53f71;
+}
+
+QCheckBox::indicator:checked:hover,
+QRadioButton::indicator:checked:hover {
+    background: #c65086;
+    border-color: #c65086;
+}
+
+QCheckBox::indicator:disabled,
+QRadioButton::indicator:disabled {
+    border-color: #333333;
+    background: #151515;
+}

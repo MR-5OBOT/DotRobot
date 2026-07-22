@@ -40,11 +40,25 @@ link_local_share_applications() {
   done
 }
 
+link_local_share_themes() {
+  local themes_dir="${DOTFILES_DIR}/.local/share/themes"
+  local item
+
+  [[ -d "${themes_dir}" ]] || return 0
+
+  mkdir -p "${HOME}/.local/share/themes"
+  for item in "${themes_dir}"/*; do
+    [[ -e "${item}" ]] || continue
+    symlink_path "${item}" "${HOME}/.local/share/themes/$(basename "${item}")"
+  done
+}
+
 main() {
   symlink_path "${DOTFILES_DIR}/.gitconfig" "${HOME}/.gitconfig"
   link_config_tree
   link_local_bin
   link_local_share_applications
+  link_local_share_themes
 
   if [[ -d "${ASSETS_DIR}/wallpapers" ]]; then
     mkdir -p "${HOME}/Pictures"

@@ -1,0 +1,39 @@
+/*
+ * paradise — GTK4 variant
+ * Clones the GTK3 paradise palette on top of GTK4's built-in dark theme.
+ * GTK4 can't read the gtk-3.0/ stylesheet, so this imports the Default
+ * dark base and overrides its named colors with the paradise palette.
+ */
+
+@import url("resource:///org/gtk/libgtk/theme/Default/gtk-dark.css");
+
+/* paradise palette (extracted from gtk-3.0/gtk.css) */
+@define-color paradise_bg     #101010;
+@define-color paradise_fg     #E8E3E3;
+@define-color paradise_accent #b53f71;
+
+/* base window / content surfaces */
+@define-color window_bg_color   @paradise_bg;
+@define-color window_fg_color   @paradise_fg;
+@define-color view_bg_color     @paradise_bg;
+@define-color view_fg_color     @paradise_fg;
+@define-color card_bg_color     #1a1a1a;
+@define-color card_fg_color     @paradise_fg;
+@define-color popover_bg_color  #1a1a1a;
+@define-color popover_fg_color  @paradise_fg;
+@define-color dialog_bg_color   @paradise_bg;
+@define-color dialog_fg_color   @paradise_fg;
+
+/* chrome */
+@define-color headerbar_bg_color @paradise_bg;
+@define-color headerbar_fg_color @paradise_fg;
+@define-color sidebar_bg_color   #161616;
+@define-color sidebar_fg_color   @paradise_fg;
+
+/* accent / selection */
+@define-color accent_color       @paradise_accent;
+@define-color accent_bg_color    @paradise_accent;
+@define-color accent_fg_color    #ffffff;
+
+/* borders */
+@define-color borders            rgba(232, 227, 227, 0.10);
