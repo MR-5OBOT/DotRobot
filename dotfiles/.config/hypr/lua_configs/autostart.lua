@@ -15,5 +15,5 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("qs") -- bar + notifications + launcher + tray/network + lock + low-batt notify
 	hl.exec_cmd(SCRIPTS .. "/autostart/cliphist.sh")
 	hl.exec_cmd("devify")
-	-- hl.exec_cmd("hypridle")
+	hl.exec_cmd("hypridle")
 end)
