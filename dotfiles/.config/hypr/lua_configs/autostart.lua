@@ -8,11 +8,7 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("/usr/lib/hyprpolkitagent/hyprpolkitagent")
 
 	-- Daemons
-	hl.exec_cmd("awww-daemon")
-	hl.exec_cmd(
-		"sleep 1 && awww img " .. os.getenv("HOME") .. "/Pictures/wallpapers/MR5OBOT.jpg --transition-type none"
-	)
-	hl.exec_cmd("qs") -- bar + notifications + launcher + tray/network + lock + low-batt notify
+	hl.exec_cmd("qs") -- bar + notifications + launcher + tray/network + lock + wallpaper + low-batt notify
 	hl.exec_cmd(SCRIPTS .. "/autostart/cliphist.sh")
 	hl.exec_cmd("devify")
 	hl.exec_cmd("hypridle")

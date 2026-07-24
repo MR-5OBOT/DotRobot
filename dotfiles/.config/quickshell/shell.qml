@@ -6,6 +6,11 @@ import Quickshell
 ShellRoot {
     settings.watchFiles: true
 
+    Variants {   // wallpaper: one background layer per screen
+        model: Quickshell.screens
+        Wallpaper {}
+    }
+
     Variants {
         model: Quickshell.screens
         Bar {

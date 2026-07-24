@@ -6,7 +6,7 @@ import Quickshell.Hyprland
 
 // Wallpaper picker: a horizontal filmstrip of thumbnails, flat/dark, drops in
 // from the top-center. Toggle: qs ipc call wallpaper toggle (Super+W).
-// Click or Enter applies via swww; not persisted across reboots.
+// Click or Enter applies via WallpaperState (native, persisted).
 PanelWindow {
     id: win
 
@@ -18,14 +18,7 @@ PanelWindow {
     function apply() {
         const p = files[cur];
         if (p) {
-            // awww animates the new wall in (grows from center), hiding the
-            // decode — no fallback flash. swap --transition-type for a different
-            // animation: wipe | wave | outer | fade | any | random.
-            Quickshell.execDetached(["awww", "img", p,
-                "--transition-type", "grow",
-                "--transition-pos", "center",
-                "--transition-fps", "60",
-                "--transition-duration", "0.8"]);
+            WallpaperState.apply(p);   // draws natively + persists (no awww)
             win.open = false;
         }
     }
