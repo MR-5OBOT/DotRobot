@@ -72,7 +72,6 @@ wl-clip-persist
 wl-clipboard
 xdg-desktop-portal-gtk
 xdg-desktop-portal-hyprland
-yazi
 yt-dlp
 zathura
 zathura-pdf-mupdf
