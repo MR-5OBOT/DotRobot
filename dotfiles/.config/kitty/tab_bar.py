@@ -8,7 +8,7 @@ from datetime import datetime
 
 from kitty.boss import get_boss
 from kitty.fast_data_types import Screen, add_timer
-from kitty.tab_bar import DrawData, ExtraData, TabBarData, as_rgb, draw_tab_with_powerline
+from kitty.tab_bar import DrawData, ExtraData, TabBarData, as_rgb, draw_tab_with_separator
 from kitty.utils import color_as_int
 
 CLOCK_FG = 0x505050
@@ -54,7 +54,7 @@ def draw_tab(
     extra_data: ExtraData,
 ) -> int:
     _start_timer()
-    end = draw_tab_with_powerline(
+    end = draw_tab_with_separator(
         draw_data, screen, tab, before, max_tab_length, index, is_last, extra_data
     )
     if is_last:
