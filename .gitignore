@@ -9,6 +9,3 @@ dotfiles/.config/superfile/theme/*
 
 # External reference clones (quickshell migration)
 quickshell-refs/
-
-# kitty compiles any custom tab_bar.py next to the config
-__pycache__/
