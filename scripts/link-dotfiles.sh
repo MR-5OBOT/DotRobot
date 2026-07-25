@@ -53,12 +53,24 @@ link_local_share_themes() {
   done
 }
 
+# superfile stores "show hidden files" as runtime state rather than config, so
+# it cannot be linked in. Seed it once; superfile owns the file after that.
+seed_superfile_state() {
+  local state_file="${HOME}/.local/share/superfile/toggleDotFile"
+
+  [[ -s "${state_file}" ]] && return 0
+
+  mkdir -p "$(dirname "${state_file}")"
+  printf 'true' > "${state_file}"
+}
+
 main() {
   symlink_path "${DOTFILES_DIR}/.gitconfig" "${HOME}/.gitconfig"
   link_config_tree
   link_local_bin
   link_local_share_applications
   link_local_share_themes
+  seed_superfile_state
 
   if [[ -d "${ASSETS_DIR}/wallpapers" ]]; then
     mkdir -p "${HOME}/Pictures"
