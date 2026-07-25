@@ -1,2 +1,5 @@
 ignore_missing_fields = true
 theme = "black"
+
+# Preview takes 1/2 of total width, so the file panel gets the rest.
+file_preview_width = 2
