@@ -61,10 +61,13 @@ config.tab_max_width = 24
 config.status_update_interval = 1000
 
 ------------------------------------------------------------------------ sessions
--- Replaces tmux sessions: the mux server keeps panes alive when the GUI closes,
--- and the GUI reconnects to it on launch. `wezterm cli list` to inspect.
+-- The domain exists but is NOT the default. Connecting every launch routes all
+-- input and rendering through a socket to wezterm-mux-server, which adds a
+-- round trip per frame and makes the mux's 80x24 default fight the window size
+-- (logs: "cannot resize window to match ... because window_state is MAXIMIZED").
+-- Local panes stay fast; attach with LEADER a when persistence is actually
+-- wanted, and detach with LEADER d.
 config.unix_domains = { { name = "unix" } }
-config.default_gui_startup_args = { "connect", "unix" }
 
 -------------------------------------------------------------------------- keys
 -- Leader mirrors tmux's prefix so the muscle memory carries over unchanged.
@@ -108,6 +111,7 @@ config.keys = {
 		}),
 	},
 	{ key = "d", mods = "LEADER", action = act.DetachDomain("CurrentPaneDomain") },
+	{ key = "a", mods = "LEADER", action = act.AttachDomain("unix") },
 
 	-- tmux: bind G lazygit in a new window
 	{ key = "G", mods = "LEADER", action = act.SpawnCommandInNewTab({ args = { "lazygit" } }) },
