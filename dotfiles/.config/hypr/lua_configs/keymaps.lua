@@ -15,6 +15,7 @@ hl.bind("ALT + L", hl.dsp.exec_cmd("qs ipc call lock lock"))
 
 -- Application Launchers
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd("[float]kitty"))
+hl.bind(mainMod .. " + SHIFT + Return", hl.dsp.exec_cmd("[float]wezterm"))
 hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("qs ipc call launcher toggle"))
 hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("pkill -x qs; qs")) -- restart quickshell
 hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("qs ipc call powermenu toggle"))
