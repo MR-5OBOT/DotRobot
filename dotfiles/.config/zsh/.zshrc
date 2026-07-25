@@ -13,7 +13,13 @@ done
 unset _frag
 
 # Greeting
-# kitty-direct images stick over tmux panes; use text logo inside tmux
+# tmux forwards no graphics protocol, so kitty-direct images stick over panes:
+# text logo inside tmux, image outside. config.jsonc keeps logo type "none",
+# which is why the image has to be passed on the command line.
 if command -v fastfetch >/dev/null 2>&1; then
-  [[ -n $TMUX ]] && fastfetch --logo none || fastfetch
+  if [[ -n $TMUX ]]; then
+    fastfetch --logo none
+  else
+    fastfetch --logo-type kitty-direct --logo "$HOME/.config/fastfetch/gifs/pochita.gif"
+  fi
 fi
