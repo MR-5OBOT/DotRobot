@@ -1,4 +1,7 @@
-# Custom kitty tab bar: powerline tabs plus a right-aligned clock.
+# Custom kitty tab bar: flat separator tabs plus a right-aligned clock.
+#
+# NOTE: kitty imports this module once at startup. Editing it needs a full
+# kitty restart -- `load_config_file` only re-reads kitty.conf.
 #
 # kitty has no built-in right-hand status (tab_title_template only renders
 # inside a tab), so the clock tmux used to show has to be drawn here. Loaded
