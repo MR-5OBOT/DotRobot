@@ -13,7 +13,8 @@ done
 unset _frag
 
 # Greeting
-# kitty-direct images stick over tmux panes; use text logo inside tmux
+# Image logos need a graphics protocol the terminal receives directly; tmux
+# forwards none of them, so keep the text logo whenever it is in the way.
 if command -v fastfetch >/dev/null 2>&1; then
   [[ -n $TMUX ]] && fastfetch --logo none || fastfetch
 fi
