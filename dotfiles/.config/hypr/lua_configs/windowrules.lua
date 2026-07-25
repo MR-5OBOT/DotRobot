@@ -17,6 +17,7 @@ hl.window_rule({ match = { class = "^(Foliate)$" }, workspace = 6 })
 -- Floating rules with size/center
 hl.window_rule({ match = { class = "kitty" }, float = true, center = true, size = "620 360" })
 hl.window_rule({ match = { title = "^(Calculator)$" }, float = true, center = true, size = "280 340" })
+hl.window_rule({ match = { title = "^(H-calculator)$" }, float = true, center = true, size = "600 375" })
 hl.window_rule({ match = { class = "^(thunar)$" }, float = true, center = true, size = "700 600" })
 hl.window_rule({
 	match = { class = "hyprland-share-picker" },

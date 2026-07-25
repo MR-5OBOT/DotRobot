@@ -4,6 +4,7 @@ local mainMod = "SUPER"
 local SCRIPTS = os.getenv("HOME") .. "/.config/hypr/scripts"
 local SCRIPT = SCRIPTS .. "/controls"
 local RISHOT = os.getenv("HOME") .. "/.config/quickshell/rishot/bin/rishot"
+local HCALC = os.getenv("HOME") .. "/repos/H-calculator/shell.qml" -- standalone qs app
 
 -- Window Management
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
@@ -21,6 +22,8 @@ hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("qs ipc call wallpaper toggle"))
 hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("qs ipc call clipboard toggle"))
 hl.bind(mainMod .. " + equal", hl.dsp.exec_cmd("qs ipc call calc toggle"))
 hl.bind("XF86Calculator", hl.dsp.exec_cmd("qs ipc call calc toggle"))
+-- H-calculator: toggle the running instance, or start one if there isn't
+hl.bind("ALT + C", hl.dsp.exec_cmd("qs ipc -p " .. HCALC .. " call hcalc toggle || qs -p " .. HCALC))
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("hyprpicker -a -n"))
 hl.bind(mainMod .. " + SHIFT + I", hl.dsp.exec_cmd(SCRIPTS .. "/speedtest.sh"))
 
