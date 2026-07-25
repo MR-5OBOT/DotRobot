@@ -1,5 +1,7 @@
 ignore_missing_fields = true
 theme = "black"
 
-# Preview takes 1/2 of total width, so the file panel gets the rest.
-file_preview_width = 2
+# file_preview_width is a 1/n knob and cannot shrink the file panel below
+# half of (width - sidebar): n=2 computes the same split as the n=0 default.
+# The only lever left is sidebar_width.
+sidebar_width = 20
