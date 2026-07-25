@@ -3,6 +3,10 @@ dotfiles/.config/clipse/clipboard_history.json
 dotfiles/.config/clipse/tmp_files/
 dotfiles/.config/clipse/clipse.log
 claude
+# superfile drops its bundled themes + default hotkeys in on first launch
+dotfiles/.config/superfile/theme/*
+!dotfiles/.config/superfile/theme/black.toml
+dotfiles/.config/superfile/hotkeys.toml
 
 # External reference clones (quickshell migration)
 quickshell-refs/

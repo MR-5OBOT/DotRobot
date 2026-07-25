@@ -8,6 +8,7 @@ btop
 cliphist
 discord
 docker
+superfile
 glow
 ffmpegthumbnailer
 file-roller
