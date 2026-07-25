@@ -31,7 +31,6 @@ hyprshutdown
 imv
 jq
 kitty
-wezterm
 libnotify
 mpv
 network-manager-applet

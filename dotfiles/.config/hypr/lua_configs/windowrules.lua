@@ -2,7 +2,7 @@
 
 -- Workspace assignments
 hl.window_rule({ match = { class = "^(brave-.*)" }, workspace = 1 })
-hl.window_rule({ match = { class = "org.wezfurlong.wezterm" }, workspace = 2 })
+hl.window_rule({ match = { class = "kitty" }, workspace = 2 })
 hl.window_rule({ match = { class = "^(org.telegram.desktop)$" }, workspace = 3 })
 hl.window_rule({ match = { class = "^(vesktop)$" }, workspace = 4 })
 hl.window_rule({ match = { class = "^(terminal64.exe)$" }, workspace = 5 })
@@ -15,7 +15,7 @@ hl.window_rule({ match = { class = "^(Foliate)$" }, workspace = 6 })
 -- })
 
 -- Floating rules with size/center
-hl.window_rule({ match = { class = "org.wezfurlong.wezterm" }, float = true, center = true, size = "620 360" })
+hl.window_rule({ match = { class = "kitty" }, float = true, center = true, size = "620 360" })
 hl.window_rule({ match = { title = "^(Calculator)$" }, float = true, center = true, size = "280 340" })
 hl.window_rule({ match = { title = "^(H-calculator)$" }, float = true, center = true, size = "600 375" })
 hl.window_rule({ match = { class = "^(thunar)$" }, float = true, center = true, size = "700 600" })
