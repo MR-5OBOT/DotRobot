@@ -38,13 +38,10 @@ config.colors = {
 }
 
 -------------------------------------------------------------------------- window
--- Wayland startup: without these the first frame paints at scale 1 before the
--- compositor reports the real scale, so the font flashes small then snaps.
--- eDP-1 is 1366x768 at scale 1.00, so 96 is the settled value anyway.
+-- Native Wayland, so scale comes from the compositor per-output the way kitty
+-- handles it. Do not pin `dpi` here: that fixes the first-frame flash by
+-- freezing font size, which then ignores a differently-scaled monitor.
 config.enable_wayland = true
-config.front_end = "WebGpu"
-config.dpi = 96.0
-config.adjust_window_size_when_changing_font_size = false
 
 config.window_background_opacity = 1.0
 config.window_decorations = "RESIZE" -- kitty: hide_window_decorations yes
