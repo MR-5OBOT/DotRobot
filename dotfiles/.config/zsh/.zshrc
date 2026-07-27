@@ -13,7 +13,11 @@ done
 unset _frag
 
 # Greeting
-# config.jsonc picks the logo; kitty-icat renders the same in and out of tmux.
+# config.jsonc sets the logo type/size; the source is randomised here because
+# fastfetch won't take a directory. kitty-icat renders the same in and out of tmux.
 if command -v fastfetch >/dev/null 2>&1; then
-  fastfetch
+  _logos=(${XDG_CONFIG_HOME:-$HOME/.config}/fastfetch/{gifs,pngs}/*(N.))
+  # two expansions, not one: ${x:+a b} stays a single word in zsh
+  fastfetch ${_logos:+--logo} ${_logos:+$_logos[RANDOM%$#_logos+1]}
+  unset _logos
 fi
