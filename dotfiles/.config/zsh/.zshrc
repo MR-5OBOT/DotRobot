@@ -13,7 +13,7 @@ done
 unset _frag
 
 # Greeting
-# No logo anywhere; config.jsonc already sets logo type "none".
+# config.jsonc picks the logo; kitty-icat renders the same in and out of tmux.
 if command -v fastfetch >/dev/null 2>&1; then
   fastfetch
 fi
