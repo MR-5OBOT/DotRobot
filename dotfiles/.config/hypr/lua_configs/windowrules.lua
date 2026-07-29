@@ -1,7 +1,7 @@
 -- Window Rules
 
 -- Workspace assignments
-hl.window_rule({ match = { class = "^(brave-.*)" }, workspace = 1 })
+hl.window_rule({ match = { class = "^(brave-.*|helium)$" }, workspace = 1 })
 hl.window_rule({ match = { class = "kitty" }, workspace = 2 })
 hl.window_rule({ match = { class = "^(org.telegram.desktop)$" }, workspace = 3 })
 hl.window_rule({ match = { class = "^(vesktop)$" }, workspace = 4 })
