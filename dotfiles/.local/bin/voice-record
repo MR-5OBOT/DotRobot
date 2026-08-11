@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-output="${1:-$HOME/Downloads/voice-$(date +%Y%m%d-%H%M%S)-$$.mp3}"
-mkdir -p -- "$(dirname -- "$output")"
-
-printf 'Recording from the current default microphone.\nSaving Discord-ready MP3 to: %s\nStops after 10 minutes; press Ctrl+C to stop sooner.\n' "$output"
-exec ffmpeg -hide_banner -loglevel warning -n -f alsa -i default -t 600 -ac 1 -c:a libmp3lame -b:a 64k -f mp3 "file:$output"
