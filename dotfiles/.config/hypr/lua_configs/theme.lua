@@ -4,10 +4,10 @@ hl.config({
     general = {
         gaps_in = 3,
         gaps_out = 5,
-        border_size = 0,
+        border_size = 4,
         col = {
-            active_border = 0x323232,
-            inactive_border = 0x323232
+            active_border = 0xff323232,
+            inactive_border = 0xff323232
         },
         resize_on_border = false,
         allow_tearing = true,
@@ -33,7 +33,7 @@ hl.config({
             popups_ignorealpha = 0.6
         },
         shadow = {
-            enabled = true,
+            enabled = false,
             range = 5,
             offset = { 0, 2 },
             render_power = 1,
