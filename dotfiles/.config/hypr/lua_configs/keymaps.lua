@@ -20,6 +20,7 @@ hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("pkill -x qs; qs")) -- restar
 hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("qs ipc call powermenu toggle"))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("qs ipc call wallpaper toggle"))
 hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("qs ipc call clipboard toggle"))
+hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("qs ipc call calendar toggle"))
 hl.bind(mainMod .. " + equal", hl.dsp.exec_cmd("qs ipc call calc toggle"))
 hl.bind("XF86Calculator", hl.dsp.exec_cmd("qs ipc call calc toggle"))
 -- H-calculator: toggle the running instance, or start one if there isn't

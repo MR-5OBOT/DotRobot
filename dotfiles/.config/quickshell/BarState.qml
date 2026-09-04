@@ -22,7 +22,7 @@ QtObject {
     // launcher visibility lives here so both the bar button and IPC can toggle it
     property bool launcherOpen: false
 
-    // calendar overlay: opened by hovering the top-center screen edge, closed on hover-out
+    // floating calendar: opened by Super+T or hovering either top corner
     property bool calendarOpen: false
 
     // network menu (nm-applet-style): toggled by clicking the wifi icon

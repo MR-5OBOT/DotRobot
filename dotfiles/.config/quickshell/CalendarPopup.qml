@@ -1,116 +1,145 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Io
 import Quickshell.Wayland
 
-// Time + calendar centered on the screen. Invisible strips at the top-left
-// and top-right corners are the hover triggers; the card fades in at screen
-// center. Leaving both the strip and the card closes it after a short grace
-// (long enough to travel from corner to card). No keyboard focus, so a hover
-// can't steal the keyboard.
-PanelWindow {
-    id: win
+// A normal floating window, opened by Super+T or by dwelling in either top
+// corner. Because it is an xdg-toplevel, Hyprland owns moving and resizing it.
+Scope {
+    id: root
 
     readonly property bool open: BarState.calendarOpen
-    property int peekH: 8    // invisible hover-trigger strip height at the top edge
-    property int corner: 80  // width of each corner trigger strip
+    property bool keyOpened: false
+    property int peekH: 8
+    property int corner: 80
 
-    visible: true
-    anchors { top: true; bottom: true; left: true; right: true }
-    exclusiveZone: 0
-    color: "transparent"
-    WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.namespace: "quickshell-calendar"
+    function close() {
+        dwell.stop();
+        closeGrace.stop();
+        keyOpened = false;
+        BarState.calendarOpen = false;
+    }
 
+    function hoverChanged(hovered) {
+        if (hovered) {
+            closeGrace.stop();
+            if (!root.open)
+                dwell.restart();
+        } else {
+            dwell.stop();
+            if (!root.keyOpened)
+                closeGrace.restart();
+        }
+    }
+
+    IpcHandler {
+        target: "calendar"
+        function toggle(): void {
+            if (root.open)
+                root.close();
+            else {
+                root.keyOpened = true;
+                BarState.calendarOpen = true;
+            }
+        }
+    }
+
+    Timer {
+        id: dwell
+        interval: 180
+        onTriggered: {
+            root.keyOpened = false;
+            BarState.calendarOpen = true;
+        }
+    }
+    Timer { id: closeGrace; interval: 500; onTriggered: root.close() }
     SystemClock { id: sysClock; precision: SystemClock.Seconds }
 
-    // input region: a strip in each top corner, plus the card itself while
-    // it's on-screen (off-screen when closed -> only the strips are interactive).
-    // Everything else stays click-through.
-    mask: Region {
-        x: 0
-        y: 0
-        width: win.corner
-        height: win.peekH
-        Region {
-            x: win.width - win.corner
+    // Always-on, click-through screen surface whose only input is the two
+    // invisible corner strips.
+    PanelWindow {
+        id: edge
+
+        visible: true
+        anchors { top: true; bottom: true; left: true; right: true }
+        exclusiveZone: 0
+        color: "transparent"
+        WlrLayershell.layer: WlrLayer.Overlay
+        WlrLayershell.namespace: "quickshell-calendar-edge"
+        WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+
+        mask: Region {
+            x: 0
             y: 0
-            width: win.corner
-            height: win.peekH
-        }
-        Region {
-            x: card.x
-            y: card.y
-            width: card.visible ? card.width : 0   // no dead zone mid-screen when closed
-            height: card.height
-        }
-    }
-
-    // hover spans the window but input is limited by the mask: entering a
-    // corner strip opens (after a small dwell); leaving strip and card closes
-    // after a grace long enough to reach the centered card.
-    HoverHandler {
-        onHoveredChanged: {
-            if (hovered) {
-                dwell.restart();
-                closeGrace.stop();
-            } else {
-                dwell.stop();
-                closeGrace.restart();
+            width: root.corner
+            height: root.peekH
+            Region {
+                x: edge.width - root.corner
+                y: 0
+                width: root.corner
+                height: root.peekH
             }
         }
-    }
-    Timer { id: dwell; interval: 180; onTriggered: BarState.calendarOpen = true }
-    Timer { id: closeGrace; interval: 500; onTriggered: BarState.calendarOpen = false }
 
-    Rectangle {
-        id: card
-        anchors.centerIn: parent
-        width: content.implicitWidth + 28
-        height: content.implicitHeight + 28
+        HoverHandler { onHoveredChanged: root.hoverChanged(hovered) }
+    }
+
+    FloatingWindow {
+        id: popup
+
+        title: "Calendar"
+        visible: root.open
         color: Theme.bg
-        // keep it out of the input mask while closed
-        visible: opacity > 0.01
+        implicitWidth: card.implicitWidth
+        implicitHeight: card.implicitHeight
+        onClosed: root.close()
 
-        opacity: win.open ? 1 : 0
-        scale: win.open ? 1 : 0.96
-        Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
-        Behavior on scale { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+        Rectangle {
+            id: card
 
-        ColumnLayout {
-            id: content
-            anchors.centerIn: parent
-            spacing: 10
+            anchors.fill: parent
+            implicitWidth: content.implicitWidth + 28
+            implicitHeight: content.implicitHeight + 28
+            color: Theme.bg
+            focus: true
+            Keys.onEscapePressed: root.close()
 
-            RowLayout {  // time header: HH:mm big, seconds small
-                Layout.alignment: Qt.AlignHCenter
-                spacing: 6
+            HoverHandler { onHoveredChanged: root.hoverChanged(hovered) }
 
-                Text {
-                    text: Qt.formatDateTime(sysClock.date, "HH:mm")
-                    font.family: Theme.font
-                    font.pixelSize: 26
-                    font.bold: true
-                    color: Theme.text
+            ColumnLayout {
+                id: content
+                anchors.centerIn: parent
+                spacing: 10
+
+                RowLayout {
+                    Layout.alignment: Qt.AlignHCenter
+                    spacing: 6
+
+                    Text {
+                        text: Qt.formatDateTime(sysClock.date, "HH:mm")
+                        font.family: Theme.font
+                        font.pixelSize: 26
+                        font.bold: true
+                        color: Theme.text
+                    }
+                    Text {
+                        Layout.alignment: Qt.AlignBottom
+                        Layout.bottomMargin: 4
+                        text: Qt.formatDateTime(sysClock.date, "ss")
+                        font.family: Theme.font
+                        font.pixelSize: 13
+                        color: Theme.pink
+                    }
                 }
-                Text {
-                    Layout.alignment: Qt.AlignBottom
-                    Layout.bottomMargin: 4
-                    text: Qt.formatDateTime(sysClock.date, "ss")
-                    font.family: Theme.font
-                    font.pixelSize: 13
-                    color: Theme.pink
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    implicitHeight: 1
+                    color: Theme.border
                 }
-            }
 
-            Rectangle {  // hairline between time and month grid
-                Layout.fillWidth: true
-                implicitHeight: 1
-                color: Theme.border
-            }
-
-            Calendar {
-                now: sysClock.date
+                Calendar { now: sysClock.date }
             }
         }
     }
