@@ -1,0 +1,25 @@
+# uwsm environment — toolkit / theming / cursor vars
+# Mirrors hypr/lua_configs/env.lua so apps launched as systemd units inherit them.
+# XDG_CURRENT_DESKTOP / XDG_SESSION_TYPE / XDG_SESSION_DESKTOP are set by uwsm itself — omitted on purpose.
+
+# Wayland backends / toolkit hints
+export GDK_BACKEND="wayland,x11,*"
+export QT_QPA_PLATFORM="wayland;xcb"
+export SDL_VIDEODRIVER="wayland"
+export MOZ_ENABLE_WAYLAND="1"
+export ELECTRON_OZONE_PLATFORM_HINT="wayland"
+export OZONE_PLATFORM="wayland"
+export CLUTTER_BACKEND="wayland"
+
+# Qt theming
+export QT_QPA_PLATFORMTHEME="hyprqt6engine"
+export QT_WAYLAND_DISABLE_WINDOWDECORATION="1"
+export QT_AUTO_SCREEN_SCALE_FACTOR="1"
+
+# Cursor
+export XCURSOR_THEME="volantes_light_cursors"
+export XCURSOR_SIZE="26"
+
+# GTK theme name (dark mode for libadwaita/GTK comes from the xdg-desktop-portal
+# + gsettings color-scheme, which now works once uwsm starts graphical-session.target)
+export GTK_THEME="paradise"
