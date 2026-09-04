@@ -13,7 +13,7 @@ ps -eo comm,rss --no-headers \
   | sort -k2 -rn \
   | head -20 \
   | while read name total_kb count; do
-      mb=$(echo "scale=1; $total_kb/1024" | bc)
+      mb="$((total_kb / 1024)).$((total_kb % 1024 * 10 / 1024))"
       color=$GRN
       (( total_kb > 1000000 )) && color=$RED
       (( total_kb > 200000 && total_kb <= 1000000 )) && color=$YEL

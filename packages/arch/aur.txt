@@ -1,8 +1,8 @@
 bottles
 devify
 grimblast-git
-hyprqt6engine
 localsend-bin
 pixie-sddm-git
 telegram-desktop-bin
+wayscriber
 wlhc
