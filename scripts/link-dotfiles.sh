@@ -54,11 +54,19 @@ link_local_share_themes() {
 }
 
 main() {
+  local icons_dir="${XDG_DATA_HOME:-${HOME}/.local/share}/icons"
+
   symlink_path "${DOTFILES_DIR}/.gitconfig" "${HOME}/.gitconfig"
+  symlink_path "${DOTFILES_DIR}/.visidatarc" "${HOME}/.visidatarc"
   link_config_tree
   link_local_bin
   link_local_share_applications
   link_local_share_themes
+
+  mkdir -p "${icons_dir}"
+  unzip -q -o "${ASSETS_DIR}/icons/gruvbox-plus-icon-pack-6.2.0.zip" -d "${icons_dir}"
+  tar -xzf "${ASSETS_DIR}/icons/volantes-light-cursors.tar.gz" -C "${icons_dir}"
+  log "Installed icon and cursor themes"
 
   "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/seed-superfile-state.sh"
 

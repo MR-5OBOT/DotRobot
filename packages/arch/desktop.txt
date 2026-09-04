@@ -12,10 +12,9 @@ superfile
 glow
 ffmpegthumbnailer
 file-roller
-firefox
-firefoxpwa
 freerdp
 gimp
+gnome-sound-recorder
 gparted
 grim
 gtk4
@@ -28,8 +27,10 @@ hyprlock
 hyprpicker
 hyprpolkitagent
 hyprshutdown
+imagemagick
 imv
 jq
+kdialog
 kitty
 libnotify
 mpv
@@ -66,7 +67,7 @@ tumbler
 uwsm
 visidata
 webp-pixbuf-loader
-wf-recorder
+wine
 wireplumber
 wl-clip-persist
 wl-clipboard

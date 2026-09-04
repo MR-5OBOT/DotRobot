@@ -2,6 +2,7 @@
 dotfiles/.config/clipse/clipboard_history.json
 dotfiles/.config/clipse/tmp_files/
 dotfiles/.config/clipse/clipse.log
+dotfiles/.config/gtk-3.0/bookmarks
 claude
 # superfile drops its bundled themes + default hotkeys in on first launch
 dotfiles/.config/superfile/theme/*

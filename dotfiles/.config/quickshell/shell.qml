@@ -45,17 +45,4 @@ ShellRoot {
         ]
     }
 
-    ActionMenu {
-        ipcTarget: "recorder"
-        title: "Record"
-        titleIcon: "screen_record"
-        cardWidth: 240
-        readonly property string rec: "$HOME/.config/hypr/scripts/recording/wf-screenRE"
-        actions: [
-            { icon: "desktop_windows", label: "Full",         cmd: ["sh", "-c", rec + " full"] },
-            { icon: "crop_free",       label: "Region",       cmd: ["sh", "-c", rec + " region"] },
-            { icon: "graphic_eq",      label: "Full + audio", cmd: ["sh", "-c", rec + " audio"] },
-            { icon: "screen_record",   label: "Region + audio", cmd: ["sh", "-c", rec + " region-audio"] },
-        ]
-    }
 }
