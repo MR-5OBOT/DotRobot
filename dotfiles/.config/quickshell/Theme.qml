@@ -14,6 +14,6 @@ QtObject {
     readonly property int barWidth: 42
     readonly property int radius: 0               // no rounded corners
     readonly property int gap: 8
-    readonly property string font: "JetBrainsMono Nerd Font"
+    readonly property string font: "IosevkaTerm Nerd Font Mono"
     readonly property string iconFont: "Material Symbols Sharp"  // one cohesive family, 0-radius
 }

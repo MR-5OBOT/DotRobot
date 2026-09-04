@@ -31,11 +31,9 @@ hl.bind(mainMod .. " + SHIFT + I", hl.dsp.exec_cmd(SCRIPTS .. "/speedtest.sh"))
 -- wayscriber screen annotations
 hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("wayscriber --active"))
 
--- Screenshots & Recording
+-- Screenshots
 hl.bind("Print", hl.dsp.exec_cmd(RISHOT))                     -- drag region or click a window
 hl.bind("SHIFT + Print", hl.dsp.exec_cmd(RISHOT .. " monitor")) -- whole output
-hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("qs ipc call recorder toggle"))
-hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd(SCRIPTS .. "/recording/stop-recording"))
 
 -- Volume & Brightness
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --inc"), { locked = true })

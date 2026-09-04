@@ -19,6 +19,7 @@ run_step() {
 
 main() {
   require_arch
+  [[ $EUID -eq 0 ]] && die "Run as your normal user; the installer uses sudo when needed."
 
   cat <<'EOF'
 DotRobot Arch setup
@@ -36,8 +37,6 @@ EOF
   run_step "Set zsh as the default shell" "scripts/setup-zsh.sh"
   run_step "Set up git + ssh" "scripts/setup-git-ssh.sh"
   run_step "Create XDG user directories" "scripts/setup-user-dirs.sh"
-  run_step "Apply Firefox theme" "scripts/apply-firefox-theme.sh"
-
   log "Setup finished. Log: ${LOG_FILE}"
 }
 
