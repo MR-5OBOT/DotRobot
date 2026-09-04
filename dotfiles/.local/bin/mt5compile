@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+# mt5compile — compile MQL5 sources with MetaEditor64 under Wine and deploy
+# the resulting .ex5 to the correct MQL5 sub-folder (Experts / Indicators /
+# Scripts), auto-detected from each file's #property.
+#
+# Flow:
+#   mt5compile         fd finds ALL .mq5 under $HOME → fzf-pick one → compile + deploy
+#   mt5compile --watch fd finds ALL dirs under $HOME → fzf-pick one → watch it
+
+set -euo pipefail
+
+# ── Config ──────────────────────────────────────────────────────────
+export WINEPREFIX="${WINEPREFIX:-$HOME/.mt5}"
+MT5_ROOT="${MT5_ROOT:-$WINEPREFIX/drive_c/Program Files/MetaTrader 5}"
+METAEDITOR="${METAEDITOR:-$MT5_ROOT/MetaEditor64.exe}"
+MQL5_DIR="${MQL5_DIR:-$MT5_ROOT/MQL5}"
+
+WATCH=0
+[[ "${1:-}" == "--watch" || "${1:-}" == "-w" ]] && WATCH=1
+
+# ── Pre-flight ──────────────────────────────────────────────────────
+FD="$(command -v fd || command -v fdfind || true)"
+
+command -v wine >/dev/null || { echo "wine not installed"; exit 1; }
+[[ -n "$FD" ]]            || { echo "fd not installed (need fd or fdfind)"; exit 1; }
+command -v fzf >/dev/null || { echo "fzf not installed"; exit 1; }
+[[ -f "$METAEDITOR" ]]   || { echo "MetaEditor not found: $METAEDITOR"; exit 1; }
+[[ -d "$MQL5_DIR"   ]]   || { echo "MQL5 dir not found: $MQL5_DIR"; exit 1; }
+
+# ── Detect target sub-folder from #property ────────────────────────
+detect_kind() {
+   local f="$1" head80
+   head80="$(head -n 80 "$f")"
+   if   grep -qE '^[[:space:]]*#property[[:space:]]+indicator_' <<<"$head80"; then
+        echo "Indicators"
+   elif grep -qE '^[[:space:]]*#property[[:space:]]+script_show' <<<"$head80"; then
+        echo "Scripts"
+   else
+        echo "Experts"
+   fi
+}
+
+# ── Compile + deploy a single .mq5 ─────────────────────────────────
+compile_and_deploy() {
+   local src="$1"
+   local kind dest_dir win_src log ex5 warn before=0 after=0
+   kind="$(detect_kind "$src")"
+   dest_dir="$MQL5_DIR/$kind"
+   win_src="$(winepath -w "$src")"
+   log="$(dirname "$src")/$(basename "${src%.mq5}").log"
+   ex5="${src%.mq5}.ex5"
+
+   echo "[$(date +%H:%M:%S)] $(basename "$src") → $kind"
+   [[ -f "$ex5" ]] && before=$(stat -c %Y "$ex5")
+   wine "$METAEDITOR" /compile:"$win_src" /log:"$(winepath -w "$log")" \
+        >/dev/null 2>&1 || true
+   [[ -f "$ex5" ]] && after=$(stat -c %Y "$ex5")
+
+   if [[ ! -f "$ex5" || "$after" -le "$before" ]]; then
+      echo "  Compile FAILED."
+      [[ -f "$log" ]] && sed 's/\r$//' "$log" | tail -20 | sed 's/^/  /'
+      return 1
+   fi
+
+   if [[ -f "$log" ]]; then
+      warn="$(sed 's/\r$//' "$log" | grep -E 'warning|error' || true)"
+      [[ -n "$warn" ]] && { echo "  ── log ──"; echo "$warn" | sed 's/^/  /'; }
+   fi
+
+   install -m 644 "$ex5" "$dest_dir/"
+   echo "  Deployed: $dest_dir/$(basename "$ex5")"
+
+   rm -f "$ex5"
+   [[ -f "$log" ]] && rm -f "$log"
+   echo "  Cleaned:  $(basename "$ex5") + log removed from source"
+
+   local src_dir inc rel target
+   src_dir="$(dirname "$src")"
+   while IFS= read -r inc; do
+      [[ -z "$inc" ]] && continue
+      rel="${inc//\\//}"
+      [[ -f "$src_dir/$rel" ]] || continue
+      target="$dest_dir/$rel"
+      install -D -m 644 "$src_dir/$rel" "$target"
+      echo "  Helper:   $target"
+   done < <(grep -oE '^[[:space:]]*#include[[:space:]]+"[^"]+\.mqh"' "$src" \
+            | sed -E 's/.*"([^"]+)".*/\1/')
+
+   return 0
+}
+
+# ── One-shot: fd all .mq5 under $HOME → fzf-pick → compile ─────────
+if [[ "$WATCH" -eq 0 ]]; then
+   SRC="$("$FD" --type f --extension mq5 \
+              --exclude '.local' --exclude '.mt5' --exclude '.cache' \
+              --exclude 'Trash' . "$HOME" \
+           | fzf --prompt='mq5 > ' --height=60% --reverse \
+                 --preview='head -40 {}' --preview-window=right:60%)"
+   [[ -n "${SRC:-}" ]] || { echo "Nothing selected."; exit 0; }
+   compile_and_deploy "$SRC"
+   exit $?
+fi
+
+# ── Watch: fd all dirs under $HOME → fzf-pick → watch ──────────────
+if command -v eza >/dev/null; then
+   DIR_PREVIEW='eza --tree --level=2 --icons --color=always {} | head -20'
+else
+   DIR_PREVIEW='ls -la {} | head -20'
+fi
+
+WATCH_ROOT="$("$FD" --type d --hidden --exclude .git . "$HOME" \
+               | fzf --prompt='dir > ' --height=60% --reverse \
+                     --preview "$DIR_PREVIEW")" || true
+[[ -n "${WATCH_ROOT:-}" ]] || { echo "No directory selected."; exit 0; }
+
+echo "Watching $WATCH_ROOT for .mq5 changes  (Ctrl-C to stop)"
+
+declare -A MTIMES
+while IFS= read -r -d '' f; do
+   MTIMES["$f"]=$(stat -c %Y "$f")
+done < <(find "$WATCH_ROOT" -type f -name '*.mq5' -print0)
+echo "Tracking ${#MTIMES[@]} file(s). Edit any to trigger a build."
+
+while true; do
+   sleep 1
+   while IFS= read -r -d '' f; do
+      cur=$(stat -c %Y "$f" 2>/dev/null || echo 0)
+      prev="${MTIMES["$f"]:-0}"
+      if [[ "$cur" != "$prev" && "$cur" -ne 0 ]]; then
+         MTIMES["$f"]="$cur"
+         sleep 0.3
+         compile_and_deploy "$f" || true
+      fi
+   done < <(find "$WATCH_ROOT" -type f -name '*.mq5' -print0)
+done

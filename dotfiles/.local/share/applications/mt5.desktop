@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=MetaTrader 5
+GenericName=Trading Terminal
+Comment=Launch MetaTrader 5 in its dedicated Wine prefix
+Exec=/home/ys/.local/bin/run-mt5
+Path=/home/ys/.mt5/drive_c/Program Files/MetaTrader 5
+Icon=/home/ys/.mt5/drive_c/Program Files/MetaTrader 5/Terminal.ico
+Terminal=false
+StartupNotify=true
+StartupWMClass=terminal64.exe
+Categories=Office;Finance;
+Keywords=mt5;metatrader;trading;forex;

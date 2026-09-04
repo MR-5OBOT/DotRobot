@@ -1,0 +1,48 @@
+# ~/.config/visidata/config.py
+
+# Based on Base16 Black Metal (Gorgoroth) from kitty's black.ini
+
+# options.color_default_bg = 'black'
+# options.color_default_fg = 'lightgray'
+
+# options.color_status_fg = 'lightgray'
+# options.color_status_bg = 'darkgray' # approximated from #121212
+
+# options.color_on_fg = 'lightgray'
+# options.color_on_bg = 'red' # approximated from #5f8787
+
+# options.color_current_bg = 'green' # approximated from #9b8d7f
+# options.color_current_fg = 'black'
+
+# # Cell colors
+# options.color_cell_selected_fg = 'lightgray'
+# options.color_cell_selected_bg = 'red' # approximated from #5f8787
+
+# # Column colors
+# options.color_column_selected_fg = 'lightgray'
+# options.color_column_selected_bg = 'yellow' # approximated from #8c7f70
+# options.color_column_default_fg = 'lightgray'
+# options.color_column_default_bg = 'black'
+
+# # Row colors
+# options.color_row_selected_fg = 'lightgray'
+# options.color_row_selected_bg = 'blue' # approximated from #888888
+
+# # Header colors
+# options.color_hdr_default_fg = 'lightgray'
+# options.color_hdr_default_bg = 'darkgray' # approximated from #333333
+# options.color_hdr_selected_fg = 'lightgray'
+# options.color_hdr_selected_bg = 'gray' # approximated from #999999
+# options.color_hdr_current_fg = 'lightgray'
+# options.color_hdr_current_bg = 'lightgray' # approximated from #aaaaaa
+
+# # Grep/Search colors
+# options.color_grep_fg = 'black'
+# options.color_grep_bg = 'green' # approximated from #9b8d7f
+
+# # Other general UI colors
+# options.color_separator = 'darkgray' # approximated from #444444
+# options.color_edit_fg = 'lightgray'
+# options.color_edit_bg = 'black'
+# options.color_error_fg = 'lightgray'
+# options.color_error_bg = 'red' # approximated from #5f8787

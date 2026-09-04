@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Ventoy
+GenericName=Bootable USB Creator
+Comment=Create bootable Ventoy USB drives
+Exec=/home/ys/.local/bin/ventoy-launch
+Icon=/opt/ventoy/WebUI/static/img/VentoyLogo.png
+Terminal=false
+Categories=System;Utility;
+StartupNotify=true
+Keywords=usb;boot;iso;ventoy;

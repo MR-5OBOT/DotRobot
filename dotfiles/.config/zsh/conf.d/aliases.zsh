@@ -1,0 +1,31 @@
+# Shell aliases.
+
+# ---------- Editor / tools ----------
+alias v="nvim"
+alias ff="fastfetch"
+alias lg="lazygit"
+alias c="clear"
+
+# ---------- Safety nets ----------
+alias mv="mv -i"
+alias rm="trash -v"
+alias mkdir="mkdir -p -v"
+
+# ---------- Navigation ----------
+alias ..="cd .."
+alias ...="cd ../../"
+
+# ---------- eza (ls replacement) ----------
+alias ls="eza -a --icons=auto"
+alias l="eza -lah --icons=auto"
+alias lt="eza --tree --level=2 --long --icons=auto --git -la"
+
+# ---------- zsh config ----------
+alias vzshrc="nvim ${ZDOTDIR:-$HOME/.config/zsh}/.zshrc"
+alias szshrc="source ${ZDOTDIR:-$HOME/.config/zsh}/.zshrc"
+
+# ---------- Misc ----------
+alias hypr-start="uwsm start -e -D Hyprland hyprland.desktop"  # uwsm/systemd-managed session from TTY
+alias quick-wifi-scan='sudo nmcli dev wifi rescan && nmcli dev wifi list'
+
+alias ventoy="pkexec env DISPLAY=\$DISPLAY WAYLAND_DISPLAY=\$WAYLAND_DISPLAY XDG_RUNTIME_DIR=\$XDG_RUNTIME_DIR /opt/ventoy/tool/x86_64/Ventoy2Disk.gtk3"
