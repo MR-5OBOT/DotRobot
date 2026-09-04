@@ -39,7 +39,6 @@ local float_classes = {
 	"vlc",
 	"kvantummanager",
 	"qt5ct",
-	"hyprqt6engine",
 	"Picture-in-Picture",
 	"Viewnior",
 	"file_progress",

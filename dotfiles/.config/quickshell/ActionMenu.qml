@@ -5,7 +5,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
 
-// Fixed-action drop-in menu (power, recorder, …). Same top-center card as the
+// Fixed-action drop-in menu (power, session actions, …). Same top-center card as the
 // launcher; keyboard + click nav. Toggle: qs ipc call <ipcTarget> toggle
 PanelWindow {
     id: win

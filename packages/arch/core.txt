@@ -4,7 +4,6 @@ base-devel
 bat
 curl
 eza
-wayscriber
 ttf-material-symbols-variable
 fastfetch
 fd
@@ -16,6 +15,7 @@ gum
 intel-media-driver
 less
 libva-utils
+lazygit
 luarocks
 man-db
 man-pages

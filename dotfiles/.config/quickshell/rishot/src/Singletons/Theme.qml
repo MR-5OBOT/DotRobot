@@ -26,7 +26,7 @@ Singleton {
     ]
 
     readonly property string monoFamily: pick(
-        ["JetBrains Mono", "JetBrainsMono Nerd Font", "DejaVu Sans Mono", "Liberation Mono"],
+        ["IosevkaTerm Nerd Font Mono", "DejaVu Sans Mono", "Liberation Mono"],
         "monospace")
     readonly property string sansFamily: pick(
         ["Inter", "Inter Display", "Noto Sans", "DejaVu Sans", "Liberation Sans"],
