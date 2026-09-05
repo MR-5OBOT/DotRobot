@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
@@ -16,11 +17,12 @@ PanelWindow {
     property string query: ""
     property int sel: 0
     property var items: []       // [{ id, raw, image, label, size }]
-    readonly property string cacheDir: "/tmp/qs-cliphist"  // decoded thumbnails, wiped per session
+    readonly property var selected: matches[sel] || null
+    readonly property string cacheDir: (Quickshell.env("XDG_RUNTIME_DIR") || Quickshell.cacheDir) + "/qs-cliphist-" + Quickshell.processId
     onSelChanged: list.positionViewAtIndex(sel, ListView.Contain)
 
     // fresh thumbnail cache each shell session (cliphist ids reset after a wipe)
-    Component.onCompleted: Quickshell.execDetached(["sh", "-c", "rm -rf \"$1\" && mkdir -p \"$1\"", "_", cacheDir])
+    Component.onCompleted: Quickshell.execDetached(["sh", "-c", "rm -rf \"$1\" && mkdir -m 700 -p \"$1\"", "_", cacheDir])
 
     // empty query shows the whole history (a clipboard manager, not a launcher)
     readonly property var matches: {
@@ -120,9 +122,10 @@ PanelWindow {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.topMargin: win.open ? 8 : -height
-        width: 380
+        width: Math.min(940, win.width - 32)
         height: col.implicitHeight + 2
         color: Theme.bg
+        border.color: Theme.border
 
         opacity: win.open ? 1 : 0
         Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
@@ -165,7 +168,7 @@ PanelWindow {
                     Keys.onEscapePressed: win.open = false
                     Keys.onReturnPressed: win.copy()
                     Keys.onEnterPressed: win.copy()
-                    Keys.onDownPressed: win.sel = Math.min(win.sel + 1, win.matches.length - 1)
+                    Keys.onDownPressed: win.sel = Math.max(0, Math.min(win.sel + 1, win.matches.length - 1))
                     Keys.onUpPressed: win.sel = Math.max(win.sel - 1, 0)
                     Keys.onTabPressed: win.sel = (win.sel + 1) % Math.max(1, win.matches.length)
                     Keys.onBacktabPressed: win.sel = (win.sel - 1 + win.matches.length) % Math.max(1, win.matches.length)
@@ -196,86 +199,185 @@ PanelWindow {
 
             Rectangle {  // separator
                 Layout.fillWidth: true
-                visible: win.matches.length > 0
                 height: 1
                 color: Theme.border
             }
 
-            ListView {
-                id: list
+            RowLayout {
                 Layout.fillWidth: true
-                Layout.preferredHeight: Math.min(win.matches.length, 8) * 38
-                visible: win.matches.length > 0
-                clip: true
-                model: win.matches
+                Layout.preferredHeight: Math.min(456, win.height - 100)
+                spacing: 0
 
-                delegate: Rectangle {
-                    id: row
-                    required property var modelData
-                    required property int index
-                    readonly property bool current: index === win.sel
+                ListView {
+                    id: list
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 440
+                    Layout.fillHeight: true
+                    clip: true
+                    model: win.matches
+                    currentIndex: win.sel
+                    ScrollBar.vertical: ScrollBar {}
 
-                    width: list.width
-                    height: 38
-                    color: current ? Theme.pink : (rowHover.hovered ? Theme.surface : "transparent")
+                    Text {
+                        anchors.centerIn: parent
+                        visible: win.matches.length === 0
+                        text: win.query.trim() ? "No matches" : "Clipboard is empty"
+                        font.family: Theme.font
+                        font.pixelSize: 13
+                        color: Theme.dim
+                    }
 
-                    RowLayout {
-                        anchors { left: parent.left; leftMargin: 14; right: parent.right; rightMargin: 14; verticalCenter: parent.verticalCenter }
-                        spacing: 10
+                    delegate: Rectangle {
+                        id: row
+                        required property var modelData
+                        required property int index
+                        readonly property bool current: index === win.sel
+                        readonly property url imageSource: thumb.source
+                        property bool imageFailed: false
+                        property string previewText: ""
 
-                        Rectangle {  // decoded image thumbnail, lazily cached in /tmp
-                            id: thumbBox
-                            visible: row.modelData.image
-                            implicitWidth: 46
-                            implicitHeight: 30
-                            color: Theme.surface
-                            clip: true
+                        width: list.width
+                        height: 46
+                        color: current || rowHover.hovered ? Theme.surface : "transparent"
 
-                            readonly property string decodePath: win.cacheDir + "/" + row.modelData.id
-                            Image {
-                                id: thumb
-                                anchors.fill: parent
-                                fillMode: Image.PreserveAspectCrop
-                                sourceSize.height: 60   // downscale; don't load full-res
-                                asynchronous: true
-                                cache: false
-                            }
-                            // ponytail: decode-on-view; `[ -f ]` skips already-cached ids
-                            Process {
-                                id: dec
-                                command: ["sh", "-c", "mkdir -p \"$(dirname \"$1\")\"; [ -f \"$1\" ] || cliphist decode \"$2\" > \"$1\"", "_", thumbBox.decodePath, String(row.modelData.id)]
-                                onExited: code => { if (code === 0) thumb.source = "file://" + thumbBox.decodePath; }
-                            }
-                            Component.onCompleted: if (row.modelData.image) dec.running = true;
-                        }
-                        Text {
-                            Layout.fillWidth: true
-                            text: row.modelData.label
-                            elide: Text.ElideRight
-                            font.family: Theme.font
-                            font.pixelSize: 13
-                            font.bold: row.current
-                            color: row.current ? "#ffffff" : Theme.text
-                        }
-                        Text {  // size, images only
-                            visible: row.modelData.size.length > 0
-                            text: row.modelData.size
-                            font.family: Theme.font
-                            font.pixelSize: 11
-                            color: row.current ? "#ffffff" : Theme.dim
-                        }
-                        Icon {  // enter hint on the selected row
+                        Rectangle {
+                            width: 3
+                            height: parent.height
                             visible: row.current
-                            text: "keyboard_return"
-                            size: 15
-                            color: "#ffffff"
+                            color: Theme.pink
+                        }
+
+                        Process {
+                            command: ["cliphist", "decode", String(row.modelData.id)]
+                            running: win.open && row.current && !row.modelData.image
+                            stdout: StdioCollector {
+                                onStreamFinished: row.previewText = text
+                            }
+                        }
+
+                        RowLayout {
+                            anchors { left: parent.left; leftMargin: 14; right: parent.right; rightMargin: 14; verticalCenter: parent.verticalCenter }
+                            spacing: 10
+
+                            Rectangle {  // thumbnail and large preview share the decoded image
+                                id: thumbBox
+                                visible: row.modelData.image
+                                implicitWidth: 46
+                                implicitHeight: 30
+                                color: Theme.surface
+                                clip: true
+
+                                readonly property string decodePath: win.cacheDir + "/" + row.modelData.id
+                                Image {
+                                    id: thumb
+                                    anchors.fill: parent
+                                    fillMode: Image.PreserveAspectCrop
+                                    sourceSize.height: 60   // downscale; don't load full-res
+                                    asynchronous: true
+                                    cache: false
+                                }
+                                // ponytail: decode-on-view; `[ -s ]` skips already-cached ids
+                                Process {
+                                    id: dec
+                                    command: ["sh", "-c", "mkdir -m 700 -p \"$(dirname \"$1\")\"; [ -s \"$1\" ] || cliphist decode \"$2\" > \"$1\"", "_", thumbBox.decodePath, String(row.modelData.id)]
+                                    onExited: code => {
+                                        row.imageFailed = code !== 0;
+                                        if (code === 0) thumb.source = "file://" + thumbBox.decodePath;
+                                    }
+                                }
+                                Component.onCompleted: if (row.modelData.image) dec.running = true;
+                            }
+                            Text {
+                                Layout.fillWidth: true
+                                text: row.modelData.label
+                                textFormat: Text.PlainText
+                                elide: Text.ElideRight
+                                font.family: Theme.font
+                                font.pixelSize: 13
+                                font.bold: row.current
+                                color: row.current ? "#ffffff" : Theme.text
+                            }
+                            Text {  // size, images only
+                                visible: row.modelData.size.length > 0
+                                text: row.modelData.size
+                                font.family: Theme.font
+                                font.pixelSize: 11
+                                color: row.current ? "#ffffff" : Theme.dim
+                            }
+                            Icon {  // enter hint on the selected row
+                                visible: row.current
+                                text: "keyboard_return"
+                                size: 15
+                                color: "#ffffff"
+                            }
+                        }
+
+                        HoverHandler { id: rowHover }
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            onPositionChanged: win.sel = row.index
+                            onClicked: { win.sel = row.index; win.copy(); }
+                        }
+                    }
+                }
+
+                Rectangle {
+                    Layout.fillHeight: true
+                    Layout.preferredWidth: 1
+                    color: Theme.border
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 498
+                    Layout.fillHeight: true
+
+                    Image {
+                        id: previewImage
+                        objectName: "clipboardPreviewImage"
+                        anchors { fill: parent; margins: 16 }
+                        visible: !!win.selected && win.selected.image
+                        source: visible && list.currentItem ? list.currentItem.imageSource : ""
+                        fillMode: Image.PreserveAspectFit
+                        sourceSize: Qt.size(width * 2, height * 2)
+                        asynchronous: true
+                        cache: false
+                    }
+
+                    Flickable {
+                        id: textScroll
+                        anchors { fill: parent; margins: 18 }
+                        visible: !!win.selected && !win.selected.image
+                        contentWidth: width
+                        contentHeight: previewText.height
+                        clip: true
+                        boundsBehavior: Flickable.StopAtBounds
+                        ScrollBar.vertical: ScrollBar {}
+
+                        Text {
+                            id: previewText
+                            objectName: "clipboardPreviewText"
+                            width: textScroll.width
+                            text: textScroll.visible && list.currentItem ? list.currentItem.previewText : ""
+                            textFormat: Text.PlainText
+                            wrapMode: Text.Wrap
+                            font.family: Theme.font
+                            font.pixelSize: 14
+                            color: Theme.text
+                            onTextChanged: textScroll.contentY = 0
                         }
                     }
 
-                    HoverHandler { id: rowHover }
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: { win.sel = row.index; win.copy(); }
+                    Text {
+                        anchors.centerIn: parent
+                        visible: !win.selected || (win.selected.image && previewImage.status !== Image.Ready)
+                        text: !win.selected ? "Select an entry to preview"
+                            : previewImage.status === Image.Error || (list.currentItem && list.currentItem.imageFailed)
+                                ? "Preview unavailable" : "Loading image…"
+                        font.family: Theme.font
+                        font.pixelSize: 13
+                        color: Theme.dim
                     }
                 }
             }
