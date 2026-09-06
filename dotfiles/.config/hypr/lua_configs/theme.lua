@@ -6,8 +6,8 @@ hl.config({
         gaps_out = 5,
         border_size = 0,
         col = {
-            active_border = 0xff323232,
-            inactive_border = 0xff323232
+            active_border = 0xff5c1e38,
+            inactive_border = 0xff5c1e38
         },
         resize_on_border = false,
         allow_tearing = true,
