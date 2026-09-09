@@ -32,10 +32,12 @@ EOF
   run_step "Install paru (AUR helper)" "scripts/setup-aur-helper.sh"
   run_step "Install AUR packages" "scripts/install-packages.sh" aur
   run_step "Set up Flatpak + Flathub" "scripts/setup-flatpak.sh"
+  run_step "Enable system services" "scripts/enable-services.sh"
   run_step "Link dotfiles into \$HOME" "scripts/link-dotfiles.sh"
   run_step "Install zinit and tmux TPM" "scripts/setup-shell-tools.sh"
   run_step "Set zsh as the default shell" "scripts/setup-zsh.sh"
   run_step "Set up git + ssh" "scripts/setup-git-ssh.sh"
+  run_step "Set up greetd + tuigreet login manager" "scripts/setup-login-manager.sh"
   run_step "Create XDG user directories" "scripts/setup-user-dirs.sh"
   log "Setup finished. Log: ${LOG_FILE}"
 }

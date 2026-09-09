@@ -1,8 +1,7 @@
-bottles
+brave-bin
 devify
-grimblast-git
+helium-browser-bin
 localsend-bin
-pixie-sddm-git
-telegram-desktop-bin
+ventoy-bin
+vesktop-git
 wayscriber
-wlhc

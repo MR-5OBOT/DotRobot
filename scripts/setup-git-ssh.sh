@@ -46,6 +46,13 @@ EOF
   printf '\n'
 
   ssh -T git@github.com || true
+
+  # ponytail: bootstrap clone is https (no keys yet); flip it to ssh now that there are keys
+  local repo
+  repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+  if git -C "${repo}" remote set-url origin git@github.com:MR-5OBOT/DotRobot.git 2>/dev/null; then
+    log "origin now uses ssh"
+  fi
 }
 
 main "$@"
