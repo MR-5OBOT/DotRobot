@@ -16,6 +16,7 @@ with tempfile.TemporaryDirectory(prefix='tmux-float-test-') as directory:
     cwd.mkdir()
     config = tmp / 'tmux.conf'
     config.write_text(source.joinpath('tmux.conf').read_text().split('##### Plugins #####')[0]
+                      .replace('$HOME/.config/tmux/float.sh', str(source / 'float.sh'))
                       + '\nset -g default-shell /bin/sh\n')
     env = dict(os.environ, TMUX='', TERM='xterm-256color', SHELL='/bin/sh')
     command = ['tmux', '-S', str(tmp / 'socket'), '-f', str(config)]
@@ -45,20 +46,24 @@ with tempfile.TemporaryDirectory(prefix='tmux-float-test-') as directory:
         raise AssertionError(output.decode(errors='replace')[-4000:])
 
     def floating_active():
-        return tm('display-message', '-p', '-t', '=main:', '#{@floating-terminal}').stdout.strip() == 'on'
+        return tm('display-message', '-p', '-t', '=floating-0:', '#{session_attached}').stdout.strip() == '1'
 
     def floating_exists():
-        return bool(tm('list-windows', '-t', '=main', '-f', '#{@floating-terminal}',
-                       '-F', '#{window_id}').stdout.strip())
+        return tm('has-session', '-t', '=floating-0').returncode == 0
+
+    def original_window():
+        return tm('display-message', '-p', '-t', '=main:', '#{window_id}').stdout.strip() == '@0'
 
     try:
         wait_for(lambda: tm('has-session', '-t', '=main').returncode == 0)
         os.write(master, b'\0o')
         wait_for(lambda: floating_active())
-        pane = tm('display-message', '-p', '-t', '=main:', '#{pane_id}').stdout.strip()
+        assert original_window(), 'Opening the float switched away from the current window'
+        view = tm('display-message', '-p', '-t', '=main:', '#{pane_id}').stdout.strip()
+        pane = tm('display-message', '-p', '-t', '=floating-0:', '#{pane_id}').stdout.strip()
         assert tm('display-message', '-p', '-t', pane, '#{pane_current_path}').stdout.strip() == str(cwd)
         assert tm('display-message', '-p', '-t', pane, '#{pane_width}x#{pane_height}').stdout.strip() == '141x28'
-        assert tm('display-message', '-p', '-t', pane, '#{pane_floating_flag}').stdout.strip() == '1'
+        assert tm('display-message', '-p', '-t', view, '#{pane_floating_flag}').stdout.strip() == '1'
         # Kitty image uploads must reach the real terminal, not a nested parser.
         graphics = b'\x1b_Ga=t,f=24,s=1,v=1,i=2147483000,q=2;AP8A\x1b\\'
         packet = b'\x1bPtmux;' + graphics.replace(b'\x1b', b'\x1b\x1b') + b'\x1b\\'
@@ -70,9 +75,13 @@ with tempfile.TemporaryDirectory(prefix='tmux-float-test-') as directory:
         tm('rename-window', '-t', '=main:', 'renamed terminal')
         os.write(master, b'\0o')
         wait_for(lambda: not floating_active())
+        wait_for(lambda: tm('list-windows', '-t', '=main', '-F', '#{window_id}').stdout.count('\n') == 1)
+        assert original_window()
         os.write(master, b'\0o')
         wait_for(lambda: floating_active())
-        assert tm('display-message', '-p', '-t', '=main:', '#{pane_id}').stdout.strip() == pane
+        assert original_window()
+        view = tm('display-message', '-p', '-t', '=main:', '#{pane_id}').stdout.strip()
+        assert tm('display-message', '-p', '-t', '=floating-0:', '#{pane_id}').stdout.strip() == pane
         os.write(master, b'printf "reopened-%s\\n" "$FLOAT_CHECK"\n')
         wait_for(lambda: 'reopened-preserved' in tm('capture-pane', '-p', '-t', pane).stdout)
         # Escape and Ctrl-C belong to the terminal; prefix+[ still enters copy mode.
@@ -83,13 +92,15 @@ with tempfile.TemporaryDirectory(prefix='tmux-float-test-') as directory:
         assert tm('has-session', '-t', '=main').returncode == 0
         os.write(master, b'\0o')
         wait_for(lambda: floating_active())
-        assert tm('display-message', '-p', '-t', '=main:', '#{pane_id}').stdout.strip() != pane
+        assert original_window()
+        assert tm('display-message', '-p', '-t', '=floating-0:', '#{pane_id}').stdout.strip() != pane
         os.write(master, b'exit\n')
         wait_for(lambda: not floating_exists())
         assert tm('has-session', '-t', '=main').returncode == 0
         assert tm('list-windows', '-t', '=main', '-F', '#{window_id}').stdout.count('\n') == 1
         assert not (cwd / 'SHOULD_NOT_EXIST').exists()
-        print('PASS: native float, image passthrough, working directory, hide/reopen, rename, shell state, copy mode, close and exit')
+        assert original_window()
+        print('PASS: current-window overlay, image passthrough, working directory, hide/reopen, rename, shell state, copy mode, close and exit')
     finally:
         tm('kill-server')
         client.wait(timeout=5)
