@@ -32,7 +32,7 @@ sudo tee /etc/greetd/config.toml >/dev/null <<'EOF'
 vt = 1
 
 [default_session]
-command = "tuigreet --time --remember --remember-session"
+command = "tuigreet --time --remember --remember-session --cmd 'uwsm start -e -D Hyprland hyprland.desktop'"
 user = "greeter"
 EOF
 log "Wrote /etc/greetd/config.toml"
