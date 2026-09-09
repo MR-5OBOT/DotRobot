@@ -50,7 +50,7 @@ else
   session="floating-${window#@}"
   cwd=$(tmux display-message -p -t "$pane" '#{pane_current_path}')
   view=$(tmux new-pane -P -F '#{pane_id}' -t "$pane" -c "$cwd" \
-    -x 85% -y 80% -X 7% -Y 10% \
+    -x 68% -y 80% -X 16% -Y 10% \
     sh "$0" attach "$session" "$parent")
   tmux set-option -p -t "$view" @float-session "$session"
 fi

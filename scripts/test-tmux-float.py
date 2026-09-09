@@ -62,7 +62,7 @@ with tempfile.TemporaryDirectory(prefix='tmux-float-test-') as directory:
         view = tm('display-message', '-p', '-t', '=main:', '#{pane_id}').stdout.strip()
         pane = tm('display-message', '-p', '-t', '=floating-0:', '#{pane_id}').stdout.strip()
         assert tm('display-message', '-p', '-t', pane, '#{pane_current_path}').stdout.strip() == str(cwd)
-        assert tm('display-message', '-p', '-t', pane, '#{pane_width}x#{pane_height}').stdout.strip() == '141x28'
+        assert tm('display-message', '-p', '-t', pane, '#{pane_width}x#{pane_height}').stdout.strip() == '112x28'
         assert tm('display-message', '-p', '-t', view, '#{pane_floating_flag}').stdout.strip() == '1'
         # Kitty image uploads must reach the real terminal, not a nested parser.
         graphics = b'\x1b_Ga=t,f=24,s=1,v=1,i=2147483000,q=2;AP8A\x1b\\'
