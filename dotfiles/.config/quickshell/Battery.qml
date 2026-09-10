@@ -5,8 +5,9 @@ import Quickshell.Io
 
 // Bar: battery glyph tinted by level. Hover -> %, state, time remaining.
 // Reads sysfs directly (Quickshell UPower service is unpopulated on this box)
-// and energy-weights across both batteries. ponytail: assumes energy_* units;
-// this ThinkPad has energy_now/full on both BATs.
+// and energy-weights across every BAT. Kernels expose one of two unit families:
+// energy_*/power_now (µWh/µW, the ThinkPad) or charge_*/current_now (µAh/µA,
+// this Dell) — charge units are scaled by voltage so both reach QML as energy.
 Item {
     id: root
     implicitWidth: parent.width
@@ -39,7 +40,7 @@ Item {
 
     Process {
         id: proc
-        command: ["bash", "-c", "for b in /sys/class/power_supply/BAT*; do echo \"$(cat $b/energy_now 2>/dev/null||echo 0):$(cat $b/energy_full 2>/dev/null||echo 0):$(cat $b/status 2>/dev/null):$(cat $b/power_now 2>/dev/null||echo 0)\"; done"]
+        command: ["bash", "-c", "for b in /sys/class/power_supply/BAT*; do v=$(cat $b/voltage_now 2>/dev/null||echo 0); [ \"$v\" = 0 ] && v=$(cat $b/voltage_min_design 2>/dev/null||echo 0); n=$(cat $b/energy_now 2>/dev/null||echo 0); f=$(cat $b/energy_full 2>/dev/null||echo 0); p=$(cat $b/power_now 2>/dev/null||echo 0); if [ \"$f\" = 0 ]; then n=$(( $(cat $b/charge_now 2>/dev/null||echo 0)*v/1000000 )); f=$(( $(cat $b/charge_full 2>/dev/null||echo 0)*v/1000000 )); p=$(( $(cat $b/current_now 2>/dev/null||echo 0)*v/1000000 )); fi; echo \"$n:$f:$(cat $b/status 2>/dev/null):$p\"; done"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
