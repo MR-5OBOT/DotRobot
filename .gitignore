@@ -1,6 +1,8 @@
 # Runtime state written by apps into linked config dirs
 dotfiles/.config/gtk-3.0/bookmarks
 claude
+# zsh rebuilds the completion cache in $ZDOTDIR on every start
+dotfiles/.config/zsh/.zcompdump*
 # vesktop writes its Discord session token + caches into the linked config dir
 dotfiles/.config/vesktop/*
 !dotfiles/.config/vesktop/themes/
