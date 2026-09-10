@@ -18,7 +18,7 @@ hl.window_rule({ match = { class = "^(Foliate)$" }, workspace = 6 })
 hl.window_rule({ match = { class = "kitty" }, float = true, center = true, size = "620 360", border_size = 4 })
 hl.window_rule({ match = { title = "^(Calculator)$" }, float = true, center = true, size = "280 340" })
 hl.window_rule({ match = { title = "^(Calendar)$" }, float = true, center = true })
-hl.window_rule({ match = { class = "^(thunar)$" }, float = true, center = true, size = "700 600" })
+hl.window_rule({ match = { class = "^([Tt]hunar)$" }, float = true, center = true, size = "700 600" })
 hl.window_rule({
 	match = { class = "hyprland-share-picker" },
 	float = true,
@@ -56,7 +56,6 @@ end
 local float_titles = {
 	"Media viewer",
 	"Volume Control",
-	"Open File",
 	"File Operation Progress",
 }
 for _, t in ipairs(float_titles) do
@@ -64,9 +63,19 @@ for _, t in ipairs(float_titles) do
 end
 
 -- File dialogs
+-- The GTK/Qt portal file chooser is a separate client; without an explicit size it
+-- opens at its own default (~1203x978), which overflows a 1280x720 logical screen.
+hl.window_rule({
+	match = { class = "^(xdg-desktop-portal-gtk|xdg-desktop-portal-hyprland)$" },
+	float = true,
+	center = true,
+	size = "900 560",
+})
 hl.window_rule({
 	match = { title = "^(Open.*Files?|Open [F|f]older.*|Save.*Files?|Save.*As|Save|All Files)$" },
 	float = true,
+	center = true,
+	size = "900 560",
 })
 
 -- XWayland video bridge
