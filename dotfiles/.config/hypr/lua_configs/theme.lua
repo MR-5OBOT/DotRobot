@@ -4,10 +4,10 @@ hl.config({
     general = {
         gaps_in = 3,
         gaps_out = 5,
-        border_size = 0,
+        border_size = 4,
         col = {
             active_border = 0xff5c1e38,
-            inactive_border = 0xff5c1e38
+            inactive_border = 0xff200a13
         },
         resize_on_border = false,
         allow_tearing = true,
