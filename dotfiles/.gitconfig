@@ -62,3 +62,5 @@
 [user]
 	name = MR-5OBOT
 	email = yassir7m7@gmail.com
+[url "git@github.com:MR-5OBOT/"]
+	insteadOf = https://github.com/MR-5OBOT/
