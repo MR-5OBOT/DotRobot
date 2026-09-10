@@ -10,7 +10,9 @@ hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 hl.bind(mainMod .. " + C", hl.dsp.window.center())
 hl.bind("ALT + Space", hl.dsp.window.float({ action = "toggle" }))
-hl.bind("ALT + L", hl.dsp.exec_cmd("qs ipc call lock lock"))
+-- lockscreen: hyprlock (fingerprint unlock). qs Lock.qml is untouched and
+-- still reachable with: qs ipc call lock lock
+hl.bind("ALT + L", hl.dsp.exec_cmd("pidof hyprlock || hyprlock"))
 
 -- Application Launchers
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd("[float]kitty"))
