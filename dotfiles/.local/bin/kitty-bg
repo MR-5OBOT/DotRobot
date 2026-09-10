@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# Swap the kitty background tone and live-reload every running kitty.
+#
+#   kitty-bg            pick one interactively (fzf), or list them
+#   kitty-bg graphite   switch straight to a named tone
+#   kitty-bg -l         list the tones, marking the current one
+#
+# Reload goes through SIGUSR1, so this needs no remote control.
+
+set -euo pipefail
+
+CONF="${XDG_CONFIG_HOME:-${HOME}/.config}/kitty/kitty.conf"
+BG_DIR="$(dirname "${CONF}")/backgrounds"
+
+die() { printf '%s\n' "$*" >&2; exit 1; }
+
+[[ -f "${CONF}" ]] || die "No kitty.conf at ${CONF}"
+[[ -d "${BG_DIR}" ]] || die "No backgrounds directory at ${BG_DIR}"
+
+tones() {
+  local f
+  for f in "${BG_DIR}"/*.conf; do
+    [[ -e "${f}" ]] || continue
+    basename "${f}" .conf
+  done
+}
+
+current() {
+  sed -n 's|^[[:space:]]*include[[:space:]]\+backgrounds/\(.*\)\.conf[[:space:]]*$|\1|p' "${CONF}" | tail -n1
+}
+
+list() {
+  local cur tone
+  cur="$(current)"
+  for tone in $(tones); do
+    if [[ "${tone}" == "${cur}" ]]; then
+      printf '* %-10s %s\n' "${tone}" "$(sed -n "s/^# ${tone} — //p" "${BG_DIR}/${tone}.conf")"
+    else
+      printf '  %-10s %s\n' "${tone}" "$(sed -n "s/^# ${tone} — //p" "${BG_DIR}/${tone}.conf")"
+    fi
+  done
+}
+
+apply() {
+  local tone="$1"
+  [[ -f "${BG_DIR}/${tone}.conf" ]] || die "Unknown tone '${tone}'. Available:$(printf ' %s' $(tones))"
+
+  # sed resolves through the ~/.config/kitty symlink and edits the real file.
+  sed -i "s|^\([[:space:]]*include[[:space:]]\+\)backgrounds/.*\.conf[[:space:]]*$|\1backgrounds/${tone}.conf|" "${CONF}"
+  [[ "$(current)" == "${tone}" ]] || die "Could not find an 'include backgrounds/*.conf' line in ${CONF}"
+
+  if pkill -USR1 -x kitty 2>/dev/null; then
+    printf 'background: %s (reloaded)\n' "${tone}"
+  else
+    printf 'background: %s (no running kitty to reload)\n' "${tone}"
+  fi
+}
+
+case "${1-}" in
+  -l | --list)   list ;;
+  -h | --help)   sed -n '2,9p' "$0" | sed 's/^# \?//' ;;
+  "")
+    if command -v fzf >/dev/null 2>&1; then
+      # Repaint on every move so the highlighted tone is previewed for real,
+      # and put the original back if the pick is aborted.
+      before="$(current)"
+      if picked="$(tones | fzf --prompt='background > ' \
+                               --height=40% --reverse --no-multi \
+                               --bind "focus:execute-silent(${0} {} >/dev/null)")"; then
+        apply "${picked}"
+      else
+        apply "${before}"
+      fi
+    else
+      list
+    fi
+    ;;
+  *) apply "$1" ;;
+esac
