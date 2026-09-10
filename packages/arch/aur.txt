@@ -1,7 +1,5 @@
-brave-bin
 devify
 helium-browser-bin
-localsend-bin
 ventoy-bin
 vesktop-git
 wayscriber
