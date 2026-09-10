@@ -34,6 +34,7 @@ EOF
   run_step "Set up Flatpak + Flathub" "scripts/setup-flatpak.sh"
   run_step "Enable system services" "scripts/enable-services.sh"
   run_step "Link dotfiles into \$HOME" "scripts/link-dotfiles.sh"
+  run_step "Apply GTK/icon/cursor theme settings" "scripts/setup-gtk-theme.sh"
   run_step "Install zinit and tmux TPM" "scripts/setup-shell-tools.sh"
   run_step "Set zsh as the default shell" "scripts/setup-zsh.sh"
   run_step "Set up git + ssh" "scripts/setup-git-ssh.sh"
