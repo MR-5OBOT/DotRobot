@@ -22,8 +22,19 @@ Item {
     property bool discharging: false
 
     readonly property var levels: ["battery_0_bar", "battery_1_bar", "battery_2_bar", "battery_3_bar", "battery_4_bar", "battery_5_bar", "battery_6_bar", "battery_full"]
+    // Charging has its own glyph set, graded 20/30/50/60/80/90 + full — coarser
+    // than the 0-6 bar ramp and with nothing below 20, so take the highest tier
+    // at or under pct and let the sub-20% case borrow the 20 glyph.
+    readonly property var chargeSteps: [90, 80, 60, 50, 30, 20]
     function levelIcon() {
-        return charging ? "battery_charging_full" : levels[Math.round(pct / 100 * 7)];
+        if (!charging)
+            return levels[Math.round(pct / 100 * 7)];
+        if (pct >= 95)
+            return "battery_charging_full";
+        for (const s of chargeSteps)
+            if (pct >= s)
+                return "battery_charging_" + s;
+        return "battery_charging_20";
     }
 
     function fmtTime(hours) {
