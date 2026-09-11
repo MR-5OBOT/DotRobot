@@ -69,6 +69,7 @@ main() {
   log "Installed icon and cursor themes"
 
   "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/seed-superfile-state.sh"
+  "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/setup-claude.sh"
 
   if [[ -d "${ASSETS_DIR}/wallpapers" ]]; then
     mkdir -p "${HOME}/Pictures"
