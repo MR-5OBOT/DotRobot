@@ -11,6 +11,11 @@ ShellRoot {
         Wallpaper {}
     }
 
+    Variants {   // analog clock, bottom-right, click-through
+        model: Quickshell.screens
+        DesktopClock {}
+    }
+
     Variants {
         model: Quickshell.screens
         Bar {
