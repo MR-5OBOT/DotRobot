@@ -146,14 +146,27 @@ install_group() {
   [[ ${found} -eq 1 ]] || warn "No archives in ${source_dir}"
 }
 
+# The gruvbox pack is an upstream release, so it is fetched and checksummed at
+# install time instead of living in the repo; anything still under assets/icons
+# (the cursor theme) is installed from disk as before.
+install_icons() {
+  mkdir -p "${ICONS_DEST}"
+  fetch_release_asset SylEleuth/gruvbox-plus-icon-pack v6.2.0 \
+    gruvbox-plus-icon-pack-6.2.0.zip \
+    0fe48f86e707538462cf49b35352e7684924690b7e6e524c02c039afa7d3010d
+  log "Extracting $(basename "${FETCHED_ASSET}") -> ${ICONS_DEST}"
+  install_archive "${FETCHED_ASSET}" "${ICONS_DEST}"
+  install_group "${ASSETS_DIR}/icons" "${ICONS_DEST}"
+}
+
 main() {
   local group="${1:-all}"
 
   case "${group}" in
-    icons) install_group "${ASSETS_DIR}/icons" "${ICONS_DEST}" ;;
+    icons) install_icons ;;
     themes) install_group "${ASSETS_DIR}/themes" "${THEMES_DEST}" ;;
     all)
-      install_group "${ASSETS_DIR}/icons" "${ICONS_DEST}"
+      install_icons
       install_group "${ASSETS_DIR}/themes" "${THEMES_DEST}"
       ;;
     *) die "Usage: $(basename "$0") [icons|themes|all]" ;;
