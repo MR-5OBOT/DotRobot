@@ -45,4 +45,6 @@ ShellRoot {
         ]
     }
 
+    PowerProfileMenu {}
+
 }

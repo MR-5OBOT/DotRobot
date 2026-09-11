@@ -46,6 +46,7 @@ pipewire
 pipewire-alsa
 pipewire-jack
 pipewire-pulse
+power-profiles-daemon
 qalculate-gtk
 qt5ct
 qt5-wayland

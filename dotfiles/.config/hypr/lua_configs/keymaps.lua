@@ -4,6 +4,7 @@ local mainMod = "SUPER"
 local SCRIPTS = os.getenv("HOME") .. "/.config/hypr/scripts"
 local SCRIPT = SCRIPTS .. "/controls"
 local RISHOT = os.getenv("HOME") .. "/.config/quickshell/rishot/bin/rishot"
+local POWERPROFILE = os.getenv("HOME") .. "/.local/bin/powerprofile"
 
 -- Window Management
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
@@ -41,6 +42,9 @@ hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --toggle-mic")
 hl.bind("XF86AudioMute", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --toggle"), { locked = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(SCRIPT .. "/brightness.sh --dec"), { locked = true })
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd(SCRIPT .. "/brightness.sh --inc"), { locked = true })
+
+-- Power profile picker: tap to move down the list, pause to apply
+hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd(POWERPROFILE .. " menu"))
 
 -- Focus Navigation
 hl.config({
