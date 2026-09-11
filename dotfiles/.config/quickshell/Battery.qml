@@ -69,20 +69,54 @@ Item {
     }
 
     // Low-battery notifier (folds in the old BAT-check.sh; drops the acpi dep).
-    // Fires once when crossing below 10% on battery; re-arms when charging or
-    // back above the threshold.
-    property bool lowNotified: false
+    // Keeps nagging while on battery below lowPct — every nagInterval, tightened
+    // to critInterval once under critPct — instead of firing a single shot.
+    // notify-send -p hands back the freedesktop id and -r reuses it, so the
+    // repeats rewrite one card rather than stacking sticky criticals (NotifCard
+    // never auto-expires a critical). Plugging in replaces that card with a
+    // normal-urgency "charging" note, which does expire on its own.
+    readonly property int lowPct: 20
+    readonly property int critPct: 10
+    readonly property int nagInterval: 300000   // 5 min while 11-20%
+    readonly property int critInterval: 60000   // 1 min at or under critPct
+
+    property int notifId: 0     // id of the live warning card, 0 = none out
+    property real lastNag: 0    // Date.now() of the last warning, 0 = armed
+    property bool keepId: false // whether the in-flight send's id is worth keeping
+
+    function notify(urgency, summary, body, keep) {
+        // -r only when we already own a card; a stale id is treated as new.
+        keepId = keep;
+        nagProc.command = ["notify-send", "-p", "-u", urgency, "-i", "battery-caution"].concat(notifId > 0 ? ["-r", String(notifId)] : []).concat([summary, pct + "% — " + body]);
+        nagProc.running = true;
+    }
+
     function checkLow() {
-        if (full <= 0) return;
-        if (charging || pct > 10) { lowNotified = false; return; }
-        if (pct < 10 && !lowNotified) {
-            lowNotified = true;
-            lowProc.command = ["notify-send", "-u", "critical", "-i", "battery-caution",
-                "⚠️ Low Battery", pct + "% — plug in your charger!"];
-            lowProc.running = true;
+        if (full <= 0)
+            return;
+        if (charging || pct > lowPct) {
+            if (notifId > 0 && charging)
+                notify("normal", "🔌 Charging", "charger connected", false);
+            notifId = 0;        // stop replacing: the next warning starts fresh
+            lastNag = 0;
+            return;
+        }
+        const gap = pct <= critPct ? critInterval : nagInterval;
+        if (lastNag > 0 && Date.now() - lastNag < gap)
+            return;
+        if (nagProc.running) // previous notify-send still in flight; catch the next tick
+            return;
+        lastNag = Date.now();
+        notify("critical", pct <= critPct ? "🪫 Battery critical" : "⚠️ Low battery", "plug in your charger!", true);
+    }
+
+    Process {
+        id: nagProc
+        stdout: StdioCollector {
+            // the charging note must not be tracked, or it would replace itself forever
+            onStreamFinished: root.notifId = root.keepId ? parseInt(text) || 0 : 0
         }
     }
-    Process { id: lowProc }
 
     Timer {
         interval: 10000
@@ -94,7 +128,7 @@ Item {
     Icon {
         anchors.centerIn: parent
         size: 17
-        color: root.pct <= 20 && !root.charging ? Theme.pink : Theme.text
+        color: root.pct <= root.lowPct && !root.charging ? Theme.pink : Theme.text
         text: root.levelIcon()
     }
 
