@@ -4,16 +4,17 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 
-// Volume / brightness OSD island: icon + progress bar that rises from the
-// bottom when a level changes, then auto-hides. Triggered by the control
-// scripts and reads the current level itself (qs 0.3.0 ipc call takes no
-// arguments):  qs ipc call osd volume | mic | brightness
+// Volume / brightness / power-profile OSD island: icon + progress bar that
+// rises from the bottom when a level changes, then auto-hides. Triggered by the
+// control scripts and reads the current level itself (qs 0.3.0 ipc call takes
+// no arguments):  qs ipc call osd volume | mic | brightness | power
 PanelWindow {
     id: osd
 
     property bool shown: false
-    property string kind: "volume"   // volume | muted | mic | mic-muted | brightness
+    property string kind: "volume"   // volume | muted | mic | mic-muted | brightness | power
     property int value: 0
+    property string profile: ""      // power-saver | balanced | performance, for kind power
 
     function reveal(k, v) {
         kind = k;
@@ -27,6 +28,7 @@ PanelWindow {
         function volume(): void { volReader.running = true; }
         function mic(): void { micReader.running = true; }
         function brightness(): void { briReader.running = true; }
+        function power(): void { pwrReader.running = true; }
     }
     Timer { id: hideTimer; interval: 1200; onTriggered: osd.shown = false }
 
@@ -59,6 +61,17 @@ PanelWindow {
             onStreamFinished: osd.reveal("brightness", parseInt(text.trim()) || 0)
         }
     }
+    // the bar fills in thirds so the three profiles read as a level
+    Process {
+        id: pwrReader
+        command: ["powerprofilesctl", "get"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                osd.profile = text.trim();
+                osd.reveal("power", osd.profile === "performance" ? 100 : osd.profile === "balanced" ? 66 : 33);
+            }
+        }
+    }
 
     readonly property bool muted: kind === "muted" || kind === "mic-muted"
     readonly property string icon: {
@@ -67,6 +80,7 @@ PanelWindow {
         case "mic": return "mic";
         case "mic-muted": return "mic_off";
         case "brightness": return value <= 33 ? "brightness_low" : value <= 66 ? "brightness_medium" : "brightness_high";
+        case "power": return profile === "performance" ? "bolt" : profile === "balanced" ? "balance" : "eco";
         default: return value <= 0 ? "volume_mute" : value <= 50 ? "volume_down" : "volume_up";
         }
     }
@@ -120,11 +134,11 @@ PanelWindow {
             }
 
             Text {
-                text: osd.value + "%"
+                text: osd.kind === "power" ? osd.profile : osd.value + "%"
                 font.family: Theme.font
                 font.pixelSize: 12
                 color: Theme.dim
-                Layout.preferredWidth: 34
+                Layout.preferredWidth: osd.kind === "power" ? implicitWidth : 34
                 horizontalAlignment: Text.AlignRight
             }
         }
