@@ -64,7 +64,10 @@ main() {
   link_local_share_themes
 
   mkdir -p "${icons_dir}"
-  unzip -q -o "${ASSETS_DIR}/icons/gruvbox-plus-icon-pack-6.2.0.zip" -d "${icons_dir}"
+  fetch_release_asset SylEleuth/gruvbox-plus-icon-pack v6.2.0 \
+    gruvbox-plus-icon-pack-6.2.0.zip \
+    0fe48f86e707538462cf49b35352e7684924690b7e6e524c02c039afa7d3010d
+  unzip -q -o "${FETCHED_ASSET}" -d "${icons_dir}"
   tar -xzf "${ASSETS_DIR}/icons/volantes-light-cursors.tar.gz" -C "${icons_dir}"
   log "Installed icon and cursor themes"
 
