@@ -4,11 +4,13 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
+import "serp"
 
 // Power-profile picker: `qs ipc call powerprofile cycle` (SUPER+SHIFT+P via
 // `powerprofile menu`) opens the card on the active profile, and each further
 // press moves the highlight on. Nothing switches until you pick — Enter or a
-// click applies, Esc cancels. Same drop-in card as ActionMenu.
+// click applies, Esc cancels. Same drop-in card and rows as ActionMenu, both
+// drawn to match serpantinum's Wi-Fi/Bluetooth panel (see MenuRow.qml).
 PanelWindow {
     id: win
 
@@ -114,9 +116,12 @@ PanelWindow {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.topMargin: win.open ? 8 : -height   // drops in from the top edge
-        width: 240
-        height: col.implicitHeight + 2
-        color: Theme.bg
+        width: 260
+        height: col.implicitHeight + 16
+        radius: ThemeBackend.borderRadius
+        color: ThemeBackend.base
+        border.color: ThemeBackend.surface0
+        border.width: 1
 
         opacity: win.open ? 1 : 0
         Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
@@ -143,80 +148,58 @@ PanelWindow {
 
         ColumnLayout {
             id: col
-            anchors { top: parent.top; left: parent.left; right: parent.right; margins: 1 }
-            spacing: 0
+            anchors { top: parent.top; left: parent.left; right: parent.right; margins: 8 }
+            spacing: 4
 
             RowLayout {  // header
                 Layout.fillWidth: true
-                Layout.preferredHeight: 34
-                Layout.leftMargin: 14
-                Layout.rightMargin: 14
-                spacing: 10
-                Icon { text: "speed"; size: 16; color: Theme.dim }
+                Layout.preferredHeight: 26
+                Layout.leftMargin: 6
+                Layout.rightMargin: 6
+                Layout.bottomMargin: 2
+                spacing: 8
+                Icon { text: "speed"; size: 14; color: ThemeBackend.overlay1 }
                 Text {
                     Layout.fillWidth: true
                     text: "Power profile"
-                    font.family: Theme.font
-                    font.pixelSize: 12
-                    color: Theme.dim
+                    font.family: ThemeBackend.fontFamily
+                    font.pixelSize: 11
+                    color: ThemeBackend.overlay1
                 }
             }
 
-            Rectangle { Layout.fillWidth: true; height: 1; color: Theme.border }
+            Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; Layout.bottomMargin: 4; color: ThemeBackend.surface0 }
 
             Repeater {
                 model: win.profiles
-                delegate: Rectangle {
+                delegate: MenuRow {
                     id: row
                     required property string modelData
                     required property int index
-                    readonly property bool current: index === win.sel
-                    // a degraded reason matters more than the active marker
-                    readonly property string tag: modelData === "performance" && win.degraded !== "" ? win.degraded : modelData === win.active ? "active" : ""
 
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    color: current ? Theme.pink : (hover.hovered ? Theme.surface : "transparent")
+                    Layout.preferredHeight: implicitHeight
 
-                    RowLayout {
-                        anchors { left: parent.left; leftMargin: 14; right: parent.right; rightMargin: 14; verticalCenter: parent.verticalCenter }
-                        spacing: 12
-                        Icon { text: win.meta[row.modelData].icon; size: 17; color: row.current ? "#ffffff" : Theme.text }
-                        Text {
-                            Layout.fillWidth: true
-                            text: win.meta[row.modelData].label
-                            font.family: Theme.font
-                            font.pixelSize: 13
-                            font.bold: row.current
-                            color: row.current ? "#ffffff" : Theme.text
-                        }
-                        Text {
-                            visible: text !== ""
-                            text: row.tag
-                            font.family: Theme.font
-                            font.pixelSize: 11
-                            color: row.current ? "#ffffff" : Theme.dim
-                        }
-                    }
-
-                    HoverHandler { id: hover }
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: { win.sel = row.index; win.apply(); }
-                    }
+                    icon: win.meta[modelData].icon
+                    label: win.meta[modelData].label
+                    // a degraded reason matters more than the active marker
+                    tag: modelData === "performance" && win.degraded !== "" ? win.degraded : modelData === win.active ? "active" : ""
+                    selected: index === win.sel
+                    onHoveredChanged: if (hovered) win.sel = row.index
+                    onClicked: { win.sel = row.index; win.apply(); }
                 }
             }
 
             Text {  // ppd missing or not answering
                 visible: win.profiles.length === 0 && !reader.running
                 Layout.fillWidth: true
-                Layout.preferredHeight: 36
-                Layout.leftMargin: 14
+                Layout.preferredHeight: 38
+                Layout.leftMargin: 12
                 verticalAlignment: Text.AlignVCenter
                 text: "power-profiles-daemon not running"
-                font.family: Theme.font
-                font.pixelSize: 12
-                color: Theme.dim
+                font.family: ThemeBackend.fontFamily
+                font.pixelSize: 11
+                color: ThemeBackend.overlay1
             }
         }
     }
