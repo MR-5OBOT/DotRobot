@@ -16,7 +16,9 @@
       ],
       "right": []
     },
-    "fitContent": true
+    "fitContent": true,
+    "autohide": true,
+    "autohideTimeout": 200
   },
   "general": {
     "weatherUnit": "metric"
