@@ -19,7 +19,7 @@ ShellRoot {
     }
 
     // Bar: one per screen, pick one. Bar = the auto-hiding pill on the left
-    // edge; FullBar = serpantinum's full-height side bar (see serp/README.md).
+    // edge; FullBar = serpantinum's full-height side bar (see widgets/README.md).
     Variants {
         model: Quickshell.screens
         // Bar {
@@ -31,13 +31,14 @@ ShellRoot {
 
     Notifications {}
     Launcher {}
-    // WallpaperPicker {}   // replaced by SerpWallpaper; uncomment to go back
-    SerpWallpaper {}  // serpantinum's picker; qs ipc call serpwallpaper toggle
+    // WallpaperPicker {}   // replaced by WallpaperPanel; uncomment to go back
+    WallpaperPanel {}  // serpantinum's picker; qs ipc call wallpicker toggle
+    ScreenTimePanel {}  // screen time; qs ipc call screentime toggle
     // WorkspaceOSD {}   // top-edge workspace strip — uncomment to bring it back
     Clipboard {}
     Osd {}
-    SerpCalendar {}   // serpantinum's dashboard; qs ipc call serpcalendar toggle
-    SerpNetwork {}    // serpantinum's wifi/bt panel; qs ipc call serpnetwork toggle
+    CalendarPanel {}   // serpantinum's dashboard; qs ipc call calendar toggle
+    NetworkPanel {}    // serpantinum's wifi/bt panel; qs ipc call wifi toggle
     NetworkMenu {}
     Calculator {}
     Lock {}

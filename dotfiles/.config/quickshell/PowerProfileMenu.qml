@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
-import "serp"
+import "widgets"
 
 // Power-profile picker: `qs ipc call powerprofile cycle` (SUPER+SHIFT+P via
 // `powerprofile menu`) opens the card on the active profile, and each further

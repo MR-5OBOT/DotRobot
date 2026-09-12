@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
-import "serp"
+import "widgets"
 
 // Fixed-action menu (power, session actions, …) as a labelled card that drops
 // in from the top edge — the same shape, palette and rows as PowerProfileMenu,
