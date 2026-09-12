@@ -31,6 +31,8 @@ PanelWindow {
     // 0 = square where the bar meets the screen edge; serpantinum's fill
     // style rounds it off with an inverted corner (bar.cornerRadius)
     readonly property real cornerRadius: cfg.cornerRadius ?? 0
+    // hairline around the solid/fill background (bar.borderWidth, px); 0 = none
+    readonly property real borderWidth: cfg.borderWidth ?? 0
     readonly property real edgePadding: autohide && !isFill ? 4 : 0
     readonly property real effectiveBarHeight: Math.round(isFill ? height : (height - (autohide ? edgePadding * 2 : 0)) * barWidthPercent / 100)
     readonly property real verticalOffset: Math.round(isFill ? 0 : (height - effectiveBarHeight) / 2)
