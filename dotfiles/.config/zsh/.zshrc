@@ -21,3 +21,6 @@ if command -v fastfetch >/dev/null 2>&1; then
   fastfetch ${_logos:+--logo} ${_logos:+$_logos[RANDOM%$#_logos+1]}
   unset _logos
 fi
+
+# opencode
+export PATH=/home/mr5obot/.opencode/bin:$PATH
