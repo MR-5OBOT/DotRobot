@@ -24,6 +24,15 @@ Only the side bar and what it references were copied. Changed from upstream:
   The right-hand weather panel is hidden and the width cut to 1000.
 - `network/NetworkPopup.qml` — reads its helper script from this folder
   instead of `$QS_DIR/network`.
-- `qmldir`, `bar/qmldir`, `network/qmldir` — trimmed to the vendored files.
+- `wallpaper/WallpaperPicker.qml` — scripts resolve inside `serp/scripts`, its
+  `Settings` takes a file:// URL, and `masterWindow.screen` (an id from
+  upstream's Main.qml) became a `hostScreen` property the host window sets.
+- `singletons/theme/Matugen.qml` — no-op stub. Upstream regenerates the palette
+  with matugen and SIGUSR1s every kitty; ThemeBackend derives colours itself.
+- `singletons/theme/Wallpaper.qml` — vendored as-is. Its `wallpaperChanged`
+  signal is bridged to WallpaperState by ../SerpWallpaper.qml; upstream's
+  WallpaperEngine is not vendored (awww paints the wallpaper here).
+- `scripts/` — monitors_detect.sh and the wallpaper helpers (indexer, DDG search).
+- `qmldir`, `bar/qmldir`, `network/qmldir`, `wallpaper/qmldir` — trimmed to the vendored files.
 - `assets/languages/en.json` — vendored so `I18n` can resolve keys;
   `singletons/system/I18n.qml` reads this folder instead of `$SERPANTINUM_DIR`.
