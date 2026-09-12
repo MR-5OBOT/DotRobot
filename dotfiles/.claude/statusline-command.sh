@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Claude Code status line, styled after ~/.config/zsh/starship.toml (mono, color only for warnings).
 # One line: directory, git branch + status, python venv, model + effort,
-# session (5h) and weekly usage bars, elapsed time.
+# session (5h) and weekly usage bars.
 #
 # Greys come from the fixed 256-color ramp (232-255), so the kitty theme's
 # color8 (#333333 in black.ini) can't make labels unreadable.
@@ -21,7 +21,7 @@ SEP='   '
 ICON_BRANCH=$'\xee\x82\xa0'   # U+E0A0
 
 # One jq call; \x1f (non-whitespace) keeps empty fields from collapsing in read.
-IFS=$'\x1f' read -r dir model effort fast rl5_pct rl5_reset rl7_pct rl7_reset dur_ms < <(
+IFS=$'\x1f' read -r dir model effort fast rl5_pct rl5_reset rl7_pct < <(
   jq -r '[
     .workspace.current_dir // .cwd // "",
     .model.display_name // "",
@@ -29,9 +29,7 @@ IFS=$'\x1f' read -r dir model effort fast rl5_pct rl5_reset rl7_pct rl7_reset du
     .fast_mode // false,
     .rate_limits.five_hour.used_percentage // "",
     .rate_limits.five_hour.resets_at // "",
-    .rate_limits.seven_day.used_percentage // "",
-    .rate_limits.seven_day.resets_at // "",
-    .cost.total_duration_ms // ""
+    .rate_limits.seven_day.used_percentage // ""
   ] | map(tostring) | join("")' <<<"$input"
 )
 
@@ -106,7 +104,6 @@ if [[ -n $model ]]; then
 fi
 
 [[ -n $rl5_pct ]] && line+="${SEP}$(meter session "$rl5_pct" "${rl5_reset:+resets in $(dur $((rl5_reset - now)))}")"
-[[ -n $rl7_pct ]] && line+="${SEP}$(meter week "$rl7_pct" "${rl7_reset:+resets in $(dur $((rl7_reset - now)))}")"
-[[ -n $dur_ms ]]  && line+="${SEP}${L}time ${V}$(dur $((dur_ms / 1000)))${N}"
+[[ -n $rl7_pct ]] && line+="${SEP}$(meter week "$rl7_pct")"
 
 printf '%s' "$line"
