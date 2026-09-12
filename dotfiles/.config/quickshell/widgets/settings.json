@@ -18,7 +18,8 @@
     },
     "fitContent": true,
     "autohide": true,
-    "autohideTimeout": 200
+    "autohideTimeout": 200,
+    "borderWidth": 0.9
   },
   "general": {
     "weatherUnit": "metric"
