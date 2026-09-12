@@ -207,6 +207,7 @@ Item {
     property real hVol: isModuleActive("vol") ? (volWidget.targetHeight !== undefined ? volWidget.targetHeight : volWidget.height) : 0
     property real hBat: isModuleActive("bat") ? (batWidget.targetHeight !== undefined ? batWidget.targetHeight : batWidget.height) : 0
     property real hTimedate: isModuleActive("timedate") ? (timeDateWidget.targetHeight !== undefined ? timeDateWidget.targetHeight : timeDateWidget.height) : 0
+    property real hScreenTime: isModuleActive("screentime") ? (screenTimeWidget.targetHeight !== undefined ? screenTimeWidget.targetHeight : screenTimeWidget.height) : 0
     property real hInfo: isModuleActive("info") ? (infoWidget.targetHeight !== undefined ? infoWidget.targetHeight : infoWidget.height) : 0
     property real hWeather: isModuleActive("weather") ? (weatherWidget.targetHeight !== undefined ? weatherWidget.targetHeight : weatherWidget.height) : 0
 
@@ -226,6 +227,7 @@ Item {
         if (moduleId === "timedate" || moduleId === "time" || moduleId === "clock") return hTimedate;
         if (moduleId === "info" || moduleId === "indicator" || moduleId === "indicators" || moduleId === "record") return hInfo;
         if (moduleId === "weather") return hWeather;
+        if (moduleId === "screentime") return hScreenTime;
         return 0;
     }
 
@@ -667,6 +669,26 @@ Item {
                 enabled: barWindow && !barWindow.positionChanging && barWindow.startupCascadeFinished && !contentWrapper.suppressAnimation
                 NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
             }
+        }
+    }
+
+    SideScreenTimeWidget {
+        id: screenTimeWidget
+        z: 1
+        x: contentWrapper.getModuleX(screenTimeWidget)
+        y: targetY
+        visible: contentWrapper.isModuleActive("screentime")
+        barWindow: contentWrapper.barWindow
+        isSolid: contentWrapper.isSolid || contentWrapper.isFill
+        distinctPills: contentWrapper.distinctPills
+        moduleActive: contentWrapper.isModuleActive("screentime")
+        isGrouped: contentWrapper.isModuleGrouped("screentime")
+        targetY: contentWrapper.getModuleY("screentime", contentWrapper.layoutState)
+
+        Behavior on opacity { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+        Behavior on y {
+            enabled: contentWrapper.layoutAnimationsEnabled
+            NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
         }
     }
 
