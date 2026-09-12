@@ -85,7 +85,11 @@ PanelWindow {
     readonly property bool fitContent: cfg.fitContent ?? true
     readonly property real contentHeight: sideBar.tHeightTarget + sideBar.cHeightTarget + sideBar.bHeightTarget
                                           + sideBar.tcGap + sideBar.cbGap + 2 * sideBar.fillInset + 16
-    implicitHeight: fitContent ? Math.round(contentHeight) : 0
+    // Snapped up to a multiple of 4 so that at fractional scale (1.5 here) both
+    // the height and the compositor's centring offset land on whole device
+    // pixels. At 399px the edges fell on half pixels and the bottom row of the
+    // border (bar.borderWidth) was rounded away.
+    implicitHeight: fitContent ? Math.ceil(contentHeight / 4) * 4 : 0
     anchors { top: !fitContent; bottom: !fitContent; left: barPosition === "left"; right: barPosition === "right" }
     margins {
         top: isFill || autohide ? 0 : 4
