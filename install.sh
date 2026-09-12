@@ -33,6 +33,7 @@ EOF
   run_step "Install AUR packages" "scripts/install-packages.sh" aur
   run_step "Set up Flatpak + Flathub" "scripts/setup-flatpak.sh"
   run_step "Enable system services" "scripts/enable-services.sh"
+  run_step "Tune kernel writeback" "scripts/setup-writeback.sh"
   run_step "Link dotfiles into \$HOME" "scripts/link-dotfiles.sh"
   run_step "Apply GTK/icon/cursor theme settings" "scripts/setup-gtk-theme.sh"
   run_step "Install zinit and tmux TPM" "scripts/setup-shell-tools.sh"
