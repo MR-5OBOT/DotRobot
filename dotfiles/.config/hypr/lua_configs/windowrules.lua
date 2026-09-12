@@ -87,3 +87,7 @@ hl.window_rule({
 	max_size = "1 1",
 	no_blur = true,
 })
+
+-- Borders on floating windows only: general.border_size is 0, this puts it back
+-- for anything floating.
+hl.window_rule({ match = { float = true }, border_size = 4 })
