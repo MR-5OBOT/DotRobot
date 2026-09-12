@@ -11,7 +11,9 @@ hl.config({
             -- The pad is a clickpad (no real right button). Set this explicitly
             -- so Hyprland pushes button-areas to libinput; left unset, libinput
             -- defaults to clickfinger and the bottom-right corner does nothing.
-            clickfinger_behavior = false
+            clickfinger_behavior = false,
+            -- libinput was dropping taps/clicks made right after typing.
+            disable_while_typing = false
         }
     }
 })
