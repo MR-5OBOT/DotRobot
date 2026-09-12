@@ -9,8 +9,9 @@ hl.on("hyprland.start", function()
 
 	-- Daemons
 	hl.exec_cmd("awww-daemon")  -- paints the wallpaper; qs only picks it
-	hl.exec_cmd("qs") -- bar + notifications + launcher + tray/network + lock + wallpaper + low-batt notify
+	hl.exec_cmd("qs") -- bar + notifications + launcher + tray/network + lock + wallpaper
 	hl.exec_cmd(SCRIPTS .. "/autostart/cliphist.sh")
+	hl.exec_cmd(SCRIPTS .. "/autostart/battery-notify.sh")  -- low-batt nag; qs just draws the card
 	hl.exec_cmd("devify")
 	hl.exec_cmd("hypridle")
 end)
