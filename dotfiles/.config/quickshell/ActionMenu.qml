@@ -4,23 +4,29 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
+import "serp"
 
-// Fixed-action menu (power, session actions, …) as an icon strip that slides in
-// from the right edge. Icon-only, so the label rides along as a hover tooltip.
+// Fixed-action menu (power, session actions, …) as a labelled card that drops
+// in from the top edge — the same shape, palette and rows as PowerProfileMenu,
+// both drawn to match serpantinum's Wi-Fi/Bluetooth panel (see MenuRow.qml).
 // Keyboard + click nav. Toggle: qs ipc call <ipcTarget> toggle
 PanelWindow {
     id: win
 
     property string ipcTarget: ""
-    property string title: ""         // kept for callers; the strip has no header
+    property string title: ""
     property string titleIcon: ""
-    property int buttonSize: 46
     property var actions: []          // [{ icon, label, cmd: [...] }]
     property bool open: false
     property int sel: 0
-    property int hoverIdx: -1
 
-    onOpenChanged: { sel = 0; hoverIdx = -1; }
+    onOpenChanged: sel = 0
+
+    function move(d) {
+        if (actions.length === 0)
+            return;
+        sel = (sel + d + actions.length) % actions.length;
+    }
 
     function run() {
         const a = actions[sel];
@@ -51,100 +57,80 @@ PanelWindow {
 
     MouseArea { anchors.fill: parent; onClicked: win.open = false }  // click-outside
 
-    // label for whichever button is hovered, parked to the left of the strip
-    Rectangle {
-        id: tip
-        visible: win.hoverIdx >= 0 && win.hoverIdx < win.actions.length && card.opacity > 0.5
-        anchors.right: card.left
-        anchors.rightMargin: 8
-        y: card.y + col.y + win.hoverIdx * (win.buttonSize + col.spacing) + (win.buttonSize - height) / 2
-        width: tipText.implicitWidth + 20
-        height: 28
-        color: Theme.bg
-        border.width: 1
-        border.color: Theme.border
-        radius: Theme.radius
-
-        Text {
-            id: tipText
-            anchors.centerIn: parent
-            text: win.hoverIdx >= 0 && win.hoverIdx < win.actions.length ? win.actions[win.hoverIdx].label : ""
-            font.family: Theme.font
-            font.pixelSize: 12
-            color: Theme.text
-        }
-    }
-
     Rectangle {
         id: card
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.right: parent.right
-        anchors.rightMargin: win.open ? 8 : -width   // slides in from the right edge
-        width: win.buttonSize + 12
-        height: col.implicitHeight + 12
-        color: Theme.bg
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.topMargin: win.open ? 8 : -height   // drops in from the top edge
+        width: 260
+        height: col.implicitHeight + 16
+        radius: ThemeBackend.borderRadius
+        color: ThemeBackend.base
+        border.color: ThemeBackend.surface0
         border.width: 1
-        border.color: Theme.border
-        radius: Theme.radius
 
         opacity: win.open ? 1 : 0
         Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
-        Behavior on anchors.rightMargin { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+        Behavior on anchors.topMargin { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
 
-        MouseArea { anchors.fill: parent }  // swallow clicks on the strip
+        MouseArea { anchors.fill: parent }  // swallow clicks on the card
 
         Item {  // key sink — no text input in this menu
             focus: true
             Keys.onEscapePressed: win.open = false
             Keys.onReturnPressed: win.run()
             Keys.onEnterPressed: win.run()
-            Keys.onDownPressed: win.sel = (win.sel + 1) % Math.max(1, win.actions.length)
-            Keys.onUpPressed: win.sel = (win.sel - 1 + win.actions.length) % Math.max(1, win.actions.length)
-            Keys.onTabPressed: win.sel = (win.sel + 1) % Math.max(1, win.actions.length)
-            Keys.onBacktabPressed: win.sel = (win.sel - 1 + win.actions.length) % Math.max(1, win.actions.length)
+            Keys.onDownPressed: win.move(1)
+            Keys.onUpPressed: win.move(-1)
+            Keys.onTabPressed: win.move(1)
+            Keys.onBacktabPressed: win.move(-1)
+            Keys.onPressed: e => {
+                if (e.key === Qt.Key_J)
+                    win.move(1);
+                else if (e.key === Qt.Key_K)
+                    win.move(-1);
+            }
         }
 
         ColumnLayout {
             id: col
-            anchors.centerIn: parent
-            spacing: 6
+            anchors { top: parent.top; left: parent.left; right: parent.right; margins: 8 }
+            spacing: 4
+
+            RowLayout {  // header
+                Layout.fillWidth: true
+                Layout.preferredHeight: 26
+                Layout.leftMargin: 6
+                Layout.rightMargin: 6
+                Layout.bottomMargin: 2
+                spacing: 8
+                Icon { text: win.titleIcon; size: 14; color: ThemeBackend.overlay1 }
+                Text {
+                    Layout.fillWidth: true
+                    text: win.title
+                    font.family: ThemeBackend.fontFamily
+                    font.pixelSize: 11
+                    color: ThemeBackend.overlay1
+                }
+            }
+
+            Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; Layout.bottomMargin: 4; color: ThemeBackend.surface0 }
 
             Repeater {
                 model: win.actions
-                delegate: Rectangle {
-                    id: btn
+                delegate: MenuRow {
+                    id: row
                     required property var modelData
                     required property int index
-                    readonly property bool current: index === win.sel
 
-                    Layout.preferredWidth: win.buttonSize
-                    Layout.preferredHeight: win.buttonSize
-                    radius: Theme.radius
-                    color: current ? Theme.pink : (hover.hovered ? Theme.surface : "transparent")
-                    Behavior on color { ColorAnimation { duration: 120 } }
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: implicitHeight
 
-                    Icon {
-                        anchors.centerIn: parent
-                        text: btn.modelData.icon
-                        size: 22
-                        color: btn.current ? "#ffffff" : Theme.text
-                    }
-
-                    HoverHandler {
-                        id: hover
-                        onHoveredChanged: {
-                            if (hovered) {
-                                win.hoverIdx = btn.index;
-                                win.sel = btn.index;
-                            } else if (win.hoverIdx === btn.index) {
-                                win.hoverIdx = -1;
-                            }
-                        }
-                    }
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: { win.sel = btn.index; win.run(); }
-                    }
+                    icon: modelData.icon
+                    label: modelData.label
+                    selected: index === win.sel
+                    onHoveredChanged: if (hovered) win.sel = row.index
+                    onClicked: { win.sel = row.index; win.run(); }
                 }
             }
         }
