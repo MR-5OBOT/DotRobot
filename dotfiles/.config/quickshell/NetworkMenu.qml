@@ -37,6 +37,11 @@ PanelWindow {
         BarState.activePopup = open ? win : (BarState.activePopup === win ? null : BarState.activePopup);
     }
 
+    IpcHandler {   // FullBar's wifi button: qs ipc call network toggle
+        target: "network"
+        function toggle(): void { BarState.networkOpen = !BarState.networkOpen; }
+    }
+
     // one Process reused for both cached (fast) and rescan (slow) listings.
     // A rescan requested while one is running is queued, not dropped.
     property bool rescanQueued: false
