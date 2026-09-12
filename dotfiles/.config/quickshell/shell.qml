@@ -13,11 +13,6 @@ ShellRoot {
     //     Wallpaper {}
     // }
 
-    Variants {   // analog clock, bottom-right, click-through
-        model: Quickshell.screens
-        DesktopClock {}
-    }
-
     // Bar: one per screen, pick one. Bar = the auto-hiding pill on the left
     // edge; FullBar = serpantinum's full-height side bar (see widgets/README.md).
     Variants {
