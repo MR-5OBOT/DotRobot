@@ -3,6 +3,8 @@ singleton Cava 1.0 singletons/audio/Cava.qml
 singleton MprisController 1.0 singletons/audio/MprisController.qml
 singleton Sounds 1.0 singletons/audio/Sounds.qml
 
+singleton Matugen 1.0 singletons/theme/Matugen.qml
+singleton Wallpaper 1.0 singletons/theme/Wallpaper.qml
 singleton Scaler 1.0 singletons/theme/Scaler.qml
 singleton ThemeBackend 1.0 singletons/theme/ThemeBackend.qml
 singleton Weather 1.0 singletons/environment/Weather.qml
