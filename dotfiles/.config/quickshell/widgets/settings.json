@@ -8,7 +8,6 @@
       "center": [
         "workspaces",
         "timedate",
-        "screentime",
         "tray",
         "wifi",
         "bt",

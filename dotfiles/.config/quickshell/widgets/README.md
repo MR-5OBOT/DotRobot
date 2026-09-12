@@ -33,11 +33,6 @@ Only the side bar and what it references were copied. Changed from upstream:
   signal is bridged to WallpaperState by ../WallpaperPanel.qml; upstream's
   WallpaperEngine is not vendored (awww paints the wallpaper here).
 - `scripts/` — monitors_detect.sh and the wallpaper helpers (indexer, DDG search).
-- `guide/wellbeing/` — the tab kept at upstream's depth (its imports reach
-  `../../reusables`), with `scriptsDir` pointing here. focus_daemon.py must run
-  with QS_STATE_FOCUSTIME/QS_RUN_FOCUSTIME set to Caching's focustime dirs, or
-  it writes a database the tab never reads (hypr autostart does this).
-- `assets/` — pushy.gif/pushy2.gif/logo.svg, used by the wellbeing tab.
 - `qmldir`, `bar/qmldir`, `network/qmldir`, `wallpaper/qmldir` — trimmed to the vendored files.
 - `assets/languages/en.json` — vendored so `I18n` can resolve keys;
   `singletons/system/I18n.qml` reads this folder instead of `$SERPANTINUM_DIR`.

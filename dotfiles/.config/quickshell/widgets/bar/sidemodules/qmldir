@@ -14,4 +14,3 @@ SideBtWidget 1.0 system/SideBtWidget.qml
 SideKbWidget 1.0 system/SideKbWidget.qml
 SideVolWidget 1.0 system/SideVolWidget.qml
 SideWifiWidget 1.0 system/SideWifiWidget.qml
-SideScreenTimeWidget 1.0 SideScreenTimeWidget.qml
