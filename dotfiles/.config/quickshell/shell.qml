@@ -28,7 +28,6 @@ ShellRoot {
     Launcher {}
     // WallpaperPicker {}   // replaced by WallpaperPanel; uncomment to go back
     WallpaperPanel {}  // serpantinum's picker; qs ipc call wallpicker toggle
-    ScreenTimePanel {}  // screen time; qs ipc call screentime toggle
     // WorkspaceOSD {}   // top-edge workspace strip — uncomment to bring it back
     Clipboard {}
     Osd {}
