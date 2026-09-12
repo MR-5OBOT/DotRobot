@@ -7,7 +7,7 @@ import "widgets/bar"
 // Serpantinum's side bar (github.com/ilyamiro/serpantinum, AGPL-3.0; what was
 // vendored and changed is in widgets/README.md), hosted here instead of in its own
 // Bar.qml, which also pulls in the top bar, OSD and tutorial plumbing.
-// Full height; reserves its width so windows sit beside it. Style, modules
+// Reserves its width so windows sit beside it, unless bar.autohide. Style, modules
 // and workspace count come from widgets/settings.json. Swap with Bar in shell.qml.
 PanelWindow {
     id: barWindow
@@ -49,7 +49,8 @@ PanelWindow {
     Timer { interval: 400; running: true; onTriggered: barWindow.isDataReady = true }
     Timer { interval: 1050; running: true; onTriggered: barWindow.startupCascadeFinished = true }
 
-    // autohide (bar.autohide), off by default
+    // autohide (bar.autohide): the bar slides off the edge, leaving a 4px strip
+    // where it sits that brings it back on hover. Windows get the full width.
     HoverHandler { id: hover }
     Timer { id: hideTimer; interval: barWindow.cfg.autohideTimeout ?? 1000 }
     Connections {
@@ -61,7 +62,16 @@ PanelWindow {
                 hideTimer.stop();
         }
     }
-    readonly property bool isRevealed: !autohide || hover.hovered || hideTimer.running
+    // Open pill popouts (widgets/reusables/PillPopout.qml) count themselves in
+    // here. Their cards sit outside this window, so hovering one reads as
+    // leaving the bar — without the hold the bar would slide the pill out from
+    // under its own card. The hide delay restarts once the last card closes.
+    property int popoutHolds: 0
+    onPopoutHoldsChanged: {
+        if (popoutHolds === 0 && !hover.hovered && autohide)
+            hideTimer.restart();
+    }
+    readonly property bool isRevealed: !autohide || hover.hovered || hideTimer.running || popoutHolds > 0
 
     visible: Config.dataReady
     color: "transparent"
