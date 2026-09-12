@@ -51,7 +51,9 @@ ShellRoot {
         title: "Power"
         titleIcon: "power_settings_new"
         actions: [
+            { icon: "lock",               label: "Lock",          cmd: ["bash", "-c", "pidof hyprlock || hyprlock"] },   // same as ALT+L
             { icon: "logout",             label: "Quit Hyprland", cmd: ["hyprctl", "dispatch", "exit"] },
+            { icon: "bedtime",            label: "Suspend",       cmd: ["systemctl", "suspend"] },
             { icon: "restart_alt",        label: "Reboot",        cmd: ["systemctl", "reboot"] },
             { icon: "power_settings_new", label: "Shutdown",      cmd: ["systemctl", "poweroff"] },
         ]
