@@ -8,6 +8,7 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("/usr/lib/hyprpolkitagent/hyprpolkitagent")
 
 	-- Daemons
+	hl.exec_cmd("awww-daemon")  -- paints the wallpaper; qs only picks it
 	hl.exec_cmd("qs") -- bar + notifications + launcher + tray/network + lock + wallpaper + low-batt notify
 	hl.exec_cmd(SCRIPTS .. "/autostart/cliphist.sh")
 	hl.exec_cmd("devify")

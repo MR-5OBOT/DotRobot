@@ -25,9 +25,37 @@ PanelWindow {
     WlrLayershell.namespace: "quickshell-serpnetwork"
     WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
+    // Open straight onto a tab: the bar's wifi and bluetooth buttons each want
+    // their own side. Clicking the button of the tab already showing closes it.
+    // The panel re-reads its mode file every time it becomes visible, so that
+    // file — not the property — decides the tab. Write it, then show; while the
+    // panel is already open it watches the file, so this switches tabs too.
+    property string pendingMode: "wifi"
+    function openWith(mode) {
+        if (win.open && popup.activeMode === mode) {
+            win.open = false;
+            return;
+        }
+        win.pendingMode = mode;
+        Quickshell.execDetached(["bash", "-c",
+            "mkdir -p '" + popup.cacheDir + "' && printf '%s' '" + mode + "' > '" + popup.cacheDir + "/mode'"]);
+        modeWriteTimer.restart();
+    }
+
+    Timer {
+        id: modeWriteTimer
+        interval: 150
+        onTriggered: {
+            popup.activeMode = win.pendingMode;
+            win.open = true;
+        }
+    }
+
     IpcHandler {
         target: "serpnetwork"
         function toggle(): void { win.open = !win.open; }
+        function wifi(): void { win.openWith("wifi"); }
+        function bt(): void { win.openWith("bt"); }
     }
 
     HyprlandFocusGrab {

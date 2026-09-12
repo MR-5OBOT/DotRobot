@@ -6,10 +6,12 @@ import Quickshell
 ShellRoot {
     settings.watchFiles: true
 
-    Variants {   // wallpaper: one background layer per screen
-        model: Quickshell.screens
-        Wallpaper {}
-    }
+    // Wallpaper is painted by the awww daemon now (started in hypr autostart),
+    // so it survives qs restarts. Uncomment to go back to drawing it here.
+    // Variants {
+    //     model: Quickshell.screens
+    //     Wallpaper {}
+    // }
 
     Variants {   // analog clock, bottom-right, click-through
         model: Quickshell.screens
@@ -29,7 +31,8 @@ ShellRoot {
 
     Notifications {}
     Launcher {}
-    WallpaperPicker {}
+    // WallpaperPicker {}   // replaced by SerpWallpaper; uncomment to go back
+    SerpWallpaper {}  // serpantinum's picker; qs ipc call serpwallpaper toggle
     // WorkspaceOSD {}   // top-edge workspace strip — uncomment to bring it back
     Clipboard {}
     Osd {}

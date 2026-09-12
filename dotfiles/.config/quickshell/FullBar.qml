@@ -67,7 +67,14 @@ PanelWindow {
     color: "transparent"
     WlrLayershell.namespace: "quickshell-fullbar"
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
-    anchors { top: true; bottom: true; left: barPosition === "left"; right: barPosition === "right" }
+    // Responsive height: the window is only as tall as the modules and rides
+    // centred on its edge, so the wallpaper shows above and below it.
+    // serp/settings.json -> bar.fitContent; false restores the full-height bar.
+    readonly property bool fitContent: cfg.fitContent ?? true
+    readonly property real contentHeight: sideBar.tHeightTarget + sideBar.cHeightTarget + sideBar.bHeightTarget
+                                          + sideBar.tcGap + sideBar.cbGap + 2 * sideBar.fillInset + 16
+    implicitHeight: fitContent ? Math.round(contentHeight) : 0
+    anchors { top: !fitContent; bottom: !fitContent; left: barPosition === "left"; right: barPosition === "right" }
     margins {
         top: isFill || autohide ? 0 : 4
         bottom: isFill || autohide ? 0 : 4

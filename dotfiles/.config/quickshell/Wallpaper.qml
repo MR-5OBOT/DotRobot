@@ -11,7 +11,7 @@ PanelWindow {
 
     WlrLayershell.layer: WlrLayer.Background
     WlrLayershell.namespace: "quickshell-wallpaper-bg"
-    exclusiveZone: 0
+    exclusionMode: ExclusionMode.Ignore   // cover the whole output, including under the bar's reserved strip
     color: "black"   // shown during decode and on any letterbox edge
     anchors { top: true; bottom: true; left: true; right: true }
 
