@@ -2,12 +2,13 @@
   "bar": {
     "position": "left",
     "style": "fill",
-    "workspaceCount": 8,
+    "workspaceCount": 10,
     "modules": {
       "left": [],
       "center": [
         "workspaces",
         "timedate",
+        "screentime",
         "tray",
         "wifi",
         "bt",
