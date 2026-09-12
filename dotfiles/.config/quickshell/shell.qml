@@ -30,11 +30,11 @@ ShellRoot {
     Notifications {}
     Launcher {}
     WallpaperPicker {}
-    WorkspaceOSD {}
+    // WorkspaceOSD {}   // top-edge workspace strip — uncomment to bring it back
     Clipboard {}
     Osd {}
-    CalendarPopup {}
     SerpCalendar {}   // serpantinum's dashboard; qs ipc call serpcalendar toggle
+    SerpNetwork {}    // serpantinum's wifi/bt panel; qs ipc call serpnetwork toggle
     NetworkMenu {}
     Calculator {}
     Lock {}

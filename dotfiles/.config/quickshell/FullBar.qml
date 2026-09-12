@@ -28,7 +28,9 @@ PanelWindow {
     // geometry the modules read off barWindow
     function s(val) { return Math.round(val); }   // serpantinum's Scaler is identity
     readonly property int barHeight: 40            // the bar's thickness, despite the name
-    readonly property real cornerRadius: 12
+    // 0 = square where the bar meets the screen edge; serpantinum's fill
+    // style rounds it off with an inverted corner (bar.cornerRadius)
+    readonly property real cornerRadius: cfg.cornerRadius ?? 0
     readonly property real edgePadding: autohide && !isFill ? 4 : 0
     readonly property real effectiveBarHeight: Math.round(isFill ? height : (height - (autohide ? edgePadding * 2 : 0)) * barWidthPercent / 100)
     readonly property real verticalOffset: Math.round(isFill ? 0 : (height - effectiveBarHeight) / 2)

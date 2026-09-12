@@ -17,11 +17,13 @@ Only the side bar and what it references were copied. Changed from upstream:
 - `bar/sidemodules/SideTrayWidget.qml` — tray menus use `QsMenuAnchor`;
   serpantinum's tray popup lives in its `Main.qml`, which isn't vendored.
 - `bar/sidemodules/**` — buttons that ran `scripts/qs_manager.sh` now call this
-  shell's IPC targets (`launcher`, `serpcalendar`, `network`, `powerprofile`) or
-  apps (`pavucontrol`, `blueman-manager`); the media art click plays/pauses.
+  shell's IPC targets (`launcher`, `serpcalendar`, `serpnetwork`,
+  `powerprofile`) or apps (`pavucontrol`); the media art click plays/pauses.
 - `calendar/CalendarPopup.qml` — `weatherData` falls back to an empty
   forecast; upstream's bindings throw on the frames before data arrives.
   The right-hand weather panel is hidden and the width cut to 1000.
-- `qmldir`, `bar/qmldir` — trimmed to the vendored files.
+- `network/NetworkPopup.qml` — reads its helper script from this folder
+  instead of `$QS_DIR/network`.
+- `qmldir`, `bar/qmldir`, `network/qmldir` — trimmed to the vendored files.
 - `assets/languages/en.json` — vendored so `I18n` can resolve keys;
   `singletons/system/I18n.qml` reads this folder instead of `$SERPANTINUM_DIR`.
