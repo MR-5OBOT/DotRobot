@@ -470,6 +470,22 @@ Item {
         border.color: (isSolid || isFill) ? "transparent" : Qt.alpha(ThemeBackend.surface0, (barWindow && barWindow.barOpacity !== undefined) ? barWindow.barOpacity : 1.0)
         visible: (isSolid || isFill) && (barWindow ? !barWindow.positionChanging : true)
         opacity: visible ? 1.0 : 0.0
+        clip: true
+
+        // bar.borderWidth: a hairline on the three sides facing the screen. A
+        // Rectangle can't skip one side of its border, so this one hangs past
+        // the screen edge by its own width and the clip cuts that side off.
+        Rectangle {
+            readonly property real bw: barWindow && barWindow.borderWidth !== undefined ? barWindow.borderWidth : 0
+            readonly property bool onRight: barWindow && barWindow.barPosition === "right"
+            visible: bw > 0
+            anchors.fill: parent
+            anchors.leftMargin: onRight ? 0 : -bw
+            anchors.rightMargin: onRight ? -bw : 0
+            color: "transparent"
+            border.width: bw
+            border.color: Qt.alpha(ThemeBackend.surface1, (barWindow && barWindow.barOpacity !== undefined) ? barWindow.barOpacity : 1.0)
+        }
 
         Behavior on y {
             enabled: contentWrapper.layoutAnimationsEnabled
