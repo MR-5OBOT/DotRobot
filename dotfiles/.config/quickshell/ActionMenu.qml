@@ -5,20 +5,22 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
 
-// Fixed-action drop-in menu (power, session actions, …). Same top-center card as the
-// launcher; keyboard + click nav. Toggle: qs ipc call <ipcTarget> toggle
+// Fixed-action menu (power, session actions, …) as an icon strip that slides in
+// from the right edge. Icon-only, so the label rides along as a hover tooltip.
+// Keyboard + click nav. Toggle: qs ipc call <ipcTarget> toggle
 PanelWindow {
     id: win
 
     property string ipcTarget: ""
-    property string title: ""
+    property string title: ""         // kept for callers; the strip has no header
     property string titleIcon: ""
-    property int cardWidth: 220
+    property int buttonSize: 46
     property var actions: []          // [{ icon, label, cmd: [...] }]
     property bool open: false
     property int sel: 0
+    property int hoverIdx: -1
 
-    onOpenChanged: sel = 0
+    onOpenChanged: { sel = 0; hoverIdx = -1; }
 
     function run() {
         const a = actions[sel];
@@ -49,20 +51,47 @@ PanelWindow {
 
     MouseArea { anchors.fill: parent; onClicked: win.open = false }  // click-outside
 
+    // label for whichever button is hovered, parked to the left of the strip
+    Rectangle {
+        id: tip
+        visible: win.hoverIdx >= 0 && win.hoverIdx < win.actions.length && card.opacity > 0.5
+        anchors.right: card.left
+        anchors.rightMargin: 8
+        y: card.y + col.y + win.hoverIdx * (win.buttonSize + col.spacing) + (win.buttonSize - height) / 2
+        width: tipText.implicitWidth + 20
+        height: 28
+        color: Theme.bg
+        border.width: 1
+        border.color: Theme.border
+        radius: Theme.radius
+
+        Text {
+            id: tipText
+            anchors.centerIn: parent
+            text: win.hoverIdx >= 0 && win.hoverIdx < win.actions.length ? win.actions[win.hoverIdx].label : ""
+            font.family: Theme.font
+            font.pixelSize: 12
+            color: Theme.text
+        }
+    }
+
     Rectangle {
         id: card
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: win.open ? 8 : -height   // drops in from the top edge
-        width: win.cardWidth
-        height: col.implicitHeight + 2
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.right: parent.right
+        anchors.rightMargin: win.open ? 8 : -width   // slides in from the right edge
+        width: win.buttonSize + 12
+        height: col.implicitHeight + 12
         color: Theme.bg
+        border.width: 1
+        border.color: Theme.border
+        radius: Theme.radius
 
         opacity: win.open ? 1 : 0
         Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
-        Behavior on anchors.topMargin { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+        Behavior on anchors.rightMargin { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
 
-        MouseArea { anchors.fill: parent }  // swallow clicks on the card
+        MouseArea { anchors.fill: parent }  // swallow clicks on the strip
 
         Item {  // key sink — no text input in this menu
             focus: true
@@ -77,57 +106,44 @@ PanelWindow {
 
         ColumnLayout {
             id: col
-            anchors { top: parent.top; left: parent.left; right: parent.right; margins: 1 }
-            spacing: 0
-
-            RowLayout {  // header
-                Layout.fillWidth: true
-                Layout.preferredHeight: 34
-                Layout.leftMargin: 14
-                Layout.rightMargin: 14
-                spacing: 10
-                Icon { text: win.titleIcon; size: 16; color: Theme.dim }
-                Text {
-                    Layout.fillWidth: true
-                    text: win.title
-                    font.family: Theme.font
-                    font.pixelSize: 12
-                    color: Theme.dim
-                }
-            }
-
-            Rectangle { Layout.fillWidth: true; height: 1; color: Theme.border }
+            anchors.centerIn: parent
+            spacing: 6
 
             Repeater {
                 model: win.actions
                 delegate: Rectangle {
-                    id: row
+                    id: btn
                     required property var modelData
                     required property int index
                     readonly property bool current: index === win.sel
 
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
+                    Layout.preferredWidth: win.buttonSize
+                    Layout.preferredHeight: win.buttonSize
+                    radius: Theme.radius
                     color: current ? Theme.pink : (hover.hovered ? Theme.surface : "transparent")
+                    Behavior on color { ColorAnimation { duration: 120 } }
 
-                    RowLayout {
-                        anchors { left: parent.left; leftMargin: 14; right: parent.right; rightMargin: 14; verticalCenter: parent.verticalCenter }
-                        spacing: 12
-                        Icon { text: row.modelData.icon; size: 17; color: row.current ? "#ffffff" : Theme.text }
-                        Text {
-                            Layout.fillWidth: true
-                            text: row.modelData.label
-                            font.family: Theme.font
-                            font.pixelSize: 13
-                            font.bold: row.current
-                            color: row.current ? "#ffffff" : Theme.text
-                        }
+                    Icon {
+                        anchors.centerIn: parent
+                        text: btn.modelData.icon
+                        size: 22
+                        color: btn.current ? "#ffffff" : Theme.text
                     }
 
-                    HoverHandler { id: hover }
+                    HoverHandler {
+                        id: hover
+                        onHoveredChanged: {
+                            if (hovered) {
+                                win.hoverIdx = btn.index;
+                                win.sel = btn.index;
+                            } else if (win.hoverIdx === btn.index) {
+                                win.hoverIdx = -1;
+                            }
+                        }
+                    }
                     MouseArea {
                         anchors.fill: parent
-                        onClicked: { win.sel = row.index; win.run(); }
+                        onClicked: { win.sel = btn.index; win.run(); }
                     }
                 }
             }
