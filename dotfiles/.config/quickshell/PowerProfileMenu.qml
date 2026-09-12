@@ -5,11 +5,10 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
 
-// Power-profile picker, alt-tab style: each `qs ipc call powerprofile cycle`
-// (SUPER+SHIFT+P via `powerprofile menu`) opens the card on the next profile
-// or moves the highlight on, and the pick applies once the presses stop.
-// Arrows / Tab / j k switch to manual (Enter applies, Esc cancels).
-// Same drop-in card as ActionMenu.
+// Power-profile picker: `qs ipc call powerprofile cycle` (SUPER+SHIFT+P via
+// `powerprofile menu`) opens the card on the active profile, and each further
+// press moves the highlight on. Nothing switches until you pick — Enter or a
+// click applies, Esc cancels. Same drop-in card as ActionMenu.
 PanelWindow {
     id: win
 
@@ -26,38 +25,33 @@ PanelWindow {
     property string degraded: ""   // why ppd holds performance back, "" if it doesn't
     property int sel: -1
     property int queued: 0         // cycle presses that landed while the list was loading
-    property real remaining: 0     // auto-apply countdown, 1 -> 0
 
     function cycle() {
         if (!open) {
             sel = -1;
-            queued = 1;
+            queued = 0;   // the first press only opens; it must not move off the active profile
             open = true;
             reader.running = true;
         } else if (reader.running) {
             queued++;
         } else if (profiles.length > 0) {
             sel = (sel + 1) % profiles.length;
-            countdown.restart();
         }
     }
 
-    function move(d) {   // manual nav: drop the auto-apply, wait for Enter
+    function move(d) {
         if (profiles.length === 0)
             return;
-        countdown.stop();
         sel = (sel + d + profiles.length) % profiles.length;
     }
 
     function apply() {
-        countdown.stop();
         const p = profiles[sel];
         if (p && p !== active)
             Quickshell.execDetached(["powerprofilesctl", "set", p]);
         open = false;
     }
 
-    onOpenChanged: if (!open) countdown.stop()
     Component.onCompleted: reader.running = true   // warm the list so the first open has rows
 
     IpcHandler {
@@ -95,19 +89,8 @@ PanelWindow {
                 const i = Math.max(0, win.profiles.indexOf(act));
                 win.sel = (i + win.queued) % win.profiles.length;
                 win.queued = 0;
-                countdown.restart();
             }
         }
-    }
-
-    NumberAnimation {
-        id: countdown
-        target: win
-        property: "remaining"
-        from: 1
-        to: 0
-        duration: 1500
-        onFinished: win.apply()
     }
 
     visible: open || card.opacity > 0.01
@@ -235,14 +218,6 @@ PanelWindow {
                 font.pixelSize: 12
                 color: Theme.dim
             }
-        }
-
-        Rectangle {  // drains until the highlighted profile auto-applies
-            anchors { left: parent.left; bottom: parent.bottom }
-            height: 2
-            width: parent.width * win.remaining
-            color: Theme.text
-            visible: countdown.running
         }
     }
 }

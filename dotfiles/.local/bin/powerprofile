@@ -12,7 +12,7 @@ usage() {
 usage: powerprofile [get | menu | next | prev | list | <profile>]
 
   get         print the active profile (default)
-  menu        quickshell picker: repeat to move down, pause to apply
+  menu        quickshell picker: repeat to move down, Enter to apply
               (plain `next` when quickshell is not running)
   next, prev  step power-saver -> balanced -> performance, wrapping around
   list        show available profiles, * marks the active one
