@@ -16,12 +16,15 @@ ShellRoot {
         DesktopClock {}
     }
 
+    // Bar: one per screen, pick one. Bar = the auto-hiding pill on the left
+    // edge; FullBar = serpantinum's full-height side bar (see serp/README.md).
     Variants {
         model: Quickshell.screens
-        Bar {
-            required property var modelData
-            screen: modelData
-        }
+        // Bar {
+        //     required property var modelData
+        //     screen: modelData
+        // }
+        FullBar {}
     }
 
     Notifications {}
@@ -31,6 +34,7 @@ ShellRoot {
     Clipboard {}
     Osd {}
     CalendarPopup {}
+    SerpCalendar {}   // serpantinum's dashboard; qs ipc call serpcalendar toggle
     NetworkMenu {}
     Calculator {}
     Lock {}
