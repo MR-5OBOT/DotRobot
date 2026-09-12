@@ -5,15 +5,12 @@
     "workspaceCount": 8,
     "modules": {
       "left": [
-        "workspaces"
+        "workspaces",
+        "timedate"
       ],
-      "center": [
-        "timedate",
-        "weather"
-      ],
+      "center": [],
       "right": [
         "tray",
-        "kb",
         "wifi",
         "bt",
         "vol",
@@ -30,5 +27,8 @@
   },
   "calendar": {
     "screenFraction": 0.78
+  },
+  "network": {
+    "screenFraction": 0.62
   }
 }
