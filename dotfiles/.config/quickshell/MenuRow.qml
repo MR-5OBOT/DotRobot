@@ -1,9 +1,9 @@
 import QtQuick
 import QtQuick.Layouts
-import "serp"
+import "widgets"
 
 // One row of a drop-in menu card, drawn the way serpantinum's Wi-Fi/Bluetooth
-// panel draws its list cards (serp/reusables/FillButton.qml): the panel's own
+// panel draws its list cards (widgets/reusables/FillButton.qml): the panel's own
 // corner radius and palette, surface0 under the pointer, the accent when
 // selected, and the accent bleeding out behind the row as a soft glow.
 // Shared by ActionMenu and PowerProfileMenu so the two stay identical.

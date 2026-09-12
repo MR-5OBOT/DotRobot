@@ -1,20 +1,20 @@
 import QtQuick
 import Quickshell
 import Quickshell.Wayland
-import "serp"
-import "serp/bar"
+import "widgets"
+import "widgets/bar"
 
 // Serpantinum's side bar (github.com/ilyamiro/serpantinum, AGPL-3.0; what was
-// vendored and changed is in serp/README.md), hosted here instead of in its own
+// vendored and changed is in widgets/README.md), hosted here instead of in its own
 // Bar.qml, which also pulls in the top bar, OSD and tutorial plumbing.
 // Full height; reserves its width so windows sit beside it. Style, modules
-// and workspace count come from serp/settings.json. Swap with Bar in shell.qml.
+// and workspace count come from widgets/settings.json. Swap with Bar in shell.qml.
 PanelWindow {
     id: barWindow
     required property var modelData
     screen: modelData
 
-    // settings: serp/settings.json -> bar
+    // settings: widgets/settings.json -> bar
     readonly property var cfg: Config.rawSettings.bar ?? ({})
     readonly property string barPosition: cfg.position === "right" ? "right" : "left"   // SideBar is vertical-only
     readonly property bool isVertical: true
@@ -69,7 +69,7 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     // Responsive height: the window is only as tall as the modules and rides
     // centred on its edge, so the wallpaper shows above and below it.
-    // serp/settings.json -> bar.fitContent; false restores the full-height bar.
+    // widgets/settings.json -> bar.fitContent; false restores the full-height bar.
     readonly property bool fitContent: cfg.fitContent ?? true
     readonly property real contentHeight: sideBar.tHeightTarget + sideBar.cHeightTarget + sideBar.bHeightTarget
                                           + sideBar.tcGap + sideBar.cbGap + 2 * sideBar.fillInset + 16
