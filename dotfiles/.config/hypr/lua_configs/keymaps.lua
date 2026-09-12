@@ -43,7 +43,7 @@ hl.bind("XF86AudioMute", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --toggle"), { loc
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(SCRIPT .. "/brightness.sh --dec"), { locked = true })
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd(SCRIPT .. "/brightness.sh --inc"), { locked = true })
 
--- Power profile picker: tap to move down the list, pause to apply
+-- Power profile picker: tap to move down the list, Enter to apply
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd(POWERPROFILE .. " menu"))
 
 -- Focus Navigation
