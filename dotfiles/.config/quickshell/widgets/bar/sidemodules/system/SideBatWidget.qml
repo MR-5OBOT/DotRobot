@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import QtQuick.Window
 import QtQuick.Controls
 import Quickshell
+import Quickshell.Io
 import Quickshell.Services.UPower
 import "../../../reusables"
 import "../../../"
@@ -21,9 +22,46 @@ Rectangle {
     property alias batPill: batBtn
 
     property bool isDesktop: UPower.displayDevice.ready ? !UPower.displayDevice.isLaptopBattery : SystemInfo.isDesktop
-    readonly property int batCap: UPower.displayDevice.ready ? Math.round(UPower.displayDevice.percentage * 100) : 0
-    readonly property bool isCharging: UPower.displayDevice.ready && (UPower.displayDevice.state === UPowerDeviceState.Charging || UPower.displayDevice.state === UPowerDeviceState.FullyCharged)
+    readonly property bool isCharging: batDev.ready && (batDev.state === UPowerDeviceState.Charging || batDev.state === UPowerDeviceState.FullyCharged)
     readonly property string batIcon: isDesktop ? "󰐥" : (isCharging ? "󰂄" : (batCap > 20 ? "󰁹" : "󰂃"))
+
+    // Everything reads the real battery rather than UPower's composite
+    // displayDevice, which reports no health (healthSupported is false on it)
+    // and carries no nativePath; displayDevice is only the fallback.
+    readonly property var batDev: {
+        for (const d of UPower.devices.values)
+            if (d.isLaptopBattery)
+                return d;
+        return UPower.displayDevice;
+    }
+
+    // The percentage itself comes from sysfs, re-read every second: UPower only
+    // refreshes its own percentage when it re-polls (tens of seconds apart), so
+    // the pill used to sit on a stale number. UPower still supplies the charge
+    // state — it learns that from uevents the moment the charger moves — the
+    // rate and time estimates, and the level too if the sysfs read ever fails.
+    readonly property string batSysPath: batDev.nativePath ? "/sys/class/power_supply/" + batDev.nativePath : ""
+    property int sysPct: -1
+    readonly property int batCap: sysPct >= 0 ? sysPct : (batDev.ready ? Math.round(batDev.percentage * 100) : 0)
+
+    FileView {
+        id: capFile
+        path: sideBatRoot.batSysPath === "" ? "" : sideBatRoot.batSysPath + "/capacity"
+        printErrors: false
+        onLoaded: {
+            const v = parseInt(capFile.text());
+            if (!isNaN(v))
+                sideBatRoot.sysPct = Math.max(0, Math.min(100, v));
+        }
+    }
+
+    Timer {
+        interval: 1000
+        repeat: true
+        triggeredOnStart: true
+        running: sideBatRoot.moduleActive && !sideBatRoot.isDesktop && sideBatRoot.batSysPath !== ""
+        onTriggered: capFile.reload()
+    }
 
     property color batDynamicColor: {
         if (isDesktop) return ThemeBackend.red;
@@ -59,14 +97,11 @@ Rectangle {
     visible: opacity > 0
     Behavior on opacity { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
 
-    property real globalWavePhase: 0.0
-    NumberAnimation on globalWavePhase {
-        from: 0
-        to: Math.PI * 2
-        duration: sideBatRoot.isCharging ? 1800 : 3600
-        loops: Animation.Infinite
-        running: sideBatRoot.showLayout && sideBatRoot.moduleActive
-    }
+    // One place for the glyph's size, which the fill-clipped copy of it has to
+    // match. s() is the bar's scale factor, absent before the bar hands itself
+    // over.
+    function sc(v) { return barWindow ? barWindow.s(v) : v; }
+    readonly property real pillFontSize: isDesktop ? sc(isCompact ? 15 : 16) : sc(isCompact ? 12 : 13.5)
 
     Timer {
         running: sideBatRoot.moduleActive && barWindow && barWindow.isStartupReady && barWindow.isDataReady
@@ -90,18 +125,14 @@ Rectangle {
         border.width: 1
         clip: true
 
-        property real value: sideBatRoot.isDesktop ? 0.0 : (UPower.displayDevice.ready ? UPower.displayDevice.percentage : 0.0)
+        // Level is read straight off batCap and drawn flat — no easing into the
+        // new value, no wave: the pill is a gauge, not an aquarium.
+        property real value: sideBatRoot.isDesktop ? 0.0 : sideBatRoot.batCap / 100
         property color accentColor: sideBatRoot.batDynamicColor
         property bool initAnimTrigger: false
 
-        property real animValue: value
-        Behavior on animValue { NumberAnimation { duration: 600; easing.type: Easing.OutQuint } }
-
-        property real fillRatio: Math.max(0.0, Math.min(1.0, isNaN(animValue) ? 0.0 : animValue))
+        property real fillRatio: Math.max(0.0, Math.min(1.0, isNaN(value) ? 0.0 : value))
         property real fillY: height * (1.0 - fillRatio)
-        property real maxWaveAmp: sideBatRoot.isCharging ? (barWindow ? barWindow.s(2.5) : 2.5) : (barWindow ? barWindow.s(0.5) : 0.5)
-        property real waveAmp: (fillRatio < 0.99 && fillRatio > 0.01) ? maxWaveAmp * Math.sin(fillRatio * Math.PI) : 0
-        property real waveCenterOffset: 0.375 * waveAmp * (Math.sin(sideBatRoot.globalWavePhase) - Math.cos(sideBatRoot.globalWavePhase))
 
         Timer {
             running: sideBatRoot.moduleActive && sideBatRoot.showLayout && !batBtn.initAnimTrigger
@@ -147,17 +178,9 @@ Rectangle {
 
                 ctx.beginPath();
                 ctx.moveTo(0, batBtn.fillY);
-                if (batBtn.waveAmp > 0) {
-                    var cp1y = batBtn.fillY + Math.sin(sideBatRoot.globalWavePhase) * batBtn.waveAmp;
-                    var cp2y = batBtn.fillY + Math.cos(sideBatRoot.globalWavePhase + Math.PI) * batBtn.waveAmp;
-                    ctx.bezierCurveTo(width * 0.33, cp2y, width * 0.66, cp1y, width, batBtn.fillY);
-                    ctx.lineTo(width, height);
-                    ctx.lineTo(0, height);
-                } else {
-                    ctx.lineTo(width, batBtn.fillY);
-                    ctx.lineTo(width, height);
-                    ctx.lineTo(0, height);
-                }
+                ctx.lineTo(width, batBtn.fillY);
+                ctx.lineTo(width, height);
+                ctx.lineTo(0, height);
                 ctx.closePath();
 
                 var grad = ctx.createLinearGradient(0, 0, 0, height);
@@ -170,18 +193,11 @@ Rectangle {
             }
 
             Connections {
-                target: sideBatRoot
-                enabled: (sideBatRoot.showLayout && sideBatRoot.moduleActive) && batBtn.waveAmp > 0
-                function onGlobalWavePhaseChanged() { pillCanvas.requestPaint(); }
-            }
-
-            Connections {
                 target: batBtn
                 enabled: sideBatRoot.showLayout && sideBatRoot.moduleActive
                 function onRadiusChanged() { pillCanvas.requestPaint(); }
                 function onFillRatioChanged() { pillCanvas.requestPaint(); }
                 function onAccentColorChanged() { pillCanvas.requestPaint(); }
-                function onWaveAmpChanged() { pillCanvas.requestPaint(); }
             }
         }
 
@@ -189,16 +205,18 @@ Rectangle {
             anchors.centerIn: parent
             text: sideBatRoot.batIcon
             font.family: ThemeBackend.fontFamily
-            font.pixelSize: sideBatRoot.isDesktop ? (barWindow ? barWindow.s(sideBatRoot.isCompact ? 15 : 16) : (sideBatRoot.isCompact ? 15 : 16)) : (barWindow ? barWindow.s(sideBatRoot.isCompact ? 12 : 13.5) : (sideBatRoot.isCompact ? 12 : 13.5))
+            font.pixelSize: sideBatRoot.pillFontSize
             color: sideBatRoot.isDesktop ? ThemeBackend.red : (sideBatRoot.isCompact ? ThemeBackend.text : ThemeBackend.subtext0)
         }
 
+        // The same label again, clipped to the filled part of the pill and
+        // painted in crust, so whatever the fill line covers reads dark.
         Item {
-            id: waveClipBox
+            id: fillClipBox
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: parent.right
-            height: Math.min(parent.height, Math.max(0, (parent.height * batBtn.fillRatio) - batBtn.waveCenterOffset))
+            height: Math.min(parent.height, Math.max(0, parent.height * batBtn.fillRatio))
             clip: true
             visible: batBtn.fillRatio > 0
 
@@ -212,16 +230,116 @@ Rectangle {
                     anchors.centerIn: parent
                     text: sideBatRoot.batIcon
                     font.family: ThemeBackend.fontFamily
-                    font.pixelSize: sideBatRoot.isDesktop ? (barWindow ? barWindow.s(sideBatRoot.isCompact ? 15 : 16) : (sideBatRoot.isCompact ? 15 : 16)) : (barWindow ? barWindow.s(sideBatRoot.isCompact ? 12 : 13.5) : (sideBatRoot.isCompact ? 12 : 13.5))
+                    font.pixelSize: sideBatRoot.pillFontSize
                     color: Qt.rgba(ThemeBackend.crust.r, ThemeBackend.crust.g, ThemeBackend.crust.b, 0.75)
                 }
             }
         }
 
         MouseArea {
+            id: batMouse
             anchors.fill: parent
+            hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             onClicked: Quickshell.execDetached(["qs", "ipc", "call", "powerprofile", "cycle"])
+        }
+    }
+
+    // ---- hover tooltip ----------------------------------------------------
+    // Everything in it but the level is UPower's — its rate and time estimates
+    // are smoothed over its own polls, which is what you want in a readout you
+    // only glance at.
+
+    function fmtTime(sec) {
+        if (!sec || sec <= 0 || !isFinite(sec))
+            return "";
+        const h = Math.floor(sec / 3600);
+        const m = Math.floor((sec % 3600) / 60);
+        return h > 0 ? h + "h " + (m < 10 ? "0" : "") + m + "m" : m + "m";
+    }
+
+    readonly property string stateText: {
+        if (isDesktop)
+            return "On AC";
+        if (!batDev.ready)
+            return "No battery data";
+        switch (batDev.state) {
+        case UPowerDeviceState.Charging:
+            return "Charging";
+        case UPowerDeviceState.FullyCharged:
+            return "Fully charged";
+        case UPowerDeviceState.Discharging:
+            return "On battery";
+        case UPowerDeviceState.Empty:
+            return "Empty";
+        default:
+            return "Plugged in";
+        }
+    }
+    readonly property string timeText: {
+        if (!batDev.ready)
+            return "";
+        if (batDev.state === UPowerDeviceState.Charging) {
+            const t = fmtTime(batDev.timeToFull);
+            return t === "" ? "" : t + " to full";
+        }
+        if (batDev.state === UPowerDeviceState.Discharging) {
+            const t = fmtTime(batDev.timeToEmpty);
+            return t === "" ? "" : t + " left";
+        }
+        return "";
+    }
+    // changeRate is W either way; which direction it runs is already in stateText
+    readonly property string rateText: batDev.ready && batDev.changeRate > 0 ? batDev.changeRate.toFixed(1) + " W" : ""
+    readonly property string healthText: batDev.ready && batDev.healthSupported && batDev.healthPercentage > 0 ? Math.round(batDev.healthPercentage) + "% health" : ""
+
+    function joinDot(parts) { return parts.filter(p => p !== "").join("  ·  "); }
+
+    PillPopout {
+        anchorItem: batBtn
+        host: sideBatRoot.barWindow
+        itemHovered: batMouse.containsMouse && sideBatRoot.showLayout && sideBatRoot.moduleActive
+
+        contentComponent: Component {
+            Column {
+                spacing: sideBatRoot.sc(3)
+
+                Row {
+                    spacing: sideBatRoot.sc(7)
+
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: sideBatRoot.batIcon
+                        font.family: ThemeBackend.fontFamily
+                        font.pixelSize: sideBatRoot.sc(15)
+                        color: sideBatRoot.batDynamicColor
+                    }
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: sideBatRoot.isDesktop ? "Desktop" : sideBatRoot.batCap + "%"
+                        font.family: ThemeBackend.fontFamily
+                        font.pixelSize: sideBatRoot.sc(14)
+                        font.bold: true
+                        color: ThemeBackend.text
+                    }
+                }
+
+                Text {
+                    text: sideBatRoot.joinDot([sideBatRoot.stateText, sideBatRoot.timeText])
+                    font.family: ThemeBackend.fontFamily
+                    font.pixelSize: sideBatRoot.sc(11.5)
+                    color: ThemeBackend.subtext1
+                }
+
+                Text {
+                    readonly property string line: sideBatRoot.joinDot([sideBatRoot.rateText, sideBatRoot.healthText])
+                    visible: line !== ""
+                    text: line
+                    font.family: ThemeBackend.fontFamily
+                    font.pixelSize: sideBatRoot.sc(10.5)
+                    color: ThemeBackend.overlay2
+                }
+            }
         }
     }
 }
