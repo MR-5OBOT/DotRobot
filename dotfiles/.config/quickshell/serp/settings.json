@@ -1,0 +1,34 @@
+{
+  "bar": {
+    "position": "left",
+    "style": "fill",
+    "workspaceCount": 8,
+    "modules": {
+      "left": [
+        "workspaces"
+      ],
+      "center": [
+        "timedate",
+        "weather"
+      ],
+      "right": [
+        "tray",
+        "kb",
+        "wifi",
+        "bt",
+        "vol",
+        "bat"
+      ]
+    }
+  },
+  "general": {
+    "weatherUnit": "metric"
+  },
+  "theme": {
+    "borderRadius": 8,
+    "fontFamily": "Adwaita Mono"
+  },
+  "calendar": {
+    "screenFraction": 0.78
+  }
+}
