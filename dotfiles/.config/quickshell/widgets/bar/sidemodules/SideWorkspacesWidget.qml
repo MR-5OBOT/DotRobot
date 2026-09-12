@@ -49,6 +49,18 @@ Rectangle {
         return (idx >= 0 && idx < workspaceCount) ? idx : -1;
     }
 
+    // Only workspaces with windows get a pill, plus the focused one even when
+    // it's empty — the active highlight needs somewhere to sit.
+    function isOccupied(index) {
+        if (isNiri) return !!niriOccupiedMap[index];
+        if (isSway) return !!swayOccupiedMap[index];
+        const ws = wsForId(index + 1);
+        return ws !== null && ws.toplevels && ws.toplevels.values && ws.toplevels.values.length > 0;
+    }
+    function isShown(index) {
+        return index === activeIndex || isOccupied(index);
+    }
+
     Component.onCompleted: {
         let de = SystemInfo.desktopEnv ? SystemInfo.desktopEnv.toLowerCase() : "";
         sideWsRoot.isNiri = de.indexOf("niri") !== -1;
@@ -324,6 +336,8 @@ Rectangle {
             let activeH = barWindow ? barWindow.s(sideWsRoot.isCompact ? 34 : 36) : (sideWsRoot.isCompact ? 34 : 36);
             let inactiveH = barWindow ? barWindow.s(sideWsRoot.isCompact ? 16 : 18) : (sideWsRoot.isCompact ? 16 : 18);
             for (let i = 0; i < index; i++) {
+                if (!sideWsRoot.isShown(i))
+                    continue;   // hidden pills take no room in wsCol
                 yPos += (i === activeIndex ? activeH : inactiveH) + spacing;
             }
             return yPos;
@@ -359,17 +373,9 @@ Rectangle {
 
                 required property int index
                 property int wsId: index + 1
-                property var ws: sideWsRoot.wsForId(wsId)
-                property bool isOccupied: {
-                    if (sideWsRoot.isNiri) {
-                        return !!sideWsRoot.niriOccupiedMap[index];
-                    }
-                    if (sideWsRoot.isSway) {
-                        return !!sideWsRoot.swayOccupiedMap[index];
-                    }
-                    return ws !== null && ws.toplevels && ws.toplevels.values && ws.toplevels.values.length > 0;
-                }
+                property bool isOccupied: sideWsRoot.isOccupied(index)
                 property bool isActive: index === sideWsRoot.activeIndex
+                visible: isActive || isOccupied   // Column skips invisible children
                 property bool initAnimTrigger: false
 
                 width: barWindow ? barWindow.s(sideWsRoot.isCompact ? 16 : 18) : (sideWsRoot.isCompact ? 16 : 18)
