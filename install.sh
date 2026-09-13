@@ -39,7 +39,7 @@ EOF
   run_step "Install zinit and tmux TPM" "scripts/setup-shell-tools.sh"
   run_step "Set zsh as the default shell" "scripts/setup-zsh.sh"
   run_step "Set up git + ssh" "scripts/setup-git-ssh.sh"
-  run_step "Set up greetd + tuigreet login manager" "scripts/setup-login-manager.sh"
+  run_step "Set up login manager (ly or greetd + tuigreet)" "scripts/setup-login-manager.sh"
   run_step "Create XDG user directories" "scripts/setup-user-dirs.sh"
   log "Setup finished. Log: ${LOG_FILE}"
 }

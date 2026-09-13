@@ -15,8 +15,6 @@ gimp
 glow
 gnome-sound-recorder
 gparted
-greetd
-greetd-tuigreet
 grim
 gtk4
 gvfs
