@@ -20,6 +20,12 @@ if command -v fastfetch >/dev/null 2>&1; then
   # two expansions, not one: ${x:+a b} stays a single word in zsh
   fastfetch ${_logos:+--logo} ${_logos:+$_logos[RANDOM%$#_logos+1]}
   unset _logos
+  # tmux 3.7c never sends the logo's row/column diacritics to the terminal in a
+  # pane that doesn't start at the window's left edge (its combine redraw forgets
+  # the pane offset), so kitty shows a blank logo until the next full redraw.
+  if [[ -n $TMUX && $(tmux display-message -p -t "$TMUX_PANE" '#{pane_left}') != 0 ]]; then
+    tmux refresh-client
+  fi
 fi
 
 # opencode
