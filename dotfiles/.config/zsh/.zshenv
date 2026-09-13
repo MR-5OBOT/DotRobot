@@ -41,7 +41,6 @@ path=(
   "$HOME/bin"
   "$HOME/.npm-global/bin"
   "$HOME/.cargo/bin"
-  "$ANDROID_HOME/cmdline-tools/latest/bin"
   "$ANDROID_HOME/emulator"
   "$ANDROID_HOME/platform-tools"
   $path
