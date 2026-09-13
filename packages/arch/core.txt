@@ -47,4 +47,5 @@ vim
 wget
 xdg-user-dirs
 zoxide
+zram-generator
 zsh
