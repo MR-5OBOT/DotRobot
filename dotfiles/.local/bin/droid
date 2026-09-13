@@ -1,0 +1,333 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# droid — run ready-made APKs on a headless Android emulator, no Android Studio.
+# Installs only the command-line SDK pieces (cmdline-tools, emulator,
+# platform-tools, one system image) under ~/Android, boots the phone without
+# the emulator's own window, and shows just its screen through scrcpy.
+
+readonly SDK="${ANDROID_HOME:-$HOME/Android/Sdk}"
+readonly AVD_HOME="${ANDROID_AVD_HOME:-$HOME/Android/avd}"
+readonly AVD="${DROID_AVD:-dev}"
+readonly API="${DROID_API:-36}"
+readonly DEVICE="${DROID_DEVICE:-pixel_7}"
+readonly IMAGE="system-images;android-${API};google_apis;x86_64"
+readonly IMAGE_DIR="${SDK}/system-images/android-${API}/google_apis/x86_64"
+readonly PORT=5554
+readonly SERIAL="emulator-${PORT}"
+readonly STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/droid"
+readonly REPO="https://dl.google.com/android/repository"
+readonly CACHE="${SDK}/.downloads"
+
+# Work from a bare shell too (keybind, fresh install) where .zshenv hasn't run.
+export ANDROID_HOME="${SDK}" ANDROID_SDK_ROOT="${SDK}" ANDROID_AVD_HOME="${AVD_HOME}"
+export ANDROID_SERIAL="${SERIAL}"
+export ADB="${SDK}/platform-tools/adb" # scrcpy uses the SDK's adb too, no server restarts
+export PATH="${SDK}/cmdline-tools/latest/bin:${SDK}/emulator:${SDK}/platform-tools:${PATH}"
+
+usage() {
+  cat <<'EOF'
+usage: droid [app.apk | setup | stop | status]
+
+  app.apk   boot the phone, install the APK and open it
+  (none)    boot the phone and open its screen; drag an .apk onto the
+            window to install it
+  setup     download cmdline-tools, emulator, platform-tools and the system
+            image, create the virtual phone (rerun resumes a broken download)
+  stop      shut the phone down (quick-boot snapshot saved, next boot ~5s)
+  status    show what is installed and whether the phone is running
+
+env: DROID_AVD (dev)  DROID_API (36)  DROID_DEVICE (pixel_7)
+EOF
+}
+
+log() { printf '\033[1;35m::\033[0m %s\n' "$*"; }
+die() {
+  printf '\033[1;31m!!\033[0m droid: %s\n' "$*" >&2
+  exit 1
+}
+
+need() {
+  local cmd
+  for cmd in "$@"; do
+    command -v "${cmd}" >/dev/null || die "${cmd} not found; install it: sudo pacman -S ${cmd}"
+  done
+}
+
+adb_q() { timeout 30 adb -s "${SERIAL}" "$@" 2>/dev/null; }
+
+# ---------- setup ----------
+
+# Reads Google's repository XML on stdin and prints "url sha1 size" for the
+# newest stable Linux x64 archive of SDK package $1.
+readonly RESOLVE_PY='
+import sys, xml.etree.ElementTree as ET
+want = sys.argv[1]
+tag = lambda e: e.tag.rsplit("}", 1)[-1]
+child = lambda e, name: next((c for c in e if tag(c) == name), None)
+def text(e, name):
+    c = child(e, name) if e is not None else None
+    return c.text.strip() if c is not None and c.text else ""
+best = None
+for pkg in ET.parse(sys.stdin).getroot():
+    if tag(pkg) != "remotePackage" or pkg.get("path") != want:
+        continue
+    ch = child(pkg, "channelRef")
+    if ch is None or ch.get("ref") != "channel-0":
+        continue
+    rev = child(pkg, "revision")
+    key = tuple(int(text(rev, p) or 0) for p in ("major", "minor", "micro"))
+    for arc in child(pkg, "archives"):
+        if text(arc, "host-os") not in ("", "linux") or text(arc, "host-arch") not in ("", "x64"):
+            continue
+        comp = child(arc, "complete")
+        cand = (key, text(comp, "url"), text(comp, "checksum"), text(comp, "size"))
+        if best is None or cand[0] > best[0]:
+            best = cand
+if best is None:
+    sys.exit("no stable linux archive for " + want)
+print(*best[1:])
+'
+
+ensure_kvm() {
+  [[ -w /dev/kvm ]] && return
+  die "no access to /dev/kvm (the emulator would crawl); run: sudo usermod -aG kvm ${USER}, then log out and in"
+}
+
+ensure_java() {
+  command -v java >/dev/null && return
+  log "Installing Java (avdmanager needs it)"
+  sudo pacman -S --needed jdk21-openjdk
+}
+
+# dl.google.com drops long transfers after a few minutes (and resets HTTP/2
+# ones), so resume the .part file until it is whole, then check the sha1.
+fetch() {
+  local url=$1 sha=$2 size=$3 dest=$4 try have
+  if [[ -f ${dest} && $(sha1sum "${dest}" | cut -d' ' -f1) == "${sha}" ]]; then
+    return
+  fi
+  mkdir -p "${CACHE}"
+  log "Downloading $(basename "${dest}") ($((size / 1048576)) MB)"
+  for ((try = 1; try <= 50; try++)); do
+    have=$(stat -c %s "${dest}.part" 2>/dev/null || echo 0)
+    ((have >= size)) && break
+    curl -fL --http1.1 -C - --progress-bar -o "${dest}.part" "${url}" && break
+    log "Connection dropped, resuming (${try}/50)"
+    sleep 2
+  done
+  have=$(stat -c %s "${dest}.part" 2>/dev/null || echo 0)
+  ((have >= size)) || die "download of $(basename "${dest}") kept dropping; rerun droid setup to resume"
+  mv "${dest}.part" "${dest}"
+  if [[ $(sha1sum "${dest}" | cut -d' ' -f1) != "${sha}" ]]; then
+    rm -f "${dest}"
+    die "$(basename "${dest}") is corrupt; rerun droid setup to download it again"
+  fi
+}
+
+# $1 repository XML, $2 SDK package path, $3 where the zip's single top folder goes.
+install_pkg() {
+  local index=$1 pkg=$2 dest=$3 xml url="" sha size tmp top
+  xml=$(curl -fsSL --http1.1 --retry 5 "${index}") || die "couldn't reach Google's SDK index; check your connection"
+  read -r url sha size < <(python3 -c "${RESOLVE_PY}" "${pkg}" <<<"${xml}") || true
+  [[ -n ${url} ]] || die "no Linux download found for ${pkg}"
+  fetch "${index%/*}/${url}" "${sha}" "${size}" "${CACHE}/${url}"
+
+  log "Unpacking ${pkg}"
+  tmp=$(mktemp -d "${CACHE}/unpack.XXXXXX")
+  unzip -q "${CACHE}/${url}" -d "${tmp}"
+  top=$(find "${tmp}" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | head -1)
+  mkdir -p "$(dirname "${dest}")"
+  rm -rf "${dest}"
+  mv "${tmp}/${top}" "${dest}"
+  rm -rf "${tmp}" "${CACHE:?}/${url}"
+}
+
+installed() { [[ -f "$1/source.properties" ]]; }
+
+ensure_sdk() {
+  installed "${SDK}/cmdline-tools/latest" ||
+    install_pkg "${REPO}/repository2-3.xml" "cmdline-tools;latest" "${SDK}/cmdline-tools/latest"
+  installed "${SDK}/emulator" ||
+    install_pkg "${REPO}/repository2-3.xml" emulator "${SDK}/emulator"
+  installed "${SDK}/platform-tools" ||
+    install_pkg "${REPO}/repository2-3.xml" platform-tools "${SDK}/platform-tools"
+  installed "${IMAGE_DIR}" ||
+    install_pkg "${REPO}/sys-img/google_apis/sys-img2-3.xml" "${IMAGE}" "${IMAGE_DIR}"
+}
+
+set_ini() {
+  local file=$1 key=$2 value=$3
+  if grep -q "^${key//./\\.}[[:space:]]*=" "${file}"; then
+    sed -i "s|^${key//./\\.}[[:space:]]*=.*|${key}=${value}|" "${file}"
+  else
+    printf '%s=%s\n' "${key}" "${value}" >>"${file}"
+  fi
+}
+
+ensure_avd() {
+  local dir="${AVD_HOME}/${AVD}.avd"
+  if [[ ! -f "${dir}/config.ini" ]]; then
+    log "Creating virtual phone '${AVD}' (${DEVICE}, Android ${API})"
+    mkdir -p "${AVD_HOME}"
+    echo no | avdmanager create avd -n "${AVD}" -k "${IMAGE}" -d "${DEVICE}" -p "${dir}" >/dev/null
+  fi
+  # avdmanager ignores ANDROID_AVD_HOME for the pointer file; the emulator reads it from there.
+  if [[ ! -f "${AVD_HOME}/${AVD}.ini" ]]; then
+    printf 'avd.ini.encoding=UTF-8\npath=%s\ntarget=android-%s\n' "${dir}" "${API}" >"${AVD_HOME}/${AVD}.ini"
+    rm -f "${HOME}/.android/avd/${AVD}.ini"
+  fi
+
+  # PC keyboard types into the phone, real GPU, no phone frame.
+  set_ini "${dir}/config.ini" hw.keyboard yes
+  set_ini "${dir}/config.ini" hw.ramSize 4096
+  set_ini "${dir}/config.ini" hw.cpu.ncore 4
+  set_ini "${dir}/config.ini" hw.gpu.enabled yes
+  set_ini "${dir}/config.ini" hw.gpu.mode host
+  set_ini "${dir}/config.ini" showDeviceFrame no
+  set_ini "${dir}/config.ini" fastboot.forceColdBoot no
+}
+
+setup() {
+  need curl unzip python3
+  ensure_kvm
+  ensure_sdk
+  ensure_java
+  ensure_avd
+}
+
+# ---------- phone ----------
+
+booted() { [[ $(adb_q shell getprop sys.boot_completed | tr -d '\r') == 1 ]]; }
+
+emulator_running() { pgrep -f -- "-avd ${AVD} -port ${PORT}" >/dev/null; }
+
+# Less Android around the app: no window/transition animations, gesture nav
+# instead of the 3-button bar. animator_duration_scale stays at 1 because apps
+# (Reanimated, Lottie) read 0 there as "reduce motion" and skip their animations.
+tweak() {
+  adb_q shell settings put global window_animation_scale 0 || true
+  adb_q shell settings put global transition_animation_scale 0 || true
+  adb_q shell svc power stayon true || true
+  adb_q shell cmd overlay enable-exclusive --category com.android.internal.systemui.navbar.gestural >/dev/null || true
+}
+
+start() {
+  setup
+  adb start-server >/dev/null 2>&1
+  if booted; then
+    return
+  fi
+
+  mkdir -p "${STATE_DIR}"
+  if ! emulator_running; then
+    log "Booting '${AVD}' headless (log: ${STATE_DIR}/emulator.log)"
+    setsid -f emulator -avd "${AVD}" -port "${PORT}" -no-window -no-audio -no-boot-anim -gpu host \
+      >"${STATE_DIR}/emulator.log" 2>&1 </dev/null
+  fi
+
+  log "Waiting for Android to boot (first boot ~1 min, later ~5s)"
+  local i
+  for ((i = 0; i < 180; i++)); do
+    sleep 1
+    if booted; then
+      tweak
+      log "Phone ready (${SERIAL})"
+      return
+    fi
+    emulator_running || die "emulator exited; see ${STATE_DIR}/emulator.log"
+  done
+  die "not booted after 3 min; see ${STATE_DIR}/emulator.log"
+}
+
+view() {
+  need scrcpy
+  start
+  if pgrep -f -- "scrcpy -s ${SERIAL}" >/dev/null; then
+    return
+  fi
+  mkdir -p "${STATE_DIR}"
+  log "Opening the phone screen (drag an .apk onto it to install)"
+  setsid -f scrcpy -s "${SERIAL}" --window-title "droid: ${AVD}" --no-audio \
+    >"${STATE_DIR}/scrcpy.log" 2>&1 </dev/null
+}
+
+# The third-party package updated most recently is the one adb just installed.
+# Saves downloading build-tools (aapt) only to read the APK's package name.
+newest_package() {
+  adb_q shell 'for p in $(pm list packages -3 | cut -d: -f2); do
+    echo "$(dumpsys package "$p" | grep -m1 lastUpdateTime= | cut -d= -f2) $p"
+  done' | tr -d '\r' | sort | tail -1 | awk '{print $NF}'
+}
+
+run_apk() {
+  local apk=$1 pkg
+  [[ ${apk} == *.apk ]] || die "${apk} is not an .apk"
+  view
+  log "Installing $(basename "${apk}")"
+  adb -s "${SERIAL}" install -r -t "${apk}" || die "install failed (adb's reason is above)"
+  pkg=$(newest_package)
+  [[ -n ${pkg} ]] || die "installed, but couldn't tell which app to open; open it on the phone"
+  log "Opening ${pkg}"
+  adb_q shell monkey -p "${pkg}" -c android.intent.category.LAUNCHER 1 >/dev/null ||
+    die "${pkg} has no launcher screen to open"
+}
+
+stop() {
+  if ! emulator_running; then
+    log "Phone '${AVD}' is not running"
+    return
+  fi
+  log "Shutting down '${AVD}' (saving quick-boot snapshot)"
+  adb_q emu kill >/dev/null || true
+  local i
+  for ((i = 0; i < 60; i++)); do
+    if ! emulator_running; then
+      log "Stopped"
+      return
+    fi
+    sleep 1
+  done
+  die "emulator still running after 60s; force it: pkill -f -- '-avd ${AVD} -port ${PORT}'"
+}
+
+status() {
+  row() { printf '  %-18s %s\n' "$1" "$2"; }
+  ok() { if "$@"; then echo ok; else echo missing; fi; }
+
+  row cmdline-tools "$(ok installed "${SDK}/cmdline-tools/latest")"
+  row emulator "$(ok installed "${SDK}/emulator")"
+  row platform-tools "$(ok installed "${SDK}/platform-tools")"
+  row "android-${API} image" "$(ok installed "${IMAGE_DIR}")"
+  row java "$(ok command -v java >/dev/null)"
+  row "phone '${AVD}'" "$(ok test -f "${AVD_HOME}/${AVD}.avd/config.ini")"
+  if booted; then
+    row state "running (${SERIAL})"
+  elif emulator_running; then
+    row state booting
+  else
+    row state stopped
+  fi
+}
+
+main() {
+  case "${1:-}" in
+    "") view ;;
+    setup)
+      setup
+      log "Setup complete. Next: droid app.apk"
+      ;;
+    stop) stop ;;
+    status) status ;;
+    -h | --help) usage ;;
+    *)
+      [[ -f $1 ]] || {
+        usage >&2
+        exit 1
+      }
+      run_apk "$1"
+      ;;
+  esac
+}
+
+main "$@"

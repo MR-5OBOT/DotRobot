@@ -28,6 +28,11 @@ export GPG_TTY=$TTY   # zsh builtin param, no `tty` subprocess fork
 # ---------- Starship ----------
 export STARSHIP_CONFIG="${ZDOTDIR:-$HOME/.config/zsh}/starship.toml"
 
+# ---------- Android SDK ----------
+export ANDROID_HOME="$HOME/Android/Sdk"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+export ANDROID_AVD_HOME="$HOME/Android/avd"
+
 # ---------- PATH ----------
 # `path` is tied to PATH; `typeset -U` keeps it free of duplicates.
 typeset -U path
@@ -36,6 +41,9 @@ path=(
   "$HOME/bin"
   "$HOME/.npm-global/bin"
   "$HOME/.cargo/bin"
+  "$ANDROID_HOME/cmdline-tools/latest/bin"
+  "$ANDROID_HOME/emulator"
+  "$ANDROID_HOME/platform-tools"
   $path
 )
 export PATH
