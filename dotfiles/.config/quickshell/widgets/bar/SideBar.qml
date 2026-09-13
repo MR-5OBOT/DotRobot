@@ -66,7 +66,7 @@ Item {
 
     property var defaultModuleSettings: {
         "left": ["left", "workspaces", "focus"],
-        "center": ["timedate", "info", "weather", "media", "vis"],
+        "center": ["timedate", "info", "weather", "media"],
         "right": ["tray", "sysmon", "kb", "wifi", "bt", "vol", "bat"]
     }
 
@@ -198,7 +198,6 @@ Item {
     property real hWorkspaces: isModuleActive("workspaces") ? (workspacesWidget.targetHeight !== undefined ? workspacesWidget.targetHeight : workspacesWidget.height) : 0
     property real hFocus: isModuleActive("focus") ? (focusWidget.targetHeight !== undefined ? focusWidget.targetHeight : focusWidget.height) : 0
     property real hMedia: isModuleActive("media") ? (mediaWidget.targetHeight !== undefined ? mediaWidget.targetHeight : mediaWidget.height) : 0
-    property real hVis: isModuleActive("vis") ? (visWidget.targetHeight !== undefined ? visWidget.targetHeight : visWidget.height) : 0
     property real hTray: isModuleActive("tray") ? (trayWidget.targetHeight !== undefined ? trayWidget.targetHeight : trayWidget.height) : 0
     property real hSysmon: isModuleActive("sysmon") ? (sysMonWidget.targetHeight !== undefined ? sysMonWidget.targetHeight : sysMonWidget.height) : 0
     property real hKb: isModuleActive("kb") ? (kbWidget.targetHeight !== undefined ? kbWidget.targetHeight : kbWidget.height) : 0
@@ -215,7 +214,6 @@ Item {
         if (moduleId === "workspaces") return hWorkspaces;
         if (moduleId === "focus") return hFocus;
         if (moduleId === "media") return hMedia;
-        if (moduleId === "vis") return hVis;
         if (moduleId === "tray") return hTray;
         if (moduleId === "sysmon") return hSysmon;
         if (moduleId === "kb") return hKb;
@@ -398,7 +396,6 @@ Item {
         if (id === "workspaces") return workspacesWidget;
         if (id === "focus") return focusWidget;
         if (id === "media") return mediaWidget;
-        if (id === "vis") return visWidget;
         if (id === "tray") return trayWidget;
         if (id === "sysmon") return sysMonWidget;
         if (id === "kb") return kbWidget;
@@ -418,7 +415,6 @@ Item {
         else if (widgetName === "workspaces") return workspacesWidget;
         else if (widgetName === "focus") return focusWidget;
         else if (widgetName === "media") return mediaWidget;
-        else if (widgetName === "vis" || widgetName === "viswidget" || widgetName === "visualizer") return visWidget;
         else if (widgetName === "timedate" || widgetName === "time" || widgetName === "clock") return timeDateWidget;
         else if (widgetName === "info" || widgetName === "indicator" || widgetName === "indicators") return infoWidget;
         else if (widgetName === "weather") return weatherWidget;
@@ -768,29 +764,6 @@ Item {
         isGrouped: contentWrapper.isModuleGrouped("media")
         targetY: contentWrapper.getModuleY("media", contentWrapper.layoutState)
         layoutAnimationsEnabled: contentWrapper.layoutAnimationsEnabled
-
-        Behavior on opacity {
-            NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
-        }
-
-        Behavior on y {
-            enabled: contentWrapper.layoutAnimationsEnabled
-            NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
-        }
-    }
-
-    SideVisWidget {
-        id: visWidget
-        z: 1
-        x: contentWrapper.getModuleX(visWidget)
-        y: targetY
-        visible: contentWrapper.isModuleActive("vis")
-        barWindow: contentWrapper.barWindow
-        isSolid: contentWrapper.isSolid || contentWrapper.isFill
-        distinctPills: contentWrapper.distinctPills
-        moduleActive: contentWrapper.isModuleActive("vis")
-        isGrouped: contentWrapper.isModuleGrouped("vis")
-        targetY: contentWrapper.getModuleY("vis", contentWrapper.layoutState)
 
         Behavior on opacity {
             NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
