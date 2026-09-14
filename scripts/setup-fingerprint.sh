@@ -63,7 +63,7 @@ info "Installing fprintd + libfprint"
 if pacman -Qq fprintd &>/dev/null && pacman -Qq libfprint &>/dev/null; then
     ok "already installed"
 else
-    sudo pacman -S --needed --noconfirm fprintd libfprint || die "install failed"
+    sudo pacman -Syu --needed --noconfirm fprintd libfprint || die "install failed"
     ok "installed"
 fi
 
@@ -136,12 +136,16 @@ if [[ "$WANT_SUDO" == yes ]]; then
     elif [[ ! -f /usr/lib/security/pam_fprintd.so ]]; then
         warn "pam_fprintd.so missing - skipping sudo"
     else
-        sudo cp "$PAM_SUDO" "$PAM_SUDO.bak" || die "could not back up $PAM_SUDO"
+        if [[ -e "$PAM_SUDO.bak" || -L "$PAM_SUDO.bak" ]]; then
+            ok "kept existing backup at $PAM_SUDO.bak"
+        else
+            sudo cp "$PAM_SUDO" "$PAM_SUDO.bak" || die "could not back up $PAM_SUDO"
+        fi
         # 'sufficient' means a failed scan falls through to the password
         # prompt, so a broken sensor can never lock you out of sudo.
         sudo sed -i '1a auth       sufficient  pam_fprintd.so' "$PAM_SUDO" \
             || die "could not edit $PAM_SUDO"
-        ok "added (backup at $PAM_SUDO.bak, revert with: sudo mv $PAM_SUDO.bak $PAM_SUDO)"
+        ok "added (backup at $PAM_SUDO.bak, revert with: sudo cp $PAM_SUDO.bak $PAM_SUDO)"
     fi
 fi
 

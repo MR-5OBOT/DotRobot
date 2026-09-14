@@ -81,7 +81,7 @@ main() {
   [[ -r "${SYSCTL_TEMPLATE}" ]] || die "Missing template: ${SYSCTL_TEMPLATE}"
   preflight || return 0
   [[ ${1:-} == --check ]] && { log "Check complete; no system settings changed."; return 0; }
-  pacman -Qq zram-generator >/dev/null 2>&1 || sudo pacman -S --needed --noconfirm zram-generator
+  pacman -Qq zram-generator >/dev/null 2>&1 || sudo pacman -Syu --needed --noconfirm zram-generator
   configure_zram
 }
 

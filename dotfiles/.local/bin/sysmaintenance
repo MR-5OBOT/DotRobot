@@ -4,7 +4,7 @@ set -e
 echo "----------------------------------------------------"
 echo "UPDATING SYSTEM"
 echo "----------------------------------------------------"
-paru -Syu --noconfirm
+paru -Syu
 
 echo ""
 echo "----------------------------------------------------"
@@ -28,8 +28,13 @@ echo "REMOVING ORPHANED PACKAGES"
 echo "----------------------------------------------------"
 orphaned=$(paru -Qdtq || true)
 if [ -n "$orphaned" ]; then
-    echo "Removing orphaned packages..."
-    echo "$orphaned" | paru -Rns --noconfirm -
+    printf '%s\n' "$orphaned"
+    if read -rp "Remove these orphaned packages? [y/N] " answer \
+        && [[ "$answer" =~ ^[Yy]([Ee][Ss])?$ ]]; then
+        printf '%s\n' "$orphaned" | paru -Rns --noconfirm -
+    else
+        echo "Skipped orphan removal."
+    fi
 else
     echo "No orphaned packages to remove."
 fi

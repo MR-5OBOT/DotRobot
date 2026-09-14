@@ -73,8 +73,13 @@ theme_root() {
 install_theme() {
   local source="$1"
   local target="$2"
+  local backup="$(dirname "${target}")/.$(basename "${target}").dotrobot.bak"
 
   if [[ -e "${target}" || -L "${target}" ]]; then
+    if [[ ! -e "${backup}" && ! -L "${backup}" ]]; then
+      cp -a "${target}" "${backup}"
+      log "Saved ${backup}"
+    fi
     rm -rf "${target}"
     log "Removed existing ${target}"
   fi
@@ -175,4 +180,6 @@ main() {
   log "Icon and GTK themes are installed"
 }
 
-main "$@"
+if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
+  main "$@"
+fi
