@@ -11,9 +11,11 @@ import "widgets/network"
 // with no size of its own; upstream's WindowRegistry gives it 720x600 and pins
 // it to the bar's end of the screen, which is what this reproduces.
 // Toggle with:  qs ipc call wifi toggle
+// The Ukishima island opens it top-centre instead:  qs ipc call wifi wifiIsland
 PanelWindow {
     id: win
     property bool open: false
+    property bool atTop: false   // opened from the island: drop in top-centre like its panels
     readonly property int panelW: 720
     readonly property int panelH: 600
 
@@ -53,9 +55,11 @@ PanelWindow {
 
     IpcHandler {
         target: "wifi"
-        function toggle(): void { win.open = !win.open; }
-        function wifi(): void { win.openWith("wifi"); }
-        function bt(): void { win.openWith("bt"); }
+        function toggle(): void { if (!win.open) win.atTop = false; win.open = !win.open; }
+        function wifi(): void { win.atTop = false; win.openWith("wifi"); }
+        function bt(): void { win.atTop = false; win.openWith("bt"); }
+        function wifiIsland(): void { win.atTop = true; win.openWith("wifi"); }
+        function btIsland(): void { win.atTop = true; win.openWith("bt"); }
     }
 
     HyprlandFocusGrab {
@@ -76,16 +80,24 @@ PanelWindow {
 
         Item {
             id: holder
-            // top-right corner; how much screen it may take is
+            // top-right corner, or a top-centre notch like the island's when opened
+            // from it; how much screen it may take is
             // ~/.config/mr5obot/settings.json -> network.screenFraction
-            anchors.right: parent.right
+            anchors.right: win.atTop ? undefined : parent.right
+            anchors.horizontalCenter: win.atTop ? parent.horizontalCenter : undefined
             anchors.top: parent.top
             anchors.rightMargin: 12
-            anchors.topMargin: 12
+            anchors.topMargin: win.atTop ? 0 : 12
             readonly property real fraction: Config.rawSettings.network?.screenFraction ?? 0.62
             readonly property real f: Math.min(1, win.width * fraction / win.panelW, win.height * fraction / win.panelH)
             width: win.panelW * f
             height: win.panelH * f
+
+            // the notch slides out of the screen edge as it opens
+            transform: Translate {
+                y: win.atTop && !win.open ? -holder.height : 0
+                Behavior on y { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+            }
 
             // stays below the popup, or it swallows the panel's own clicks
             MouseArea { anchors.fill: parent }
@@ -97,6 +109,15 @@ PanelWindow {
                 height: win.panelH
                 transformOrigin: Item.TopLeft
                 scale: holder.f
+                notch: win.atTop
+                notchColor: Theme.notchBg
+                notchRadius: Theme.notchRadius / holder.f   // popup is scaled by f
+            }
+
+            NotchEars {
+                anchors.top: parent.top
+                width: parent.width
+                visible: win.atTop
             }
         }
     }

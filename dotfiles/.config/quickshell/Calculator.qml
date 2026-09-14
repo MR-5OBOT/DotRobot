@@ -15,7 +15,7 @@ FloatingWindow {
     property var tape: []          // [{expr, res}]
 
     title: "Calculator"
-    color: Theme.bg
+    color: "transparent"
     implicitWidth: 272
     implicitHeight: content.implicitHeight + 2
 
@@ -63,6 +63,7 @@ FloatingWindow {
     }
 
     Rectangle {
+        radius: Theme.radius
         anchors.fill: parent
         color: Theme.bg
         border.width: 1
@@ -189,6 +190,7 @@ FloatingWindow {
                         onAccepted: { win.equals(); win.input = ""; }
                     }
                     Rectangle {
+                        radius: Theme.radius
                         Layout.preferredWidth: 64
                         Layout.fillHeight: true
                         color: enterHover.hovered ? Theme.pink : Theme.surface
@@ -259,6 +261,7 @@ FloatingWindow {
                     Repeater {
                         model: win.keys
                         delegate: Rectangle {
+                            radius: Theme.radius
                             required property string modelData
                             readonly property bool op: ["÷", "×", "−", "+", "="].includes(modelData)
                             readonly property bool eq: modelData === "="

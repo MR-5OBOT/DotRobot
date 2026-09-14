@@ -76,19 +76,29 @@ PanelWindow {
 
     Rectangle {
         id: card
-        // top-center, drops in from the top edge (matches the workspace island)
+        // top-center notch: hangs flush from the screen edge like the Ukishima
+        // island and slides out of it; NotchEars flare its top corners into the edge
+        topLeftRadius: 0
+        topRightRadius: 0
+        bottomLeftRadius: Theme.notchRadius
+        bottomRightRadius: Theme.notchRadius
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        anchors.topMargin: win.open ? 8 : -height
+        anchors.topMargin: win.open ? 0 : -height
         width: 270
-        height: col.implicitHeight + 2
-        color: Theme.bg
+        height: col.implicitHeight + 2 + Theme.notchEar   // bottom padding clears the rounded corners
+        color: Theme.notchBg
 
         opacity: win.open ? 1 : 0
         Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
         Behavior on anchors.topMargin { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
 
         MouseArea { anchors.fill: parent }  // swallow clicks on the card itself
+
+        NotchEars {
+            anchors.top: parent.top
+            width: parent.width
+        }
 
         ColumnLayout {
             id: col

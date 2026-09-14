@@ -98,6 +98,7 @@ PanelWindow {
 
     Rectangle {
         id: island
+        radius: Theme.radius
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.topMargin: osd.shown ? 4 : -implicitHeight   // drops from the top edge
@@ -121,11 +122,13 @@ PanelWindow {
             }
 
             Rectangle {  // progress track
+                radius: Theme.radius
                 Layout.fillWidth: true
                 implicitHeight: 6
                 color: Theme.surface
 
                 Rectangle {  // fill
+                    radius: Theme.radius
                     anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
                     width: parent.width * (osd.value / 100)
                     color: osd.muted ? Theme.dim : Theme.pink

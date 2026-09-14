@@ -12,6 +12,12 @@ import "../reusables"
 
 Item {
     id: window
+
+    // Set by NetworkPanel when the island opens the panel as a top-edge notch:
+    // flat top, solid background, no border, rounded bottom corners.
+    property bool notch: false
+    property color notchColor: "black"
+    property real notchRadius: 18
     focus: true
 
     Timer {
@@ -1364,9 +1370,13 @@ Item {
         Rectangle {
             anchors.fill: parent
             radius: ThemeBackend.borderRadius
-            color: ThemeBackend.base
+            topLeftRadius: window.notch ? 0 : ThemeBackend.borderRadius
+            topRightRadius: window.notch ? 0 : ThemeBackend.borderRadius
+            bottomLeftRadius: window.notch ? window.notchRadius : ThemeBackend.borderRadius
+            bottomRightRadius: window.notch ? window.notchRadius : ThemeBackend.borderRadius
+            color: window.notch ? window.notchColor : ThemeBackend.base
             border.color: ThemeBackend.surface0
-            border.width: 1
+            border.width: window.notch ? 0 : 1
             clip: true
 
             Rectangle {
