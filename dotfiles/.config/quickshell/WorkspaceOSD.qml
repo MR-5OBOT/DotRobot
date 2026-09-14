@@ -75,7 +75,7 @@ PanelWindow {
         implicitHeight: pips.implicitHeight + 12
 
         color: Theme.bg
-        radius: Theme.radius   // 0
+        radius: Theme.radius
 
         opacity: osd.shown ? 1 : 0
         Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
@@ -101,7 +101,7 @@ PanelWindow {
                         anchors.centerIn: parent
                         width: parent.focused ? 16 : parent.occupied ? 11 : 6
                         height: width
-                        radius: 0
+                        radius: Theme.radius
                         color: parent.focused ? Theme.pink : parent.occupied ? Theme.dim : Theme.border
                         Behavior on width { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
                         Behavior on color { ColorAnimation { duration: 150 } }

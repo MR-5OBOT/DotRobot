@@ -31,6 +31,7 @@ Item {
 
     Rectangle {
         id: card
+        radius: Theme.radius
         // hug content up to maxWidth (short toasts stay narrow)
         width: parent.width
         implicitHeight: row.implicitHeight + 24
@@ -110,6 +111,7 @@ Item {
             Component {
                 id: imageComp
                 Rectangle {
+                    radius: Theme.radius
                     implicitWidth: 44
                     implicitHeight: 44
                     color: Theme.surface
@@ -205,6 +207,7 @@ Item {
                         model: root.notif.actions.filter(a => a.identifier !== "default")
                         delegate: Rectangle {
                             id: actBtn
+                            radius: Theme.radius
                             required property var modelData
                             // outer ids resolve in bindings but NOT in delegate click
                             // handlers here — copy the ref locally so onClicked only

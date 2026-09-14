@@ -63,6 +63,7 @@ Scope {
 
         Rectangle {
             id: card
+            radius: Theme.radius
             implicitWidth: loader.item ? loader.item.implicitWidth + root.pad * 2 : 100
             implicitHeight: loader.item ? loader.item.implicitHeight + root.pad * 2 : 60
             color: Theme.bg
