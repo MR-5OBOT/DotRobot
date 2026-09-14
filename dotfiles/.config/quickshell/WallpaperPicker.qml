@@ -95,7 +95,7 @@ PanelWindow {
             MouseArea { anchors.fill: parent }  // clicking the panel bg shouldn't close it
 
             // coverflow: focused thumb centered + large, neighbours shrink and
-            // dim as they slide out (ported from ref/pill/Wallpaper.qml, flat).
+            // dim as they slide out (ported from the island's wallpaper strip, flat).
             Item {
                 id: carousel
                 anchors.fill: parent

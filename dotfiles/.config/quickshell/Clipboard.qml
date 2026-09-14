@@ -6,7 +6,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
 
-// cliphist-backed clipboard history, coloured like the Ukishima island (black,
+// cliphist-backed clipboard history, coloured like the island (black,
 // neutral greys, purple accent), 4px corners. Keyboard-driven like the launcher. Toggle: qs ipc call
 // clipboard toggle (Super+V). Enter/click copies the entry via wl-copy.
 // Backend: `wl-paste --watch cliphist store` (see autostart/cliphist.sh).
@@ -18,7 +18,7 @@ PanelWindow {
     property int sel: 0
     property var items: []       // [{ id, raw, image, label, size }]
 
-    // Ukishima island palette: pure black, neutral greys, purple accent
+    // island palette: pure black, neutral greys, purple accent
     readonly property color clipBg: "#000000"
     readonly property color clipSurface: "#141414"
     readonly property color clipBorder: "#2b2b2b"
@@ -126,8 +126,8 @@ PanelWindow {
 
     Rectangle {
         id: card
-        // top-center notch: hangs flush from the screen edge like the Ukishima
-        // island and slides out of it; NotchEars flare its top corners into the edge
+        // top-center notch: hangs flush from the screen edge like the island and
+        // slides out of it; NotchEars flare its top corners into the edge
         topLeftRadius: 0
         topRightRadius: 0
         bottomLeftRadius: Theme.notchRadius

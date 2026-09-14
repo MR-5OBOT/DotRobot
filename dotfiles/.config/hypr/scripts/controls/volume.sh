@@ -2,9 +2,7 @@
 ## /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  ##
 # Scripts for volume controls for audio and mic
 
-# Show the quickshell OSD island (icon + progress bar); it reads the level
-# itself. No-op if qs is down.  $1 = volume | mic
-osd() { qs ipc call osd "$1" >/dev/null 2>&1; }
+# The island shows volume and mic changes by itself; these only change levels.
 
 # Get Volume
 get_volume() {
@@ -30,42 +28,37 @@ get_icon() {
 	fi
 }
 
-# Notify
-notify_user() {
-	osd volume
-}
-
 # Increase Volume
 inc_volume() {
 	if [ "$(pamixer --get-mute)" == "true" ]; then
-		pamixer -u && notify_user
+		pamixer -u
 	fi
-	pamixer -i 5 && notify_user
+	pamixer -i 5
 }
 
 # Decrease Volume
 dec_volume() {
 	if [ "$(pamixer --get-mute)" == "true" ]; then
-		pamixer -u && notify_user
+		pamixer -u
 	fi
-	pamixer -d 5 && notify_user
+	pamixer -d 5
 }
 
 # Toggle Mute
 toggle_mute() {
 	if [ "$(pamixer --get-mute)" == "false" ]; then
-		pamixer -m && osd volume
+		pamixer -m
 	elif [ "$(pamixer --get-mute)" == "true" ]; then
-		pamixer -u && osd volume
+		pamixer -u
 	fi
 }
 
 # Toggle Mic
 toggle_mic() {
 	if [ "$(pamixer --default-source --get-mute)" == "false" ]; then
-		pamixer --default-source -m && osd mic
+		pamixer --default-source -m
 	elif [ "$(pamixer --default-source --get-mute)" == "true" ]; then
-		pamixer --default-source -u && osd mic
+		pamixer --default-source -u
 	fi
 }
 # Get Mic Icon
@@ -88,25 +81,20 @@ get_mic_volume() {
 	fi
 }
 
-# Notify for Microphone
-notify_mic_user() {
-	osd mic
-}
-
 # Increase MIC Volume
 inc_mic_volume() {
 	if [ "$(pamixer --default-source --get-mute)" == "true" ]; then
-		pamixer --default-source -u && notify_mic_user
+		pamixer --default-source -u
 	fi
-	pamixer --default-source -i 5 && notify_mic_user
+	pamixer --default-source -i 5
 }
 
 # Decrease MIC Volume
 dec_mic_volume() {
 	if [ "$(pamixer --default-source --get-mute)" == "true" ]; then
-		pamixer --default-source -u && notify_mic_user
+		pamixer --default-source -u
 	fi
-	pamixer --default-source -d 5 && notify_mic_user
+	pamixer --default-source -d 5
 }
 
 # Execute accordingly

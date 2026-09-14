@@ -5,6 +5,8 @@ local SCRIPTS = os.getenv("HOME") .. "/.config/hypr/scripts"
 local SCRIPT = SCRIPTS .. "/controls"
 local RISHOT = os.getenv("HOME") .. "/.config/quickshell/rishot/bin/rishot"
 local POWERPROFILE = os.getenv("HOME") .. "/.local/bin/powerprofile"
+-- the island bar (repo island/) runs from this copy; see scripts/autostart/island.sh
+local ISLAND = "qs -p " .. os.getenv("HOME") .. "/.local/share/quickshell/island ipc call island"
 
 -- Window Management
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
@@ -19,18 +21,15 @@ hl.bind("ALT + L", hl.dsp.exec_cmd("pidof hyprlock || hyprlock"))
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd("[float]kitty"))
 hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("qs ipc call launcher toggle"))
 hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("pkill -x qs; qs")) -- restart quickshell
-hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("qs ipc call powermenu toggle"))
+hl.bind(mainMod .. " + X", hl.dsp.exec_cmd(ISLAND .. ' power ""'))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("qs ipc call wallpicker toggle"))
 hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("qs ipc call clipboard toggle"))
-hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("qs ipc call calendar toggle"))
-hl.bind(mainMod .. " + I", hl.dsp.exec_cmd("qs ipc call wifi toggle"))
+hl.bind(mainMod .. " + T", hl.dsp.exec_cmd(ISLAND .. ' calendar ""'))
+hl.bind(mainMod .. " + I", hl.dsp.exec_cmd("qs ipc call wifi wifiIsland"))
 hl.bind(mainMod .. " + equal", hl.dsp.exec_cmd("qs ipc call calc toggle"))
 hl.bind("XF86Calculator", hl.dsp.exec_cmd("qs ipc call calc toggle"))
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("hyprpicker -a -n"))
 hl.bind(mainMod .. " + SHIFT + I", hl.dsp.exec_cmd(SCRIPTS .. "/speedtest.sh"))
-
--- wayscriber screen annotations
-hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("wayscriber --active"))
 
 -- Screenshots
 hl.bind("Print", hl.dsp.exec_cmd(RISHOT))                     -- drag region or click a window

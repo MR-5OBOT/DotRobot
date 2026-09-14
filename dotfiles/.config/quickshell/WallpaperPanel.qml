@@ -15,6 +15,7 @@ import "widgets/wallpaper"
 // ThemeBackend keep reading the same state file.
 // serp is imported under a namespace because its state singleton is also
 // called Wallpaper, which would clash with this shell's Wallpaper.qml.
+// Here it hangs from the top edge like the island's panels, on a transparent background.
 // Toggle with:  qs ipc call wallpicker toggle
 PanelWindow {
     id: win
@@ -60,23 +61,35 @@ PanelWindow {
 
         Item {
             id: holder
-            anchors.left: parent.left
-            anchors.verticalCenter: parent.verticalCenter
-            readonly property real f: Math.min(1, (win.height - 40) / win.panelH)
-            width: win.width
+            anchors.top: parent.top
+            anchors.horizontalCenter: parent.horizontalCenter
+            // the strip takes about half the screen height; the picker is scaled to fit
+            readonly property real f: Math.min(1, win.height * 0.55 / win.panelH)
+            width: win.width - 48
             height: win.panelH * f
+
+            // slides out of the screen edge as it opens
+            transform: Translate {
+                y: win.open ? 0 : -holder.height
+                Behavior on y { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+            }
 
             // below the picker, or it swallows the carousel's clicks
             MouseArea { anchors.fill: parent }
 
-            WallpaperCarousel {
-                id: picker
-                visible: win.open
-                hostScreen: win.screen
-                width: win.width / holder.f
-                height: win.panelH
-                transformOrigin: Item.TopLeft
-                scale: holder.f
+            Item {
+                anchors.fill: parent
+                clip: true   // keep the carousel inside its strip
+
+                WallpaperCarousel {
+                    id: picker
+                    visible: win.open
+                    hostScreen: win.screen
+                    width: holder.width / holder.f
+                    height: win.panelH
+                    transformOrigin: Item.TopLeft
+                    scale: holder.f
+                }
             }
         }
     }

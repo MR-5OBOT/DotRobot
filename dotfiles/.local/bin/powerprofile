@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Switch power-profiles-daemon profiles and flash the change in the quickshell
-# OSD. Goes through powerprofilesctl rather than sysfs because the Dell and the
+# Switch power-profiles-daemon profiles. Goes through powerprofilesctl rather than sysfs because the Dell and the
 # ThinkPad name their firmware profiles differently; ppd maps both.
 
 readonly ORDER=(power-saver balanced performance)
@@ -25,9 +24,6 @@ die() {
   printf 'powerprofile: %s\n' "$*" >&2
   exit 1
 }
-
-# Flash the OSD island; it reads the profile itself. No-op if qs is down.
-osd() { qs ipc call osd power >/dev/null 2>&1 || true; }
 
 current() { powerprofilesctl get; }
 
@@ -64,7 +60,6 @@ set_profile() {
   local target=$1 reason
   grep -qx "${target}" <<<"$(available)" || die "${target} is not available on this machine"
   [[ $(current) == "${target}" ]] || powerprofilesctl set "${target}"
-  osd
   echo "${target}"
 
   if [[ ${target} == performance ]]; then

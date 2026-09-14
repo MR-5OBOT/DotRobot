@@ -9,8 +9,8 @@ import "widgets"
 // Power-profile picker: `qs ipc call powerprofile cycle` (SUPER+SHIFT+P via
 // `powerprofile menu`) opens the card on the active profile, and each further
 // press moves the highlight on. Nothing switches until you pick — Enter or a
-// click applies, Esc cancels. Same drop-in card and rows as ActionMenu, both
-// drawn to match serpantinum's Wi-Fi/Bluetooth panel (see MenuRow.qml).
+// click applies, Esc cancels. Rows are shared with ActionMenu (see MenuRow.qml);
+// the card is a top-edge notch in the island's style, also opened from its battery panel.
 PanelWindow {
     id: win
 
@@ -115,19 +115,25 @@ PanelWindow {
         id: card
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        anchors.topMargin: win.open ? 8 : -height   // drops in from the top edge
+        anchors.topMargin: win.open ? 0 : -height   // hangs flush from the top edge and slides out of it
         width: 260
         height: col.implicitHeight + 16
-        radius: ThemeBackend.borderRadius
-        color: ThemeBackend.base
-        border.color: ThemeBackend.surface0
-        border.width: 1
+        topLeftRadius: 0
+        topRightRadius: 0
+        bottomLeftRadius: Theme.notchRadius
+        bottomRightRadius: Theme.notchRadius
+        color: Theme.notchBg
 
         opacity: win.open ? 1 : 0
         Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
         Behavior on anchors.topMargin { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
 
         MouseArea { anchors.fill: parent }  // swallow clicks on the card
+
+        NotchEars {
+            anchors.top: parent.top
+            width: parent.width
+        }
 
         Item {  // key sink — no text input in this menu
             focus: true
@@ -185,6 +191,7 @@ PanelWindow {
                     // a degraded reason matters more than the active marker
                     tag: modelData === "performance" && win.degraded !== "" ? win.degraded : modelData === win.active ? "active" : ""
                     selected: index === win.sel
+                    accent: Theme.notchAccent
                     onHoveredChanged: if (hovered) win.sel = row.index
                     onClicked: { win.sel = row.index; win.apply(); }
                 }

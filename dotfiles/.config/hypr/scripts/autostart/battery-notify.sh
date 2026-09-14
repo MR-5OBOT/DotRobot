@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Low-battery notifier. Used to live inside quickshell's Battery.qml; split out
 # so the warning keeps running across a qs restart (Super+Shift+N reloads the
-# bar constantly). quickshell is now only the notification daemon that draws the
-# card -- this decides when one is due.
+# bar constantly). The island (repo island/) owns the notification server and draws
+# the toast -- this decides when one is due.
 #
 # Idempotent: a hyprland reload won't stack a second watcher.
 
@@ -60,8 +60,8 @@ read_battery() {
 }
 
 # notify-send -p hands back the freedesktop id and -r reuses it, so repeats
-# rewrite one card instead of stacking sticky criticals (the qs NotifCard never
-# auto-expires a critical). keep=0 means don't track the id we get back.
+# rewrite one card instead of stacking sticky criticals (the island's toasts never
+# auto-expire a critical). keep=0 means don't track the id we get back.
 notif_id=0
 notify() {
   local urgency=$1 summary=$2 body=$3 keep=$4 args id
