@@ -2,25 +2,23 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import Quickshell.Wayland
+import Quickshell.Hyprland
 
 // Simple calculator with two modes:
 //   pad   — classic keypad + display (Super+equal / XF86Calculator)
 //   paper — a running tape: type an expression, Enter, it stacks up
-// One evaluator for both. Draggable floating window. Toggle: qs ipc call calc toggle
-FloatingWindow {
+// One evaluator for both. A top-centre notch like the island's panels: hangs
+// from the screen edge and slides out of it. Toggle: qs ipc call calc toggle
+PanelWindow {
     id: win
 
     property string input: ""
     property bool paper: false
     property var tape: []          // [{expr, res}]
 
-    title: "Calculator"
-    color: "transparent"
-    implicitWidth: 272
-    implicitHeight: content.implicitHeight + 2
-
-    visible: BarState.calcOpen
-    onVisibleChanged: if (visible) inputFocus()
+    readonly property bool open: BarState.calcOpen
+    onOpenChanged: if (open) inputFocus()
     function inputFocus() { Qt.callLater(() => { (paper ? paperInput : padInput).forceActiveFocus(); }); }
 
     // ---- evaluator: whitelist chars, then Function-eval. Local input only. ---
@@ -62,17 +60,52 @@ FloatingWindow {
         function toggle(): void { BarState.calcOpen = !BarState.calcOpen; }
     }
 
-    Rectangle {
-        radius: Theme.radius
+    visible: open || card.opacity > 0.01
+    anchors { top: true; bottom: true; left: true; right: true }
+    exclusiveZone: 0
+    color: "transparent"
+    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.namespace: "quickshell-calculator"
+    WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+
+    HyprlandFocusGrab {
+        active: win.open
+        windows: [win]
+        onCleared: BarState.calcOpen = false
+    }
+
+    MouseArea {  // click-outside catcher
         anchors.fill: parent
-        color: Theme.bg
-        border.width: 1
-        border.color: Theme.border
+        onClicked: BarState.calcOpen = false
+    }
+
+    Rectangle {
+        id: card
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.topMargin: win.open ? 0 : -height
+        width: 272
+        height: content.implicitHeight + 2 + Theme.notchEar   // bottom padding clears the rounded corners
+        topLeftRadius: 0
+        topRightRadius: 0
+        bottomLeftRadius: Theme.notchRadius
+        bottomRightRadius: Theme.notchRadius
+        color: Theme.notchBg
+
+        opacity: win.open ? 1 : 0
+        Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+        Behavior on anchors.topMargin { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+
+        MouseArea { anchors.fill: parent }  // swallow clicks on the card
+
+        NotchEars {
+            anchors.top: parent.top
+            width: parent.width
+        }
 
         ColumnLayout {
             id: content
-            anchors.fill: parent
-            anchors.margins: 1
+            anchors { top: parent.top; left: parent.left; right: parent.right; margins: 1 }
             spacing: 0
 
             RowLayout {   // header: title + mode toggle
@@ -89,12 +122,13 @@ FloatingWindow {
                     color: Theme.dim
                 }
                 Rectangle {   // mode toggle
+                    radius: Theme.radius
                     width: 26; height: 22
                     color: modeHover.hovered ? Theme.surface : "transparent"
                     Icon {
                         anchors.centerIn: parent
                         size: 16
-                        color: Theme.pink
+                        color: Theme.notchAccent
                         text: win.paper ? "receipt_long" : "grid_view"
                     }
                     HoverHandler { id: modeHover }
@@ -104,8 +138,9 @@ FloatingWindow {
                     }
                 }
                 Rectangle {   // close
+                    radius: Theme.radius
                     width: 26; height: 22
-                    color: closeHover.hovered ? Theme.pink : "transparent"
+                    color: closeHover.hovered ? Theme.notchAccent : "transparent"
                     Icon {
                         anchors.centerIn: parent
                         size: 16
@@ -123,7 +158,7 @@ FloatingWindow {
             ColumnLayout {
                 visible: win.paper
                 Layout.fillWidth: true
-                Layout.fillHeight: true
+                Layout.preferredHeight: 300
                 spacing: 0
 
                 ListView {
@@ -193,7 +228,7 @@ FloatingWindow {
                         radius: Theme.radius
                         Layout.preferredWidth: 64
                         Layout.fillHeight: true
-                        color: enterHover.hovered ? Theme.pink : Theme.surface
+                        color: enterHover.hovered ? Theme.notchAccent : Theme.surface
                         Text {
                             anchors.centerIn: parent
                             text: "Enter"
@@ -267,7 +302,7 @@ FloatingWindow {
                             readonly property bool eq: modelData === "="
                             Layout.fillWidth: true
                             Layout.preferredHeight: 44
-                            color: eq ? (bHover.hovered ? Theme.pink : Theme.pinkDim) : (bHover.hovered ? Theme.surface : Theme.bg)
+                            color: eq ? (bHover.hovered ? Qt.lighter(Theme.notchAccent, 1.15) : Theme.notchAccent) : (bHover.hovered ? Theme.surface : Theme.notchBg)
                             border.width: 1
                             border.color: Theme.border
                             Text {
@@ -276,7 +311,7 @@ FloatingWindow {
                                 font.family: Theme.font
                                 font.pixelSize: 16
                                 font.bold: parent.op
-                                color: parent.eq ? "#ffffff" : (parent.op ? Theme.pink : Theme.text)
+                                color: parent.eq ? "#ffffff" : (parent.op ? Theme.notchAccent : Theme.text)
                             }
                             HoverHandler { id: bHover }
                             MouseArea { anchors.fill: parent; onClicked: { win.press(parent.modelData); padInput.forceActiveFocus(); } }

@@ -15,23 +15,21 @@ ShellRoot {
 
     // Bar: one per screen, pick one. Bar = the auto-hiding pill on the left
     // edge; FullBar = serpantinum's full-height side bar (see widgets/README.md).
-    Variants {
-        model: Quickshell.screens
-        // Bar {
-        //     required property var modelData
-        //     screen: modelData
-        // }
-        FullBar {}
-    }
+    // Off while the island (island/) is the bar — uncomment to bring it back.
+    // Variants {
+    //     model: Quickshell.screens
+    //     // Bar {
+    //     //     required property var modelData
+    //     //     screen: modelData
+    //     // }
+    //     FullBar {}
+    // }
 
-    Notifications {}
     Launcher {}
     // WallpaperPicker {}   // replaced by WallpaperPanel; uncomment to go back
     WallpaperPanel {}  // serpantinum's picker; qs ipc call wallpicker toggle
     // WorkspaceOSD {}   // top-edge workspace strip — uncomment to bring it back
     Clipboard {}
-    Osd {}
-    CalendarPanel {}   // serpantinum's dashboard; qs ipc call calendar toggle
     NetworkPanel {}    // serpantinum's wifi/bt panel; qs ipc call wifi toggle
     NetworkMenu {}
     Calculator {}
@@ -40,19 +38,6 @@ ShellRoot {
     // gets no layer surface), and qs restarts on reload while it's loaded.
     // Debug before re-enabling.
     // GoSleep {}
-
-    ActionMenu {
-        ipcTarget: "powermenu"
-        title: "Power"
-        titleIcon: "power_settings_new"
-        actions: [
-            { icon: "lock",               label: "Lock",          cmd: ["bash", "-c", "pidof hyprlock || hyprlock"] },   // same as ALT+L
-            { icon: "logout",             label: "Quit Hyprland", cmd: ["hyprctl", "dispatch", "exit"] },
-            { icon: "bedtime",            label: "Suspend",       cmd: ["systemctl", "suspend"] },
-            { icon: "restart_alt",        label: "Reboot",        cmd: ["systemctl", "reboot"] },
-            { icon: "power_settings_new", label: "Shutdown",      cmd: ["systemctl", "poweroff"] },
-        ]
-    }
 
     PowerProfileMenu {}
 

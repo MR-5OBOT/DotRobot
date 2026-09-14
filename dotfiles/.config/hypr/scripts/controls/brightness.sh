@@ -2,9 +2,7 @@
 ## /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  ##
 # Script for Monitor backlights (if supported) using brightnessctl
 
-# Show the quickshell OSD island (icon + progress bar); it reads the level
-# itself. No-op if qs is down.
-osd() { qs ipc call osd "$1" >/dev/null 2>&1; }
+# The island shows brightness changes by itself; this only changes the level.
 
 # Get brightness
 get_backlight() {
@@ -27,14 +25,9 @@ get_icon() {
 	fi
 }
 
-# Notify
-notify_user() {
-	osd brightness
-}
-
 # Change brightness
 change_backlight() {
-	brightnessctl set "$1" && get_icon && notify_user
+	brightnessctl set "$1"
 }
 
 # Execute accordingly

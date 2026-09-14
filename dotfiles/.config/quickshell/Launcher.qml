@@ -76,8 +76,8 @@ PanelWindow {
 
     Rectangle {
         id: card
-        // top-center notch: hangs flush from the screen edge like the Ukishima
-        // island and slides out of it; NotchEars flare its top corners into the edge
+        // top-center notch: hangs flush from the screen edge like the island and
+        // slides out of it; NotchEars flare its top corners into the edge
         topLeftRadius: 0
         topRightRadius: 0
         bottomLeftRadius: Theme.notchRadius

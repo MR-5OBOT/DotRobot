@@ -2,4 +2,3 @@ devify
 helium-browser-bin
 ventoy-bin
 vesktop-git
-wayscriber

@@ -11,7 +11,7 @@ import "widgets/network"
 // with no size of its own; upstream's WindowRegistry gives it 720x600 and pins
 // it to the bar's end of the screen, which is what this reproduces.
 // Toggle with:  qs ipc call wifi toggle
-// The Ukishima island opens it top-centre instead:  qs ipc call wifi wifiIsland
+// The island opens it top-centre instead:  qs ipc call wifi wifiIsland
 PanelWindow {
     id: win
     property bool open: false
