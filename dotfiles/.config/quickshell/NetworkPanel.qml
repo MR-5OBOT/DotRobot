@@ -77,7 +77,7 @@ PanelWindow {
         Item {
             id: holder
             // top-right corner; how much screen it may take is
-            // widgets/settings.json -> network.screenFraction
+            // ~/.config/mr5obot/settings.json -> network.screenFraction
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.rightMargin: 12

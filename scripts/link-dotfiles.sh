@@ -71,6 +71,7 @@ main() {
   tar -xzf "${ASSETS_DIR}/icons/volantes-light-cursors.tar.gz" -C "${icons_dir}"
   log "Installed icon and cursor themes"
 
+  "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/seed-quickshell-settings.sh"
   "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/seed-superfile-state.sh"
   "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/setup-claude.sh"
 

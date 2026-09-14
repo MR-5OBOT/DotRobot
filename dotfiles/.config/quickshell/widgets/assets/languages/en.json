@@ -860,10 +860,6 @@
   },
   "wallpaper": {
     "notifications": {
-      "downloading": "Downloading wallpaper...",
-      "type_to_search": "Type something to search...",
-      "search_paused": "Search paused",
-      "searching_ddg": "Searching for wallpapers...",
       "generating_thumbnails": "Generating thumbnails...",
       "no_wallpapers_found": "No wallpapers found",
       "videos": "Videos",
@@ -872,7 +868,6 @@
     "filters": {
       "all": "All",
       "vid": "Vid",
-      "search": "Search",
       "red": "Red",
       "orange": "Orange",
       "yellow": "Yellow",
