@@ -32,7 +32,7 @@ ColumnLayout {
                 // focused: big pink · occupied: medium filled · empty: tiny dot
                 width: parent.focused ? 18 : parent.occupied ? 12 : 6
                 height: width
-                radius: 0
+                radius: Theme.radius
                 color: parent.focused ? Theme.pink : parent.occupied ? Theme.dim : Theme.border
 
                 Behavior on width {

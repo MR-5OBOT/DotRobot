@@ -36,6 +36,7 @@ PanelWindow {
 
     Rectangle {
         id: content
+        radius: Theme.radius
         width: Theme.barWidth
         height: col.implicitHeight + 24            // compact: only as tall as its widgets
         anchors.verticalCenter: parent.verticalCenter
@@ -68,7 +69,7 @@ PanelWindow {
             color: Theme.surface
             border.width: 1
             border.color: Theme.border
-            radius: Theme.radius   // 0
+            radius: Theme.radius
             implicitWidth: 34
         }
 

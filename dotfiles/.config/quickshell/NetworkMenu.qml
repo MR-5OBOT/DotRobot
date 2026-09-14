@@ -168,6 +168,7 @@ PanelWindow {
 
     Rectangle {
         id: card
+        radius: Theme.radius
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.leftMargin: win.open ? Theme.barWidth + Theme.gap : -width
@@ -303,6 +304,7 @@ PanelWindow {
 
                     // inline password prompt (shown when a secured net needs creds)
                     Rectangle {
+                        radius: Theme.radius
                         width: parent.width
                         height: rowRoot.pwOpen ? 40 : 0
                         visible: height > 0
