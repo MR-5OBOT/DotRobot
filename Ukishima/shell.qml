@@ -90,8 +90,6 @@ ShellRoot {
 
     Component.onCompleted: {
         refresh();
-        Devices.restore();
-        void GameMode.active;
         root.battCheck();
     }
 
@@ -235,39 +233,23 @@ ShellRoot {
         target: "ukishima"
         function mixer(mon: string): void { root.toggleSurface(mon, "mixer"); }
         function calendar(mon: string): void { root.toggleSurface(mon, "calendar"); }
-        function launcher(mon: string): void { root.toggleSurface(mon, "launcher"); }
+        function launcher(mon: string): void {
+            Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
+                "qs", "ipc", "call", "launcher", "toggle"]);
+        }
         function power(mon: string): void { root.toggleSurface(mon, "power"); }
         function link(mon: string): void { root.toggleSurface(mon, "link"); }
         function battery(mon: string): void { root.toggleSurface(mon, "battery"); }
-        function recorder(mon: string): void { root.toggleSurface(mon, "recorder"); }
-        function screenrec(mon: string): void { root.toggleSurface(mon, "recorder"); }
-        function record(mon: string): void { root.toggleSurface(mon, "recorder"); }
-
-        /**
-         * Quick-record keybind (SUPER+D): one button cycles the whole flow with no
-         * surface. Recording → stop. Counting down → cancel. A chooser already up
-         * on this monitor → dismiss. Otherwise open the standalone source chooser on
-         * the focused monitor `mon`, so only that pill renders it.
-         */
-        function quickRecord(mon: string): void {
-            if (ScreenRec.recording) {
-                ScreenRec.stop();
-            } else if (ScreenRec.counting) {
-                ScreenRec.cancel();
-            } else if (ScreenRec.quickChoosing) {
-                ScreenRec.quickChoosing = false;
-                ScreenRec.quickScreenChoosing = false;
-            } else {
-                ScreenRec.quickMon = mon;
-                ScreenRec.quickScreenChoosing = false;
-                ScreenRec.quickChoosing = true;
-            }
-        }
-        function gameMode(mon: string): void { Flags.gameMode = !Flags.gameMode; }
         function sysmon(mon: string): void { root.toggleSurface(mon, "sysmon"); }
         function system(mon: string): void { root.toggleSurface(mon, "sysmon"); }
-        function clipboard(mon: string): void { root.toggleSurface(mon, "clipboard"); }
-        function wallpaper(mon: string): void { root.toggleSurface(mon, "wallpaper"); }
+        function clipboard(mon: string): void {
+            Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
+                "qs", "ipc", "call", "clipboard", "toggle"]);
+        }
+        function wallpaper(mon: string): void {
+            Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
+                "qs", "ipc", "call", "wallpicker", "toggle"]);
+        }
         function media(mon: string): void {
             if (Players.list.length > 0)
                 root.toggleSurface(mon, "media");
@@ -353,7 +335,7 @@ ShellRoot {
             readonly property real topGap: 8 * Flags.topGap * s
             readonly property string surface: root.openMon === modelData.name ? root.openSurface : ""
             readonly property bool surfaceOpen: surface.length > 0
-            readonly property bool modal: surfaceOpen || pill.held || pill.quickChoosing || pill.expandLatch
+            readonly property bool modal: surfaceOpen || pill.held || pill.expandLatch
 
             /**
              * True while this monitor's active workspace reports a fullscreen
@@ -383,7 +365,7 @@ ShellRoot {
             color: "transparent"
             exclusionMode: ExclusionMode.Ignore
             WlrLayershell.layer: WlrLayer.Overlay
-            WlrLayershell.keyboardFocus: ((surfaceOpen || pill.quickChoosing)) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+            WlrLayershell.keyboardFocus: surfaceOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
             WlrLayershell.namespace: "ukishima"
 
             anchors { top: true; left: true; right: true; bottom: true }
@@ -415,7 +397,7 @@ ShellRoot {
                 readonly property real baseW: Math.max(pill.width, pill.targetW)
                 x: pill.x + (pill.width - baseW) / 2
                 y: pill.y
-                width: baseW + pill.inputPadRight
+                width: baseW
                 height: Math.max(pill.height, pill.targetH)
             }
 
@@ -452,10 +434,7 @@ ShellRoot {
                 enabled: overlay.modal
                 acceptedButtons: Qt.AllButtons
                 onPressed: (mouse) => {
-                    if (pill.quickChoosing) {
-                        ScreenRec.quickChoosing = false;
-                        ScreenRec.quickScreenChoosing = false;
-                    } else if (overlay.surfaceOpen) {
+                    if (overlay.surfaceOpen) {
                         var inside = mouse.x >= pillRegion.x && mouse.x <= pillRegion.x + pillRegion.width
                             && mouse.y >= pillRegion.y && mouse.y <= pillRegion.y + pillRegion.height;
                         if (!inside)
@@ -486,7 +465,7 @@ ShellRoot {
             FocusScope {
                 id: focusScope
                 anchors.fill: parent
-                focus: overlay.surfaceOpen || pill.quickChoosing
+                focus: overlay.surfaceOpen
 
                 HoverHandler {
                     enabled: !overlay.surfaceOpen && !pill.pinned
@@ -495,27 +474,23 @@ ShellRoot {
                 Keys.onEscapePressed: {
                     if (pill.wallpaperMenuOpen) {
                         pill.wallpaperMenuClose();
-                    } else if (pill.quickChoosing) {
-                        ScreenRec.quickChoosing = false;
-                        ScreenRec.quickScreenChoosing = false;
                     } else {
                         root.close();
                     }
                 }
                 Keys.onUpPressed: (e) => {
                     if (pill.wallpaperMenuOpen) { pill.wallpaperMenuMove(-1); e.accepted = true; }
-                    else e.accepted = pill.mixerStep(1) || pill.recorderStep(5) || pill.settingsMove(-1);
+                    else e.accepted = pill.mixerStep(1) || pill.settingsMove(-1);
                 }
                 Keys.onDownPressed: (e) => {
                     if (pill.wallpaperMenuOpen) { pill.wallpaperMenuMove(1); e.accepted = true; }
-                    else e.accepted = pill.mixerStep(-1) || pill.recorderStep(-5) || pill.settingsMove(1);
+                    else e.accepted = pill.mixerStep(-1) || pill.settingsMove(1);
                 }
                 Keys.onLeftPressed: (e) => {
                     if (pill.wallpaperMenuOpen) { e.accepted = true; }
                     else if (pill.mixerOpen) { pill.mixerFocusMove(-1); e.accepted = true; }
                     else if (pill.wallpaperOpen) { pill.wallpaperMove(-1); e.accepted = true; }
                     else if (pill.powerOpen) { pill.powerMove(-1); e.accepted = true; }
-                    else if (pill.recorderOpen) { e.accepted = pill.recorderStep(-5); }
                     else if (pill.settingsLike) { pill.settingsAdjust(-1); e.accepted = true; }
                 }
                 Keys.onRightPressed: (e) => {
@@ -523,7 +498,6 @@ ShellRoot {
                     else if (pill.mixerOpen) { pill.mixerFocusMove(1); e.accepted = true; }
                     else if (pill.wallpaperOpen) { pill.wallpaperMove(1); e.accepted = true; }
                     else if (pill.powerOpen) { pill.powerMove(1); e.accepted = true; }
-                    else if (pill.recorderOpen) { e.accepted = pill.recorderStep(5); }
                     else if (pill.settingsLike) { pill.settingsAdjust(1); e.accepted = true; }
                 }
 
@@ -601,8 +575,7 @@ ShellRoot {
                     height: 8 * overlay.s
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.top: parent.top
-                    enabled: Flags.autoHide && !pill.surfaceOpen && !pill.quickChoosing
-                        && !pill.quickCounting && !Flags.gameMode
+                    enabled: Flags.autoHide && !pill.surfaceOpen && !Flags.gameMode
                     visible: enabled
                     keys: ["text/uri-list"]
                     onEntered: (drag) => {
@@ -624,7 +597,7 @@ ShellRoot {
                 Pill {
                     id: pill
                     anchors.top: parent.top
-                    anchors.topMargin: (pill.stripBar || pill.mode === "game") ? 0 : overlay.topGap
+                    anchors.topMargin: 0
                     anchors.horizontalCenter: parent.horizontalCenter
 
                     Behavior on anchors.topMargin {
@@ -666,14 +639,13 @@ ShellRoot {
                 OsdPopup {
                     id: osdPopup
                     anchors.top: parent.top
-                    anchors.topMargin: (pill.stripBar || pill.mode === "game") ? 0 : overlay.topGap
+                    anchors.topMargin: 0
                     anchors.horizontalCenter: parent.horizontalCenter
                     s: overlay.s
                     screenName: overlay.modelData.name
                     expanded: pill.expanded
-                    topFlat: (pill.mode === "game" || pill.stripBar) ? 1 : 0
-                    suppressed: overlay.surfaceOpen || pill.held || pill.quickChoosing
-                        || pill.quickCounting || pill.mode === "game" || (pill.toastActive && Notifs.toastCritical)
+                    topFlat: 1
+                    suppressed: overlay.surfaceOpen || pill.held || pill.mode === "game" || (pill.toastActive && Notifs.toastCritical)
                 }
             }
 
@@ -681,10 +653,6 @@ ShellRoot {
 
             Connections {
                 target: pill
-                function onQuickChoosingChanged() {
-                    if (pill.quickChoosing)
-                        focusScope.forceActiveFocus();
-                }
                 function onWallpaperSearchingChanged() {
                     if (!pill.wallpaperSearching && overlay.surfaceOpen)
                         focusScope.forceActiveFocus();

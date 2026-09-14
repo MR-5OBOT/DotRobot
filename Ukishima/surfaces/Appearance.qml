@@ -6,10 +6,9 @@ import "../Singletons"
 import "../components"
 
 /**
- * 相 APPEARANCE index: the door into the appearance settings, split into four
- * category tiles — DISPLAY (pill layout, clock, glyphs), THEME (colours and the
- * wallpaper folder), FONT (the family picker) and INTERFACE (scale, motion,
- * auto-hide). Picking a tile morphs the pill into that category's sub-surface;
+ * 相 APPEARANCE index: the door into the appearance settings, split into three
+ * category tiles — DISPLAY (pill layout, clock, glyphs), FONT (the family picker)
+ * and INTERFACE (scale, motion, auto-hide). Colours follow the wallpaper (see Dyn). Picking a tile morphs the pill into that category's sub-surface;
  * the back chevron on each returns here, and an empty click or the cog closes.
  * Reached from the pill's hover row and folds back into it on a dismiss.
  */
@@ -21,10 +20,8 @@ SettingsSurface {
 
     rows: [
         { item: dispTile, kind: "nav", surface: "display" },
-        { item: themeTile, kind: "nav", surface: "theme" },
         { item: fontTile, kind: "nav", surface: "fontpicker" },
-        { item: ifaceTile, kind: "nav", surface: "interface" },
-        { item: updateTile, kind: "nav", surface: "update" }
+        { item: ifaceTile, kind: "nav", surface: "interface" }
     ]
 
     Column {
@@ -60,22 +57,6 @@ SettingsSurface {
         }
 
         SettingsRow {
-            id: themeTile
-            surface: root
-            glyph: "色"
-            name: "Theme"
-            sub: "Light, dark, dynamic or manual"
-
-            GlyphIcon {
-                width: 16 * root.s
-                height: 16 * root.s
-                name: "chevron-right"
-                color: root.focusRowItem === themeTile ? Theme.cream : Theme.iconDim
-                stroke: 1.9
-            }
-        }
-
-        SettingsRow {
             id: fontTile
             surface: root
             glyph: "字"
@@ -97,29 +78,13 @@ SettingsSurface {
             glyph: "面"
             name: "Interface"
             sub: "Scale, motion, auto-hide"
-
-            GlyphIcon {
-                width: 16 * root.s
-                height: 16 * root.s
-                name: "chevron-right"
-                color: root.focusRowItem === ifaceTile ? Theme.cream : Theme.iconDim
-                stroke: 1.9
-            }
-        }
-
-        SettingsRow {
-            id: updateTile
-            surface: root
-            glyph: "更"
-            name: "Update"
-            sub: "Pull latest from GitHub"
             last: true
 
             GlyphIcon {
                 width: 16 * root.s
                 height: 16 * root.s
                 name: "chevron-right"
-                color: root.focusRowItem === updateTile ? Theme.cream : Theme.iconDim
+                color: root.focusRowItem === ifaceTile ? Theme.cream : Theme.iconDim
                 stroke: 1.9
             }
         }

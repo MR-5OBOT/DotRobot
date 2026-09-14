@@ -6,9 +6,9 @@ import "../Singletons"
 import "../components"
 
 /**
- * Mixer surface: header with DND / Keep-Awake chips and a row of four vertical
- * ink-faders wired to real hardware (brightness via ddcutil, vibrance via
- * nvibrant, volume and mic via Pipewire). Fills the lower body of the pill.
+ * Mixer surface: header with DND / Keep-Awake chips and a row of vertical
+ * ink-faders wired to real hardware (brightness via ddcutil or brightnessctl,
+ * volume and mic via Pipewire). Fills the lower body of the pill.
  */
 PillSurface {
     id: root
@@ -79,7 +79,7 @@ PillSurface {
         }
         if (blLoader.item)
             out.push(blLoader.item);
-        out.push(vibFader, volFader, micFader);
+        out.push(volFader, micFader);
         return out;
     }
     readonly property bool surfaceHovered: hoverTracker.hovered
@@ -158,17 +158,7 @@ PillSurface {
 
     Component.onCompleted: Devices.detect()
 
-    property real pendingVibrance: -1
     property int pendingBacklight: -1
-
-    Timer {
-        id: vibDebounce
-        interval: 160
-        onTriggered: if (root.pendingVibrance >= 0) {
-            Devices.setVibrance(root.pendingVibrance);
-            root.pendingVibrance = -1;
-        }
-    }
 
     Timer {
         id: blDebounce
@@ -352,13 +342,6 @@ PillSurface {
                 tipTitle: "Night light"
                 tipDesc: "Warm the screen"
                 onToggled: NightLight.setMode(Flags.nightLightMode === "off" ? "on" : "off")
-            }
-            IconChip {
-                glyph: "gamepad"
-                on: Flags.gameMode
-                tipTitle: "Game mode"
-                tipDesc: "Strip effects, quiet the desktop"
-                onToggled: Flags.gameMode = !Flags.gameMode
             }
         }
     }
@@ -573,19 +556,6 @@ PillSurface {
             }
         }
 
-        VFader {
-            id: vibFader
-            width: faderRow.colW
-            s: root.s
-            icon: "monitor"
-            subLabel: "Vibrance"
-            subPersistent: false
-            focused: root.focusIndex === root.faderCount - 3
-            value: Devices.vibrance / 100
-            valueLabel: Devices.vibrance + "%"
-            onMoved: (v) => Devices.vibrance = Math.round(v * 100)
-            onCommitted: (v) => { root.pendingVibrance = v * 100; vibDebounce.restart(); }
-        }
         VFader {
             id: volFader
             width: faderRow.colW

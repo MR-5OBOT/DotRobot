@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Effects
 import "../Singletons"
+import "../components"
 
 /**
  * Standalone OSD overlay, fully decoupled from the pill. The pill never morphs
@@ -34,16 +35,16 @@ Item {
     Behavior on width { NumberAnimation { duration: Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
     Behavior on height { NumberAnimation { duration: Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
 
-    opacity: active ? 1 : 0
-    visible: opacity > 0.01
-    Behavior on opacity { NumberAnimation { duration: active ? Motion.fast : 220; easing.type: Easing.OutCubic } }
-
-    transformOrigin: Item.Top
-    scale: active ? 1 : 0.68
-    Behavior on scale {
-        NumberAnimation {
-            duration: active ? Motion.standard : Motion.fast
-            easing.type: active ? Easing.OutCubic : Easing.InCubic
+    /** Slides out of the screen's top edge like the notch it docks to, then back in. */
+    visible: slide.y > -height + 0.5
+    transform: Translate {
+        id: slide
+        y: popup.active ? 0 : -popup.height
+        Behavior on y {
+            NumberAnimation {
+                duration: popup.active ? Motion.standard : Motion.fast
+                easing.type: popup.active ? Easing.OutCubic : Easing.InCubic
+            }
         }
     }
 
@@ -52,8 +53,6 @@ Item {
         radius: 22 * s
         topLeftRadius: 22 * s * (1 - topFlat)
         topRightRadius: 22 * s * (1 - topFlat)
-        border.width: 1
-        border.color: Theme.border
         gradient: Gradient {
             GradientStop { position: 0.0; color: Qt.alpha(Theme.cardTop, Flags.pillOpacity) }
             GradientStop { position: 1.0; color: Qt.alpha(Theme.cardBot, Flags.pillOpacity) }
@@ -67,16 +66,13 @@ Item {
             shadowVerticalOffset: 3 * s
         }
 
-        Rectangle {
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.topMargin: 1
-            anchors.leftMargin: parent.radius * 0.6
-            anchors.rightMargin: parent.radius * 0.6
-            height: 1
-            color: Theme.sheen
-        }
+    }
+
+    NotchEars {
+        anchors.top: parent.top
+        width: parent.width
+        r: 14 * popup.s
+        color: Qt.alpha(Theme.cardTop, Flags.pillOpacity)
     }
 
     Osd {

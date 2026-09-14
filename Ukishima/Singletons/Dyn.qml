@@ -14,6 +14,23 @@ import Quickshell.Io
 Singleton {
     id: root
 
+    /**
+     * Follow the main shell's wallpaper picker. It persists the current path to
+     * qs-wallpaper, so every change re-runs wallcolors.py and the colors.json
+     * watch below picks up the new palette.
+     */
+    FileView {
+        path: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/qs-wallpaper"
+        watchChanges: true
+        printErrors: false
+        onLoaded: {
+            const p = text().trim();
+            if (p.length > 0)
+                Quickshell.execDetached(["python3", Config.hyprPath("scripts", "wallcolors.py"), p]);
+        }
+        onFileChanged: reload()
+    }
+
     readonly property string surface: adapter.surface
     readonly property string surfaceContainer: adapter.surface_container
     readonly property string surfaceContainerLow: adapter.surface_container_low

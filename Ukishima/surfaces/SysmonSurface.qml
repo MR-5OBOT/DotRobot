@@ -79,9 +79,11 @@ PillSurface {
 
     Process {
         id: speedPingProc
+        // Round trip ≈ the TCP handshake (connect minus DNS), not the whole HTTPS request.
         command: ["sh", "-c",
-            "out=$(curl -s -m 6 -o /dev/null -w '%{time_total}' https://speed.cloudflare.com/meta 2>/dev/null); " +
-            "rc=$?; [ \"$rc\" -ne 0 ] && { echo \"__FAIL__\"; exit 0; }; printf '%s' \"$out\""]
+            "out=$(curl -s -m 6 -o /dev/null -w '%{time_namelookup} %{time_connect}' https://speed.cloudflare.com/meta 2>/dev/null); " +
+            "rc=$?; [ \"$rc\" -ne 0 ] && { echo \"__FAIL__\"; exit 0; }; " +
+            "set -- $out; awk -v n=\"$1\" -v c=\"$2\" 'BEGIN { printf \"%.4f\", c - n }'"]
         stdout: StdioCollector {
             onStreamFinished: {
                 var txt = this.text.trim();
@@ -99,14 +101,13 @@ PillSurface {
 
     Process {
         id: speedDlProc
+        // One transfer capped at 8s: whatever arrived, over the time it took to arrive.
+        // The -m timeout is the normal end on slower links, not a failure. Cloudflare
+        // refuses __down sizes of 100MB and up (403), so 50MB is the ceiling.
         command: ["sh", "-c",
-            "bytes=0; t0=$(date +%s%N); rc=0; " +
-            "while [ $(( ($(date +%s%N) - t0) / 1000000000 )) -lt 5 ]; do " +
-            "b=$(curl -s -m 6 -o /dev/null -w '%{size_download}' 'https://speed.cloudflare.com/__down?bytes=25000000' 2>/dev/null); " +
-            "r=$?; [ \"$r\" -ne 0 ] && { rc=1; break; }; " +
-            "bytes=$((bytes + ${b:-0})); done; " +
-            "[ \"$rc\" -ne 0 ] && { echo \"__FAIL__\"; exit 0; }; " +
-            "awk -v b=\"$bytes\" 'BEGIN { printf \"%.1f\", b / 5 / 125000 }'"]
+            "out=$(curl -s -m 8 -o /dev/null -w '%{size_download} %{time_total} %{time_starttransfer}' 'https://speed.cloudflare.com/__down?bytes=50000000' 2>/dev/null); " +
+            "set -- $out; [ \"${1:-0}\" -gt 100000 ] 2>/dev/null || { echo \"__FAIL__\"; exit 0; }; " +
+            "awk -v b=\"$1\" -v t=\"$2\" -v s=\"$3\" 'BEGIN { d = t - s; if (d <= 0) d = t; printf \"%.1f\", b * 8 / d / 1000000 }'"]
         stdout: StdioCollector {
             onStreamFinished: {
                 var txt = this.text.trim();
@@ -124,14 +125,11 @@ PillSurface {
 
     Process {
         id: speedUlProc
+        // Streamed (-T -) so curl sends as it reads instead of buffering the body first.
         command: ["sh", "-c",
-            "bytes=0; t0=$(date +%s%N); rc=0; " +
-            "while [ $(( ($(date +%s%N) - t0) / 1000000000 )) -lt 5 ]; do " +
-            "b=$(head -c 25000000 /dev/zero | tr '\\0' 'x' | curl -s -m 6 -o /dev/null -w '%{size_upload}' -X POST --data-binary @- 'https://speed.cloudflare.com/__up' 2>/dev/null); " +
-            "r=$?; [ \"$r\" -ne 0 ] && { rc=1; break; }; " +
-            "bytes=$((bytes + ${b:-0})); done; " +
-            "[ \"$rc\" -ne 0 ] && { echo \"__FAIL__\"; exit 0; }; " +
-            "awk -v b=\"$bytes\" 'BEGIN { printf \"%.1f\", b / 5 / 125000 }'"]
+            "out=$(head -c 100000000 /dev/zero | curl -s -m 8 -o /dev/null -w '%{size_upload} %{time_total} %{time_pretransfer}' -X POST -H 'Content-Type: application/octet-stream' -T - 'https://speed.cloudflare.com/__up' 2>/dev/null); " +
+            "set -- $out; [ \"${1:-0}\" -gt 100000 ] 2>/dev/null || { echo \"__FAIL__\"; exit 0; }; " +
+            "awk -v b=\"$1\" -v t=\"$2\" -v s=\"$3\" 'BEGIN { d = t - s; if (d <= 0) d = t; printf \"%.1f\", b * 8 / d / 1000000 }'"]
         stdout: StdioCollector {
             onStreamFinished: {
                 var txt = this.text.trim();

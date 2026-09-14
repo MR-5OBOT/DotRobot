@@ -31,24 +31,25 @@ Singleton {
     readonly property color verm:     dyn ? Qt.darker(Dyn.primary, 1.18) : "#c0442b"
     readonly property color vermLit:  dyn ? Dyn.primary : "#e0563b"
     readonly property color vermDeep: dyn ? Dyn.primaryContainer : "#a3371f"
-    readonly property color cream:    dyn ? Dyn.cream : (light ? "#2a241f" : "#ececec")
-    readonly property color bright:   dyn ? Dyn.bright : (light ? "#1d1814" : "#ffffff")
-    readonly property color dim:      dyn ? Dyn.dim : (light ? "#6b635c" : "#8c8c8c")
-    readonly property color cardTop:  dyn ? Dyn.surfaceContainerHigh : (light ? "#f6f2ec" : "#171717")
-    readonly property color cardBot:  dyn ? Dyn.surfaceContainerLow : (light ? "#ece6df" : "#0c0c0c")
-    readonly property color border:   dyn ? Dyn.outlineVariant : (light ? "#d9d1c8" : "#2b2b2b")
+    /** Surfaces and text stay pure black and neutral grey; only the accent follows the wallpaper. */
+    readonly property color cream:    light ? "#2a241f" : "#ececec"
+    readonly property color bright:   light ? "#1d1814" : "#ffffff"
+    readonly property color dim:      light ? "#6b635c" : "#8c8c8c"
+    readonly property color cardTop:  light ? "#f6f2ec" : "#000000"
+    readonly property color cardBot:  light ? "#ece6df" : "#000000"
+    readonly property color border:   light ? "#d9d1c8" : "#2b2b2b"
     readonly property color shadow:     Qt.rgba(0, 0, 0, 0.55)
-    readonly property color tileBg:   dyn ? Dyn.surface : (light ? "#e9e3dc" : "#141414")
-    readonly property color subtle:   dyn ? Dyn.subtle : (light ? "#5f574f" : "#a8a8a8")
-    readonly property color faint:    dyn ? Dyn.faint : (light ? "#8a8078" : "#6a6a6a")
-    readonly property color iconDim:  dyn ? Dyn.iconDim : (light ? "#5a524b" : "#bdbdbd")
+    readonly property color tileBg:   light ? "#e9e3dc" : "#141414"
+    readonly property color subtle:   light ? "#5f574f" : "#a8a8a8"
+    readonly property color faint:    light ? "#8a8078" : "#6a6a6a"
+    readonly property color iconDim:  light ? "#5a524b" : "#bdbdbd"
     readonly property color hair:     Qt.alpha(cream, 0.13)
     readonly property color hairSoft: Qt.alpha(cream, 0.08)
     readonly property color sheen:    Qt.alpha(cream, 0.07)
     readonly property color vermDim:   dyn ? Qt.darker(Dyn.primary, 1.5) : "#8a5440"
     readonly property color vermDimDeep: dyn ? Qt.darker(Dyn.primary, 2.2) : "#5a3526"
     readonly property color vermBurn:  dyn ? Qt.darker(Dyn.primaryContainer, 1.1) : "#8a2c14"
-    readonly property color tickRest:  dyn ? Dyn.tickRest : (light ? "#4a423c" : "#c2c2c2")
+    readonly property color tickRest:  light ? "#4a423c" : "#c2c2c2"
     readonly property color threadBg:  Qt.alpha(cream, 0.13)
     readonly property color flameCore: dyn ? Qt.lighter(onGlow, 1.03) : "#ffd9c2"
     readonly property color flameGlow: dyn ? onGlow : "#ff9a64"
@@ -64,7 +65,7 @@ Singleton {
     readonly property string flameBurn:  dyn ? Dyn.primaryContainer : "#8a2c14"
     readonly property string flameTip:   dyn ? Dyn.onPrimaryContainer : "#ffb38a"
     readonly property color todayWarm: dyn ? onGlow : "#ffb38a"
-    readonly property color ghost:     dyn ? Dyn.surfaceContainerHighest : (light ? "#e3ddd5" : "#242424")
+    readonly property color ghost:     light ? "#e3ddd5" : "#242424"
     readonly property color frameBg:      Qt.alpha(cream, 0.055)
     readonly property color frameBorder:  Qt.alpha(cream, 0.10)
     readonly property color creamMenu:     Qt.alpha(cream, 0.82)

@@ -35,14 +35,6 @@ Singleton {
     property alias autoHide: adapter.autoHide
     property alias topGap: adapter.topGap
     property alias appGap: adapter.appGap
-    property alias recordCountdown: adapter.recordCountdown
-    property alias recordDir: adapter.recordDir
-    property alias recordFps: adapter.recordFps
-    property alias recordQuality: adapter.recordQuality
-    property alias recordCursor: adapter.recordCursor
-    property alias recordMic: adapter.recordMic
-    property alias recordDesktop: adapter.recordDesktop
-    property alias recordClearedBefore: adapter.recordClearedBefore
     property alias idleLockMin: adapter.idleLockMin
     property alias idleScreenOffMin: adapter.idleScreenOffMin
     property alias idleSuspendMin: adapter.idleSuspendMin
@@ -105,14 +97,6 @@ Singleton {
             property real topGap: 1.0
             /** Pill-to-window band as a fraction of the shipped 12px. 0 tucks the windows flush under the pill. */
             property real appGap: 1.0
-            property int recordCountdown: 5
-            property string recordDir: ""
-            property int recordFps: 60
-            property string recordQuality: "high"
-            property bool recordCursor: true
-            property bool recordMic: true
-            property bool recordDesktop: true
-            property real recordClearedBefore: 0
             property int idleLockMin: 5
             property int idleScreenOffMin: 6
             property int idleSuspendMin: 0
