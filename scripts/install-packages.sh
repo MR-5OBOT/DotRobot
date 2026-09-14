@@ -15,12 +15,58 @@ Groups:
 EOF
 }
 
+cpu_microcode_package() {
+  case "$1" in
+    GenuineIntel) printf '%s\n' intel-ucode ;;
+    AuthenticAMD) printf '%s\n' amd-ucode ;;
+    *) return 1 ;;
+  esac
+}
+
+gpu_video_package() {
+  case "${1,,}" in
+    0x8086) printf '%s\n' intel-media-driver ;;
+    0x1002) printf '%s\n' mesa ;;
+    *) return 1 ;;
+  esac
+}
+
 install_repo_group() {
   local group="$1"
+  local vendor microcode device class package
+  local nvidia_gpu=0
+  local -a packages
+  local -A gpu_packages=()
   mapfile -t packages < <(read_package_file "${PACKAGES_DIR}/${group}.txt")
   [[ ${#packages[@]} -gt 0 ]] || return 0
+
+  if [[ ${group} == core ]]; then
+    vendor="$(awk -F: '/^vendor_id/{gsub(/[[:space:]]/, "", $2); print $2; exit}' /proc/cpuinfo)"
+    if microcode="$(cpu_microcode_package "${vendor}")"; then
+      packages+=("${microcode}")
+    else
+      warn "Unknown CPU vendor '${vendor:-missing}'; skipped CPU microcode"
+    fi
+
+    for device in /sys/bus/pci/devices/*; do
+      [[ -r ${device}/class && -r ${device}/vendor ]] || continue
+      read -r class <"${device}/class"
+      [[ ${class} == 0x03* ]] || continue
+      read -r vendor <"${device}/vendor"
+      if package="$(gpu_video_package "${vendor}")"; then
+        gpu_packages["${package}"]=1
+      elif [[ ${vendor,,} == 0x10de ]]; then
+        nvidia_gpu=1
+      fi
+    done
+    for package in "${!gpu_packages[@]}"; do
+      packages+=("${package}")
+    done
+    (( nvidia_gpu == 0 )) || warn "Nvidia GPU detected; install the driver matching its GPU and kernel manually"
+  fi
+
   log "Installing ${group} packages"
-  sudo pacman -S --needed --noconfirm "${packages[@]}"
+  sudo pacman -Syu --needed --noconfirm "${packages[@]}"
 }
 
 install_aur_group() {
@@ -56,4 +102,6 @@ main() {
   done
 }
 
-main "$@"
+if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
+  main "$@"
+fi
