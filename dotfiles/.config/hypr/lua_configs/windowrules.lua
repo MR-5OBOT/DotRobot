@@ -90,4 +90,8 @@ hl.window_rule({
 
 -- Borders on floating windows only: general.border_size is 0, this puts it back
 -- for anything floating.
-hl.window_rule({ match = { float = true }, border_size = 4 })
+-- hl.window_rule({ match = { float = true }, border_size = 4 })
+
+-- Shadows on floating windows only: decoration.shadow is on, this strips it from
+-- tiled windows. Shadow colours match the old border colours.
+hl.window_rule({ match = { float = false }, no_shadow = true })
