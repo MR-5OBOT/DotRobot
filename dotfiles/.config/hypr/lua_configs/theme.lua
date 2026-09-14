@@ -33,11 +33,12 @@ hl.config({
             popups_ignorealpha = 0.6
         },
         shadow = {
-            enabled = false,
-            range = 5,
-            offset = { 0, 2 },
-            render_power = 1,
-            color = 0xee1a1a1a
+            enabled = true,
+            range = 12,
+            offset = { 0, 0 },
+            render_power = 3,
+            color = 0xff4e1a30,
+            color_inactive = 0xff33101e
         }
     },
     group = {
