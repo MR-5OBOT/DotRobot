@@ -16,12 +16,12 @@ install_flatpak() {
 }
 
 add_flathub() {
-  if flatpak remotes | grep -q '^flathub'; then
-    log "Flathub remote is already configured"
+  if flatpak remotes --user | grep -q '^flathub'; then
+    log "Flathub user remote is already configured"
     return 0
   fi
-  log "Adding Flathub remote"
-  flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+  log "Adding Flathub user remote"
+  flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 }
 
 configure_xdg_data_dirs() {
@@ -39,16 +39,15 @@ EOF
     log "Wrote ${PROFILE_DROP_IN}"
   fi
 
-  # Apply immediately for this session so Rofi picks up .desktop files now
-  export XDG_DATA_DIRS="${flatpak_system}:${flatpak_user}:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
-  log "XDG_DATA_DIRS updated for current session"
 }
 
 main() {
   install_flatpak
   add_flathub
   configure_xdg_data_dirs
-  log "Flatpak setup complete — re-login to make XDG_DATA_DIRS permanent"
+  log "Flatpak setup complete — re-login to expose Flatpak app launchers"
 }
 
-main "$@"
+if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
+  main "$@"
+fi

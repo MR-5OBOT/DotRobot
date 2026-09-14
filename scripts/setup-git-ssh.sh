@@ -4,6 +4,7 @@ set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
 KEY_PATH="${HOME}/.ssh/id_ed25519"
+LOCAL_GIT_CONFIG="${HOME}/.config/git/local.conf"
 
 configure_git_identity() {
   local current_name current_email git_name git_email
@@ -18,24 +19,43 @@ configure_git_identity() {
 
   [[ -n "${git_name}" && -n "${git_email}" ]] || die "git user.name and user.email are both required."
 
-  git config --global user.name "${git_name}"
-  git config --global user.email "${git_email}"
+  git config --file "${LOCAL_GIT_CONFIG}" user.name "${git_name}"
+  git config --file "${LOCAL_GIT_CONFIG}" user.email "${git_email}"
   log "git identity: ${git_name} <${git_email}>"
 }
 
 ensure_key() {
-  mkdir -p "${HOME}/.ssh"
-  chmod 700 "${HOME}/.ssh"
+  local ssh_dir
+  ssh_dir="$(dirname "${KEY_PATH}")"
+
+  mkdir -p "${ssh_dir}"
+  chmod 700 "${ssh_dir}"
 
   if [[ -f "${KEY_PATH}" ]]; then
     log "SSH key already exists at ${KEY_PATH}"
   else
-    ssh-keygen -t ed25519 -C "$(git config --global --get user.email)" -f "${KEY_PATH}" -N ""
+    ssh-keygen -t ed25519 -C "$(git config --global --get user.email)" -f "${KEY_PATH}"
     log "Generated ${KEY_PATH}"
+  fi
+
+  if [[ ! -s "${KEY_PATH}.pub" ]]; then
+    printf '%s\n' "$(ssh-keygen -y -f "${KEY_PATH}")" >"${KEY_PATH}.pub"
+    log "Rebuilt missing public key ${KEY_PATH}.pub"
   fi
 
   chmod 600 "${KEY_PATH}"
   chmod 644 "${KEY_PATH}.pub"
+}
+
+github_uses_key() {
+  local option path ssh_config
+
+  ssh_config="$(ssh -G github.com 2>/dev/null)" || return 1
+  while read -r option path _; do
+    [[ "${option}" == "identityfile" ]] || continue
+    [[ "${path}" == "${KEY_PATH}" || "${path}" == "~/${KEY_PATH#"${HOME}/"}" ]] && return 0
+  done <<<"${ssh_config}"
+  return 1
 }
 
 ensure_ssh_config() {
@@ -45,7 +65,12 @@ ensure_ssh_config() {
   chmod 600 "${ssh_config}"
 
   if grep -qiE '^[[:space:]]*Host[[:space:]]+github\.com([[:space:]]|$)' "${ssh_config}"; then
-    log "github.com entry already present in ${ssh_config}"
+    if github_uses_key; then
+      log "github.com already uses ${KEY_PATH}"
+    else
+      warn "Could not verify ${KEY_PATH} in the effective github.com SSH config."
+      warn "If authentication fails, add 'IdentityFile ${KEY_PATH}' inside that Host block."
+    fi
     return 0
   fi
 
@@ -68,11 +93,11 @@ load_key_into_agent() {
   # simply empty.
   ssh-add -l >/dev/null 2>&1 || status=$?
   if ((status == 2)); then
-    warn "No ssh-agent reachable; skipping ssh-add. The key has no passphrase, so git still works."
+    warn "No ssh-agent reachable; skipping ssh-add. SSH may prompt for the key passphrase when needed."
     return 0
   fi
 
-  if ssh-add "${KEY_PATH}" >/dev/null 2>&1; then
+  if ssh-add "${KEY_PATH}"; then
     log "Key loaded into the ssh-agent"
   else
     warn "Could not add ${KEY_PATH} to the ssh-agent"
@@ -82,7 +107,7 @@ load_key_into_agent() {
 github_auth_ok() {
   local output status=0
 
-  output="$(ssh -o StrictHostKeyChecking=accept-new -o BatchMode=yes -T git@github.com 2>&1)" || status=$?
+  output="$(ssh -o StrictHostKeyChecking=accept-new -T git@github.com 2>&1)" || status=$?
   # A working key makes github greet you by name and still exit 1, so match the
   # greeting rather than the exit status.
   [[ "${output}" == *"successfully authenticated"* ]]
@@ -93,7 +118,7 @@ ensure_gh() {
     return 0
   fi
   log "Installing github-cli"
-  sudo pacman -S --needed --noconfirm github-cli
+  sudo pacman -Syu --needed --noconfirm github-cli
 }
 
 gh_login() {
@@ -202,11 +227,14 @@ prefer_ssh_for_own_repos() {
     return 0
   fi
 
-  git config --global "url.git@github.com:${owner}/.insteadOf" "https://github.com/${owner}/"
+  git config --file "${LOCAL_GIT_CONFIG}" "url.git@github.com:${owner}/.insteadOf" "https://github.com/${owner}/"
   log "https://github.com/${owner}/... will now clone over ssh"
 }
 
 main() {
+  mkdir -p "$(dirname "${LOCAL_GIT_CONFIG}")"
+  touch "${LOCAL_GIT_CONFIG}"
+
   configure_git_identity
   ensure_key
   ensure_ssh_config
@@ -220,4 +248,6 @@ main() {
   fi
 }
 
-main "$@"
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  main "$@"
+fi
