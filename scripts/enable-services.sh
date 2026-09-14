@@ -5,8 +5,8 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
 # Services needed by the desktop are automatic. Hardware/features the user may
 # not use are opt-in so running the installer does not silently start them.
-DEFAULT_UNITS=(NetworkManager.service power-profiles-daemon.service thermald.service)
-OPTIONAL_UNITS=(bluetooth.service docker.service)
+DEFAULT_UNITS=(NetworkManager.service power-profiles-daemon.service)
+OPTIONAL_UNITS=(bluetooth.service docker.service thermald.service)
 
 enable_unit() {
   local unit="$1"
@@ -15,6 +15,27 @@ enable_unit() {
     log "Enabled ${unit}"
   else
     log "Skipped ${unit} (not installed)"
+  fi
+}
+
+offer_docker_group() {
+  local current_user answer
+  current_user="$(id -un)"
+
+  getent group docker >/dev/null 2>&1 || return 0
+  if id -nG "${current_user}" | tr ' ' '\n' | grep -qx docker; then
+    log "${current_user} is already in the docker group"
+    return 0
+  fi
+
+  warn "The docker group grants root-equivalent access."
+  printf 'Add %s to the docker group? [y/N]: ' "${current_user}"
+  read -r answer || answer=""
+  if [[ ${answer} =~ ^[Yy]$ ]]; then
+    sudo usermod -aG docker "${current_user}"
+    log "Added ${current_user} to the docker group; log out and back in before using docker"
+  else
+    log "Skipped docker group membership; use sudo docker instead"
   fi
 }
 
@@ -29,6 +50,7 @@ main() {
     read -r answer || answer=""
     if [[ ${answer} =~ ^[Yy]$ ]]; then
       enable_unit "${unit}"
+      [[ ${unit} != docker.service ]] || offer_docker_group
     else
       log "Skipped optional ${unit}"
     fi
