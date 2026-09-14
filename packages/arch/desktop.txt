@@ -59,6 +59,7 @@ speedtest-cli
 superfile
 swaybg
 telegram-desktop
+thermald
 thunar
 thunar-archive-plugin
 thunar-media-tags-plugin
