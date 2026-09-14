@@ -57,7 +57,6 @@ Item {
         // thirsty frequent fliers: one generous reset, then reclaim
         clipboard:   unloadS * 2 * 1000,
         media:       unloadS * 2 * 1000,
-        recorder:    unloadS * 2 * 1000,
         calendar:    unloadS * 2 * 1000,
         // everything else: a single 60s reset for quick re-toggles, then reclaim
         default:     unloadS * 2 * 1000
@@ -98,6 +97,36 @@ Item {
     readonly property bool mixerOpen: surface === "mixer"
     readonly property bool calendarOpen: surface === "calendar"
     readonly property bool launcherOpen: surface === "launcher"
+
+    /** The pill's app launcher is replaced by the main shell's (the Super+Space one). */
+    function openUserLauncher() {
+        Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
+            "qs", "ipc", "call", "launcher", "toggle"]);
+    }
+
+    /** The pill's clipboard surface is replaced by the main shell's (the Super+V one). */
+    function openUserClipboard() {
+        Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
+            "qs", "ipc", "call", "clipboard", "toggle"]);
+    }
+
+    /** The pill's wallpaper strip is replaced by the main shell's picker (the Super+W one). */
+    function openUserWallpaper() {
+        Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
+            "qs", "ipc", "call", "wallpicker", "toggle"]);
+    }
+
+    /** The pill's wifi surface is replaced by the main shell's wifi panel, opened top-centre. */
+    function openUserWifi() {
+        Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
+            "qs", "ipc", "call", "wifi", "wifiIsland"]);
+    }
+
+    /** The pill's bluetooth surface is replaced by the same main-shell panel, on its bluetooth tab. */
+    function openUserBt() {
+        Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
+            "qs", "ipc", "call", "wifi", "btIsland"]);
+    }
     readonly property bool clipboardOpen: surface === "clipboard"
     readonly property bool wallpaperOpen: surface === "wallpaper"
     readonly property bool powerOpen: surface === "power"
@@ -107,7 +136,6 @@ Item {
     readonly property bool wifiOpen: surface === "wifi"
     readonly property bool btOpen: surface === "bt"
     readonly property bool batteryOpen: surface === "battery"
-    readonly property bool recorderOpen: surface === "recorder"
     readonly property bool sysmonOpen: surface === "sysmon"
     readonly property bool appearanceOpen: surface === "appearance"
     readonly property bool displayOpen: surface === "display"
@@ -190,12 +218,11 @@ Item {
 
     /**
      * True when a transient overlay owns the pill: an OSD flash (workspace,
-     * volume, track, brightness, battery, record), a notification toast, or a
-     * quick-record overlay. These pop the pill open without the cursor ever
+     * volume, track, brightness, battery) or a notification toast. These pop the pill open without the cursor ever
      * getting involved, so the pill must let them finish and then retract on
      * its own — transients hold the pill up, but they leave no latch behind.
      */
-    readonly property bool transientLive: toastActive || quickChoosing || quickCounting
+    readonly property bool transientLive: toastActive
 
     /**
      * True when the pill should retract off the top edge: auto-hide is on and
@@ -203,8 +230,7 @@ Item {
      * expansion (pin, latch or open surface), no in-flight file drop, no game
      * bar, and no live transient overlay. This is the single central gate for
      * auto-hide: it deliberately does not key off monitor focus, so any
-     * cursor-less appearance (a workspace switch, an OSD flash, a toast, a
-     * quick-record overlay) retracts by itself once it is done. The reveal
+     * cursor-less appearance (a workspace switch, an OSD flash, a toast) retracts by itself once it is done. The reveal
      * strip above it still catches the pointer, so a hidden pill slides back in
      * on reach. Deliberately ignores raw `hovered`: the reveal session flag
      * (with its 350ms grace) is what keeps the pill up while the cursor is near
@@ -252,17 +278,6 @@ Item {
      */
     onOsdActiveChanged: if (osdActive && toastActive && !Notifs.toastCritical) Notifs.clearPopups()
 
-    /**
-     * Quick-record overlays belong only to the focused monitor the keybind
-     * targeted, so a single chooser and a single countdown toast appear. The
-     * standalone chooser is suppressed while the morphing recorder surface owns the
-     * pill; the countdown toast yields to the surface too (the surface shows its
-     * own in-bar countdown there).
-     */
-    readonly property bool quickHere: ScreenRec.quickMon === screenName
-    readonly property bool quickChoosing: quickHere && ScreenRec.quickChoosing && !surfaceOpen
-    readonly property bool quickCounting: quickHere && ScreenRec.counting && !recorderOpen
-
     readonly property real restW: 160 * s
     readonly property real restH: 38 * s
 
@@ -281,15 +296,14 @@ Item {
     readonly property real stripMaxTitle: 220 * s
 
     readonly property real stripVizW: (Cava.bars * 1.8 + (Cava.bars - 1) * 1.2) * s
-    readonly property real stripRecW: 9 * s + 6 * s + stripRecTime.implicitWidth
 
-    /** Media-side gaps depend only on the visualizer and recorder states. */
-    readonly property int stripMediaGaps: 1 + (Cava.active ? 1 : 0) + (ScreenRec.recording ? 1 : 0) + (Cava.active && ScreenRec.recording ? 1 : 0)
+    /** Media-side gaps depend only on the visualizer state. */
+    readonly property int stripMediaGaps: 1 + (Cava.active ? 1 : 0)
 
     readonly property bool stripMedia: Players.has && stripRoomForTitle >= stripMinTitle
     readonly property real stripRoomForTitle: stripCap - 2 * stripPad - stripArtW - stripFixedW
         - 4 * stripGap - stripMediaGaps * stripGap
-        - (Cava.active ? stripVizW : 0) - (ScreenRec.recording ? stripRecW : 0)
+        - (Cava.active ? stripVizW : 0)
     readonly property real stripTitleW: stripMedia ? Math.min(stripMaxTitle, stripRoomForTitle, Math.max(stripMinTitle, stripTitleMetrics.advanceWidth)) : 0
     readonly property real stripFixedW: stripDay.implicitWidth + stripTime.implicitWidth
         + stripWs.implicitWidth + stripLay.implicitWidth + stripBat.implicitWidth
@@ -299,16 +313,14 @@ Item {
         if (stripMedia) {
             w += stripArtW + stripGap + stripTitleW;
             if (Cava.active) w += stripVizW + stripGap;
-            if (ScreenRec.recording) w += stripRecW + stripGap;
             w += stripGap;
-        } else if (ScreenRec.recording) {
-            w += stripRecW + stripGap;
         }
         return w;
     }
     readonly property real hoverPad: 20 * s
     readonly property real hoverW: hoverRow.implicitWidth + 2 * hoverPad
     readonly property real hoverH: 58 * s
+    readonly property real calendarS: s * 1.05
     readonly property real mixerH: 214 * s
     readonly property real launcherW: 360 * s
     readonly property real launcherH: 332 * s
@@ -323,16 +335,11 @@ Item {
     readonly property real batteryW: 316 * s
     readonly property real wifiW: 272 * s
     readonly property real btW: 286 * s
-    readonly property real recorderW: 384 * s
     readonly property real sysmonW: 392 * s
     readonly property real settingsScale: 0.9
     readonly property real settingsW: 392 * s * settingsScale
     readonly property real fontpickerW: 360 * s * settingsScale
     readonly property real toastW: 342 * s
-    readonly property real quickChooseW: 344 * s
-    readonly property real quickChooseH: 76 * s
-    readonly property real quickCountW: 150 * s
-    readonly property real quickCountH: 64 * s
     readonly property real dragOverW: 300 * s
     readonly property real dragOverH: 126 * s
     readonly property real gameH: 34 * s
@@ -373,7 +380,7 @@ Item {
      * no parallel ternary chains to keep in lockstep.
      */
     readonly property var surfaces: ({
-        calendar:  { size: () => { const it = surfaceItem("calendar"); return Qt.size((it.implicitWidth > 0 ? it.implicitWidth : 282 * s) + 36 * s, it.implicitHeight + 32 * s); }, ame: () => surfaceItem("calendar") },
+        calendar:  { size: () => { const it = surfaceItem("calendar"); return Qt.size((it.implicitWidth > 0 ? it.implicitWidth : 282 * calendarS) + 36 * calendarS, it.implicitHeight + 32 * calendarS); }, ame: () => surfaceItem("calendar") },
         weather:   { size: () => { const it = surfaceItem("weather"); return Qt.size((it.implicitWidth > 0 ? it.implicitWidth : 282 * s) + 36 * s, it.implicitHeight + 32 * s); }, ame: () => surfaceItem("weather") },
         launcher:  { size: () => { surfaceItem("launcher"); return Qt.size(launcherW, launcherH); }, ame: () => surfaceItem("launcher") },
         clipboard: { size: () => { surfaceItem("clipboard"); return Qt.size(clipboardW, clipboardH); }, ame: () => surfaceItem("clipboard") },
@@ -385,7 +392,6 @@ Item {
         wifi:      { size: () => Qt.size(wifiW, surfaceItem("wifi").implicitHeight + 26 * s), ame: () => surfaceItem("wifi") },
         bt:        { size: () => Qt.size(btW, surfaceItem("bt").implicitHeight + 26 * s), ame: () => surfaceItem("bt") },
         battery:   { size: () => Qt.size(batteryW, surfaceItem("battery").implicitHeight + 26 * s), ame: () => surfaceItem("battery") },
-        recorder:  { size: () => Qt.size(recorderW, surfaceItem("recorder").implicitHeight + 33 * s), ame: () => surfaceItem("recorder") },
         sysmon:    { size: () => Qt.size(sysmonW, surfaceItem("sysmon").implicitHeight + 33 * s), ame: () => surfaceItem("sysmon") },
         appearance: { size: () => Qt.size(settingsW, surfaceItem("appearance").implicitHeight + 29 * s), ame: () => surfaceItem("appearance") },
         display:    { size: () => Qt.size(settingsW, surfaceItem("display").implicitHeight + 29 * s), ame: () => surfaceItem("display") },
@@ -415,7 +421,6 @@ Item {
         wifi:       () => ldWifi,
         bt:         () => ldBt,
         battery:    () => ldBattery,
-        recorder:   () => ldRecorder,
         sysmon:     () => ldSysmon,
         appearance: () => ldAppearance,
         display:    () => ldDisplay,
@@ -534,11 +539,9 @@ Item {
     readonly property string mode: dragActive ? "dragOver"
         : (surfaceOpen && surfaces[surface] !== undefined ? surface
         : (Flags.gameMode ? "game"
-        : (quickChoosing ? "quickChoose"
-        : (quickCounting ? "quickCount"
         : (toastActive && Notifs.toastCritical && !held ? "toast"
         : (toastActive && !held ? "toast"
-        : (expanded ? "hover" : "rest")))))))
+        : (expanded ? "hover" : "rest")))))
 
     /**
      * AppImage drag-install state, live only while a file hovers the resting pill.
@@ -566,14 +569,6 @@ Item {
     function mixerFocusMove(dir) {
         if (pill.mixerOpen && ldMixer.item)
             ldMixer.item.moveFocus(dir);
-    }
-
-    /**
-     * Forward an arrow-key nudge to the open recorder's focused audio fader.
-     * Returns true when the recorder is open and a revealed fader consumed it.
-     */
-    function recorderStep(deltaPct) {
-        return (pill.recorderOpen && ldRecorder.item) ? ldRecorder.item.stepFocused(deltaPct) : false;
     }
 
     /**
@@ -629,31 +624,6 @@ Item {
             return false;
         nav.kbActivate();
         return true;
-    }
-
-    /**
-     * A tile was picked in the standalone quick-record chooser. Screen with several
-     * monitors flips to the inline sub-choice; otherwise each source kicks off its
-     * resolver (which counts down once the target is ready) and the chooser closes.
-     */
-    function quickChooseSource(kind) {
-        if (kind === "screen") {
-            if (ScreenRec.monitors.length > 1) {
-                ScreenRec.quickScreenChoosing = true;
-                return;
-            }
-            ScreenRec.prepareScreen(pill.screenName);
-        } else if (kind === "window") {
-            ScreenRec.prepareWindow();
-        }
-        ScreenRec.quickChoosing = false;
-        ScreenRec.quickScreenChoosing = false;
-    }
-
-    function quickPickMonitor(name) {
-        ScreenRec.quickChoosing = false;
-        ScreenRec.quickScreenChoosing = false;
-        ScreenRec.prepareScreen(name);
     }
 
     /**
@@ -789,10 +759,6 @@ Item {
         hoverLatch = false;
         expandLatch = false;
         revealTimer.stop();
-        if (quickHere && ScreenRec.quickChoosing) {
-            ScreenRec.quickChoosing = false;
-            ScreenRec.quickScreenChoosing = false;
-        }
     }
 
     QtObject {
@@ -844,14 +810,12 @@ Item {
      * surface item. Thunks so the properties they read register as live deps of
      * targetSize. osd uses its own content-driven size — the workspace flash
      * fits its dot row (so it stays short even on the wide strip notch) while
-     * volume/brightness/record keep their fixed widths. The toast keeps its
+     * volume/brightness keep their fixed widths. The toast keeps its
      * fixed width and sizes its height to the notification.
      */
     readonly property var modeSize: ({
         toast: () => Qt.size(toastW, toastLoader.item ? toastLoader.item.implicitHeight + 24 * s : restH),
         hover: () => Qt.size(hoverW, hoverH),
-        quickChoose: () => Qt.size(quickChooseW, quickChooseH),
-        quickCount:  () => Qt.size(quickCountW, quickCountH),
         dragOver:    () => Qt.size(dragOverW, dragOverH),
         game:        () => Qt.size(gameW, gameH)
     })
@@ -943,85 +907,25 @@ Item {
     readonly property bool morphing: morphAnimW.running || morphAnimH.running || morphAnimR.running
 
     Rectangle {
-        id: bud
-        readonly property bool shown: pill.mode === "hover" && pill.hasMedia
-        property real budR: (budArea.containsMouse ? 15 : 12) * pill.s
-        width: budR * 2
-        height: budR * 2
-        radius: budR
-        x: pill.width - budR
-        anchors.verticalCenter: parent.verticalCenter
-        visible: opacity > 0.01
-        opacity: shown ? 1 : 0
-        border.width: 1
-        border.color: Theme.border
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: Qt.alpha(Theme.cardTop, Flags.pillOpacity) }
-            GradientStop { position: 1.0; color: Qt.alpha(Theme.cardBot, Flags.pillOpacity) }
-        }
-        Behavior on budR { NumberAnimation { duration: Motion.fast; easing.type: Motion.easeStandard } }
-        Behavior on opacity { NumberAnimation { duration: Motion.standard } }
-
-        Canvas {
-            id: budBead
-            anchors.centerIn: parent
-            anchors.horizontalCenterOffset: 3 * pill.s
-            width: 18 * pill.s
-            height: 18 * pill.s
-            onPaint: {
-                const ctx = getContext("2d");
-                ctx.reset();
-                const c = width / 2;
-                const R = (budArea.containsMouse ? 5.2 : 4) * pill.s;
-                const hg = ctx.createRadialGradient(c - R * 0.32, c - R * 0.38, 0, c, c, R);
-                hg.addColorStop(0, Theme.flameInk);
-                hg.addColorStop(0.55, Theme.vermLit);
-                hg.addColorStop(0.92, Theme.verm);
-                hg.addColorStop(1, Theme.flameEmber);
-                ctx.beginPath();
-                ctx.arc(c, c, R, 0, 7);
-                ctx.fillStyle = hg;
-                ctx.fill();
-                ctx.beginPath();
-                ctx.ellipse(c - R * 0.62, c - R * 0.66, R * 0.6, R * 0.36);
-                ctx.fillStyle = "rgba(255,246,240,0.6)";
-                ctx.fill();
-            }
-        }
-
-        MouseArea {
-            id: budArea
-            anchors.fill: parent
-            enabled: bud.shown
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            onClicked: pill.requestSurface("media")
-            onContainsMouseChanged: budBead.requestPaint()
-        }
-    }
-
-    Rectangle {
         id: body
         anchors.fill: parent
 
         /**
          * Corner flatness rides the morph curve so docking into the game bar
          * squares the corners as one continuous shape change instead of a snap.
-         * The strip docks flush to the screen edge, so its top corners square
-         * off against the edge while the bottom corners stay rounded.
+         * The pill always docks flush to the screen's top edge as a notch: its
+         * top corners square off against the edge (NotchEars flare them into
+         * it) while the bottom corners stay rounded.
          */
         property real gameFlat: pill.mode === "game" ? 1 : 0
         Behavior on gameFlat { NumberAnimation { duration: Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
-        property real topFlat: (pill.mode === "game" || pill.stripBar) ? 1 : 0
-        Behavior on topFlat { NumberAnimation { duration: Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
+        property real topFlat: 1
 
         radius: pill.morphRadius
         topLeftRadius: pill.morphRadius * (1 - topFlat)
         topRightRadius: pill.morphRadius * (1 - topFlat)
         bottomLeftRadius: pill.morphRadius * (1 - gameFlat)
         bottomRightRadius: pill.morphRadius * (1 - gameFlat)
-        border.width: 1
-        border.color: Theme.border
         gradient: Gradient {
             GradientStop { position: 0.0; color: Qt.alpha(Theme.cardTop, Flags.pillOpacity) }
             GradientStop { position: 1.0; color: Qt.alpha(Theme.cardBot, Flags.pillOpacity) }
@@ -1041,16 +945,14 @@ Item {
             shadowVerticalOffset: 3 * pill.s
         }
 
-        Rectangle {
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.topMargin: 1
-            anchors.leftMargin: body.radius * 0.6
-            anchors.rightMargin: body.radius * 0.6
-            height: 1
-            color: Theme.sheen
-        }
+    }
+
+    /** Concave shoulders flaring the docked body into the screen's top edge. */
+    NotchEars {
+        anchors.top: parent.top
+        width: parent.width
+        r: 14 * pill.s
+        color: Qt.alpha(Theme.cardTop, Flags.pillOpacity)
     }
 
     /**
@@ -1080,22 +982,20 @@ Item {
             return btIcon.mapToItem(pill, btIcon.width / 2, btIcon.height + drop * 0.55);
         if (soulTarget === "battery")
             return batteryIcon.mapToItem(pill, batteryIcon.width / 2, batteryIcon.height + drop * 0.55);
+        if (soulTarget === "media")
+            return mediaIcon.mapToItem(pill, mediaIcon.width / 2, mediaIcon.height + drop * 0.55);
         if (soulTarget === "inbox")
             return inboxIcon.mapToItem(pill, inboxIcon.width / 2, inboxIcon.height + drop * 0.55);
         if (soulTarget === "mixer")
             return mixerIcon.mapToItem(pill, mixerIcon.width / 2, mixerIcon.height + drop * 0.55);
         if (soulTarget === "power")
             return powerIcon.mapToItem(pill, powerIcon.width / 2, powerIcon.height + drop * 0.55);
-        if (soulTarget === "recorder")
-            return recorderIcon.mapToItem(pill, recorderIcon.width / 2, recorderIcon.height + drop * 0.55);
         if (soulTarget === "sysmon")
             return sysmonIcon.mapToItem(pill, sysmonIcon.width / 2, sysmonIcon.height + drop * 0.55);
         if (soulTarget === "wallpaper")
             return wallpaperIcon.mapToItem(pill, wallpaperIcon.width / 2, wallpaperIcon.height + drop * 0.55);
         if (soulTarget === "clipboard")
             return clipboardIcon.mapToItem(pill, clipboardIcon.width / 2, clipboardIcon.height + drop * 0.55);
-        if (soulTarget === "launcher")
-            return launcherIcon.mapToItem(pill, launcherIcon.width / 2, launcherIcon.height + drop * 0.55);
         if (soulTarget === "appearance")
             return appearanceIcon.mapToItem(pill, appearanceIcon.width / 2, appearanceIcon.height + drop * 0.55);
         if (soulTarget === "ws" && soulWsIndex >= 0) {
@@ -1131,21 +1031,10 @@ Item {
             : (pill.mode === "hover" ? pill.soulPoint : pill.wakePoint)
     }
 
-    /**
-     * Extra input width past the pill's right edge while the media bud sticks
-     * out there, so the window mask covers the bud's outer half. pill.hovered is
-     * fed by a window-level HoverHandler in shell.qml: pointer events only exist
-     * inside the input mask, so "window hovered" means "pointer over the pill (or
-     * bud)". That sidesteps the per-item hover flicker the child MouseAreas and
-     * the centred width morph would otherwise cause.
-     */
-    readonly property real inputPadRight: bud.shown ? bud.budR + 2 * s : 0
-
     onHoveredChanged: {
         if (hovered && pill.mode !== "game") {
             if (!Flags.autoHide && Flags.expandTo === "media" && pill.hasMedia
                 && !pill.surfaceOpen && !pill.dragActive
-                && !quickChoosing && !quickCounting
                 && bootSettled && !toastActive) {
                 /* expandTo "media" with auto-hide off: a hover grows the pill
                  * into the player itself instead of the icon face. Auto-hide
@@ -1153,8 +1042,7 @@ Item {
                  * (TapHandler below). Game mode never hands the bar to the
                  * player, or the exit chip would be buried under it. */
                 pill.requestSurface("media");
-            } else if (Flags.autoHide && !revealSession && !expanded && !surfaceOpen
-                && !quickChoosing && !quickCounting) {
+            } else if (Flags.autoHide && !revealSession && !expanded && !surfaceOpen) {
                 revealSession = true;
                 revealTimer.stop();
             } else if (bootSettled && !revealSession && !toastActive) {
@@ -1347,7 +1235,7 @@ Item {
             pill.dragActive = false;
             pill.dragStage = "";
             if (pill.installedApp)
-                pill.requestSurface("launcher");
+                pill.openUserLauncher();
         }
     }
 
@@ -1723,14 +1611,13 @@ Item {
     Item {
         id: rest
         anchors.fill: parent
-        opacity: (pill.expanded || pill.dragActive || pill.mode === "game" || pill.mode === "toast" || pill.mode === "quickChoose" || pill.mode === "quickCount") ? 0 : Math.pow(pill.morphCloseness, 1.5)
+        opacity: (pill.expanded || pill.dragActive || pill.mode === "game" || pill.mode === "toast") ? 0 : Math.pow(pill.morphCloseness, 1.5)
         visible: opacity > 0.01
         Behavior on opacity { NumberAnimation { duration: pill.mode === "rest" ? Motion.fast : Math.round(260 * Motion.mult) } }
 
         /**
          * Strip face: one compact pill of media + status hanging from the top
-         * edge. Media art and title lead, then a live cava spark, the red
-         * recording chip, and finally weekday, time, workspace, layout and
+         * edge. Media art and title lead, then a live cava spark, and finally weekday, time, workspace, layout and
          * battery. Sections fold (visualizer, then media) as the width budget
          * tightens; the row is centred so the pill hugs the screen top like a
          * notch. Width is pill.stripFaceW, not the row's implicit width, so the
@@ -1746,24 +1633,6 @@ Item {
             visible: pill.specialView === "" && pill.stripBar
             anchors.centerIn: parent
             spacing: pill.stripGap
-
-            /** Recording duration in seconds; reset on each start. */
-            property int recSecs: 0
-            readonly property string recTime: {
-                const m = Math.floor(recSecs / 60);
-                const s = recSecs % 60;
-                return (m < 10 ? "0" + m : "" + m) + ":" + (s < 10 ? "0" + s : "" + s);
-            }
-            Timer {
-                interval: 1000
-                repeat: true
-                running: ScreenRec.recording
-                onTriggered: stripFace.recSecs += 1
-            }
-            Connections {
-                target: ScreenRec
-                function onRecordingChanged() { if (ScreenRec.recording) stripFace.recSecs = 0 }
-            }
 
             Rectangle {
                 id: stripArt
@@ -1817,32 +1686,6 @@ Item {
                 visible: pill.stripMedia && Cava.active
                 s: pill.s
                 span: 14
-            }
-
-            Row {
-                id: stripRec
-                anchors.verticalCenter: parent.verticalCenter
-                visible: ScreenRec.recording
-                spacing: 6 * pill.s
-
-                Rectangle {
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 9 * pill.s
-                    height: 9 * pill.s
-                    radius: width / 2
-                    color: Theme.verm
-                }
-
-                Text {
-                    id: stripRecTime
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: stripFace.recTime
-                    color: Theme.cream
-                    font.family: Theme.font
-                    font.pixelSize: 11.5 * pill.s
-                    font.weight: Font.DemiBold
-                    font.features: ({ "tnum": 1 })
-                }
             }
 
             Text {
@@ -2176,6 +2019,32 @@ Item {
                 spacing: 12 * pill.s
 
                 Item {
+                    id: mediaIcon
+                    anchors.verticalCenter: parent.verticalCenter
+                    visible: pill.hasMedia
+                    width: 17 * pill.s
+                    height: 17 * pill.s
+
+                    GlyphIcon {
+                        anchors.fill: parent
+                        name: "music"
+                        color: mediaArea.containsMouse ? Theme.cream : (Players.playing ? Theme.flameGlow : Theme.iconDim)
+                        stroke: 1.7
+                    }
+
+                    MouseArea {
+                        id: mediaArea
+                        anchors.fill: parent
+                        anchors.margins: -6 * pill.s
+                        hoverEnabled: true
+                        enabled: hover.live
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: pill.requestSurface("media")
+                        onContainsMouseChanged: if (containsMouse) pill.soulTarget = "media"
+                    }
+                }
+
+                Item {
                     id: weatherGlance
                     anchors.verticalCenter: parent.verticalCenter
                     visible: Weather.ready
@@ -2334,7 +2203,7 @@ Item {
                                         Networking.wifiEnabled = !Networking.wifiEnabled;
                                     return;
                                 }
-                                pill.requestSurface("wifi");
+                                pill.openUserWifi();
                             }
                             onContainsMouseChanged: if (containsMouse) pill.soulTarget = "wifi"
                         }
@@ -2369,7 +2238,7 @@ Item {
                                         pill.btAdapter.enabled = !pill.btAdapter.enabled;
                                     return;
                                 }
-                                pill.requestSurface("bt");
+                                pill.openUserBt();
                             }
                             onContainsMouseChanged: if (containsMouse) pill.soulTarget = "bt"
                         }
@@ -2379,18 +2248,28 @@ Item {
                         id: batteryIcon
                         anchors.verticalCenter: parent.verticalCenter
                         visible: Battery.present
-                        width: battPct.implicitWidth
+                        width: 17 * pill.s
                         height: 17 * pill.s
 
-                        Text {
-                            id: battPct
-                            anchors.centerIn: parent
-                            text: Battery.pct + "%"
-                            color: Battery.low ? Theme.vermLit : (Battery.charging ? Theme.flameGlow : Theme.subtle)
-                            font.family: Theme.font
-                            font.pixelSize: 13 * pill.s
-                            font.weight: Battery.charging ? Font.DemiBold : Font.Medium
-                            font.features: { "tnum": 1 }
+                        readonly property color tint: Battery.low ? Theme.vermLit
+                            : (Battery.charging ? Theme.flameGlow : (batteryArea.containsMouse ? Theme.cream : Theme.iconDim))
+
+                        GlyphIcon {
+                            id: battGlyph
+                            anchors.fill: parent
+                            name: "battery"
+                            color: batteryIcon.tint
+                            stroke: 1.7
+                        }
+
+                        /** Charge level inside the glyph's body (x 4..17, y 9..15 of its 24-unit grid). */
+                        Rectangle {
+                            x: 4 * battGlyph.u
+                            y: 9 * battGlyph.u
+                            width: Math.max(battGlyph.u, 13 * battGlyph.u * Battery.frac)
+                            height: 6 * battGlyph.u
+                            radius: 0.8 * battGlyph.u
+                            color: batteryIcon.tint
                         }
 
                         MouseArea {
@@ -2494,59 +2373,6 @@ Item {
                 }
 
                 Item {
-                    id: recorderIcon
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 17 * pill.s
-                    height: 17 * pill.s
-
-                    GlyphIcon {
-                        anchors.fill: parent
-                        visible: !ScreenRec.recording
-                        name: "video"
-                        color: recorderArea.containsMouse ? Theme.cream : Theme.iconDim
-                        stroke: 1.7
-                    }
-
-                    Rectangle {
-                        anchors.centerIn: parent
-                        visible: ScreenRec.recording
-                        width: 12 * pill.s
-                        height: 12 * pill.s
-                        radius: width / 2
-                        color: Theme.verm
-                        SequentialAnimation on opacity {
-                            running: ScreenRec.recording
-                            loops: Animation.Infinite
-                            NumberAnimation { to: 0.4; duration: 500; easing.type: Easing.InOutSine }
-                            NumberAnimation { to: 1; duration: 500; easing.type: Easing.InOutSine }
-                        }
-                    }
-
-                    MouseArea {
-                        id: recorderArea
-                        anchors.fill: parent
-                        anchors.margins: -6 * pill.s
-                        hoverEnabled: true
-                        enabled: hover.live
-                        acceptedButtons: Qt.LeftButton | Qt.RightButton
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: (e) => {
-                            if (e.button === Qt.RightButton) {
-                                if (ScreenRec.recording)
-                                    ScreenRec.stop();
-                                return;
-                            }
-                            pill.requestSurface("recorder");
-                        }
-                        onDoubleClicked: (e) => {
-                            if (e.button === Qt.LeftButton && ScreenRec.recording)
-                                ScreenRec.stop();
-                        }
-                        onContainsMouseChanged: if (containsMouse) pill.soulTarget = "recorder"
-                    }
-                }
-
-                Item {
                     id: wallpaperIcon
                     anchors.verticalCenter: parent.verticalCenter
                     width: 17 * pill.s
@@ -2566,7 +2392,7 @@ Item {
                         hoverEnabled: true
                         enabled: hover.live
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: pill.requestSurface("wallpaper")
+                        onClicked: pill.openUserWallpaper()
                         onContainsMouseChanged: if (containsMouse) pill.soulTarget = "wallpaper"
                     }
                 }
@@ -2591,33 +2417,8 @@ Item {
                         hoverEnabled: true
                         enabled: hover.live
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: pill.requestSurface("clipboard")
+                        onClicked: pill.openUserClipboard()
                         onContainsMouseChanged: if (containsMouse) pill.soulTarget = "clipboard"
-                    }
-                }
-
-                Item {
-                    id: launcherIcon
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 17 * pill.s
-                    height: 17 * pill.s
-
-                    GlyphIcon {
-                        anchors.fill: parent
-                        name: "app-window"
-                        color: launcherArea.containsMouse ? Theme.cream : Theme.iconDim
-                        stroke: 1.7
-                    }
-
-                    MouseArea {
-                        id: launcherArea
-                        anchors.fill: parent
-                        anchors.margins: -6 * pill.s
-                        hoverEnabled: true
-                        enabled: hover.live
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: pill.requestSurface("launcher")
-                        onContainsMouseChanged: if (containsMouse) pill.soulTarget = "launcher"
                     }
                 }
 
@@ -2702,7 +2503,7 @@ Item {
         active: false
         anchors.fill: parent
         sourceComponent: Calendar {
-            s: pill.s
+            s: pill.calendarS
             open: pill.calendarOpen
             morphCloseness: pill.morphCloseness
         }
@@ -2831,19 +2632,6 @@ sourceComponent: Media {
         sourceComponent: BatterySurface {
             s: pill.s
             open: pill.batteryOpen
-            morphCloseness: pill.morphCloseness
-            onRequestClose: pill.requestClose()
-        }
-    }
-
-    Loader {
-        id: ldRecorder
-        active: false
-        anchors.fill: parent
-        sourceComponent: Recorder {
-            s: pill.s
-            screenName: pill.screenName
-            open: pill.recorderOpen
             morphCloseness: pill.morphCloseness
             onRequestClose: pill.requestClose()
         }
@@ -2992,212 +2780,6 @@ sourceComponent: Media {
                 font.pixelSize: 9 * pill.s
                 font.weight: Font.DemiBold
             }
-        }
-    }
-
-    /**
-     * Standalone quick-record source chooser. Driven by the SUPER+D keybind with
-     * no recorder surface open: it grows the pill on the focused monitor only
-     * (mode "quickChoose") and offers the same Screen and Window / Region picks as
-     * the surface. Screen with one monitor resolves at once; several monitors flip
-     * to the inline sub-choice. A pick fires ScreenRec.prepareScreen / prepareWindow
-     * → targetReady → the central countdown, then closes.
-     */
-    Item {
-        id: quickChooser
-        anchors.fill: parent
-        anchors.margins: 6 * pill.s
-        enabled: pill.mode === "quickChoose"
-        opacity: pill.mode === "quickChoose" ? Math.pow(pill.morphCloseness, 1.3) : 0
-        visible: opacity > 0.01
-        Behavior on opacity {
-            NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard }
-        }
-
-        Row {
-            id: quickSources
-            anchors.fill: parent
-            visible: !ScreenRec.quickScreenChoosing
-            spacing: 6 * pill.s
-
-            Repeater {
-                model: [
-                    { kind: "screen", label: "Screen", glyph: "monitor" },
-                    { kind: "window", label: "Window / Region", glyph: "video" }
-                ]
-
-                Rectangle {
-                    id: qSrcTile
-                    required property var modelData
-                    width: (quickSources.width - 6 * pill.s) / 2
-                    height: parent.height
-                    radius: 11 * pill.s
-                    color: qSrcArea.containsMouse ? Qt.alpha(Theme.vermLit, 0.16) : Theme.tileBg
-                    border.width: 1
-                    border.color: qSrcArea.containsMouse ? Qt.alpha(Theme.vermLit, 0.5) : Theme.border
-                    Behavior on color { ColorAnimation { duration: Motion.fast } }
-
-                    Row {
-                        anchors.centerIn: parent
-                        spacing: 8 * pill.s
-
-                        GlyphIcon {
-                            width: 16 * pill.s
-                            height: 16 * pill.s
-                            name: qSrcTile.modelData.glyph
-                            color: qSrcArea.containsMouse ? Theme.vermLit : Theme.iconDim
-                            stroke: 1.7
-                        }
-                        Text {
-                            height: 16 * pill.s
-                            verticalAlignment: Text.AlignVCenter
-                            text: qSrcTile.modelData.label
-                            color: qSrcArea.containsMouse ? Theme.cream : Theme.subtle
-                            font.family: Theme.font
-                            font.pixelSize: 11 * pill.s
-                            font.weight: Font.Bold
-                        }
-                    }
-
-                    MouseArea {
-                        id: qSrcArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: pill.quickChooseSource(qSrcTile.modelData.kind)
-                    }
-                }
-            }
-        }
-
-        ListView {
-            id: quickScreens
-            anchors.fill: parent
-            anchors.rightMargin: 22 * pill.s
-            visible: ScreenRec.quickScreenChoosing
-            orientation: ListView.Horizontal
-            spacing: 6 * pill.s
-            clip: true
-            boundsBehavior: Flickable.StopAtBounds
-            model: ScreenRec.monitors
-
-            delegate: Rectangle {
-                id: qMonTile
-                required property var modelData
-                width: 152 * pill.s
-                height: quickScreens.height
-                radius: 11 * pill.s
-                color: qMonArea.containsMouse ? Qt.alpha(Theme.vermLit, 0.16) : Theme.tileBg
-                border.width: 1
-                border.color: qMonArea.containsMouse ? Qt.alpha(Theme.vermLit, 0.5) : Theme.border
-                Behavior on color { ColorAnimation { duration: Motion.fast } }
-
-                Column {
-                    anchors.centerIn: parent
-                    spacing: 2 * pill.s
-
-                    Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: qMonTile.modelData.name
-                        color: Theme.cream
-                        font.family: Theme.font
-                        font.pixelSize: 11.5 * pill.s
-                        font.weight: Font.Bold
-                    }
-                    Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: qMonTile.modelData.w + " × " + qMonTile.modelData.h
-                        color: Theme.subtle
-                        font.family: Theme.font
-                        font.pixelSize: 9.5 * pill.s
-                        font.features: { "tnum": 1 }
-                    }
-                }
-
-                MouseArea {
-                    id: qMonArea
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: pill.quickPickMonitor(qMonTile.modelData.name)
-                }
-            }
-        }
-
-        WheelScroller {
-            flick: quickScreens
-            s: pill.s
-            anchors.fill: quickScreens
-            visible: ScreenRec.quickScreenChoosing
-        }
-
-        GlyphIcon {
-            anchors.top: parent.top
-            anchors.right: parent.right
-            anchors.margins: 5 * pill.s
-            visible: ScreenRec.quickScreenChoosing
-            width: 12 * pill.s
-            height: 12 * pill.s
-            name: "chevron-left"
-            color: qBackArea.containsMouse ? Theme.cream : Theme.faint
-            stroke: 2
-
-            MouseArea {
-                id: qBackArea
-                anchors.fill: parent
-                anchors.margins: -7 * pill.s
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onClicked: ScreenRec.quickScreenChoosing = false
-            }
-        }
-    }
-
-    /**
-     * Standalone pre-roll countdown toast. Shown at the pill top on the focused
-     * monitor when the central countdown runs and the recorder surface is closed
-     * (mode "quickCount"): a big flame-glow numeral over a small "GET READY" label.
-     * Tapping cancels. The surface's own in-bar countdown covers the surface case.
-     */
-    Item {
-        id: quickCount
-        anchors.fill: parent
-        enabled: pill.mode === "quickCount"
-        opacity: pill.mode === "quickCount" ? Math.pow(pill.morphCloseness, 1.3) : 0
-        visible: opacity > 0.01
-        Behavior on opacity {
-            NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard }
-        }
-
-        Column {
-            anchors.centerIn: parent
-            spacing: 1 * pill.s
-
-            Text {
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: ScreenRec.countdown
-                color: Theme.flameGlow
-                font.family: Theme.font
-                font.pixelSize: 28 * pill.s
-                font.weight: Font.ExtraBold
-                font.features: { "tnum": 1 }
-            }
-            Text {
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: "GET READY"
-                color: Theme.dim
-                font.family: Theme.font
-                font.pixelSize: 8.5 * pill.s
-                font.weight: Font.Bold
-                font.capitalization: Font.AllUppercase
-                font.letterSpacing: 1.6 * pill.s
-            }
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: ScreenRec.cancel()
         }
     }
 

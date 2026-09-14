@@ -6,9 +6,10 @@ import Quickshell.Io
 /**
  * Live weather for the pill's hover glance, served by Open-Meteo with no API key.
  * Location resolves once and is cached so a restart never re-hits the network for
- * coordinates: by default the city, latitude and longitude come from a keyless IP
- * lookup (ip-api), but a non-empty `Flags.weatherCity` override geocodes that name
- * via Open-Meteo's geocoder instead. Once coordinates are known the forecast runs
+ * coordinates: by default GeoClue locates the machine from the wifi networks in
+ * range (the keyless ip-api lookup covers a missing GeoClue) and OpenStreetMap
+ * names the spot, but a non-empty `Flags.weatherCity` override (a town name, or
+ * exact "lat,lon") wins. Once coordinates are known the forecast runs
  * immediately and then every 20 minutes, exposing the current conditions plus a
  * 24-hour hourly strip.
  *
@@ -129,14 +130,20 @@ Singleton {
         wxProc.running = true;
     }
 
-    /** First weather demand arms the network path (loads fresh data on hover). */
+    readonly property bool hasOverride: (Flags.weatherCity || "").trim().length > 0
+
+    /**
+     * First weather demand arms the network path (loads fresh data on hover). The
+     * cached spot renders at once; without a manual override a fresh GeoClue fix
+     * is taken each session too, since a laptop moves between them.
+     */
     onNeededChanged: {
-        if (root.needed) {
-            if (root.located)
-                root.fetchWeather();
-            else
-                root.locate();
-        }
+        if (!root.needed)
+            return;
+        if (root.located)
+            root.fetchWeather();
+        if (!root.located || !root.hasOverride)
+            root.locate();
     }
 
     /**
@@ -171,14 +178,97 @@ Singleton {
         printErrors: false
     }
 
-    /** Resolve coordinates: geocode the manual city override, else fall back to IP. */
+    /**
+     * Resolve coordinates: an exact "lat,lon" override is used as-is, a town name
+     * is geocoded, and an empty override asks GeoClue (IP lookup as the fallback).
+     */
     function locate() {
         if (!root.needed)
             return;
-        if (Flags.weatherCity && Flags.weatherCity.trim().length > 0)
+        var q = (Flags.weatherCity || "").trim();
+        var m = q.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
+        if (m) {
+            root.lat = Number(m[1]);
+            root.lon = Number(m[2]);
+            root.city = root.lat.toFixed(3) + ", " + root.lon.toFixed(3);
+            root.located = true;
+            root.writeLoc();
+            root.fetchWeather();
+        } else if (q.length > 0) {
             geoProc.running = true;
-        else
-            ipProc.running = true;
+        } else if (!geoclueProc.running) {
+            geoclueProc.running = true;
+        }
+    }
+
+    /**
+     * Precise location through GeoClue, the system location service: it looks the
+     * wifi networks in range up itself. The where-am-i demo client prints every fix
+     * it gets before its timeout and the most accurate one wins. GeoClue only
+     * answers clients an agent authorises, so the demo agent (whitelisted in
+     * geoclue.conf) is started first when none is running. No fix at all, or no
+     * GeoClue installed, falls back to the IP lookup.
+     */
+    Process {
+        id: geoclueProc
+        command: ["sh", "-c",
+            "w=/usr/lib/geoclue-2.0/demos/where-am-i; a=/usr/lib/geoclue-2.0/demos/agent; " +
+            "[ -x \"$w\" ] || exit 0; " +
+            "pgrep -f \"^$a\" >/dev/null || { setsid -f \"$a\" >/dev/null 2>&1 < /dev/null; sleep 1; }; " +
+            "timeout 40 \"$w\" -t 30 -a 8 2>/dev/null | awk -F': *' '" +
+            "/^Latitude/ { lat = $2 + 0 } /^Longitude/ { lon = $2 + 0 } " +
+            "/^Accuracy/ { acc = $2 + 0; if (best == \"\" || acc < best) { best = acc; blat = lat; blon = lon } } " +
+            "END { if (best != \"\") printf \"%.6f %.6f %d\\n\", blat, blon, best }'"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var f = this.text.trim().split(/\s+/);
+                var lat = parseFloat(f[0]);
+                var lon = parseFloat(f[1]);
+                if (f.length < 3 || isNaN(lat) || isNaN(lon)) {
+                    if (!root.located)
+                        ipProc.running = true;
+                    return;
+                }
+                root.lat = lat;
+                root.lon = lon;
+                root.located = true;
+                root.writeLoc();
+                root.fetchWeather();
+                placeProc.running = true;
+            }
+        }
+    }
+
+    /** Names a GeoClue fix (which carries no place name) with one OpenStreetMap lookup. */
+    Process {
+        id: placeProc
+        command: ["curl", "-s", "--max-time", "8", "-G", "-A", "ukishima-weather/1.0 (quickshell)",
+            "https://nominatim.openstreetmap.org/reverse",
+            "--data-urlencode", "lat=" + root.lat,
+            "--data-urlencode", "lon=" + root.lon,
+            "--data-urlencode", "format=jsonv2",
+            "--data-urlencode", "zoom=10",
+            "--data-urlencode", "accept-language=en"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    var a = JSON.parse(this.text).address || {};
+                    var name = a.town || a.city || a.village || a.municipality || a.county || "";
+                    if (name.length > 0) {
+                        root.city = name;
+                        root.writeLoc();
+                    }
+                } catch (e) {}
+            }
+        }
+    }
+
+    /** Re-locate hourly while in automatic mode, in case the laptop moved. */
+    Timer {
+        interval: 3600000
+        running: root.needed && !root.hasOverride
+        repeat: true
+        onTriggered: root.locate()
     }
 
     Connections {
@@ -225,9 +315,9 @@ Singleton {
                         root.writeLoc();
                         root.fetchWeather();
                     } else {
-                        root.ipProc.running = true;
+                        ipProc.running = true;
                     }
-                } catch (e) { root.ipProc.running = true; }
+                } catch (e) { ipProc.running = true; }
             }
         }
     }
