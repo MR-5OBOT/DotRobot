@@ -18,7 +18,7 @@ SettingsSurface {
     implicitHeight: content.implicitHeight
 
     rows: [
-        { item: scaleRow, kind: "seg", vals: [0.9, 1.0, 1.1, 1.25], get: function () { return Flags.uiScale; }, set: function (v) { Flags.uiScale = v; } },
+        { item: scaleRow, kind: "seg", vals: [1.0, 1.15, 1.3, 1.5], get: function () { return Flags.uiScale; }, set: function (v) { Flags.uiScale = v; } },
         { item: motionRow, kind: "toggle", get: function () { return Flags.reduceMotion; }, set: function (v) { Flags.reduceMotion = v; } },
         { item: autoHideRow, kind: "toggle", get: function () { return Flags.autoHide; }, set: function (v) { Flags.autoHide = v; } },
         { item: saverRow, kind: "toggle", get: function () { return Flags.memorySaver; }, set: function (v) { Flags.memorySaver = v; } }
@@ -48,7 +48,7 @@ SettingsSurface {
 
             SettingsSeg {
                 s: root.s
-                options: [{ label: "90%", value: 0.9 }, { label: "100%", value: 1.0 }, { label: "110%", value: 1.1 }, { label: "125%", value: 1.25 }]
+                options: [{ label: "100%", value: 1.0 }, { label: "115%", value: 1.15 }, { label: "130%", value: 1.3 }, { label: "150%", value: 1.5 }]
                 value: Flags.uiScale
                 onPicked: (v) => Flags.uiScale = v
             }

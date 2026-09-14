@@ -41,7 +41,6 @@ Item {
     }
 
     readonly property real brightness: Backlight.brightness
-    property bool recordStarted: false
 
     readonly property var sink: Pipewire.defaultAudioSink
     readonly property bool muted: sink && sink.audio ? sink.audio.muted : false
@@ -52,7 +51,7 @@ Item {
     readonly property real micVolume: source && source.audio ? Math.max(0, Math.min(1, source.audio.volume)) : 0
 
     readonly property real desiredW: kind === "workspace" ? Math.max(120 * s, wsIndicator.implicitWidth + 40 * s)
-        : (kind === "track" ? 344 * s : (kind === "record" ? 256 * s : 248 * s))
+        : (kind === "track" ? 344 * s : 248 * s)
     readonly property real desiredH: kind === "track" ? 64 * s : 44 * s
 
     /**
@@ -98,7 +97,7 @@ Item {
             holdExtends = 0;
         kind = which;
         flashing = true;
-        hideTimer.interval = (which === "battery" || which === "record") ? 2000 : 1800;
+        hideTimer.interval = which === "battery" ? 2000 : 1800;
         hideTimer.restart();
         return true;
     }
@@ -158,14 +157,6 @@ Item {
         function onChargingChanged() {
             if (Battery.charging)
                 root.flash("battery");
-        }
-    }
-
-    Connections {
-        target: ScreenRec
-        function onRecordingChanged() {
-            root.recordStarted = ScreenRec.recording;
-            root.flash("record");
         }
     }
 
@@ -547,45 +538,6 @@ Item {
              *  spawning sh + hyprctl on every workspace event. The popup OSD
              *  stays enabled and keeps its watcher live for fresh dots. */
             watch: root.enabled
-        }
-    }
-
-    Item {
-        id: recordRow
-        anchors.fill: parent
-        opacity: root.kind === "record" ? 1 : 0
-        visible: opacity > 0.01
-        Behavior on opacity { NumberAnimation { duration: 150 } }
-
-        Rectangle {
-            id: recGlyph
-            anchors.left: parent.left
-            anchors.verticalCenter: parent.verticalCenter
-            width: 13 * root.s
-            height: 13 * root.s
-            radius: width / 2
-            color: root.recordStarted ? Theme.verm : Theme.dim
-
-            SequentialAnimation on opacity {
-                running: root.recordStarted && root.kind === "record"
-                loops: Animation.Infinite
-                NumberAnimation { to: 0.4; duration: 500; easing.type: Easing.InOutSine }
-                NumberAnimation { to: 1; duration: 500; easing.type: Easing.InOutSine }
-            }
-        }
-
-        Text {
-            anchors.left: recGlyph.right
-            anchors.leftMargin: 13 * root.s
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            text: root.recordStarted ? "Recording started" : "Recording stopped"
-            color: Theme.cream
-            font.family: Theme.font
-            font.pixelSize: 11.5 * root.s
-            font.weight: Font.DemiBold
-            elide: Text.ElideRight
-            maximumLineCount: 1
         }
     }
 }
