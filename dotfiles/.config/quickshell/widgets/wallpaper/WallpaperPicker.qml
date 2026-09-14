@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Window
-import QtCore
 import Qt.labs.folderlistmodel
 import QtMultimedia
 import QtQuick.Effects
@@ -33,19 +32,11 @@ Item {
 
     property string currentFilter: "All"
     property string _lastFilter: "All"
-    property string searchQuery: ""
-    property bool isOnlineSearch: false
-    property bool isSearchPaused: false
-    property bool hasSearched: false
     property var colorMap: ({})
     property var bucketMap: ({})
     property var thumbLookup: ({})
     property var srcNameLookup: ({})
     property int cacheVersion: 0
-    property int searchSessionId: 0
-
-    property bool isDownloadingWallpaper: false
-    property string currentDownloadName: ""
 
     property bool isApplying: false
     property bool isMonitorSelectorOpen: false
@@ -57,7 +48,7 @@ Item {
     property var configSettings: Config.rawSettings
     property string srcDir: {
         let dummy = configSettings;
-        return Config.getSetting("wallpaperDir", "") || Config.getSetting("wallpaper_dir", "") || Quickshell.env("WALLPAPER_DIR") || (Quickshell.env("HOME") + "/Pictures/Wallpapers");
+        return Config.getSetting("wallpaperDir", "") || Config.getSetting("wallpaper_dir", "") || Quickshell.env("WALLPAPER_DIR") || (Quickshell.env("HOME") + "/Pictures/wallpapers");
     }
 
     onSrcDirChanged: {
@@ -69,7 +60,7 @@ Item {
     Connections {
         target: Config
         function onSettingsLoaded() {
-            let dir = Config.getSetting("wallpaperDir", "") || Config.getSetting("wallpaper_dir", "") || Quickshell.env("WALLPAPER_DIR") || (Quickshell.env("HOME") + "/Pictures/Wallpapers");
+            let dir = Config.getSetting("wallpaperDir", "") || Config.getSetting("wallpaper_dir", "") || Quickshell.env("WALLPAPER_DIR") || (Quickshell.env("HOME") + "/Pictures/wallpapers");
             if (dir && dir !== window.srcDir) {
                 window.srcDir = dir;
             }
@@ -80,14 +71,7 @@ Item {
         id: focusTimer
         interval: 50
         repeat: false
-        onTriggered: {
-            if (window.currentFilter === "Search" && !window.hasSearched) {
-                if (typeof searchInput.forceInputFocus === "function") searchInput.forceInputFocus();
-                else searchInput.forceActiveFocus();
-            } else {
-                view.forceActiveFocus();
-            }
-        }
+        onTriggered: view.forceActiveFocus()
     }
 
     Timer {
@@ -107,25 +91,10 @@ Item {
     property bool isStartup: srcModel.status === FolderListModel.Loading && localProxyModel.count === 0 && videoProxyModel.count === 0
     property bool isReady: visible
 
-    property bool _rawSearchLoading: searchFolderModel.status === FolderListModel.Loading
-    property bool isSearchActive: false
-    Timer {
-        id: searchActiveDebounce
-        interval: 150
-        onTriggered: window.isSearchActive = window._rawSearchLoading
-    }
-    on_RawSearchLoadingChanged: searchActiveDebounce.restart()
-
-    property string lastSearchName: ""
     property bool isModelChanging: false
-    property bool searchIndexRestored: false
-    property bool trackerResolved: false
-
-    property bool isScrollingBlocked: window.currentFilter === "Search" && window.hasSearched && window.isSearchActive && !window.isSearchPaused
     property bool jumpToLastOnFilterChange: false
 
     property var historyList: []
-    property int _lastSearchFolderCount: 0
 
     readonly property var filterData: [
         { name: "All", hex: "", label: I18n.t("wallpaper.filters.all") },
@@ -167,23 +136,6 @@ Item {
                     if (!window.reorderHistory()) {
                         window.applyFilters(false);
                     }
-                }
-            }
-        }
-    }
-
-    Process {
-        id: wallpaperDownloader
-        running: false
-        property string targetDestFile: ""
-        property string targetTransition: "fade"
-
-        onExited: (exitCode) => {
-            window.isDownloadingWallpaper = false;
-            if (exitCode === 0) {
-                window.setWallpaperOnMonitors(targetDestFile, targetTransition);
-                if (typeof Matugen !== "undefined" && typeof Matugen.generate === "function") {
-                    Matugen.generate(targetDestFile);
                 }
             }
         }
@@ -239,7 +191,6 @@ Item {
                     let scName = window.hostScreen ? window.hostScreen.name : "";
                     activeWallpaper = Wallpaper.getWallpaper(scName);
                 }
-                window.trackerResolved = true;
                 if (window.widgetArg !== "") {
                     window.targetWallName = window.widgetArg;
                 } else if (activeWallpaper !== "") {
@@ -295,13 +246,6 @@ Item {
         let match = window.thumbLookup[base] || window.thumbLookup[s];
         if (match && match.isVideo) return true;
         return false;
-    }
-
-    function isDownloaded(safeFileName) {
-        if (!safeFileName) return false;
-        let clean = window.getCleanName(safeFileName);
-        let base = window.getCleanBaseName(safeFileName);
-        return !!(window.srcNameLookup[safeFileName] || window.srcNameLookup[clean] || window.srcNameLookup[base]);
     }
 
     function loadMonitors() {
@@ -431,45 +375,6 @@ Item {
         wallpaperHistoryReader.running = false;
         wallpaperHistoryReader.running = true;
 
-        if (window.currentFilter === "Search" && window.hasSearched) {
-            let alreadyExists = window.isDownloaded(safeFileName);
-            let destFile = window.srcDir + "/" + safeFileName;
-            let mapFile = Caching.getCacheDir("wallpaper") + "/search_map.txt";
-
-            if (alreadyExists) {
-                window.setWallpaperOnMonitors(destFile, randomTransition);
-                if (typeof Matugen !== "undefined" && typeof Matugen.generate === "function") {
-                    Matugen.generate(destFile);
-                }
-            } else {
-                window.isDownloadingWallpaper = true;
-                window.currentDownloadName = safeFileName;
-
-                let downloadScript =
-                    "URL=$(awk -F'|' -v fname=\"$1\" '$1 == fname {print $2; exit}' \"$2\")\n" +
-                    "if [ -n \"$URL\" ]; then\n" +
-                    "  curl -s -L -A 'Mozilla/5.0' \"$URL\" -o \"$3.tmp\"\n" +
-                    "  if file \"$3.tmp\" | grep -iq 'webp'; then\n" +
-                    "    magick \"$3.tmp\" \"$3\" 2>/dev/null || convert \"$3.tmp\" \"$3\" 2>/dev/null || mv \"$3.tmp\" \"$3\"\n" +
-                    "    rm -f \"$3.tmp\"\n" +
-                    "  else\n" +
-                    "    mv \"$3.tmp\" \"$3\"\n" +
-                    "  fi\n" +
-                    "  exit 0\n" +
-                    "fi\n" +
-                    "exit 1\n";
-
-                wallpaperDownloader.targetDestFile = destFile;
-                wallpaperDownloader.targetTransition = randomTransition;
-                wallpaperDownloader.command = [
-                    "bash", "-c", downloadScript, "_",
-                    safeFileName, mapFile, destFile
-                ];
-                wallpaperDownloader.running = true;
-            }
-            return;
-        }
-
         let lookup = window.thumbLookup[safeFileName] || window.thumbLookup[window.getCleanBaseName(safeFileName)] || {};
         let finalPath = lookup.filePath || (window.srcDir + "/" + realFileName);
         let posterPath = lookup.posterPath || "";
@@ -501,24 +406,6 @@ Item {
         }
     }
 
-    Settings {
-        id: searchState
-        location: "file://" + Caching.getCacheDir("wallpaper") + "/settings.conf"   // DotRobot: QSettings needs a URL
-        category: "QS_WallpaperPicker"
-        property string query: ""
-        property bool searched: false
-        property string lastName: ""
-        property int sessionId: 0
-    }
-
-    onIsSearchPausedChanged: {
-        Quickshell.execDetached([
-            window.scriptDir + "/search_control.sh",
-            isSearchPaused ? "pause" : "run",
-            Caching.getRunDir("wallpaper")
-        ]);
-    }
-
     function selectCurrentWallpaperTabAndFocus() {
         if (!window.targetWallName) {
             window.applyFilters(true);
@@ -533,7 +420,7 @@ Item {
                 window._silentFilterChange = false;
             }
         } else {
-            if (window.currentFilter === "Video" || window.currentFilter === "Search") {
+            if (window.currentFilter === "Video") {
                 window._silentFilterChange = true;
                 window.currentFilter = "All";
                 window._silentFilterChange = false;
@@ -551,7 +438,6 @@ Item {
 
     function refreshForDisplay() {
         window.initialFocusSet = false;
-        window.trackerResolved = false;
         wallpaperMonitorTracker.running = false;
         wallpaperMonitorTracker.running = true;
         wallpaperHistoryReader.running = false;
@@ -559,45 +445,19 @@ Item {
         window.isFilterAnimating = true;
         filterAnimationTimer.restart();
 
-        if (window.currentFilter !== "Search") {
-            if (displayModel.count === 0) {
-                window.syncFromSrcModel();
-            }
-            window.selectCurrentWallpaperTabAndFocus();
-        } else if (window.hasSearched) {
-            window.searchIndexRestored = false;
-            window.isSearchPaused = true;
-            window.trySearchFocus();
-            window.syncSearchModel();
+        if (displayModel.count === 0) {
+            window.syncFromSrcModel();
         }
+        window.selectCurrentWallpaperTabAndFocus();
     }
 
     onVisibleChanged: {
         if (!visible) {
             window.initialFocusSet = false;
             window.allowAddAnimation = false;
-            window.searchIndexRestored = false;
             window.isApplying = false;
             window.isMonitorSelectorOpen = false;
             window.resetPreviewPlayer();
-            if (window.hasSearched) {
-                window.isSearchPaused = true;
-                searchState.query = searchInput.text;
-                searchState.searched = window.hasSearched;
-                searchState.lastName = window.lastSearchName;
-                searchState.sessionId = window.searchSessionId;
-                Quickshell.execDetached([
-                    window.scriptDir + "/search_control.sh",
-                    "pause",
-                    Caching.getRunDir("wallpaper")
-                ]);
-            } else {
-                Quickshell.execDetached([
-                    window.scriptDir + "/search_control.sh",
-                    "stop",
-                    Caching.getRunDir("wallpaper")
-                ]);
-            }
         } else {
             window.loadMonitors();
             window.refreshForDisplay();
@@ -605,21 +465,11 @@ Item {
         }
     }
 
-    property bool isLoading: srcModel.status === FolderListModel.Loading ||
-                             (window.currentFilter === "Search" && searchFolderModel.status === FolderListModel.Loading)
+    property bool isLoading: srcModel.status === FolderListModel.Loading
 
-    property bool showSpinner: window.isDownloadingWallpaper ||
-                               (window.currentFilter === "Search" && window.hasSearched && !window.isSearchPaused) ||
-                               (window.currentFilter !== "Search" && window.isLoading)
+    property bool showSpinner: window.isLoading
 
     property string currentNotification: {
-        if (window.isDownloadingWallpaper) return I18n.t("wallpaper.notifications.downloading");
-        if (window.currentFilter === "Search") {
-            if (!window.hasSearched) return I18n.t("wallpaper.notifications.type_to_search");
-            if (window.isSearchPaused) return I18n.t("wallpaper.notifications.search_paused");
-            if (window.visibleItemCount === 0) return I18n.t("wallpaper.notifications.searching_ddg");
-            return I18n.t("wallpaper.notifications.generating_thumbnails");
-        }
         if (isLoading) return I18n.t("wallpaper.notifications.generating_thumbnails");
         if (window.visibleItemCount === 0) return I18n.t("wallpaper.notifications.no_wallpapers_found");
         if (window.currentFilter === "All") return "";
@@ -644,64 +494,9 @@ Item {
         onTriggered: window.allowAddAnimation = true
     }
 
-    function trySearchFocus() {
-        if (window.searchIndexRestored || searchProxyModel.count === 0) return;
-        if (window.lastSearchName === "") {
-             window.searchIndexRestored = true;
-             return;
-        }
-        window.applyFilters(true);
-        window.searchIndexRestored = true;
-    }
-
     function updateVisibleCount() {
         window.visibleItemCount = displayModel.count;
     }
-
-    function triggerOnlineSearch() {
-        if (searchInput.text.trim() === "" || window.isApplying) return;
-
-        searchInput.focus = false;
-        window.allowAddAnimation = false;
-        window.isModelChanging = true;
-        window.searchSessionId++;
-        searchProxyModel.clear();
-        displayModel.clear();
-        window._lastSearchFolderCount = 0;
-        window.lastSearchName = "";
-        searchState.lastName = "";
-        searchState.sessionId = window.searchSessionId;
-        window.isModelChanging = false;
-
-        window.searchIndexRestored = true;
-        window.isOnlineSearch = true;
-        window.hasSearched = true;
-        window.visibleItemCount = 0;
-        searchState.searched = true;
-        searchState.query = searchInput.text.trim();
-        window.isSearchPaused = false;
-        window.searchQuery = searchInput.text.trim();
-        window._lastFilter = window.currentFilter;
-        window.currentFilter = "Search";
-
-        let rawSearchDir = decodeURIComponent(window.searchDir.replace(/^file:\/\//, ""));
-        let currentSession = window.searchSessionId;
-
-        Quickshell.execDetached([
-            window.scriptDir + "/trigger_search.sh",
-            window.searchQuery,
-            String(currentSession),
-            rawSearchDir,
-            Caching.getCacheDir("wallpaper"),
-            Caching.getRunDir("wallpaper"),
-            Caching.logDir,
-            Quickshell.shellDir + "/widgets/scripts/wallpaper/ddg_search.sh"
-        ]);
-        view.forceActiveFocus();
-    }
-
-    readonly property string homeDir: "file://" + Quickshell.env("HOME")
-    readonly property string searchDir: "file://" + Caching.getCacheDir("wallpaper") + "/search_thumbs"
 
     readonly property real itemWidth: window.s(400)
     readonly property real itemHeight: window.s(420)
@@ -820,9 +615,7 @@ Item {
         if (localProxyModel.count === 0 && videoProxyModel.count === 0) {
             if (localItems.length > 0) localProxyModel.append(localItems);
             if (videoItems.length > 0) videoProxyModel.append(videoItems);
-            if (window.currentFilter !== "Search") {
-                window.selectCurrentWallpaperTabAndFocus();
-            }
+            window.selectCurrentWallpaperTabAndFocus();
         }
     }
 
@@ -834,9 +627,6 @@ Item {
         showDirs: false
         onCountChanged: {
             window.syncFromSrcModel();
-            if (window.isDownloadingWallpaper && window.isDownloaded(window.currentDownloadName)) {
-                window.isDownloadingWallpaper = false;
-            }
             indexerDebounceTimer.restart();
         }
         onStatusChanged: {
@@ -995,9 +785,7 @@ Item {
             if (videoItems.length > 0) videoProxyModel.append(videoItems);
         }
 
-        if (window.currentFilter !== "Search") {
-            window.selectCurrentWallpaperTabAndFocus();
-        }
+        window.selectCurrentWallpaperTabAndFocus();
 
         if (wasAllowing) allowAddAnimationTimer.restart();
         window.isModelChanging = false;
@@ -1015,7 +803,7 @@ Item {
 
     function cycleFilter(direction) {
         let currentIdx = -1;
-        let allFilterNames = window.filterData.map(f => f.name).concat(["Search"]);
+        let allFilterNames = window.filterData.map(f => f.name);
         for (let i = 0; i < allFilterNames.length; i++) {
             if (allFilterNames[i] === window.currentFilter) { currentIdx = i; break; }
         }
@@ -1047,7 +835,6 @@ Item {
 
         window.allowAddAnimation = false;
 
-        let returningFromSearch = (window.currentFilter === "Search" && newFilter !== "Search");
         window._lastFilter = window.currentFilter;
         window.currentFilter = newFilter;
 
@@ -1057,12 +844,7 @@ Item {
         }
 
         Qt.callLater(() => {
-            if (newFilter === "Search" && !window.hasSearched) {
-                if (typeof searchInput.forceInputFocus === "function") searchInput.forceInputFocus();
-                else searchInput.forceActiveFocus();
-            } else {
-                view.forceActiveFocus();
-            }
+            view.forceActiveFocus();
             if (isAnchorSwitch) {
                 window.isAnchorScrolling = true;
                 anchorScrollTimer.restart();
@@ -1070,7 +852,6 @@ Item {
             } else {
                 window.isModelChanging = true;
                 window.isFilterAnimating = true; filterAnimationTimer.restart();
-                if (returningFromSearch) window.searchIndexRestored = false;
                 window.applyFilters(true);
                 window.isModelChanging = false;
             }
@@ -1090,7 +871,7 @@ Item {
         let targetIndex = -1;
         let anchorIndex = -1;
 
-        let focusName = (window.currentFilter === "Search" && window.hasSearched && !window.trackerResolved) ? window.lastSearchName : window.targetWallName;
+        let focusName = window.targetWallName;
         let cleanTarget = window.getCleanBaseName(focusName);
         let fullTarget = window.getCleanName(focusName);
 
@@ -1161,7 +942,7 @@ Item {
                     targetIndex = currentIndex;
                 }
             }
-        } else if (window.currentFilter === "Search" || window.currentFilter === "Video") {
+        } else if (window.currentFilter === "Video") {
             if (sourceModel && sourceModel.count > 0) {
                 for (let i = 0; i < sourceModel.count; i++) {
                     let it = sourceModel.get(i);
@@ -1276,20 +1057,17 @@ Item {
                 }
             }
 
-            if (window.currentFilter === "Search") window.searchIndexRestored = true;
             allowAddAnimationTimer.restart();
-        } else if (window.currentFilter === "Search") {
-            window.searchIndexRestored = true;
         }
 
         window.isModelChanging = false;
     }
 
-    Shortcut { sequence: "Left"; enabled: window.visible && !searchInput.hasFocus && !window.isScrollingBlocked && !window.isApplying; onActivated: window.stepToNextValidIndex(-1) }
-    Shortcut { sequence: "Right"; enabled: window.visible && !searchInput.hasFocus && !window.isScrollingBlocked && !window.isApplying; onActivated: window.stepToNextValidIndex(1) }
+    Shortcut { sequence: "Left"; enabled: window.visible && !window.isApplying; onActivated: window.stepToNextValidIndex(-1) }
+    Shortcut { sequence: "Right"; enabled: window.visible && !window.isApplying; onActivated: window.stepToNextValidIndex(1) }
     Shortcut {
         sequence: "Return"
-        enabled: window.visible && !searchInput.hasFocus && !window.isScrollingBlocked && !window.isApplying
+        enabled: window.visible && !window.isApplying
         onActivated: {
             if (view.currentIndex >= 0 && view.currentIndex < displayModel.count) {
                 let item = displayModel.get(view.currentIndex);
@@ -1302,85 +1080,8 @@ Item {
 
     ListModel { id: localProxyModel }
     ListModel { id: videoProxyModel }
-    ListModel { id: searchProxyModel }
     ListModel { id: displayModel }
-    readonly property var activeModel: window.currentFilter === "Search" ? searchProxyModel : (window.currentFilter === "Video" ? videoProxyModel : localProxyModel)
-
-    function syncSearchModel() {
-        let currentPrefix = "ddg_" + window.searchSessionId + "_";
-
-        if (searchFolderModel.count < window._lastSearchFolderCount) {
-            window.isModelChanging = true;
-            searchProxyModel.clear();
-            displayModel.clear();
-            window.isModelChanging = false;
-        }
-        window._lastSearchFolderCount = searchFolderModel.count;
-
-        let existingProxyNames = {};
-        for (let i = 0; i < searchProxyModel.count; i++) {
-            let item = searchProxyModel.get(i);
-            if (item && item.fileName) existingProxyNames[item.fileName] = true;
-        }
-
-        let existingDisplayNames = {};
-        if (window.currentFilter === "Search") {
-            for (let i = 0; i < displayModel.count; i++) {
-                let item = displayModel.get(i);
-                if (item && item.fileName) existingDisplayNames[item.fileName] = true;
-            }
-        }
-
-        let batchProxy = [];
-        let batchDisplay = [];
-
-        for (let i = 0; i < searchFolderModel.count; i++) {
-            let fn = searchFolderModel.get(i, "fileName");
-            let fu = searchFolderModel.get(i, "fileUrl");
-            if (fn === undefined || String(fn).length === 0 || String(fn) === "search_map.txt") continue;
-
-            let sFn = String(fn);
-            if (window.hasSearched && !sFn.startsWith(currentPrefix)) continue;
-            if (existingProxyNames[sFn]) continue;
-
-            let item = { "fileName": sFn, "filePath": decodeURIComponent(String(fu).replace("file://", "")), "fileUrl": String(fu), "posterPath": "", "posterUrl": "", "isVideo": false, "hex": "#808080", "bucket": "Search" };
-
-            batchProxy.push(item);
-            existingProxyNames[sFn] = true;
-
-            if (window.currentFilter === "Search" && !existingDisplayNames[sFn]) {
-                batchDisplay.push(item);
-                existingDisplayNames[sFn] = true;
-            }
-        }
-
-        if (batchProxy.length > 0) {
-            searchProxyModel.append(batchProxy);
-        }
-
-        if (window.currentFilter === "Search" && batchDisplay.length > 0) {
-            let isFirstBatch = displayModel.count === 0;
-            displayModel.append(batchDisplay);
-            window.updateVisibleCount();
-
-            if (isFirstBatch) {
-                view.forceLayout();
-                view.currentIndex = 0;
-                view.positionViewAtIndex(0, ListView.Center);
-            }
-        }
-    }
-
-    FolderListModel {
-        id: searchFolderModel
-        folder: window.searchDir
-        nameFilters: ["*.jpg", "*.jpeg", "*.png", "*.webp", "*.gif", "*.bmp", "*.mp4", "*.mkv", "*.mov", "*.webm", "*.JPG", "*.JPEG", "*.PNG", "*.WEBP", "*.GIF", "*.BMP", "*.MP4", "*.MKV", "*.MOV", "*.WEBM"]
-        caseSensitive: true
-        showDirs: false
-        sortField: FolderListModel.Name
-        onCountChanged: window.syncSearchModel()
-        onStatusChanged: { if (status === FolderListModel.Ready) window.syncSearchModel() }
-    }
+    readonly property var activeModel: window.currentFilter === "Video" ? videoProxyModel : localProxyModel
 
     ListView {
         id: view
@@ -1391,7 +1092,7 @@ Item {
         Behavior on anchors.margins { NumberAnimation { duration: 650; easing.type: Easing.OutQuint } }
 
         spacing: 0; orientation: ListView.Horizontal; clip: false
-        interactive: !window.isScrollingBlocked && !window.isApplying
+        interactive: !window.isApplying
         cacheBuffer: window.dynamicCacheBuffer
         reuseItems: true
 
@@ -1405,55 +1106,46 @@ Item {
         onCurrentIndexChanged: {
             window.isItemAnimating = true; itemAnimationTimer.restart();
 
-            if (window.currentFilter === "Search") {
-                if (!window.isModelChanging && window.hasSearched && window.searchIndexRestored) {
-                    if (currentIndex >= 0 && currentIndex < displayModel.count) {
-                        let fname = displayModel.get(currentIndex).fileName;
-                        if (fname !== undefined && fname !== "") { window.lastSearchName = String(fname); searchState.lastName = String(fname); }
-                    }
-                }
-            } else {
-                let localModes = ["All", "Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Pink", "Monochrome"];
-                if (!window.isModelChanging && !window.isFilterAnimating && !window.isAnchorScrolling && localModes.indexOf(window.currentFilter) !== -1) {
-                    if (currentIndex >= 0 && currentIndex < displayModel.count) {
-                        let bucket = displayModel.get(currentIndex).bucket || "All";
-                        if (currentIndex === 0) bucket = "All";
-                        if (window.currentFilter !== bucket && localModes.indexOf(bucket) !== -1) {
-                            window._silentFilterChange = true;
-                            window.currentFilter = bucket;
-                            window._silentFilterChange = false;
-                        }
+            let localModes = ["All", "Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Pink", "Monochrome"];
+            if (!window.isModelChanging && !window.isFilterAnimating && !window.isAnchorScrolling && localModes.indexOf(window.currentFilter) !== -1) {
+                if (currentIndex >= 0 && currentIndex < displayModel.count) {
+                    let bucket = displayModel.get(currentIndex).bucket || "All";
+                    if (currentIndex === 0) bucket = "All";
+                    if (window.currentFilter !== bucket && localModes.indexOf(bucket) !== -1) {
+                        window._silentFilterChange = true;
+                        window.currentFilter = bucket;
+                        window._silentFilterChange = false;
                     }
                 }
             }
         }
 
         add: Transition {
-            enabled: window.allowAddAnimation && !window.isModelChanging && !window.isFilterAnimating && !(window.currentFilter === "Search" && window.hasSearched && !window.isSearchPaused)
+            enabled: window.allowAddAnimation && !window.isModelChanging && !window.isFilterAnimating
             NumberAnimation { properties: "x,y"; duration: 400; easing.type: Easing.OutCubic }
         }
         addDisplaced: Transition {
-            enabled: window.allowAddAnimation && !window.isModelChanging && !window.isFilterAnimating && !(window.currentFilter === "Search" && window.hasSearched && !window.isSearchPaused)
+            enabled: window.allowAddAnimation && !window.isModelChanging && !window.isFilterAnimating
             NumberAnimation { properties: "x,y"; duration: 400; easing.type: Easing.OutCubic }
         }
         move: Transition {
-            enabled: !window.isModelChanging && !window.isFilterAnimating && !(window.currentFilter === "Search" && window.hasSearched && !window.isSearchPaused)
+            enabled: !window.isModelChanging && !window.isFilterAnimating
             NumberAnimation { properties: "x,y"; duration: 400; easing.type: Easing.OutCubic }
         }
         moveDisplaced: Transition {
-            enabled: !window.isModelChanging && !window.isFilterAnimating && !(window.currentFilter === "Search" && window.hasSearched && !window.isSearchPaused)
+            enabled: !window.isModelChanging && !window.isFilterAnimating
             NumberAnimation { properties: "x,y"; duration: 400; easing.type: Easing.OutCubic }
         }
         remove: Transition {
-            enabled: window.allowAddAnimation && !window.isModelChanging && !window.isFilterAnimating && !(window.currentFilter === "Search" && window.hasSearched && !window.isSearchPaused)
+            enabled: window.allowAddAnimation && !window.isModelChanging && !window.isFilterAnimating
             NumberAnimation { properties: "x,y"; duration: 400; easing.type: Easing.OutCubic }
         }
         removeDisplaced: Transition {
-            enabled: window.allowAddAnimation && !window.isModelChanging && !window.isFilterAnimating && !(window.currentFilter === "Search" && window.hasSearched && !window.isSearchPaused)
+            enabled: window.allowAddAnimation && !window.isModelChanging && !window.isFilterAnimating
             NumberAnimation { properties: "x,y"; duration: 400; easing.type: Easing.OutCubic }
         }
         displaced: Transition {
-            enabled: window.allowAddAnimation && !window.isModelChanging && !window.isFilterAnimating && !(window.currentFilter === "Search" && window.hasSearched && !window.isSearchPaused)
+            enabled: window.allowAddAnimation && !window.isModelChanging && !window.isFilterAnimating
             NumberAnimation { properties: "x,y"; duration: 400; easing.type: Easing.OutCubic }
         }
 
@@ -1464,7 +1156,7 @@ Item {
         MouseArea {
             anchors.fill: parent; acceptedButtons: Qt.NoButton
             onWheel: (wheel) => {
-                if (window.isScrollingBlocked || window.isApplying || scrollThrottle.running) { wheel.accepted = true; return; }
+                if (window.isApplying || scrollThrottle.running) { wheel.accepted = true; return; }
                 let dx = wheel.angleDelta.x; let dy = wheel.angleDelta.y;
                 let delta = Math.abs(dx) > Math.abs(dy) ? dx : dy;
                 scrollAccum += delta;
@@ -1492,11 +1184,6 @@ Item {
                 window.updateVisibleCount();
                 if (view.currentIndex >= displayModel.count) {
                     view.currentIndex = Math.max(0, displayModel.count - 1);
-                }
-                for (let i = searchProxyModel.count - 1; i >= 0; i--) {
-                    if (searchProxyModel.get(i).fileName === fn) {
-                        searchProxyModel.remove(i);
-                    }
                 }
                 for (let i = localProxyModel.count - 1; i >= 0; i--) {
                     if (localProxyModel.get(i).fileName === fn) {
@@ -1529,11 +1216,10 @@ Item {
             readonly property string itemPosterUrl: posterUrl !== undefined ? String(posterUrl) : ""
             readonly property bool isVideo: (model.isVideo !== undefined && model.isVideo !== null) ? !!model.isVideo : (safeFileName.toLowerCase().match(/\.(mp4|mkv|mov|webm)$/) !== null || safeFileName.startsWith("000_"))
 
-            readonly property bool isCurrent: ListView.isCurrentItem && !window.isScrollingBlocked
-            readonly property bool isFakeSelected: window.isScrollingBlocked && index === 0
-            readonly property bool isVisuallyEnlarged: isCurrent || isFakeSelected
+            readonly property bool isCurrent: ListView.isCurrentItem
+            readonly property bool isVisuallyEnlarged: isCurrent
 
-            readonly property int dist: Math.abs(index - (window.isScrollingBlocked ? 0 : view.currentIndex))
+            readonly property int dist: Math.abs(index - view.currentIndex)
             readonly property real sideScale: Math.max(0.58, Math.pow(0.88, Math.max(0, dist - 1)))
             readonly property real sideOpacity: 1.0
 
@@ -1588,7 +1274,7 @@ Item {
                 id: skewedWrapper
                 anchors.centerIn: parent
 
-                readonly property real targetCenterIndex: window.isScrollingBlocked ? 0 : view.currentIndex
+                readonly property real targetCenterIndex: view.currentIndex
                 anchors.horizontalCenterOffset: -(window.skewFactor * height) / 2
 
                 property real targetPadding: 0
@@ -1599,7 +1285,7 @@ Item {
                 transform: Matrix4x4 { property real s: window.skewFactor; matrix: Qt.matrix4x4(1, s, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1) }
 
                 MouseArea {
-                    anchors.fill: parent; enabled: !window.isScrollingBlocked && !window.isApplying && !delegateRoot.isFailed
+                    anchors.fill: parent; enabled: !window.isApplying && !delegateRoot.isFailed
                     onClicked: { window.initialFocusSet = true; view.currentIndex = index; window.applyWallpaper(delegateRoot.safeFileName, delegateRoot.isVideo); }
                 }
 
@@ -1954,175 +1640,10 @@ Item {
                 }
             }
 
-            Item {
-                id: searchControlContainer
-                property bool shouldShow: window.currentFilter === "Search" && window.hasSearched
-                width: shouldShow ? window.s(34) : 0
-                height: window.s(34)
-                clip: true
-                visible: width > 0.1
-                anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-                Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
-
-                CanvasIconButton {
-                    id: searchControlBtn
-                    anchors.centerIn: parent
-                    size: window.s(34)
-                    cornerRadius: window.s(10)
-                    iconSize: window.s(34)
-                    accentColor: window.isSearchPaused ? ThemeBackend.surface2 : ThemeBackend.surface0
-                    textColor: window.isSearchPaused ? ThemeBackend.text : ThemeBackend.subtext0
-                    action_highlight: window.isSearchPaused
-                    paintCanvas: function(ctx, canvas) {
-                        var s = window.s;
-                        ctx.fillStyle = searchControlBtn.textColor;
-                        if (!window.isSearchPaused) {
-                            ctx.fillRect(s(12), s(11), s(3), s(12));
-                            ctx.fillRect(s(19), s(11), s(3), s(12));
-                        } else {
-                            ctx.beginPath();
-                            ctx.moveTo(s(13), s(10));
-                            ctx.lineTo(s(24), s(17));
-                            ctx.lineTo(s(13), s(24));
-                            ctx.closePath();
-                            ctx.fill();
-                        }
-                    }
-                    onClicked: {
-                        if (!window.isApplying) {
-                            window.isSearchPaused = !window.isSearchPaused;
-                        }
-                    }
-                }
-            }
-
-            Item {
-                id: searchContainer
-                property bool isSearchOpen: window.currentFilter === "Search"
-                property real openWidth: window.s(34) + window.s(6) + window.s(220) + window.s(6) + window.s(34)
-                property real closedWidth: window.s(34)
-                width: isSearchOpen ? openWidth : closedWidth
-                height: window.s(34)
-                clip: true
-                anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-                Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
-
-                CanvasIconButton {
-                    id: searchToggleBtn
-                    size: window.s(34)
-                    cornerRadius: window.s(10)
-                    iconSize: window.s(14)
-                    accentColor: searchContainer.isSearchOpen ? ThemeBackend.surface2 : ThemeBackend.surface0
-                    textColor: searchContainer.isSearchOpen ? ThemeBackend.text : ThemeBackend.subtext0
-                    action_highlight: searchContainer.isSearchOpen
-                    paintCanvas: function(ctx, canvas) {
-                        var s = window.s;
-                        ctx.lineWidth = s(1.5);
-                        ctx.lineCap = "round";
-                        ctx.strokeStyle = searchToggleBtn.textColor;
-                        ctx.beginPath();
-                        ctx.arc(s(5.5), s(5.5), s(3.5), 0, Math.PI * 2);
-                        ctx.stroke();
-                        ctx.beginPath();
-                        ctx.moveTo(s(8), s(8));
-                        ctx.lineTo(s(12.5), s(12.5));
-                        ctx.stroke();
-                    }
-                    onClicked: {
-                        if (window.currentFilter === "Search") {
-                            window.setFilter("All");
-                        } else {
-                            window.setFilter("Search");
-                        }
-                    }
-                }
-
-                Input {
-                    id: searchInput
-                    anchors.left: searchToggleBtn.right
-                    anchors.leftMargin: window.s(6)
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: window.s(220)
-                    implicitWidth: window.s(220)
-                    implicitHeight: window.s(34)
-                    height: window.s(34)
-                    opacity: searchContainer.isSearchOpen ? 1.0 : 0.0
-                    visible: opacity > 0.01
-                    Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
-                    cornerRadius: ThemeBackend.borderRadius
-                    baseColor: Qt.rgba(ThemeBackend.surface0.r, ThemeBackend.surface0.g, ThemeBackend.surface0.b, 0.85)
-                    borderColor: ThemeBackend.text
-                    textColor: ThemeBackend.text
-                    subTextColor: ThemeBackend.subtext0
-                    accentColor: ThemeBackend.text
-                    fontFamily: ThemeBackend.fontFamily
-                    fontPixelSize: window.s(12)
-                    placeholderText: I18n.t("wallpaper.notifications.type_to_search")
-                    showClearButton: true
-
-                    onTextEdited: function(newText) {
-                        window.hasSearched = false;
-                        searchState.searched = false;
-                    }
-
-                    onAccepted: function(finalText) {
-                        searchInput.focus = false;
-                        window.triggerOnlineSearch();
-                        view.forceActiveFocus();
-                    }
-                }
-
-                CanvasIconButton {
-                    id: submitBtn
-                    anchors.left: searchInput.right
-                    anchors.leftMargin: window.s(6)
-                    anchors.verticalCenter: parent.verticalCenter
-                    opacity: searchContainer.isSearchOpen ? 1.0 : 0.0
-                    visible: opacity > 0.01
-                    Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
-                    size: window.s(34)
-                    cornerRadius: ThemeBackend.borderRadius
-                    iconSize: window.s(34)
-                    accentColor: ThemeBackend.surface1
-                    textColor: ThemeBackend.text
-                    paintCanvas: function(ctx, canvas) {
-                        var s = window.s;
-                        ctx.lineWidth = s(1.5);
-                        ctx.lineCap = "round";
-                        ctx.lineJoin = "round";
-                        ctx.strokeStyle = submitBtn.textColor;
-                        ctx.beginPath();
-                        ctx.moveTo(s(12), s(17));
-                        ctx.lineTo(s(22), s(17));
-                        ctx.moveTo(s(18), s(13));
-                        ctx.lineTo(s(22), s(17));
-                        ctx.lineTo(s(18), s(21));
-                        ctx.stroke();
-                    }
-                    onClicked: {
-                        if (!window.isApplying) {
-                            searchInput.focus = false;
-                            window.triggerOnlineSearch();
-                            view.forceActiveFocus();
-                        }
-                    }
-                }
-            }
         }
     }
 
     Component.onCompleted: {
-        Quickshell.execDetached(["bash", "-c", "mkdir -p '" + decodeURIComponent(window.searchDir.replace("file://", "")) + "'"]);
-
-        if (searchState.searched) {
-            searchInput.text = searchState.query;
-            window.searchQuery = searchState.query;
-            window.hasSearched = true;
-            window.lastSearchName = searchState.lastName;
-            window.searchSessionId = searchState.sessionId;
-            window.isSearchPaused = true;
-        }
-
         indexDiskReader.running = true;
         window.syncFromSrcModel();
         window.triggerIndexer();
