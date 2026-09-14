@@ -20,6 +20,8 @@ run_step() {
 main() {
   require_arch
   [[ $EUID -eq 0 ]] && die "Run as your normal user; the installer uses sudo when needed."
+  command -v sudo >/dev/null 2>&1 || die "sudo is required. Install it as root with: pacman -S sudo"
+  sudo -v || die "Your user is not allowed to use sudo. Configure sudo first."
 
   cat <<'EOF'
 DotRobot Arch setup
