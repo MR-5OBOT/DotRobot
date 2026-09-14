@@ -17,6 +17,12 @@ setup_os_prober_flag() {
     log "os-prober already enabled in ${GRUB_DEFAULT}"
     return 0
   fi
+  if [[ -e "${GRUB_DEFAULT}.dotrobot.bak" || -L "${GRUB_DEFAULT}.dotrobot.bak" ]]; then
+    log "Kept existing ${GRUB_DEFAULT}.dotrobot.bak"
+  else
+    sudo cp "${GRUB_DEFAULT}" "${GRUB_DEFAULT}.dotrobot.bak"
+    log "Saved ${GRUB_DEFAULT}.dotrobot.bak"
+  fi
   if grep -q '^GRUB_DISABLE_OS_PROBER=' "${GRUB_DEFAULT}"; then
     sudo sed -i 's/^GRUB_DISABLE_OS_PROBER=.*/GRUB_DISABLE_OS_PROBER=false/' "${GRUB_DEFAULT}"
   else
@@ -34,7 +40,7 @@ main() {
     return 0
   fi
 
-  sudo pacman -S --needed --noconfirm os-prober
+  sudo pacman -Syu --needed --noconfirm os-prober
   setup_os_prober_flag
   log "Regenerating GRUB config; look for a \"Found Windows Boot Manager\" line"
   sudo grub-mkconfig -o /boot/grub/grub.cfg
@@ -42,4 +48,6 @@ main() {
   log "Done. If Windows uses BitLocker, have the recovery key ready: https://aka.ms/myrecoverykey"
 }
 
-main "$@"
+if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
+  main "$@"
+fi

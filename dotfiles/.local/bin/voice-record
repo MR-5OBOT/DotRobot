@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-mic="${VOICE_SOURCE:-$(pactl get-default-source)}"
-pactl set-default-source "$mic"
-pactl set-source-mute "$mic" 0
-gsettings set org.gnome.SoundRecorder audio-profile mp3
-gsettings set org.gnome.SoundRecorder audio-channel mono
-exec gnome-sound-recorder

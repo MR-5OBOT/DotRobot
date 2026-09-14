@@ -16,7 +16,7 @@ main() {
   trap 'rm -rf "${build_dir}"' EXIT
 
   log "Installing paru"
-  sudo pacman -S --needed --noconfirm base-devel git
+  sudo pacman -Syu --needed --noconfirm base-devel git
   git clone https://aur.archlinux.org/paru.git "${build_dir}/paru"
   (
     cd "${build_dir}/paru"
