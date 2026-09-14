@@ -14,8 +14,6 @@ git
 github-cli
 git-lfs
 gum
-intel-media-driver
-intel-ucode
 lazygit
 less
 libva-utils
