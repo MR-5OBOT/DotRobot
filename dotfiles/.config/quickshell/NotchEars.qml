@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Shapes
 
 // Concave shoulders that flare a top-docked card into the screen edge, so it
-// reads as a notch hanging from the bezel like the Ukishima island. Anchor it
+// reads as a notch hanging from the bezel like the island. Anchor it
 // to the card's top edge with the card's width: each ear of radius `r` hangs
 // just outside the left and right sides, and reaches `overlap` px into the card
 // so the two anti-aliased edges never leave a hairline seam.

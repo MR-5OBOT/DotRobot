@@ -48,7 +48,7 @@ Rectangle {
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         onClicked: {
-            Quickshell.execDetached(["qs", "ipc", "call", "calendar", "toggle"]);
+            Quickshell.execDetached(["qs", "-p", Quickshell.env("HOME") + "/.local/share/quickshell/island", "ipc", "call", "island", "calendar", ""]);   // DotRobot: the island's calendar
         }
     }
 
