@@ -13,7 +13,6 @@ file-roller
 freerdp
 gimp
 glow
-gnome-sound-recorder
 gparted
 grim
 gtk4

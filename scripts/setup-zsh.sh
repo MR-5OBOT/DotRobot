@@ -7,7 +7,7 @@ ZSHENV_FILE="/etc/zsh/zshenv"
 ZSH_PACKAGES=(zsh neovim eza bat fd fzf zoxide starship ripgrep)
 
 install_packages() {
-  sudo pacman -S --needed --noconfirm "${ZSH_PACKAGES[@]}"
+  sudo pacman -Syu --needed --noconfirm "${ZSH_PACKAGES[@]}"
   log "Installed zsh and dependencies: ${ZSH_PACKAGES[*]}"
 }
 

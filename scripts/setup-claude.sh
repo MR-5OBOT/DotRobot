@@ -36,10 +36,11 @@ set_statusline() {
   command="bash ${script}"
   [[ "${script}" == "${HOME}"/* ]] && command="bash ~/${script#"${HOME}"/}"
   [[ -s "${SETTINGS_FILE}" ]] || printf '{}\n' > "${SETTINGS_FILE}"
-  tmp="$(mktemp)"
+  tmp="$(mktemp "${CLAUDE_DIR}/.settings.json.XXXXXX")"
   if jq --arg cmd "${command}" '.statusLine = {type: "command", command: $cmd}' \
       "${SETTINGS_FILE}" > "${tmp}"; then
-    cat "${tmp}" > "${SETTINGS_FILE}"
+    chmod --reference="${SETTINGS_FILE}" "${tmp}"
+    mv "${tmp}" "${SETTINGS_FILE}"
     log "Set statusLine in ${SETTINGS_FILE} to: ${command}"
   else
     warn "Could not parse ${SETTINGS_FILE}; statusLine not set"
@@ -52,4 +53,6 @@ main() {
   set_statusline
 }
 
-main "$@"
+if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
+  main "$@"
+fi
