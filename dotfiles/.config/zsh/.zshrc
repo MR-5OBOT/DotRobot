@@ -29,4 +29,4 @@ if command -v fastfetch >/dev/null 2>&1; then
 fi
 
 # opencode
-export PATH=/home/mr5obot/.opencode/bin:$PATH
+export PATH="$HOME/.opencode/bin:$PATH"
