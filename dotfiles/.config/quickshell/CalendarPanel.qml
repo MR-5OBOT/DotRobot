@@ -46,7 +46,7 @@ PanelWindow {
 
         // Serpantinum draws this at a fixed 1360x510 — wider than this screen
         // (1280x720 logical at 1.5x). Keep it to a share of the screen instead
-        // of merely fitting it: widgets/settings.json -> calendar.screenFraction.
+        // of merely fitting it: ~/.config/mr5obot/settings.json -> calendar.screenFraction.
         Item {
             id: holder
             anchors.centerIn: parent

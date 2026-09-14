@@ -2,7 +2,7 @@
 
 Vendored from [serpantinum](https://github.com/ilyamiro/serpantinum) v2.1.5
 (commit `cab9a01`), `src/quickshell/`. AGPL-3.0: see `LICENSE.md` here.
-Hosted by `../FullBar.qml`, configured by `settings.json`.
+Hosted by `../FullBar.qml`; `settings.json` seeds the writable user settings.
 
 Only the side bar and what it references were copied. Changed from upstream:
 
@@ -13,7 +13,7 @@ Only the side bar and what it references were copied. Changed from upstream:
   Location is `general.location` in `settings.json`, or an IP lookup cached in
   `~/.cache/dotrobot/weather/` — never written into `settings.json`.
 - `singletons/audio/Sounds.qml` — no-op stub; the sound assets aren't vendored.
-- `singletons/system/Config.qml` — reads `widgets/settings.json` from this shell.
+- `singletons/system/Config.qml` — reads `~/.config/mr5obot/settings.json`.
 - `bar/sidemodules/SideTrayWidget.qml` — tray menus use `QsMenuAnchor`;
   serpantinum's tray popup lives in its `Main.qml`, which isn't vendored.
 - `bar/sidemodules/**` — buttons that ran `scripts/qs_manager.sh` now call this
@@ -24,15 +24,15 @@ Only the side bar and what it references were copied. Changed from upstream:
   The right-hand weather panel is hidden and the width cut to 1000.
 - `network/NetworkPopup.qml` — reads its helper script from this folder
   instead of `$QS_DIR/network`.
-- `wallpaper/WallpaperPicker.qml` — scripts resolve inside `widgets/scripts`, its
-  `Settings` takes a file:// URL, and `masterWindow.screen` (an id from
-  upstream's Main.qml) became a `hostScreen` property the host window sets.
+- `wallpaper/WallpaperPicker.qml` — scripts resolve inside `widgets/scripts`,
+  and `masterWindow.screen` (an id from upstream's Main.qml) became a
+  `hostScreen` property the host window sets.
 - `singletons/theme/Matugen.qml` — no-op stub. Upstream regenerates the palette
   with matugen and SIGUSR1s every kitty; ThemeBackend derives colours itself.
 - `singletons/theme/Wallpaper.qml` — vendored as-is. Its `wallpaperChanged`
   signal is bridged to WallpaperState by ../WallpaperPanel.qml; upstream's
   WallpaperEngine is not vendored (awww paints the wallpaper here).
-- `scripts/` — monitors_detect.sh and the wallpaper helpers (indexer, DDG search).
+- `scripts/` — monitors_detect.sh and the local wallpaper indexer.
 - `qmldir`, `bar/qmldir`, `network/qmldir`, `wallpaper/qmldir` — trimmed to the vendored files.
 - `assets/languages/en.json` — vendored so `I18n` can resolve keys;
   `singletons/system/I18n.qml` reads this folder instead of `$SERPANTINUM_DIR`.

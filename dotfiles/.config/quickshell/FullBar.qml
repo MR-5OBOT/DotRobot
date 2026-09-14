@@ -8,13 +8,13 @@ import "widgets/bar"
 // vendored and changed is in widgets/README.md), hosted here instead of in its own
 // Bar.qml, which also pulls in the top bar, OSD and tutorial plumbing.
 // Reserves its width so windows sit beside it, unless bar.autohide. Style, modules
-// and workspace count come from widgets/settings.json. Swap with Bar in shell.qml.
+// and workspace count come from ~/.config/mr5obot/settings.json. Swap with Bar in shell.qml.
 PanelWindow {
     id: barWindow
     required property var modelData
     screen: modelData
 
-    // settings: widgets/settings.json -> bar
+    // settings: ~/.config/mr5obot/settings.json -> bar
     readonly property var cfg: Config.rawSettings.bar ?? ({})
     readonly property string barPosition: cfg.position === "right" ? "right" : "left"   // SideBar is vertical-only
     readonly property bool isVertical: true
@@ -81,7 +81,7 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     // Responsive height: the window is only as tall as the modules and rides
     // centred on its edge, so the wallpaper shows above and below it.
-    // widgets/settings.json -> bar.fitContent; false restores the full-height bar.
+    // ~/.config/mr5obot/settings.json -> bar.fitContent; false restores the full-height bar.
     readonly property bool fitContent: cfg.fitContent ?? true
     readonly property real contentHeight: sideBar.tHeightTarget + sideBar.cHeightTarget + sideBar.bHeightTarget
                                           + sideBar.tcGap + sideBar.cbGap + 2 * sideBar.fillInset + 16
