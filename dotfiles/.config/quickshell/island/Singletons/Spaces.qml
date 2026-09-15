@@ -21,7 +21,7 @@ import "../lib/binds.js" as Binds
 Singleton {
     id: root
 
-    readonly property string path: Config.hyprPath("modules", "spaces.lua")
+    readonly property string path: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/island/spaces.lua"
     readonly property string bindsPath: Config.hyprPath("modules", "binds.lua")
 
     property var list: []

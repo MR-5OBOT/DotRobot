@@ -16,7 +16,7 @@ import Quickshell.Io
 Singleton {
     id: root
 
-    readonly property string confPath: Config.hyprPath("hyprsunset.conf")
+    readonly property string confPath: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/island/hyprsunset.conf"
     property bool available: false
     property string pendingMode: ""
 

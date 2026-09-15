@@ -5,22 +5,21 @@ local SCRIPTS = os.getenv("HOME") .. "/.config/hypr/scripts"
 local SCRIPT = SCRIPTS .. "/controls"
 local RISHOT = os.getenv("HOME") .. "/.config/quickshell/rishot/bin/rishot"
 local POWERPROFILE = os.getenv("HOME") .. "/.local/bin/powerprofile"
--- the island bar (repo island/) runs from this copy; see scripts/autostart/island.sh
-local ISLAND = "qs -p " .. os.getenv("HOME") .. "/.local/share/quickshell/island ipc call island"
+-- the island bar lives inside the main quickshell config (quickshell/island/)
+local ISLAND = "qs ipc call island"
 
 -- Window Management
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 hl.bind(mainMod .. " + C", hl.dsp.window.center())
 hl.bind("ALT + Space", hl.dsp.window.float({ action = "toggle" }))
--- lockscreen: hyprlock (fingerprint unlock). qs Lock.qml is untouched and
--- still reachable with: qs ipc call lock lock
+-- lockscreen: hyprlock (fingerprint unlock)
 hl.bind("ALT + L", hl.dsp.exec_cmd("pidof hyprlock || hyprlock"))
 
 -- Application Launchers
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd("[float]kitty"))
 hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("qs ipc call launcher toggle"))
-hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("pkill -x qs; qs")) -- restart quickshell
+hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("pkill -x qs; env MALLOC_CONF=background_thread:true,dirty_decay_ms:100,muzzy_decay_ms:100 qs")) -- restart quickshell (island included)
 hl.bind(mainMod .. " + X", hl.dsp.exec_cmd(ISLAND .. ' power ""'))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("qs ipc call wallpicker toggle"))
 hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("qs ipc call clipboard toggle"))

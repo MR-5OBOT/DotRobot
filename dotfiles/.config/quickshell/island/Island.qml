@@ -1,5 +1,3 @@
-//@ pragma UseQApplication
-
 import QtQuick
 import Quickshell
 import Quickshell.Io
@@ -9,7 +7,8 @@ import "Singletons"
 import "surfaces"
 
 /**
- * Island top shell. Each monitor carries two layer-shell windows:
+ * The island: one component of the single qs process, loaded by the main
+ * quickshell shell.qml. Each monitor carries two layer-shell windows:
  *
  *  - `reserve` is a zero-content strip that only claims an exclusive zone the
  *    height of the rest pill, so tiled windows always sit below the pill even
@@ -25,7 +24,7 @@ import "surfaces"
  * cleared so the whole layer catches clicks. A backdrop press dismisses, and
  * keyboard focus is taken on demand so Escape closes the open surface.
  */
-ShellRoot {
+Scope {
     id: root
 
     property string openMon: ""
@@ -46,29 +45,6 @@ ShellRoot {
     Component.onCompleted: {
         refresh();
         void Events.events;   // singletons load lazily; calendar reminders must run with the calendar closed
-    }
-
-    /**
-     * After an update relaunches the shell, raise a one-shot toast naming what
-     * landed, so the apply ends in a confirmation instead of a silent restart. The
-     * updater drops the marker just before it restarts; the short delay lets the
-     * notification server own the bus before we post to it, and the marker is
-     * removed as it is read so the toast only ever fires once.
-     */
-    Timer {
-        interval: 2500
-        running: true
-        onTriggered: updatedToast.running = true
-    }
-    Process {
-        id: updatedToast
-        command: ["sh", "-c",
-            "m=\"${XDG_STATE_HOME:-$HOME/.local/state}/island/updated\"; [ -f \"$m\" ] || exit 0; "
-            + "b=$(cat \"$m\"); rm -f \"$m\"; "
-            + "gdbus call --session --dest org.freedesktop.Notifications "
-            + "--object-path /org/freedesktop/Notifications "
-            + "--method org.freedesktop.Notifications.Notify "
-            + "Pill 0 '' 'Pill updated' \"$b\" '[]' '{}' 5000 >/dev/null 2>&1"]
     }
 
     PanelWindow {
