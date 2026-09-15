@@ -20,7 +20,7 @@ Item {
 
     // same state file and fallback as WallpaperState.qml
     readonly property string home: Quickshell.env("HOME")
-    property string wallpaper: home + "/Pictures/wallpapers/MR5OBOT.jpg"
+    property string wallpaper: home + "/Pictures/wallpapers/reborn.png"
     FileView {
         path: (Quickshell.env("XDG_STATE_HOME") || (root.home + "/.local/state")) + "/qs-wallpaper"
         watchChanges: true
