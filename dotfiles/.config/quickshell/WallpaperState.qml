@@ -10,7 +10,7 @@ import Quickshell.Io
 Singleton {
     id: root
     readonly property string stateFile: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/qs-wallpaper"
-    readonly property string fallback: Quickshell.env("HOME") + "/Pictures/wallpapers/MR5OBOT.jpg"
+    readonly property string fallback: Quickshell.env("HOME") + "/Pictures/wallpapers/reborn.png"
     property string path: fallback
 
     // awww (a daemon) paints the wallpaper, so it survives quickshell restarts
