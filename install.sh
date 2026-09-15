@@ -39,6 +39,7 @@ EOF
   run_step "Set up hibernation if supported (30min lid delay on laptops)" "scripts/setup-hibernate.sh"
   run_step "Show Windows in the GRUB menu (os-prober, dual boot only)" "scripts/setup-dual-boot.sh"
   run_step "Link dotfiles into \$HOME" "scripts/link-dotfiles.sh"
+  run_step "Link hardware video flags for Chromium-based browsers" "scripts/setup-browser-flags.sh"
   run_step "Apply GTK/icon/cursor theme settings" "scripts/setup-gtk-theme.sh"
   run_step "Install zinit and tmux TPM" "scripts/setup-shell-tools.sh"
   run_step "Set zsh as the default shell" "scripts/setup-zsh.sh"
