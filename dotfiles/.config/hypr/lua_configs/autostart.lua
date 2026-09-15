@@ -7,8 +7,9 @@ hl.on("hyprland.start", function()
 
   -- Daemons
   hl.exec_cmd("awww-daemon")                            -- paints the wallpaper; qs only picks it
-  hl.exec_cmd("qs")                                     -- launcher + clipboard + wifi/bt + menus + lock + wallpaper
-  hl.exec_cmd(SCRIPTS .. "/autostart/island.sh")        -- top-edge island bar; owns notifications
+  -- one quickshell: the island bar (owns notifications) + launcher, clipboard, wifi/bt, menus.
+  -- MALLOC_CONF lets jemalloc hand freed memory back instead of holding the session peak.
+  hl.exec_cmd("env MALLOC_CONF=background_thread:true,dirty_decay_ms:100,muzzy_decay_ms:100 qs")
   hl.exec_cmd(SCRIPTS .. "/autostart/cliphist.sh")
   hl.exec_cmd(SCRIPTS .. "/autostart/battery-notify.sh") -- low-batt nag; the island draws it as a toast
   hl.exec_cmd("devify")
