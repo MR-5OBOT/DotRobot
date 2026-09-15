@@ -142,8 +142,7 @@ Item {
     readonly property bool themeOpen: surface === "theme"
     readonly property bool interfaceOpen: surface === "interface"
     readonly property bool fontpickerOpen: surface === "fontpicker"
-    readonly property bool updateOpen: surface === "update"
-    readonly property bool settingsLike: appearanceOpen || displayOpen || themeOpen || interfaceOpen || fontpickerOpen || updateOpen
+    readonly property bool settingsLike: appearanceOpen || displayOpen || themeOpen || interfaceOpen || fontpickerOpen
     readonly property bool hasMedia: Players.list.length > 0
 
     readonly property var netDevices: (typeof Networking !== "undefined" && Networking && Networking.devices) ? Networking.devices.values : []
@@ -397,8 +396,7 @@ Item {
         display:    { size: () => Qt.size(settingsW, surfaceItem("display").implicitHeight + 29 * s), ame: () => surfaceItem("display") },
         theme:      { size: () => Qt.size(settingsW, surfaceItem("theme").implicitHeight + 29 * s), ame: () => surfaceItem("theme") },
         interface:  { size: () => Qt.size(settingsW, surfaceItem("interface").implicitHeight + 29 * s), ame: () => surfaceItem("interface") },
-        fontpicker: { size: () => Qt.size(fontpickerW, surfaceItem("fontpicker").implicitHeight + 29 * s), ame: () => surfaceItem("fontpicker") },
-        update:     { size: () => Qt.size(settingsW, surfaceItem("update").implicitHeight + 29 * s), ame: () => surfaceItem("update") }
+        fontpicker: { size: () => Qt.size(fontpickerW, surfaceItem("fontpicker").implicitHeight + 29 * s), ame: () => surfaceItem("fontpicker") }
     })
 
     /**
@@ -426,8 +424,7 @@ Item {
         display:    () => ldDisplay,
         theme:      () => ldTheme,
         interface:  () => ldInterface,
-        fontpicker: () => ldFontpicker,
-        update:     () => ldUpdate
+        fontpicker: () => ldFontpicker
     })
 
     /**
@@ -2708,19 +2705,6 @@ sourceComponent: Media {
         sourceComponent: FontPicker {
             s: pill.s * pill.settingsScale
             open: pill.fontpickerOpen
-            morphCloseness: pill.morphCloseness
-            onRequestClose: pill.requestClose()
-            onRequestSurface: (name) => pill.requestSurface(name)
-        }
-    }
-
-    Loader {
-        id: ldUpdate
-        active: false
-        anchors.fill: parent
-        sourceComponent: UpdateSurface {
-            s: pill.s * pill.settingsScale
-            open: pill.updateOpen
             morphCloseness: pill.morphCloseness
             onRequestClose: pill.requestClose()
             onRequestSurface: (name) => pill.requestSurface(name)
