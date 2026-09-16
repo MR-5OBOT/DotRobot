@@ -45,7 +45,11 @@ PillSurface {
      */
     onActiveChanged: if (root.active) root.readIdentity()
 
-    /** Radio state, guarded exactly as WifiSurface/BtSurface guard it. */
+    /**
+     * Radio state for the tile indicators only. The tiles open the real Wi-Fi
+     * and Bluetooth surfaces rather than toggling the radios themselves, so the
+     * full panels stay the way in.
+     */
     readonly property bool wifiOn: (typeof Networking !== "undefined" && Networking) ? Networking.wifiEnabled : false
     readonly property var btAdapter: (typeof Bluetooth !== "undefined" && Bluetooth) ? Bluetooth.defaultAdapter : null
     readonly property bool btOn: root.btAdapter ? root.btAdapter.enabled === true : false
@@ -699,13 +703,13 @@ PillSurface {
                     width: tiles.cellW; height: tiles.cellH
                     glyph: "wifi"; label: "Wi-Fi"
                     on: root.wifiOn
-                    onActivated: if (typeof Networking !== "undefined" && Networking) Networking.wifiEnabled = !Networking.wifiEnabled
+                    onActivated: root.requestSurface("wifi")
                 }
                 Tile {
                     width: tiles.cellW; height: tiles.cellH
                     glyph: "bluetooth"; label: "Bluetooth"
                     on: root.btOn
-                    onActivated: if (root.btAdapter) root.btAdapter.enabled = !root.btAdapter.enabled
+                    onActivated: root.requestSurface("bt")
                 }
                 Tile {
                     width: tiles.cellW; height: tiles.cellH
