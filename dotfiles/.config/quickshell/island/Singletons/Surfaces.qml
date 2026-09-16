@@ -14,6 +14,21 @@ Singleton {
 
     property var pills: []
 
+    /**
+     * Back-navigation state, shared so every PillSurface can render one chevron
+     * without the pill threading a signal through all nineteen Loaders. `back`
+     * is the surface to return to, set only when one surface was opened from
+     * inside another; a surface opened by keybind or IPC clears it, so the
+     * chevron appears exactly when there is somewhere to go back to.
+     */
+    property string back: ""
+    property var host: null
+
+    function goBack() {
+        if (root.host)
+            root.host.navigateBack();
+    }
+
     function register(p) {
         if (root.pills.indexOf(p) >= 0)
             return;
