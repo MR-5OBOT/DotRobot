@@ -2301,8 +2301,9 @@ Item {
     /**
      * Back to whichever surface opened this one. Drawn by the pill, not by
      * PillSurface, because a surface that clips (sysmon's gauges) would clip a
-     * chevron sitting outside its own bounds. PillSurface still reserves the
-     * lane this sits in, so it never lands on a surface's own header.
+     * chevron sitting outside its own bounds. Sized to sit inside the left
+     * margin every surface already has (the smallest is Launcher's 11), so no
+     * surface has to give up layout for it.
      */
     Rectangle {
         id: backBtn
@@ -2310,10 +2311,10 @@ Item {
         visible: Surfaces.back.length > 0 && pill.surfaceOpen
         anchors.left: parent.left
         anchors.top: parent.top
-        anchors.leftMargin: 9 * pill.s
+        anchors.leftMargin: 1 * pill.s
         anchors.topMargin: 13 * pill.s
-        width: 15 * pill.s
-        height: 15 * pill.s
+        width: 11 * pill.s
+        height: 11 * pill.s
         radius: width / 2
         color: backHover.hovered ? Theme.frameBg : "transparent"
         border.width: 0
@@ -2321,8 +2322,8 @@ Item {
 
         GlyphIcon {
             anchors.centerIn: parent
-            width: 11 * pill.s
-            height: 11 * pill.s
+            width: 9 * pill.s
+            height: 9 * pill.s
             name: "chevron-left"
             color: backHover.hovered ? Theme.cream : Theme.faint
             stroke: 1.7
