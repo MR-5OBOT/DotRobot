@@ -2311,8 +2311,12 @@ Item {
         visible: Surfaces.back.length > 0 && pill.surfaceOpen
         anchors.left: parent.left
         anchors.top: parent.top
-        anchors.leftMargin: 1 * pill.s
-        anchors.topMargin: 13 * pill.s
+        /* Every surface's header is a 24-unit row anchored to its top-left, so
+           the header centre sits at (mTop + 12). mTop is 13 on most surfaces and
+           16 on calendar/battery; a 20 top margin puts this 11-tall chevron's
+           centre at 25.5, on the header line for both without per-surface work. */
+        anchors.leftMargin: 4 * pill.s
+        anchors.topMargin: 20 * pill.s
         width: 11 * pill.s
         height: 11 * pill.s
         radius: width / 2
