@@ -8,6 +8,7 @@ It is one part of the quickshell config in `dotfiles/.config/quickshell`: the to
 
 ## Features
 
+- **Home** — a click on the notch opens the control centre: a rail of every surface, the identity card over the live wallpaper, now-playing, clock/weather and a grid of quick actions. Hover still gives the thin control row; a keybind still opens its surface directly.
 - **Notch** — flush with the top edge, pure black, concave shoulders, slides out of the screen; panels and the volume/brightness popup share the shape.
 - **Panels** — calendar with events and reminders, weather, media player, mixer (volume, mic, brightness, DND, keep-awake, night light), battery with power-profile button, system monitor with a speed test, notification inbox and toasts, minimized-window stash, power menu, settings (display, font, interface).
 - **Notifications** — the island owns the notification server: toasts stay 8 seconds, the inbox shows each notification's title, body and icon.
@@ -33,7 +34,7 @@ qs ipc call island calendar ""
 qs ipc call island page "" weather
 ```
 
-Handlers: `mixer`, `calendar`, `launcher`, `power`, `link`, `battery`, `sysmon`/`system`, `clipboard`, `wallpaper`, `media`, `peek`, `hide`, `unloadAll`, `page`, `minimizeWindow`, `restoreWindow`. `launcher`, `clipboard` and `wallpaper` open the shell's own widgets.
+Handlers: `home`, `mixer`, `calendar`, `launcher`, `power`, `link`, `battery`, `sysmon`/`system`, `clipboard`, `wallpaper`, `media`, `peek`, `hide`, `unloadAll`, `page`, `nav`, `minimizeWindow`, `restoreWindow`. `launcher`, `clipboard` and `wallpaper` open the shell's own widgets.
 
 ## Precise location (GeoClue)
 

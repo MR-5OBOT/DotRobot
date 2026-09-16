@@ -5,6 +5,7 @@ Calendar Calendar.qml
 Clipboard Clipboard.qml
 DisplaySurface DisplaySurface.qml
 FontPicker FontPicker.qml
+Home Home.qml
 InterfaceSurface InterfaceSurface.qml
 Launcher Launcher.qml
 Link Link.qml
