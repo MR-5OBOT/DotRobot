@@ -31,6 +31,10 @@ Scope {
     property string openSurface: ""
     property string peekMon: ""
 
+    /** Where the open surface was reached from, "" when it was opened directly. */
+    property string backSurface: ""
+    onBackSurfaceChanged: Surfaces.back = root.backSurface
+
     /**
      * Low/full battery warnings come from ~/.config/hypr/scripts/autostart/
      * battery-notify.sh, which outlives shell restarts; the island owns the
@@ -45,6 +49,7 @@ Scope {
     Component.onCompleted: {
         refresh();
         void Events.events;   // singletons load lazily; calendar reminders must run with the calendar closed
+        Surfaces.host = root;
     }
 
     PanelWindow {
@@ -112,11 +117,37 @@ Scope {
             root.close();
             return;
         }
+        root.backSurface = "";
         root.openMon = mon;
         root.openSurface = surface;
     }
 
+    /**
+     * Surface-to-surface move from inside the island: remember what we left so
+     * the chevron can walk it back. Unlike toggleSurface this never closes on a
+     * repeat, because it is a navigation, not a toggle.
+     */
+    function navigate(mon, surface) {
+        if (!mon || mon.length === 0)
+            mon = Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : "";
+        root.backSurface = (root.openMon === mon && root.openSurface.length > 0
+            && root.openSurface !== surface) ? root.openSurface : "";
+        root.openMon = mon;
+        root.openSurface = surface;
+    }
+
+    function navigateBack() {
+        const target = root.backSurface;
+        root.backSurface = "";
+        if (target.length === 0) {
+            root.close();
+            return;
+        }
+        root.openSurface = target;
+    }
+
     function close() {
+        root.backSurface = "";
         root.openMon = "";
         root.openSurface = "";
     }
@@ -127,6 +158,7 @@ Scope {
 
     IpcHandler {
         target: "island"
+        function home(mon: string): void { root.toggleSurface(mon, "home"); }
         function mixer(mon: string): void { root.toggleSurface(mon, "mixer"); }
         function calendar(mon: string): void { root.toggleSurface(mon, "calendar"); }
         function launcher(mon: string): void {
@@ -162,6 +194,13 @@ Scope {
 
         /** Opens any surface by name, settings sub-pages included; dev and scripting door. */
         function page(mon: string, name: string): void { root.toggleSurface(mon, name); }
+
+        /**
+         * Same, but as a navigation: the surface that was open becomes the back
+         * target, so the chevron walks back to it. This is the door the island's
+         * own rail uses; `page` stays the direct, no-history open.
+         */
+        function nav(mon: string, name: string): void { root.navigate(mon, name); }
 
         /**
          * The two halves of the SUPER+M minimize toggle, driven by the
@@ -205,16 +244,15 @@ Scope {
                 ? Math.max(0, restFaceH - 12 * (1 - Flags.appGap) * s)
                 : Math.max(0, restFaceH + topGap - 12 * (1 - Flags.appGap) * s)
 
-            readonly property real gameBarH: 34 * s
 
             screen: modelData
             color: "transparent"
             exclusionMode: ExclusionMode.Normal
-            exclusiveZone: Flags.gameMode ? gameBarH : (Flags.autoHide ? 0 : reservedH)
+            exclusiveZone: Flags.autoHide ? 0 : reservedH
             aboveWindows: true
 
             anchors { top: true; left: true; right: true }
-            implicitHeight: Flags.gameMode ? gameBarH : (Flags.autoHide ? 0 : reservedH)
+            implicitHeight: Flags.autoHide ? 0 : reservedH
 
             mask: emptyReserve
             Region { id: emptyReserve }
@@ -266,7 +304,7 @@ Scope {
 
             anchors { top: true; left: true; right: true; bottom: true }
 
-            mask: monFullscreen ? hiddenRegion : (modal ? fullRegion : (pill.mode === "game" ? pillRegion : (Flags.autoHide ? (pill.revealSession || pill.transientLive ? revealPillRegion : (pill.expanded ? pillRegion : revealRegion)) : pillRegion)))
+            mask: monFullscreen ? hiddenRegion : (modal ? fullRegion : (Flags.autoHide ? (pill.revealSession || pill.transientLive ? revealPillRegion : (pill.expanded ? pillRegion : revealRegion)) : pillRegion))
             Region { id: hiddenRegion }
 
             /**
@@ -471,7 +509,7 @@ Scope {
                     height: 8 * overlay.s
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.top: parent.top
-                    enabled: Flags.autoHide && !pill.surfaceOpen && !Flags.gameMode
+                    enabled: Flags.autoHide && !pill.surfaceOpen
                     visible: enabled
                     keys: ["text/uri-list"]
                     onEntered: (drag) => {
@@ -528,7 +566,7 @@ Scope {
                         }
                     }
 
-                    onRequestSurface: (name) => root.toggleSurface(overlay.modelData.name, name)
+                    onRequestSurface: (name) => root.navigate(overlay.modelData.name, name)
                     onRequestClose: root.close()
                 }
 
@@ -541,7 +579,7 @@ Scope {
                     screenName: overlay.modelData.name
                     expanded: pill.expanded
                     topFlat: 1
-                    suppressed: overlay.surfaceOpen || pill.held || pill.mode === "game" || (pill.toastActive && Notifs.toastCritical)
+                    suppressed: overlay.surfaceOpen || pill.held || (pill.toastActive && Notifs.toastCritical)
                 }
             }
 

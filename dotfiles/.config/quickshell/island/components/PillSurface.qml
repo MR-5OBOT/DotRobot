@@ -49,9 +49,12 @@ Item {
     onOpenChanged: if (!open) settled = false
     onMorphClosenessChanged: if (open && morphCloseness > 0.92) settled = true
 
+    /** Reserve a lane for the back chevron so no surface header collides with it. */
+    readonly property bool backable: Surfaces.back.length > 0 && surface.open
+
     anchors.fill: parent
     anchors.topMargin: mTop * s
-    anchors.leftMargin: mLeft * s
+    anchors.leftMargin: (mLeft + (backable ? 19 : 0)) * s
     anchors.rightMargin: mRight * s
     anchors.bottomMargin: mBottom * s
 
@@ -62,4 +65,5 @@ Item {
     Behavior on opacity {
         NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard }
     }
+
 }

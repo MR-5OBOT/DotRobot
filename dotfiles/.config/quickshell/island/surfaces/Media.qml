@@ -374,8 +374,7 @@ PillSurface {
         radius: 20 * root.s
         topLeftRadius: radius * (1 - root.topFlat)
         topRightRadius: radius * (1 - root.topFlat)
-        border.width: 1
-        border.color: Theme.frameBorder
+        border.width: 0
 
         gradient: Gradient {
             GradientStop { position: 0.0; color: Theme.cardTop }

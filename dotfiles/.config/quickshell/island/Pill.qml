@@ -94,6 +94,7 @@ Item {
     property bool expandLatch: false
 
     readonly property bool held: pinned || forcePinned
+    readonly property bool homeOpen: surface === "home"
     readonly property bool mixerOpen: surface === "mixer"
     readonly property bool calendarOpen: surface === "calendar"
     readonly property bool launcherOpen: surface === "launcher"
@@ -236,7 +237,7 @@ Item {
      * it, so a cursor sitting on the strip's edge cannot bounce it.
      */
     readonly property bool hidden: Flags.autoHide && !revealSession && !expanded && !dragActive
-        && !transientLive && mode !== "game"
+        && !transientLive
 
     /**
      * The special workspace shown on this pill's monitor, surfaced as a plain word
@@ -320,6 +321,8 @@ Item {
     readonly property real hoverW: hoverRow.implicitWidth + 2 * hoverPad
     readonly property real hoverH: 58 * s
     readonly property real calendarS: s * 1.05
+    readonly property real homeW: 620 * s
+    readonly property real homeH: 396 * s
     readonly property real mixerH: 214 * s
     readonly property real launcherW: 360 * s
     readonly property real launcherH: 332 * s
@@ -341,8 +344,6 @@ Item {
     readonly property real toastW: 342 * s
     readonly property real dragOverW: 300 * s
     readonly property real dragOverH: 126 * s
-    readonly property real gameH: 34 * s
-    readonly property real gameW: barWindow ? barWindow.width : 1920
     readonly property real restCorner: 18 * s
     readonly property real openCorner: 22 * s
 
@@ -379,6 +380,7 @@ Item {
      * no parallel ternary chains to keep in lockstep.
      */
     readonly property var surfaces: ({
+        home:      { size: () => { surfaceItem("home"); return Qt.size(homeW, homeH); }, ame: () => surfaceItem("home") },
         calendar:  { size: () => { const it = surfaceItem("calendar"); return Qt.size((it.implicitWidth > 0 ? it.implicitWidth : 282 * calendarS) + 36 * calendarS, it.implicitHeight + 32 * calendarS); }, ame: () => surfaceItem("calendar") },
         weather:   { size: () => { const it = surfaceItem("weather"); return Qt.size((it.implicitWidth > 0 ? it.implicitWidth : 282 * s) + 36 * s, it.implicitHeight + 32 * s); }, ame: () => surfaceItem("weather") },
         launcher:  { size: () => { surfaceItem("launcher"); return Qt.size(launcherW, launcherH); }, ame: () => surfaceItem("launcher") },
@@ -407,6 +409,7 @@ Item {
      * instant.
      */
     readonly property var loaders: ({
+        home:       () => ldHome,
         calendar:   () => ldCalendar,
         weather:    () => ldWeather,
         launcher:   () => ldLauncher,
@@ -535,10 +538,9 @@ Item {
 
     readonly property string mode: dragActive ? "dragOver"
         : (surfaceOpen && surfaces[surface] !== undefined ? surface
-        : (Flags.gameMode ? "game"
         : (toastActive && Notifs.toastCritical && !held ? "toast"
         : (toastActive && !held ? "toast"
-        : (expanded ? "hover" : "rest")))))
+        : (expanded ? "hover" : "rest"))))
 
     /**
      * AppImage drag-install state, live only while a file hovers the resting pill.
@@ -799,7 +801,7 @@ Item {
         onExited: () => sleepWatcher.running = true
     }
 
-    property real morphRadius: (mode === "rest" || mode === "hover" || mode === "game") ? restCorner : openCorner
+    property real morphRadius: (mode === "rest" || mode === "hover") ? restCorner : openCorner
 
     /**
      * Target geometry for the non-surface morph modes. Surface sizes come from
@@ -813,8 +815,7 @@ Item {
     readonly property var modeSize: ({
         toast: () => Qt.size(toastW, toastLoader.item ? toastLoader.item.implicitHeight + 24 * s : restH),
         hover: () => Qt.size(hoverW, hoverH),
-        dragOver:    () => Qt.size(dragOverW, dragOverH),
-        game:        () => Qt.size(gameW, gameH)
+        dragOver:    () => Qt.size(dragOverW, dragOverH)
     })
 
     /**
@@ -914,15 +915,13 @@ Item {
          * top corners square off against the edge (NotchEars flare them into
          * it) while the bottom corners stay rounded.
          */
-        property real gameFlat: pill.mode === "game" ? 1 : 0
-        Behavior on gameFlat { NumberAnimation { duration: Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
         property real topFlat: 1
 
         radius: pill.morphRadius
         topLeftRadius: pill.morphRadius * (1 - topFlat)
         topRightRadius: pill.morphRadius * (1 - topFlat)
-        bottomLeftRadius: pill.morphRadius * (1 - gameFlat)
-        bottomRightRadius: pill.morphRadius * (1 - gameFlat)
+        bottomLeftRadius: pill.morphRadius
+        bottomRightRadius: pill.morphRadius
         gradient: Gradient {
             GradientStop { position: 0.0; color: Qt.alpha(Theme.cardTop, Flags.pillOpacity) }
             GradientStop { position: 1.0; color: Qt.alpha(Theme.cardBot, Flags.pillOpacity) }
@@ -1029,7 +1028,7 @@ Item {
     }
 
     onHoveredChanged: {
-        if (hovered && pill.mode !== "game") {
+        if (hovered) {
             if (!Flags.autoHide && Flags.expandTo === "media" && pill.hasMedia
                 && !pill.surfaceOpen && !pill.dragActive
                 && bootSettled && !toastActive) {
@@ -1083,7 +1082,7 @@ Item {
     }
 
     TapHandler {
-        enabled: !pill.surfaceOpen && pill.mode !== "game"
+        enabled: !pill.surfaceOpen
         gesturePolicy: TapHandler.WithinBounds
         onTapped: {
             if (pill.expandLatch) {
@@ -1091,13 +1090,10 @@ Item {
                 pill.hoverLatch = false;
                 return;
             }
-            if (Flags.expandTo === "media" && pill.hasMedia) {
+            if (Flags.expandTo === "media" && pill.hasMedia)
                 pill.requestSurface("media");
-            } else if (Flags.autoHide) {
-                pill.hoverLatch = !pill.hoverLatch;
-            } else {
-                pill.pinned = !pill.pinned;
-            }
+            else
+                pill.requestSurface("home");
         }
     }
 
@@ -1109,7 +1105,7 @@ Item {
      */
     TapHandler {
         acceptedButtons: Qt.RightButton
-        enabled: (!pill.surfaceOpen || pill.mediaOpen) && pill.mode !== "game"
+        enabled: !pill.surfaceOpen || pill.mediaOpen
         gesturePolicy: TapHandler.WithinBounds
         onTapped: {
             if (pill.mediaOpen)
@@ -1423,192 +1419,10 @@ Item {
         }
     }
 
-    /**
-     * Game-mode face: the pill docks into a flush top bar carrying only the clock
-     * and, when something plays, the current track. Everything else the desktop
-     * usually shows is deliberately gone.
-     */
-    Item {
-        id: gameBar
-        anchors.fill: parent
-        enabled: pill.mode === "game"
-        opacity: pill.mode === "game" ? Math.pow(pill.morphCloseness, 1.2) : 0
-        visible: opacity > 0.01
-
-        Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
-
-        Row {
-            anchors.left: parent.left
-            anchors.leftMargin: 18 * pill.s
-            anchors.verticalCenter: parent.verticalCenter
-            spacing: 9 * pill.s
-            opacity: Players.has ? 1 : 0
-            visible: opacity > 0.01
-            Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
-
-            Rectangle {
-                anchors.verticalCenter: parent.verticalCenter
-                width: 26 * pill.s
-                height: 26 * pill.s
-                radius: 7 * pill.s
-                color: Theme.tileBg
-                clip: true
-                Image {
-                    id: artImg
-                    anchors.fill: parent
-                    source: Players.artUrl
-                    sourceSize: Qt.size(Math.ceil(width * 2), Math.ceil(height * 2))
-                    fillMode: Image.PreserveAspectCrop
-                    asynchronous: true
-                    visible: status === Image.Ready
-                }
-                /** No art from the player: the source's own app icon stands in. */
-                Image {
-                    anchors.centerIn: parent
-                    width: parent.width - 8 * pill.s
-                    height: parent.height - 8 * pill.s
-                    source: Players.appIconFor(Players.active)
-                    sourceSize: Qt.size(Math.ceil(width * 2), Math.ceil(height * 2))
-                    fillMode: Image.PreserveAspectFit
-                    asynchronous: true
-                    smooth: true
-                    visible: artImg.status !== Image.Ready && status === Image.Ready
-                }
-            }
-            Column {
-                anchors.verticalCenter: parent.verticalCenter
-                Text {
-                    text: Players.title
-                    color: Theme.cream
-                    font.family: Theme.font
-                    font.pixelSize: 12.5 * pill.s
-                    font.weight: Font.Medium
-                    elide: Text.ElideRight
-                    width: Math.min(implicitWidth, 220 * pill.s)
-                }
-                Text {
-                    text: Players.artist
-                    color: Theme.dim
-                    font.family: Theme.font
-                    font.pixelSize: 10.5 * pill.s
-                    elide: Text.ElideRight
-                    width: Math.min(implicitWidth, 220 * pill.s)
-                    visible: text.length > 0
-                }
-            }
-        }
-
-        Text {
-            anchors.centerIn: parent
-            text: clock.hhmm
-            color: Theme.cream
-            font.family: Theme.font
-            font.pixelSize: 16 * pill.s
-            font.weight: Font.DemiBold
-            font.features: ({ "tnum": 1 })
-        }
-
-        /**
-         * Volume/brightness/mic feedback stays visible while gaming as a compact
-         * chip on the bar's right, since the full OSD face is parked behind
-         * game mode in the mode ladder. Notifications stay suppressed.
-         */
-        Rectangle {
-            id: exitChip
-            anchors.right: parent.right
-            anchors.rightMargin: 14 * pill.s
-            anchors.verticalCenter: parent.verticalCenter
-            width: 26 * pill.s
-            height: 26 * pill.s
-            radius: 8 * pill.s
-            color: exitHover.hovered ? Theme.frameBg : Qt.alpha(Theme.tileBg, 0.45)
-            border.width: 1
-            border.color: exitHover.hovered ? Qt.alpha(Theme.onGlow, 0.5) : Theme.border
-            Behavior on color { ColorAnimation { duration: Motion.fast } }
-
-            GlyphIcon {
-                anchors.centerIn: parent
-                width: 15 * pill.s
-                height: 15 * pill.s
-                name: "gamepad"
-                color: exitHover.hovered ? Theme.vermLit : Theme.iconDim
-                stroke: 1.7
-            }
-            HoverHandler {
-                id: exitHover
-            }
-            MouseArea {
-                anchors.fill: parent
-                cursorShape: Qt.PointingHandCursor
-                onClicked: Flags.gameMode = false
-            }
-            Tooltip {
-                s: pill.s
-                placement: "below"
-                align: "right"
-                title: "Exit game mode"
-                desc: "Restore the desktop"
-                show: exitHover.hovered
-            }
-        }
-
-        Row {
-            anchors.right: exitChip.left
-            anchors.rightMargin: 9 * pill.s
-            anchors.verticalCenter: parent.verticalCenter
-            spacing: 9 * pill.s
-            opacity: osd.flashing && (osd.kind === "volume" || osd.kind === "brightness" || osd.kind === "mic") ? 1 : 0
-            visible: opacity > 0.01
-            Behavior on opacity { NumberAnimation { duration: Motion.fast } }
-
-            GlyphIcon {
-                anchors.verticalCenter: parent.verticalCenter
-                width: 14 * pill.s
-                height: 14 * pill.s
-                name: osd.kind === "brightness" ? "sun"
-                    : (osd.kind === "mic" ? (osd.micMuted ? "mic-off" : "mic")
-                    : (osd.muted ? "speaker-off" : "speaker"))
-                color: (osd.kind === "volume" && osd.muted) || (osd.kind === "mic" && osd.micMuted) ? Theme.dim : Theme.iconDim
-                stroke: 1.7
-            }
-
-            Rectangle {
-                anchors.verticalCenter: parent.verticalCenter
-                width: 64 * pill.s
-                height: 3 * pill.s
-                radius: 1.5 * pill.s
-                color: Theme.threadBg
-
-                Rectangle {
-                    anchors.left: parent.left
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    width: parent.width * (osd.kind === "brightness" ? osd.brightness
-                        : (osd.kind === "mic" ? osd.micVolume : osd.volume))
-                    radius: parent.radius
-                    color: (osd.kind === "volume" && osd.muted) || (osd.kind === "mic" && osd.micMuted) ? Theme.vermDim : Theme.vermLit
-                    Behavior on width { NumberAnimation { duration: Motion.fast } }
-                }
-            }
-
-            Text {
-                anchors.verticalCenter: parent.verticalCenter
-                text: osd.kind === "mic"
-                    ? (osd.micMuted ? "off" : Math.round(osd.micVolume * 100) + "%")
-                    : Math.round((osd.kind === "brightness" ? osd.brightness : osd.volume) * 100) + "%"
-                color: (osd.kind === "volume" && osd.muted) || (osd.kind === "mic" && osd.micMuted) ? Theme.dim : Theme.cream
-                font.family: Theme.font
-                font.pixelSize: 10.5 * pill.s
-                font.weight: Font.DemiBold
-                font.features: ({ "tnum": 1 })
-            }
-        }
-    }
-
     Item {
         id: rest
         anchors.fill: parent
-        opacity: (pill.expanded || pill.dragActive || pill.mode === "game" || pill.mode === "toast") ? 0 : Math.pow(pill.morphCloseness, 1.5)
+        opacity: (pill.expanded || pill.dragActive || pill.mode === "toast") ? 0 : Math.pow(pill.morphCloseness, 1.5)
         visible: opacity > 0.01
         Behavior on opacity { NumberAnimation { duration: pill.mode === "rest" ? Motion.fast : Math.round(260 * Motion.mult) } }
 
@@ -2484,6 +2298,59 @@ Item {
      * direct child.
      */
 
+    /**
+     * Back to whichever surface opened this one. Drawn by the pill, not by
+     * PillSurface, because a surface that clips (sysmon's gauges) would clip a
+     * chevron sitting outside its own bounds. PillSurface still reserves the
+     * lane this sits in, so it never lands on a surface's own header.
+     */
+    Rectangle {
+        id: backBtn
+        z: 100
+        visible: Surfaces.back.length > 0 && pill.surfaceOpen
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.leftMargin: 9 * pill.s
+        anchors.topMargin: 13 * pill.s
+        width: 15 * pill.s
+        height: 15 * pill.s
+        radius: width / 2
+        color: backHover.hovered ? Theme.frameBg : "transparent"
+        border.width: 0
+        Behavior on color { ColorAnimation { duration: Motion.fast } }
+
+        GlyphIcon {
+            anchors.centerIn: parent
+            width: 11 * pill.s
+            height: 11 * pill.s
+            name: "chevron-left"
+            color: backHover.hovered ? Theme.cream : Theme.faint
+            stroke: 1.7
+        }
+
+        HoverHandler { id: backHover }
+        MouseArea {
+            anchors.fill: parent
+            anchors.margins: -4 * pill.s
+            cursorShape: Qt.PointingHandCursor
+            onClicked: Surfaces.goBack()
+        }
+    }
+
+    Loader {
+        id: ldHome
+        active: false
+        anchors.fill: parent
+        sourceComponent: Home {
+            s: pill.s
+            open: pill.homeOpen
+            morphCloseness: pill.morphCloseness
+            screenName: pill.screenName
+            onRequestSurface: (name) => pill.requestSurface(name)
+            onRequestClose: pill.requestClose()
+        }
+    }
+
     Loader {
         id: ldMixer
         active: false
@@ -2574,7 +2441,7 @@ sourceComponent: Media {
             s: pill.s
             open: pill.mediaOpen
             morphCloseness: pill.morphCloseness
-            topFlat: (pill.mode === "game" || pill.stripBar) ? 1 : 0
+            topFlat: pill.stripBar ? 1 : 0
             pinned: pill.pinned
             onRequestClose: pill.requestClose()
             onRequestPin: pill.forcePinned = !pill.forcePinned
