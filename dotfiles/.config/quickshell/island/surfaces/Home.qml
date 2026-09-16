@@ -493,7 +493,10 @@ PillSurface {
                                 color: Theme.vermLit
 
                                 SequentialAnimation on height {
-                                    running: Players.playing && root.active
+                                    /* Gate on the same condition as the parent's `visible`:
+                                       with cover art the bars are hidden, and an infinite
+                                       animation on an invisible item is pure wasted work. */
+                                    running: Players.playing && root.active && Players.artUrl.length === 0
                                     loops: Animation.Infinite
                                     NumberAnimation { to: (6 + index * 3) * root.s; duration: 360 + index * 90; easing.type: Easing.InOutSine }
                                     NumberAnimation { to: (12 - index * 2) * root.s; duration: 400 + index * 90; easing.type: Easing.InOutSine }
