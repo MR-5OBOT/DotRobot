@@ -4,6 +4,8 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Widgets
+import Quickshell.Networking
+import Quickshell.Bluetooth
 import "../Singletons"
 import "../components"
 
@@ -31,13 +33,6 @@ PillSurface {
 
     signal requestSurface(string name)
 
-    /** The shell's own widgets (launcher, calculator) answer their own IPC targets. */
-    function openExternal(target) {
-        root.requestClose();
-        Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
-            "qs", "ipc", "call", target, "toggle"]);
-    }
-
     /** Set by the pill so the workspace dots know which monitor they belong to. */
     property string screenName: ""
 
@@ -49,6 +44,11 @@ PillSurface {
      * shell spawn every second for the whole time the panel is up.
      */
     onActiveChanged: if (root.active) root.readIdentity()
+
+    /** Radio state, guarded exactly as WifiSurface/BtSurface guard it. */
+    readonly property bool wifiOn: (typeof Networking !== "undefined" && Networking) ? Networking.wifiEnabled : false
+    readonly property var btAdapter: (typeof Bluetooth !== "undefined" && Bluetooth) ? Bluetooth.defaultAdapter : null
+    readonly property bool btOn: root.btAdapter ? root.btAdapter.enabled === true : false
 
     readonly property real gap: 9 * root.s
     readonly property real railW: 44 * root.s
@@ -111,17 +111,17 @@ PillSurface {
         property bool current: false
         signal activated()
 
-        width: 32 * root.s
-        height: 32 * root.s
-        radius: 10 * root.s
+        width: 34 * root.s
+        height: 34 * root.s
+        radius: 11 * root.s
         color: rb.current ? Qt.alpha(Theme.onGlow, 0.16)
             : (rbHover.hovered ? Theme.frameBg : "transparent")
         Behavior on color { ColorAnimation { duration: Motion.fast } }
 
         GlyphIcon {
             anchors.centerIn: parent
-            width: 17 * root.s
-            height: 17 * root.s
+            width: 20 * root.s
+            height: 20 * root.s
             name: rb.glyph
             color: rb.current ? Theme.vermLit : (rbHover.hovered ? Theme.cream : Theme.iconDim)
             stroke: 1.7
@@ -150,8 +150,8 @@ PillSurface {
         property bool accent: false
         signal activated()
 
-        width: 24 * root.s
-        height: 24 * root.s
+        width: 26 * root.s
+        height: 26 * root.s
         radius: 8 * root.s
         color: hb.accent ? Qt.alpha(Theme.onGlow, 0.18)
             : (hbHover.hovered ? Theme.frameBg : Theme.tileBg)
@@ -161,8 +161,8 @@ PillSurface {
 
         GlyphIcon {
             anchors.centerIn: parent
-            width: 13 * root.s
-            height: 13 * root.s
+            width: 15 * root.s
+            height: 15 * root.s
             name: hb.glyph
             color: hb.accent ? Theme.vermLit : (hbHover.hovered ? Theme.cream : Theme.iconDim)
             stroke: 1.7
@@ -206,8 +206,8 @@ PillSurface {
 
             GlyphIcon {
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: 15 * root.s
-                height: 15 * root.s
+                width: 19 * root.s
+                height: 19 * root.s
                 name: tl.glyph
                 color: tl.on ? Theme.vermLit : (tlHover.hovered ? Theme.cream : Theme.iconDim)
                 stroke: 1.7
@@ -219,7 +219,7 @@ PillSurface {
                 text: tl.label
                 color: tl.on ? Theme.cream : Theme.subtle
                 font.family: Theme.font
-                font.pixelSize: 8.5 * root.s
+                font.pixelSize: 9.5 * root.s
                 font.weight: Font.Medium
                 renderType: Text.NativeRendering
             }
@@ -685,22 +685,24 @@ PillSurface {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 columns: 2
-                rows: 5
+                rows: 4
                 columnSpacing: root.gap
                 rowSpacing: root.gap
 
                 readonly property real cellW: (width - columnSpacing) / 2
-                readonly property real cellH: (height - 4 * rowSpacing) / 5
+                readonly property real cellH: (height - 3 * rowSpacing) / 4
 
                 Tile {
                     width: tiles.cellW; height: tiles.cellH
-                    glyph: "app-window"; label: "Launcher"
-                    onActivated: root.openExternal("launcher")
+                    glyph: "wifi"; label: "Wi-Fi"
+                    on: root.wifiOn
+                    onActivated: if (typeof Networking !== "undefined" && Networking) Networking.wifiEnabled = !Networking.wifiEnabled
                 }
                 Tile {
                     width: tiles.cellW; height: tiles.cellH
-                    glyph: "type"; label: "Calculator"
-                    onActivated: root.openExternal("calc")
+                    glyph: "bluetooth"; label: "Bluetooth"
+                    on: root.btOn
+                    onActivated: if (root.btAdapter) root.btAdapter.enabled = !root.btAdapter.enabled
                 }
                 Tile {
                     width: tiles.cellW; height: tiles.cellH
@@ -713,18 +715,6 @@ PillSurface {
                     glyph: "sun"; label: "Night light"
                     on: Flags.nightLightMode !== "off"
                     onActivated: NightLight.setMode(Flags.nightLightMode === "off" ? "on" : "off")
-                }
-                Tile {
-                    width: tiles.cellW; height: tiles.cellH
-                    glyph: "sparkles"; label: "Memory saver"
-                    on: Flags.memorySaver
-                    onActivated: Flags.memorySaver = !Flags.memorySaver
-                }
-                Tile {
-                    width: tiles.cellW; height: tiles.cellH
-                    glyph: "waves"; label: "Visualizer"
-                    on: Flags.musicViz
-                    onActivated: Flags.musicViz = !Flags.musicViz
                 }
                 Tile {
                     width: tiles.cellW; height: tiles.cellH
