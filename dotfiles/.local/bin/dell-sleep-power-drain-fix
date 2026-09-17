@@ -1,0 +1,182 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Dell Latitude 5450: stop the battery draining ~5%/hour while asleep. Dell's firmware tells Linux
+# not to manage PCIe power saving (ASPM), and the NVMe sits behind Intel VMD ("RAID On"), whose link
+# the BIOS keeps at full power. The CPU then never gets past package C3, so sleep never reaches
+# S0ix. pcie_aspm=force lets the vmd driver power the link down.
+#
+# Safe order (fresh install too): `test` sleeps 60 s and, if deep sleep is broken, builds a one-boot
+# "Arch Linux (SSD power test)" entry. Reboot into it, `test` again, and only a pass unlocks `on`.
+# `purge` undoes all of it: test entry, test result, and the boot setting.
+
+readonly PARAM=pcie_aspm=force
+readonly ROOT=${DELL_SLEEP_FIX_ROOT:-}
+readonly CMDLINE=${ROOT}/etc/kernel/cmdline
+readonly PRESET=${ROOT}/etc/mkinitcpio.d/linux.preset
+readonly TEST_TITLE="Arch Linux (SSD power test)"
+readonly PASSED=${XDG_STATE_HOME:-${HOME}/.local/state}/dell-sleep-power-drain-fix.passed
+readonly SLEEP_SECS=60
+TEST_UKI=""
+
+usage() {
+  cat <<'EOF'
+usage: dell-sleep-power-drain-fix [status | test | on | off | purge]
+
+  status   boot setting, running kernel, test result, deep sleep since boot (default)
+  test     60 s sleep test. If sleep is broken and the fix isn't running, it builds a
+           one-boot "Arch Linux (SSD power test)" entry: reboot into it, run test again
+  on       make the fix permanent (only after test passed in the test entry)
+  off      remove the fix and the test entry, keep the test result
+  purge    remove everything: test entry, test result, and the fix
+EOF
+}
+
+die() {
+  printf 'dell-sleep-power-drain-fix: %s\n' "$*" >&2
+  exit 1
+}
+
+has_param() { grep -Eq "(^|[[:space:]])${PARAM}([[:space:]]|$)" "$1" 2>/dev/null; }
+
+hw_sleep_us() { cat "${ROOT}/sys/power/suspend_stats/total_hw_sleep" 2>/dev/null || echo 0; }
+
+# The test entry goes next to the UKI the mkinitcpio preset builds, wherever the ESP is mounted.
+require_uki() {
+  local uki
+  [[ -f ${CMDLINE} ]] || die "${CMDLINE} not found; this expects a mkinitcpio UKI boot"
+  uki=$(sed -n "s/^default_uki=[\"']\{0,1\}\([^\"']*\).*/\1/p" "${PRESET}" 2>/dev/null || true)
+  [[ -n ${uki} ]] || die "no default_uki in ${PRESET}; this expects a mkinitcpio UKI boot"
+  TEST_UKI=${ROOT}$(dirname "${uki}")/arch-linux-ssdtest.efi
+}
+
+status() {
+  local boot=off running=off passed=no
+  has_param "${CMDLINE}" && boot=on
+  has_param "${ROOT}/proc/cmdline" && running=on
+  [[ -e ${PASSED} ]] && passed=yes
+  echo "boot setting:          ${boot}"
+  echo "running kernel:        ${running}"
+  echo "test passed:           ${passed}"
+  echo "deep sleep since boot: $(($(hw_sleep_us) / 1000000))s (stays 0 while sleep is broken)"
+}
+
+# The boot command line without PARAM, plus PARAM when $1 = on. Every UKI build embeds
+# it, so a line without root= is refused rather than made unbootable.
+cmdline_with() {
+  local -a words kept=()
+  local word
+  read -ra words -d '' <"${CMDLINE}" || true
+  for word in "${words[@]}"; do
+    [[ ${word} == "${PARAM}" ]] || kept+=("${word}")
+  done
+  [[ $1 == on ]] && kept+=("${PARAM}")
+  [[ " ${kept[*]} " == *" root="* ]] || die "refusing a command line without root="
+  printf '%s\n' "${kept[*]}"
+}
+
+# 0 = the SoC reached hardware sleep (S0ix), 1 = it didn't, 2 = the test sleep itself failed.
+# Compares total_hw_sleep across the sleep, so a refused or interrupted suspend can't pass on a
+# previous sleep's number. On a fail, intel_pmc_core's warning names what stopped it.
+sleep_test() {
+  local start before after
+  echo "Sleeping ${SLEEP_SECS}s: the screen goes black and wakes by itself. Don't close the lid."
+  echo 1 | sudo tee "${ROOT}/sys/module/intel_pmc_core/parameters/warn_on_s0ix_failures" >/dev/null 2>&1 || true
+  before=$(hw_sleep_us)
+  start=$(date +%s)
+  if ! sudo rtcwake -m freeze -s "${SLEEP_SECS}" >/dev/null; then
+    echo "The test sleep didn't happen (suspend refused or interrupted); run test again."
+    return 2
+  fi
+  after=$(hw_sleep_us)
+  echo "deep sleep: $(((after - before) / 1000000))s of ${SLEEP_SECS}s"
+  ((after > before)) && return 0
+  journalctl -k --since "@${start}" --no-pager -o cat 2>/dev/null | grep "did not enter" || true
+  return 1
+}
+
+test_fix() {
+  local rc=0 tmp_cmdline tmp_osrel
+  if has_param "${ROOT}/proc/cmdline"; then
+    sleep_test || rc=$?
+    case ${rc} in
+      0)
+        mkdir -p "$(dirname "${PASSED}")"
+        date -Is >"${PASSED}"
+        echo "PASS: the fix works. Make it permanent: dell-sleep-power-drain-fix on"
+        return 0
+        ;;
+      1) echo "FAIL: deep sleep is still broken with the fix. Clean up: dell-sleep-power-drain-fix purge" ;;
+    esac
+    return 1
+  fi
+  if has_param "${CMDLINE}"; then
+    echo "The fix is on but this boot started without it: reboot, then run test."
+    return 1
+  fi
+
+  sleep_test || rc=$?
+  case ${rc} in
+    0)
+      echo "Deep sleep already works here; no fix needed."
+      return 0
+      ;;
+    2) return 1 ;;
+  esac
+
+  require_uki
+  tmp_cmdline=$(mktemp)
+  tmp_osrel=$(mktemp)
+  cmdline_with on >"${tmp_cmdline}"
+  sed "s/^PRETTY_NAME=.*/PRETTY_NAME=\"${TEST_TITLE}\"/" "${ROOT}/etc/os-release" >"${tmp_osrel}"
+  sudo mkinitcpio -U "${TEST_UKI}" --cmdline "${tmp_cmdline}" --osrelease "${tmp_osrel}"
+  rm -f "${tmp_cmdline}" "${tmp_osrel}"
+  if [[ $(od -An -t u1 "${ROOT}"/sys/firmware/efi/efivars/SecureBoot-* 2>/dev/null | awk '{print $NF}') == 1 ]]; then
+    echo "Secure Boot is on: sign ${TEST_UKI} (e.g. sbctl sign) or the test entry won't boot."
+  fi
+  echo "Deep sleep is broken. Reboot, pick \"${TEST_TITLE}\", then run: dell-sleep-power-drain-fix test"
+  echo "If that entry freezes, hold power, boot the normal entry, and run: dell-sleep-power-drain-fix purge"
+}
+
+# $1 = on|off. The command line is replaced by rename, so it is never left half-written.
+set_param() {
+  local new tmp
+  require_uki
+  [[ $1 == off || -e ${PASSED} ]] || die "no passed test on this install yet; run: dell-sleep-power-drain-fix test"
+  sudo rm -f "${TEST_UKI}"
+  if { [[ $1 == on ]] && has_param "${CMDLINE}"; } || { [[ $1 == off ]] && ! has_param "${CMDLINE}"; }; then
+    echo "already $1"
+    return
+  fi
+
+  new=$(cmdline_with "$1")
+  tmp=$(mktemp)
+  printf '%s\n' "${new}" >"${tmp}"
+  sudo install -m 644 "${tmp}" "${CMDLINE}.new"
+  rm -f "${tmp}"
+  sudo mv "${CMDLINE}.new" "${CMDLINE}"
+  sudo mkinitcpio -P
+  echo "fix $1: reboot to apply"
+}
+
+purge() {
+  require_uki
+  sudo rm -f "${TEST_UKI}"
+  rm -f "${PASSED}"
+  if has_param "${CMDLINE}"; then
+    set_param off
+  fi
+  echo "purged: no test entry, no test result, fix off"
+}
+
+case "${1:-status}" in
+  status) status ;;
+  test) test_fix ;;
+  on | off) set_param "$1" ;;
+  purge) purge ;;
+  -h | --help) usage ;;
+  *)
+    usage >&2
+    exit 1
+    ;;
+esac
