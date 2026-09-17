@@ -112,6 +112,45 @@ PanelWindow {
                 notch: win.atTop
                 notchColor: Theme.notchBg
                 notchRadius: Theme.notchRadius / holder.f   // popup is scaled by f
+
+                /**
+                 * Back to the island's Home surface, in the same spot and shape as
+                 * the chevron the island's own surfaces carry. Only when the island
+                 * opened this panel — the corner placement has no Home behind it.
+                 * Reached the way Pill.qml reaches this panel: a detached
+                 * `qs ipc call`, with the shell's own config env stripped.
+                 */
+                Item {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.top: parent.top
+                    anchors.topMargin: 9
+                    width: 16
+                    height: 16
+                    visible: win.atTop && win.open
+                    z: 10
+
+                    Icon {
+                        anchors.centerIn: parent
+                        text: "home"
+                        size: 16
+                        filled: false
+                        color: backArea.containsMouse ? Theme.text : Theme.dim
+                        Behavior on color { ColorAnimation { duration: 120 } }
+                    }
+
+                    MouseArea {
+                        id: backArea
+                        anchors.fill: parent
+                        anchors.margins: -7
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            win.open = false;
+                            Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
+                                "qs", "ipc", "call", "island", "home", ""]);
+                        }
+                    }
+                }
             }
 
             NotchEars {
