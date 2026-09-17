@@ -359,7 +359,13 @@ PillSurface {
                 width: implicitWidth
                 screenName: root.screenName
                 s: root.s
-                gap: 7 * root.s
+                /* Dot height follows dotW with radius height/2, so these scale
+                   together to keep the circle round and the active pill's
+                   proportion; the defaults (8 / 24) are sized for the thin
+                   hover row, which is too small for this header. */
+                dotW: 12 * root.s
+                stickW: 40 * root.s
+                gap: 11 * root.s
                 enabled: root.active
             }
 
