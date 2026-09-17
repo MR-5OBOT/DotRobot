@@ -25,6 +25,7 @@ actions="$(<"${TEST_STATE}/actions")"
 [[ ${actions} == *'enable --now power-profiles-daemon.service'* ]]
 [[ ${actions} != *'thermald.service'* ]]
 [[ ${actions} != *'bluetooth.service'* ]]
-[[ ${actions} == *'enable --now docker.service'* ]]
+[[ ${actions} == *'enable --now docker.socket'* ]]
+[[ ${actions} != *'enable --now docker.service'* ]]
 [[ ${actions} == *'usermod -aG docker test-user'* ]]
 printf 'enable-services opt-in test passed\n'
