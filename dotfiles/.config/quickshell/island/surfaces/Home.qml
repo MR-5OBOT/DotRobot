@@ -4,8 +4,6 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Widgets
-import Quickshell.Networking
-import Quickshell.Bluetooth
 import "../Singletons"
 import "../components"
 
@@ -13,12 +11,12 @@ import "../components"
  * Home surface: the control centre a click on the notch opens, in place of the
  * thin hover row. A header carrying the surfaces the pill already owns,
  * an identity card over the live wallpaper, the now-playing card, the
- * clock/weather card, and a grid of quick actions.
+ * clock/weather card, and live system vitals.
  *
  * Nothing here owns state. Every nav button routes to a surface that already
- * exists, and every tile drives a flag or singleton the island already has
- * (Flags, NightLight, Walls, Cliphist, lock.sh) — so this surface is a new
- * arrangement of the shell, never a second source of truth for it.
+ * exists, and the vitals card is the System surface itself on the Sysmon
+ * singleton — so this surface is a new arrangement of the shell, never a
+ * second source of truth for it.
  */
 PillSurface {
     id: root
@@ -36,7 +34,7 @@ PillSurface {
     /**
      * The pill's own wifi/bluetooth/wallpaper surfaces are superseded by the
      * main shell's panels (see openUserWifi/openUserBt/openUserWallpaper in
-     * Pill.qml); the hover row calls those, so the tiles must too, or they open
+     * Pill.qml); the hover row calls those, so the nav buttons must too, or they open
      * a different-looking copy of the same widget.
      */
     function openShellWidget(target, fn) {
@@ -57,14 +55,6 @@ PillSurface {
      */
     onActiveChanged: if (root.active) root.readIdentity()
 
-    /**
-     * Radio state for the tile indicators only. The tiles open the real Wi-Fi
-     * and Bluetooth surfaces rather than toggling the radios themselves, so the
-     * full panels stay the way in.
-     */
-    readonly property bool wifiOn: (typeof Networking !== "undefined" && Networking) ? Networking.wifiEnabled : false
-    readonly property var btAdapter: (typeof Bluetooth !== "undefined" && Bluetooth) ? Bluetooth.defaultAdapter : null
-    readonly property bool btOn: root.btAdapter ? root.btAdapter.enabled === true : false
 
     readonly property real gap: 9 * root.s
 
@@ -140,8 +130,6 @@ PillSurface {
         required property string glyph
         required property string tip
         property bool current: false
-        /** Pink glyph without the "current" fill: the power button. */
-        property bool accent: false
         /** Draw the live charge level inside the glyph, as the hover row does. */
         property bool battery: false
         signal activated()
@@ -164,7 +152,7 @@ PillSurface {
             height: 17.5 * root.s
             name: rb.glyph
             color: rb.battery ? rb.battTint
-                : (rb.current || rb.accent ? Theme.vermLit : (rbHover.hovered ? Theme.cream : Theme.iconDim))
+                : (rb.current ? Theme.vermLit : (rbHover.hovered ? Theme.cream : Theme.iconDim))
             stroke: 1.7
             Behavior on color { ColorAnimation { duration: Motion.fast } }
 
@@ -196,57 +184,6 @@ PillSurface {
         }
     }
 
-    /**
-     * Quick-action tile. `on` is optional: a tile that never sets it reads as a
-     * plain action (open a surface, run lock.sh) and never latches.
-     */
-    component Tile: Rectangle {
-        id: tl
-        required property string glyph
-        required property string label
-        property bool on: false
-        signal activated()
-
-        radius: 10 * root.s
-        color: tl.on ? Qt.alpha(Theme.onGlow, 0.16)
-            : (tlHover.hovered ? Theme.frameBg : Theme.tileBg)
-        border.width: 1
-        border.color: tl.on ? Qt.alpha(Theme.onGlow, 0.45) : Theme.border
-        Behavior on color { ColorAnimation { duration: Motion.fast } }
-
-        Column {
-            anchors.centerIn: parent
-            spacing: 3 * root.s
-
-            GlyphIcon {
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: 19 * root.s
-                height: 19 * root.s
-                name: tl.glyph
-                color: tl.on ? Theme.vermLit : (tlHover.hovered ? Theme.cream : Theme.iconDim)
-                stroke: 1.7
-                Behavior on color { ColorAnimation { duration: Motion.fast } }
-            }
-
-            Text {
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: tl.label
-                color: tl.on ? Theme.cream : Theme.subtle
-                font.family: Theme.font
-                font.pixelSize: 9.5 * root.s
-                font.weight: Font.Medium
-                renderType: Text.NativeRendering
-            }
-        }
-
-        HoverHandler { id: tlHover }
-        MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: tl.activated()
-        }
-    }
-
     // ---- body --------------------------------------------------------------
 
     Item {
@@ -264,13 +201,14 @@ PillSurface {
             anchors.top: parent.top
             height: 26 * root.s
 
-            /** Workspace dots, left end of the header: the same component the pill's hover row uses. */
+            /** Workspace dots, centred in the space left of the nav icons: the same component the pill's hover row uses. */
             Workspaces {
-                anchors.left: parent.left
+                x: Math.max(0, (headRow.x - width) / 2)
                 anchors.verticalCenter: parent.verticalCenter
                 width: implicitWidth
                 screenName: root.screenName
                 s: root.s
+                fill: 10   // Super+1..0
                 /* Dot height follows dotW with radius height/2, so these scale
                    together to keep the circle round and the active pill's
                    proportion; the defaults (8 / 24) are sized for the thin
@@ -290,7 +228,6 @@ PillSurface {
                 RailBtn { glyph: "home";      tip: "Home";      current: true }
                 RailBtn { glyph: "mixer";     tip: "Mixer";     onActivated: root.requestSurface("mixer") }
                 RailBtn { glyph: "calendar";  tip: "Calendar";  onActivated: root.requestSurface("calendar") }
-                RailBtn { glyph: "monitor";   tip: "System";    onActivated: root.requestSurface("sysmon") }
                 RailBtn { glyph: "inbox";     tip: "Notifications"; onActivated: root.requestSurface("link") }
                 RailBtn { glyph: "wifi";      tip: "Wi-Fi";     onActivated: root.openShellWidget("wifi", "wifiIsland") }
                 RailBtn { glyph: "bluetooth"; tip: "Bluetooth"; onActivated: root.openShellWidget("wifi", "btIsland") }
@@ -301,13 +238,6 @@ PillSurface {
                     onActivated: root.requestSurface("battery")
                 }
 
-                Rectangle {
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 1
-                    height: 16 * root.s
-                    color: Theme.hair
-                }
-
                 RailBtn {
                     glyph: "cog"
                     tip: "Appearance"
@@ -316,7 +246,6 @@ PillSurface {
                 RailBtn {
                     glyph: "shutdown"
                     tip: "Power"
-                    accent: true
                     onActivated: root.requestSurface("power")
                 }
             }
@@ -421,7 +350,7 @@ PillSurface {
             }
         }
 
-        // lower: cards left, quick actions right --------------------------------
+        // lower: cards left, system vitals right --------------------------------
         Item {
             id: lower
             anchors.left: parent.left
@@ -430,7 +359,7 @@ PillSurface {
             anchors.topMargin: root.gap
             anchors.bottom: parent.bottom
 
-            readonly property real colW: (width - root.gap) * 0.58
+            readonly property real colW: (width - root.gap) * 0.48
 
             // now playing ------------------------------------------------------
             Rectangle {
@@ -813,69 +742,27 @@ PillSurface {
                 }
             }
 
-            // quick actions ------------------------------------------------------
-            Grid {
-                id: tiles
+            // live system vitals: the System surface itself, minus its header --
+            Rectangle {
                 anchors.left: mediaCard.right
                 anchors.leftMargin: root.gap
                 anchors.right: parent.right
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
-                columns: 2
-                rows: 4
-                columnSpacing: root.gap
-                rowSpacing: root.gap
+                radius: 12 * root.s
+                color: Theme.tileBg
+                border.width: 1
+                border.color: Theme.frameBorder
 
-                readonly property real cellW: (width - columnSpacing) / 2
-                readonly property real cellH: (height - 3 * rowSpacing) / 4
-
-                Tile {
-                    width: tiles.cellW; height: tiles.cellH
-                    glyph: "wifi"; label: "Wi-Fi"
-                    on: root.wifiOn
-                    onActivated: root.openShellWidget("wifi", "wifiIsland")
-                }
-                Tile {
-                    width: tiles.cellW; height: tiles.cellH
-                    glyph: "bluetooth"; label: "Bluetooth"
-                    on: root.btOn
-                    onActivated: root.openShellWidget("wifi", "btIsland")
-                }
-                Tile {
-                    width: tiles.cellW; height: tiles.cellH
-                    glyph: "dnd"; label: "DND"
-                    on: Flags.dnd
-                    onActivated: Flags.dnd = !Flags.dnd
-                }
-                Tile {
-                    width: tiles.cellW; height: tiles.cellH
-                    glyph: "sun"; label: "Night light"
-                    on: Flags.nightLightMode !== "off"
-                    onActivated: NightLight.setMode(Flags.nightLightMode === "off" ? "on" : "off")
-                }
-                Tile {
-                    width: tiles.cellW; height: tiles.cellH
-                    glyph: "eye-off"; label: "Auto-hide"
-                    on: Flags.autoHide
-                    onActivated: Flags.autoHide = !Flags.autoHide
-                }
-                Tile {
-                    width: tiles.cellW; height: tiles.cellH
-                    glyph: "wallpaper"; label: "Wallpaper"
-                    onActivated: root.openShellWidget("wallpicker", "toggle")
-                }
-                Tile {
-                    width: tiles.cellW; height: tiles.cellH
-                    glyph: "clipboard"; label: "Clipboard"
-                    onActivated: root.requestSurface("clipboard")
-                }
-                Tile {
-                    width: tiles.cellW; height: tiles.cellH
-                    glyph: "lock-round"; label: "Lock"
-                    onActivated: {
-                        root.requestClose();
-                        Quickshell.execDetached(["bash", Config.hyprPath("scripts", "lock.sh")]);
-                    }
+                SysmonSurface {
+                    embedded: true
+                    s: root.s
+                    open: root.open
+                    morphCloseness: root.morphCloseness
+                    mTop: 14
+                    mLeft: 12
+                    mRight: 12
+                    mBottom: 12
                 }
             }
         }
