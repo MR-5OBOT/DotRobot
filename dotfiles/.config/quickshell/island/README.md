@@ -2,13 +2,13 @@
 
 A dynamic-island bar for Hyprland, built with Quickshell.
 
-One black notch hangs from the top edge of every monitor. Hover it and it expands in place into a control row — workspace dots, clock, media, weather and status icons — and each panel grows out of the notch itself.
+One black notch hangs from the top edge of every monitor. Click it and the control centre grows out of the notch itself; every other panel opens in the same shape.
 
 It is one part of the quickshell config in `dotfiles/.config/quickshell`: the top-level `shell.qml` loads `island/Island.qml` next to the launcher, clipboard, wallpaper picker, wifi/bluetooth panel, calculator and power-profile menu, so the whole shell runs as a single `qs` process. Those widgets open from the island and are drawn in the same notch style.
 
 ## Features
 
-- **Home** — a click on the notch opens the control centre: a rail of every surface, the identity card over the live wallpaper, now-playing, clock/weather and a grid of quick actions. Hover still gives the thin control row; a keybind still opens its surface directly.
+- **Home** — a click on the notch opens the control centre: a header of workspace dots and every surface's button, the identity card over the live wallpaper, now-playing, clock/weather and live system vitals. A keybind still opens any surface directly.
 - **Notch** — flush with the top edge, pure black, concave shoulders, slides out of the screen; panels and the volume/brightness popup share the shape.
 - **Panels** — calendar with events and reminders, weather, media player, mixer (volume, mic, brightness, DND, keep-awake, night light), battery with power-profile button, system monitor with a speed test, notification inbox and toasts, minimized-window stash, power menu, settings (display, font, interface).
 - **Notifications** — the island owns the notification server: toasts stay 8 seconds, the inbox shows each notification's title, body and icon.
