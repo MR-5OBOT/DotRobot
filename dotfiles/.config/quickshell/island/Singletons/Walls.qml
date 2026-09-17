@@ -18,7 +18,7 @@ import Quickshell.Io
  * The folder resolves through one chain, first hit wins: an explicit
  * `wallpaperDir` in flags.json, then the dir wallpaper.sh resolved and wrote
  * to the island-wallpaper-dir state file on its last run, then
- * ~/Pictures/Wallpapers for a first boot before wallpaper.sh init has run.
+ * ~/Pictures/wallpapers for a first boot before wallpaper.sh init has run.
  *
  * The pipeline is triggered by the wallpaper strip's refresh button, an
  * explicit folder change, or the strip's own warm-up on open: an empty
@@ -62,10 +62,10 @@ Singleton {
 
     property string resolvedDir: ""
     readonly property string wpDir: Flags.wallpaperDir.length > 0 ? Flags.wallpaperDir
-        : (resolvedDir.length > 0 ? resolvedDir : Quickshell.env("HOME") + "/Pictures/Wallpapers")
+        : (resolvedDir.length > 0 ? resolvedDir : Quickshell.env("HOME") + "/Pictures/wallpapers")
     readonly property string thumbDir: (Quickshell.env("XDG_CACHE_HOME") || (Quickshell.env("HOME") + "/.cache")) + "/island/wp-thumbs/"
-    readonly property string thumbScript: Config.hyprPath("scripts", "wallpaper-thumbs.sh")
-    readonly property string setScript: Config.hyprPath("scripts", "wallpaper.sh")
+    readonly property string thumbScript: Config.islandPath("scripts", "wallpaper-thumbs.sh")
+    readonly property string setScript: Config.islandPath("scripts", "wallpaper.sh")
     readonly property string stateFile: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/island-wallpaper"
     readonly property string dirStateFile: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/island-wallpaper-dir"
 

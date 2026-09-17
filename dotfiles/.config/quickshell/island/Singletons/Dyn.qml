@@ -26,7 +26,7 @@ Singleton {
         onLoaded: {
             const p = text().trim();
             if (p.length > 0)
-                Quickshell.execDetached(["python3", Config.hyprPath("scripts", "wallcolors.py"), p]);
+                Quickshell.execDetached(["python3", Config.islandPath("scripts", "wallcolors.py"), p]);
         }
         onFileChanged: reload()
     }

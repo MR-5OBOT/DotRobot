@@ -316,7 +316,7 @@ download() {
     flags="${XDG_STATE_HOME:-$HOME/.local/state}/island/flags.json"
     wpdir=$(jq -r '.wallpaperDir // ""' "$flags" 2>/dev/null || echo "")
     [ -n "$wpdir" ] || wpdir=$(cat "${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-dir" 2>/dev/null || true)
-    [ -n "$wpdir" ] || wpdir="$HOME/Pictures/Wallpapers"
+    [ -n "$wpdir" ] || wpdir="$HOME/Pictures/wallpapers"
     # Every pick lands directly in the collection root so it joins the shuffle
     # bag; wallhaven keeps its id, moewalls/DDG get stamped names. No subfolder
     # is ever created, so browsing never leaves an empty downloads/ dir behind.

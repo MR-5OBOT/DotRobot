@@ -34,7 +34,7 @@ qs ipc call island calendar ""
 qs ipc call island page "" weather
 ```
 
-Handlers: `home`, `mixer`, `calendar`, `launcher`, `power`, `link`, `battery`, `sysmon`/`system`, `clipboard`, `wallpaper`, `media`, `peek`, `hide`, `unloadAll`, `page`, `nav`, `minimizeWindow`, `restoreWindow`. `launcher`, `clipboard` and `wallpaper` open the shell's own widgets.
+Handlers: `home`, `mixer`, `calendar`, `launcher`, `power`, `link`, `battery`, `sysmon`/`system`, `clipboard`, `wallpaper`, `media`, `peek`, `hide`, `unloadAll`, `page`, `nav`. `launcher`, `clipboard` and `wallpaper` open the shell's own widgets.
 
 ## Precise location (GeoClue)
 

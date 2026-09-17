@@ -9,12 +9,12 @@ if [ -z "$WPDIR" ]; then
     # No explicit folder set: adopt an existing collection in the usual spots.
     # Two or more images counts as a collection, a single stray file does not,
     # so an incidental picture never hijacks the default.
-    for cand in "$HOME/Pictures/Wallpapers" "$HOME/Pictures/wallpapers" "$HOME/Wallpapers" "$HOME/wallpapers"; do
+    for cand in "$HOME/Pictures/wallpapers" "$HOME/Pictures/Wallpapers" "$HOME/Wallpapers" "$HOME/wallpapers"; do
         [ -d "$cand" ] || continue
         n=$(find "$cand" -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.png' -o -iname '*.gif' -o -iname '*.webp' -o -iname '*.mp4' -o -iname '*.webm' -o -iname '*.mkv' -o -iname '*.mov' \) | awk 'NR<=2' | wc -l)
         if [ "$n" -ge 2 ]; then WPDIR="$cand"; break; fi
     done
-    [ -n "$WPDIR" ] || WPDIR="$HOME/Pictures/Wallpapers"
+    [ -n "$WPDIR" ] || WPDIR="$HOME/Pictures/wallpapers"
 fi
 RESOLVED="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-dir"
 printf '%s\n' "$WPDIR" > "$RESOLVED"

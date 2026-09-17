@@ -6,7 +6,7 @@ STATE="${XDG_STATE_HOME:-$HOME/.local/state}"
 flags="$STATE/island/flags.json"
 raw=$(jq -r '.wallpaperDir // ""' "$flags" 2>/dev/null || echo "")
 [ -n "$raw" ] || raw=$(cat "$STATE/island-wallpaper-dir" 2>/dev/null || true)
-[ -n "$raw" ] || raw="$HOME/Pictures/Wallpapers"
+[ -n "$raw" ] || raw="$HOME/Pictures/wallpapers"
 # Drop any trailing slash so a flags/state trailing-slash drift cannot spawn a
 # second cache directory (the folder hash must match the pill's listing hash).
 wpdir=$(printf %s "$raw" | sed 's#/*$##')
