@@ -298,7 +298,6 @@ PillSurface {
             RailBtn { glyph: "home";      tip: "Home";      current: true }
             RailBtn { glyph: "mixer";     tip: "Mixer";     onActivated: root.requestSurface("mixer") }
             RailBtn { glyph: "calendar";  tip: "Calendar";  onActivated: root.requestSurface("calendar") }
-            RailBtn { glyph: "cloud";     tip: "Weather";   onActivated: root.requestSurface("weather") }
             RailBtn { glyph: "monitor";   tip: "System";    onActivated: root.requestSurface("sysmon") }
             RailBtn { glyph: "inbox";     tip: "Notifications"; onActivated: root.requestSurface("link") }
             RailBtn { glyph: "wifi";      tip: "Wi-Fi";     onActivated: root.openShellWidget("wifi", "wifiIsland") }
