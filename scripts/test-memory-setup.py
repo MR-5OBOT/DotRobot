@@ -35,11 +35,10 @@ class MemorySetupTests(unittest.TestCase):
             "ZRAM_CONF": "installed/zram-generator.conf",
             "SYSCTL_CONF": "installed/99-zram.conf", "SWAPFILE": "swapfile",
             "FSTAB": "fstab", "POWER_STATE": "power-state", "LOCKDOWN": "lockdown",
-            "POWER_SUPPLIES": "power-supplies", "MKINITCPIO_CONF": "mkinitcpio.conf",
+            "MKINITCPIO_CONF": "mkinitcpio.conf",
             "MKINITCPIO_DROPINS": "mkinitcpio.conf.d", "PRESET_DIR": "presets",
             "KERNEL_CMDLINE": "cmdline", "GRUB_DEFAULT": "grub-default",
-            "GRUB_CONFIG": "grub.cfg", "LOGIND_DROPIN": "installed/lid.conf",
-            "SLEEP_DROPIN": "installed/sleep.conf", "ACTIONS": "actions",
+            "GRUB_CONFIG": "grub.cfg", "ACTIONS": "actions",
         }
 
     def write(self, name, value):
@@ -275,12 +274,6 @@ sudo() {
         self.run_script("setup-hibernate.sh", body, sudo)
         self.assertEqual((self.root / "cmdline").read_text(), cmdline)
         self.assertEqual((self.root / "grub-default").read_text(), grub)
-
-    def test_desktop_keeps_sleep_policy_and_laptop_is_detected(self):
-        self.run_script("setup-hibernate.sh", "preflight; setup_logind")
-        self.assertFalse((self.root / "installed").exists())
-        self.write("power-supplies/BAT0/type", "Battery\n")
-        self.assertIn("battery=1", self.run_script("setup-hibernate.sh", "preflight"))
 
 
 if __name__ == "__main__":
