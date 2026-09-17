@@ -50,7 +50,7 @@ Item {
     onMorphClosenessChanged: if (open && morphCloseness > 0.92) settled = true
 
     anchors.fill: parent
-    anchors.topMargin: mTop * s
+    anchors.topMargin: (mTop + Surfaces.pad) * s
     anchors.leftMargin: mLeft * s
     anchors.rightMargin: mRight * s
     anchors.bottomMargin: mBottom * s

@@ -9,25 +9,14 @@ CLAUDE_DOTFILES="${DOTFILES_DIR}/.claude"
 SETTINGS_FILE="${CLAUDE_DIR}/settings.json"
 STATUSLINE_SCRIPT="statusline-command.sh"
 
-link_claude_files() {
-  local item
-
-  [[ -d "${CLAUDE_DOTFILES}" ]] || return 0
-
-  mkdir -p "${CLAUDE_DIR}"
-  for item in "${CLAUDE_DOTFILES}"/*; do
-    [[ -e "${item}" ]] || continue
-    symlink_path "${item}" "${CLAUDE_DIR}/$(basename "${item}")"
-  done
-}
-
-# Claude Code writes settings.json itself (/model, /config), so keep it a
-# real file and only merge in the statusLine key.
+# Dotfiles own only the status line. Claude Code writes settings.json itself
+# (model, plugins, theme), so keep it a real file and only merge in statusLine.
 set_statusline() {
   local script="${CLAUDE_DIR}/${STATUSLINE_SCRIPT}"
   local command tmp
 
   [[ -e "${CLAUDE_DOTFILES}/${STATUSLINE_SCRIPT}" ]] || return 0
+  symlink_path "${CLAUDE_DOTFILES}/${STATUSLINE_SCRIPT}" "${script}"
   if ! command -v jq >/dev/null 2>&1; then
     warn "jq not found; add statusLine to ${SETTINGS_FILE} by hand"
     return 0
@@ -49,7 +38,6 @@ set_statusline() {
 }
 
 main() {
-  link_claude_files
   set_statusline
 }
 

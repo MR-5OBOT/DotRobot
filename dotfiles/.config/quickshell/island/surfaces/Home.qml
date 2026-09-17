@@ -74,6 +74,22 @@ PillSurface {
     property string hostName: ""
     property string kernel: ""
     property string uptime: ""
+
+    /**
+     * Walls.current only fills in after Walls.warm() runs and nothing here asks
+     * for it, so the hero was binding to an empty string and showed plain black.
+     * The shell persists the live wallpaper to qs-wallpaper (Dyn watches the
+     * same file), which is always current.
+     */
+    property string wallPath: ""
+
+    FileView {
+        path: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/qs-wallpaper"
+        watchChanges: true
+        printErrors: false
+        onLoaded: root.wallPath = text().trim()
+        onFileChanged: reload()
+    }
     property int idLine: 0
 
     /**
@@ -170,12 +186,6 @@ PillSurface {
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
             onClicked: rb.activated()
-        }
-        Tooltip {
-            s: root.s
-            placement: "below"
-            title: rb.tip
-            show: rbHover.hovered
         }
     }
 
@@ -285,19 +295,18 @@ PillSurface {
             anchors.topMargin: 2 * root.s
             spacing: 3 * root.s
 
-            RailBtn { glyph: "layers";    tip: "Home";      current: true }
+            RailBtn { glyph: "home";      tip: "Home";      current: true }
             RailBtn { glyph: "mixer";     tip: "Mixer";     onActivated: root.requestSurface("mixer") }
-            RailBtn { glyph: "music";     tip: "Media";     onActivated: root.requestSurface("media") }
-            RailBtn { glyph: "clock";     tip: "Calendar";  onActivated: root.requestSurface("calendar") }
+            RailBtn { glyph: "calendar";  tip: "Calendar";  onActivated: root.requestSurface("calendar") }
             RailBtn { glyph: "cloud";     tip: "Weather";   onActivated: root.requestSurface("weather") }
-            RailBtn { glyph: "computer";  tip: "System";    onActivated: root.requestSurface("sysmon") }
+            RailBtn { glyph: "monitor";   tip: "System";    onActivated: root.requestSurface("sysmon") }
             RailBtn { glyph: "inbox";     tip: "Notifications"; onActivated: root.requestSurface("link") }
-            RailBtn { glyph: "wifi";      tip: "Wi-Fi";     onActivated: root.requestSurface("wifi") }
-            RailBtn { glyph: "bluetooth"; tip: "Bluetooth"; onActivated: root.requestSurface("bt") }
+            RailBtn { glyph: "wifi";      tip: "Wi-Fi";     onActivated: root.openShellWidget("wifi", "wifiIsland") }
+            RailBtn { glyph: "bluetooth"; tip: "Bluetooth"; onActivated: root.openShellWidget("wifi", "btIsland") }
             RailBtn {
                 glyph: "battery"
                 battery: true
-                tip: Battery.present ? Battery.pct + "%  " + Battery.stateLabel : "Battery"
+                tip: "Battery"
                 onActivated: root.requestSurface("battery")
             }
         }
@@ -370,11 +379,6 @@ PillSurface {
                     accent: true
                     onActivated: root.requestSurface("power")
                 }
-                HeadBtn {
-                    glyph: "close"
-                    tip: "Close"
-                    onActivated: root.requestClose()
-                }
             }
         }
 
@@ -385,13 +389,13 @@ PillSurface {
             anchors.right: parent.right
             anchors.top: head.bottom
             anchors.topMargin: root.gap
-            height: 78 * root.s
+            height: 94 * root.s
             radius: 12 * root.s
             color: Theme.tileBg
 
             Image {
                 anchors.fill: parent
-                source: Walls.current.length > 0 ? "file://" + Walls.current : ""
+                source: root.wallPath.length > 0 ? "file://" + root.wallPath : ""
                 sourceSize: Qt.size(Math.ceil(width * 1.5), Math.ceil(height * 1.5))
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
@@ -415,8 +419,8 @@ PillSurface {
                 anchors.left: parent.left
                 anchors.leftMargin: 14 * root.s
                 anchors.verticalCenter: parent.verticalCenter
-                width: 46 * root.s
-                height: 46 * root.s
+                width: 56 * root.s
+                height: 56 * root.s
                 radius: width / 2
                 color: "#000000"
                 border.width: 2 * root.s
@@ -427,7 +431,7 @@ PillSurface {
                     text: root.userName.length > 0 ? root.userName.charAt(0).toUpperCase() : "?"
                     color: Theme.vermLit
                     font.family: Theme.font
-                    font.pixelSize: 20 * root.s
+                    font.pixelSize: 25 * root.s
                     font.weight: Font.Bold
                     renderType: Text.NativeRendering
                 }
@@ -445,7 +449,7 @@ PillSurface {
                     text: root.userName
                     color: Theme.bright
                     font.family: Theme.font
-                    font.pixelSize: 15 * root.s
+                    font.pixelSize: 19 * root.s
                     font.weight: Font.Bold
                     renderType: Text.NativeRendering
                 }
@@ -453,7 +457,7 @@ PillSurface {
                     text: root.userName + "@" + root.hostName
                     color: Theme.subtle
                     font.family: Theme.font
-                    font.pixelSize: 9.5 * root.s
+                    font.pixelSize: 12 * root.s
                     renderType: Text.NativeRendering
                     visible: root.hostName.length > 0
                 }
@@ -461,7 +465,7 @@ PillSurface {
                     text: root.uptime
                     color: Theme.subtle
                     font.family: Theme.font
-                    font.pixelSize: 9.5 * root.s
+                    font.pixelSize: 12 * root.s
                     font.features: ({ "tnum": 1 })
                     renderType: Text.NativeRendering
                     visible: root.uptime.length > 0
@@ -470,7 +474,7 @@ PillSurface {
                     text: root.kernel
                     color: Theme.dim
                     font.family: Theme.font
-                    font.pixelSize: 9.5 * root.s
+                    font.pixelSize: 12 * root.s
                     renderType: Text.NativeRendering
                     visible: root.kernel.length > 0
                 }
@@ -494,20 +498,39 @@ PillSurface {
                 anchors.left: parent.left
                 anchors.top: parent.top
                 width: lower.colW
-                height: 84 * root.s
+                height: 118 * root.s
                 radius: 12 * root.s
                 color: Theme.tileBg
                 border.width: 1
                 border.color: Theme.frameBorder
 
+                readonly property real lenSec: Players.lengthSec
+                readonly property real posSec: (Players.has && Players.active) ? Players.active.position : 0
+                readonly property real frac: lenSec > 0 ? Math.max(0, Math.min(1, posSec / lenSec)) : 0
+
+                function fmt(sec) {
+                    if (!(sec > 0))
+                        return "0:00";
+                    const t2 = Math.floor(sec), m = Math.floor(t2 / 60), ss = t2 % 60;
+                    return m + ":" + (ss < 10 ? "0" + ss : ss);
+                }
+
+                /** Only while this card is up and actually playing. */
+                Timer {
+                    interval: 1000
+                    repeat: true
+                    running: root.active && Players.playing && mediaCard.lenSec > 0
+                    onTriggered: mediaCard.posSecChanged()
+                }
+
                 ClippingRectangle {
                     id: cover
                     anchors.left: parent.left
-                    anchors.leftMargin: 10 * root.s
+                    anchors.leftMargin: 12 * root.s
                     anchors.verticalCenter: parent.verticalCenter
-                    width: 58 * root.s
-                    height: 58 * root.s
-                    radius: 10 * root.s
+                    width: 78 * root.s
+                    height: 78 * root.s
+                    radius: 14 * root.s
                     color: Theme.ghost
 
                     Image {
@@ -519,85 +542,117 @@ PillSurface {
                         visible: status === Image.Ready
                     }
 
-                    /** The island's own no-art state: ember bars playing, a note at rest. */
-                    Row {
-                        anchors.centerIn: parent
-                        spacing: 3 * root.s
-                        visible: Players.artUrl.length === 0 && Players.playing
-
-                        Repeater {
-                            model: 3
-                            delegate: Rectangle {
-                                required property int index
-                                width: 3 * root.s
-                                height: 7 * root.s
-                                radius: width / 2
-                                color: Theme.vermLit
-
-                                SequentialAnimation on height {
-                                    /* Gate on the same condition as the parent's `visible`:
-                                       with cover art the bars are hidden, and an infinite
-                                       animation on an invisible item is pure wasted work. */
-                                    running: Players.playing && root.active && Players.artUrl.length === 0
-                                    loops: Animation.Infinite
-                                    NumberAnimation { to: (6 + index * 3) * root.s; duration: 360 + index * 90; easing.type: Easing.InOutSine }
-                                    NumberAnimation { to: (12 - index * 2) * root.s; duration: 400 + index * 90; easing.type: Easing.InOutSine }
-                                }
-                            }
-                        }
-                    }
-
                     GlyphIcon {
                         anchors.centerIn: parent
-                        width: 20 * root.s
-                        height: 20 * root.s
+                        width: 26 * root.s
+                        height: 26 * root.s
                         name: "music"
                         color: Theme.subtle
-                        visible: Players.artUrl.length === 0 && !Players.playing
+                        visible: Players.artUrl.length === 0
                     }
                 }
 
                 Column {
                     anchors.left: cover.right
-                    anchors.leftMargin: 10 * root.s
+                    anchors.leftMargin: 13 * root.s
                     anchors.right: parent.right
-                    anchors.rightMargin: 10 * root.s
+                    anchors.rightMargin: 13 * root.s
                     anchors.verticalCenter: parent.verticalCenter
-                    spacing: 2 * root.s
+                    spacing: 4 * root.s
+
+                    /** app · elapsed - total, the way the media surface heads it. */
+                    Text {
+                        width: parent.width
+                        text: {
+                            const svc = Players.serviceLabel;
+                            if (!Players.has)
+                                return "";
+                            if (Players.live)
+                                return svc;
+                            return (svc.length > 0 ? svc + "   /   " : "")
+                                + mediaCard.fmt(mediaCard.posSec) + " - " + mediaCard.fmt(mediaCard.lenSec);
+                        }
+                        color: Theme.dim
+                        font.family: Theme.font
+                        font.pixelSize: 9.5 * root.s
+                        font.features: ({ "tnum": 1 })
+                        elide: Text.ElideRight
+                        renderType: Text.NativeRendering
+                        visible: text.length > 0
+                    }
 
                     Marquee {
                         width: parent.width
                         text: Players.has ? Players.title : "Nothing playing"
                         color: Theme.cream
-                        pixelSize: 11.5 * root.s
+                        pixelSize: 14 * root.s
                         weight: Font.DemiBold
                         active: root.active
                     }
 
-                    Marquee {
+                    /** elapsed ---- total */
+                    Row {
                         width: parent.width
-                        text: Players.artist
-                        color: Theme.dim
-                        pixelSize: 9 * root.s
-                        active: root.active
-                        visible: Players.artist.length > 0
+                        spacing: 8 * root.s
+                        visible: Players.has && !Players.live && mediaCard.lenSec > 0
+
+                        Text {
+                            id: posLbl
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: mediaCard.fmt(mediaCard.posSec)
+                            color: Theme.dim
+                            font.family: Theme.font
+                            font.pixelSize: 9 * root.s
+                            font.features: ({ "tnum": 1 })
+                            renderType: Text.NativeRendering
+                        }
+
+                        Rectangle {
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: Math.max(0, parent.width - posLbl.width - durLbl.width - 16 * root.s)
+                            height: 4 * root.s
+                            radius: height / 2
+                            color: Theme.threadBg
+
+                            Rectangle {
+                                anchors.left: parent.left
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: parent.width * mediaCard.frac
+                                height: parent.height
+                                radius: parent.radius
+                                color: Theme.vermLit
+                                Behavior on width { NumberAnimation { duration: Motion.standard } }
+                            }
+                        }
+
+                        Text {
+                            id: durLbl
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: mediaCard.fmt(mediaCard.lenSec)
+                            color: Theme.dim
+                            font.family: Theme.font
+                            font.pixelSize: 9 * root.s
+                            font.features: ({ "tnum": 1 })
+                            renderType: Text.NativeRendering
+                        }
                     }
 
+                    /** prev · play · next, centred under the track. */
                     Row {
-                        spacing: 8 * root.s
-                        topPadding: 3 * root.s
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: 16 * root.s
+                        topPadding: 2 * root.s
 
                         GlyphIcon {
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: 14 * root.s
-                            height: 14 * root.s
+                            width: 15 * root.s
+                            height: 15 * root.s
                             name: "prev-s"
                             color: prevArea.containsMouse ? Theme.cream : Theme.dim
                             stroke: 1.7
                             MouseArea {
                                 id: prevArea
                                 anchors.fill: parent
-                                anchors.margins: -5 * root.s
+                                anchors.margins: -6 * root.s
                                 hoverEnabled: true
                                 enabled: Players.has
                                 cursorShape: Qt.PointingHandCursor
@@ -605,18 +660,26 @@ PillSurface {
                             }
                         }
 
-                        GlyphIcon {
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: 15 * root.s
-                            height: 15 * root.s
-                            name: Players.playing ? "pause-s" : "play-s"
-                            color: playArea.containsMouse ? Theme.cream : Theme.vermLit
-                            stroke: 1.8
+                        Rectangle {
+                            width: 24 * root.s
+                            height: 24 * root.s
+                            radius: width / 2
+                            color: Players.playing ? Theme.vermLit : Theme.frameBg
+                            border.width: 1
+                            border.color: Players.playing ? "transparent" : Theme.border
+                            Behavior on color { ColorAnimation { duration: Motion.fast } }
+
+                            GlyphIcon {
+                                anchors.centerIn: parent
+                                width: 12 * root.s
+                                height: 12 * root.s
+                                name: Players.playing ? "pause-s" : "play-s"
+                                color: Players.playing ? Theme.cardTop : Theme.cream
+                                stroke: 1.8
+                            }
                             MouseArea {
-                                id: playArea
                                 anchors.fill: parent
-                                anchors.margins: -5 * root.s
-                                hoverEnabled: true
+                                anchors.margins: -4 * root.s
                                 enabled: Players.has
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: if (Players.active) Players.active.togglePlaying()
@@ -624,16 +687,15 @@ PillSurface {
                         }
 
                         GlyphIcon {
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: 14 * root.s
-                            height: 14 * root.s
+                            width: 15 * root.s
+                            height: 15 * root.s
                             name: "next-s"
                             color: nextArea.containsMouse ? Theme.cream : Theme.dim
                             stroke: 1.7
                             MouseArea {
                                 id: nextArea
                                 anchors.fill: parent
-                                anchors.margins: -5 * root.s
+                                anchors.margins: -6 * root.s
                                 hoverEnabled: true
                                 enabled: Players.has
                                 cursorShape: Qt.PointingHandCursor
@@ -663,41 +725,50 @@ PillSurface {
                 border.width: 1
                 border.color: Theme.frameBorder
 
+                /* Clock left, outlook right. Stacked vertically the content
+                   outgrew the card and spilled past its bottom edge while the
+                   right half sat empty; side by side it fits and fills. */
+
                 Column {
+                    id: clockCol
                     anchors.left: parent.left
-                    anchors.leftMargin: 14 * root.s
-                    anchors.right: parent.right
-                    anchors.rightMargin: 12 * root.s
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: 3 * root.s
+                    anchors.leftMargin: 15 * root.s
+                    anchors.top: parent.top
+                    anchors.topMargin: 13 * root.s
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 13 * root.s
+                    width: parent.width * 0.52
+                    spacing: 4 * root.s
 
                     Text {
                         text: root.hhmm
                         color: Theme.vermLit
                         font.family: Theme.font
-                        font.pixelSize: 34 * root.s
+                        font.pixelSize: 40 * root.s
                         font.weight: Font.Bold
                         font.features: ({ "tnum": 1 })
                         renderType: Text.NativeRendering
                     }
 
                     Text {
+                        width: parent.width
                         text: root.dateLine
                         color: Theme.bright
                         font.family: Theme.font
-                        font.pixelSize: 11 * root.s
+                        font.pixelSize: 11.5 * root.s
                         font.weight: Font.DemiBold
+                        elide: Text.ElideRight
                         renderType: Text.NativeRendering
                     }
 
                     Row {
-                        spacing: 5 * root.s
+                        spacing: 6 * root.s
                         visible: Weather.ready
 
                         GlyphIcon {
                             anchors.verticalCenter: parent.verticalCenter
-                            width: 14 * root.s
-                            height: 14 * root.s
+                            width: 15 * root.s
+                            height: 15 * root.s
                             name: Weather.glyphFor(Weather.codeNow, Weather.isDay)
                             color: Theme.subtle
                             stroke: 1.8
@@ -708,8 +779,89 @@ PillSurface {
                             text: Weather.tempNow + "°C · " + Weather.labelFor(Weather.codeNow)
                             color: Theme.dim
                             font.family: Theme.font
-                            font.pixelSize: 9.5 * root.s
+                            font.pixelSize: 10.5 * root.s
                             renderType: Text.NativeRendering
+                        }
+                    }
+
+                    Text {
+                        width: parent.width
+                        text: Weather.city
+                        color: Theme.faint
+                        font.family: Theme.font
+                        font.pixelSize: 10 * root.s
+                        elide: Text.ElideRight
+                        renderType: Text.NativeRendering
+                        visible: Weather.ready && Weather.city.length > 0
+                    }
+                }
+
+                /** Hairline between the two halves. */
+                Rectangle {
+                    anchors.left: clockCol.right
+                    anchors.leftMargin: 12 * root.s
+                    anchors.top: parent.top
+                    anchors.topMargin: 16 * root.s
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 16 * root.s
+                    width: 1
+                    color: Theme.hair
+                    visible: Weather.ready && Weather.daily.length > 0
+                }
+
+                /** Four-day outlook down the right half: day, sky, high. */
+                Column {
+                    anchors.left: clockCol.right
+                    anchors.leftMargin: 25 * root.s
+                    anchors.right: parent.right
+                    anchors.rightMargin: 14 * root.s
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 7 * root.s
+                    visible: Weather.ready && Weather.daily.length > 0
+
+                    Repeater {
+                        model: Math.min(4, Weather.daily.length)
+
+                        delegate: Item {
+                            required property int index
+                            readonly property var d: Weather.daily[index]
+                            width: parent.width
+                            height: 20 * root.s
+
+                            Text {
+                                anchors.left: parent.left
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: parent.d ? parent.d.day : ""
+                                color: Theme.faint
+                                font.family: Theme.font
+                                font.pixelSize: 10 * root.s
+                                font.weight: Font.DemiBold
+                                font.capitalization: Font.AllUppercase
+                                font.letterSpacing: 0.9 * root.s
+                                renderType: Text.NativeRendering
+                            }
+
+                            GlyphIcon {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: 17 * root.s
+                                height: 17 * root.s
+                                name: parent.d ? Weather.glyphFor(parent.d.code, true) : "cloud"
+                                color: Theme.iconDim
+                                stroke: 1.7
+                            }
+
+                            Text {
+                                anchors.right: parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: parent.d ? parent.d.temp + "°" : ""
+                                color: Theme.subtle
+                                font.family: Theme.font
+                                font.pixelSize: 12 * root.s
+                                font.weight: Font.DemiBold
+                                font.features: ({ "tnum": 1 })
+                                renderType: Text.NativeRendering
+                            }
                         }
                     }
                 }
