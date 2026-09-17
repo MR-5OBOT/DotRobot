@@ -11,11 +11,11 @@ import "../components"
 
 /**
  * Home surface: the control centre a click on the notch opens, in place of the
- * thin hover row. A left rail of the surfaces the pill already owns, a header,
+ * thin hover row. A header carrying the surfaces the pill already owns,
  * an identity card over the live wallpaper, the now-playing card, the
  * clock/weather card, and a grid of quick actions.
  *
- * Nothing here owns state. Every rail item routes to a surface that already
+ * Nothing here owns state. Every nav button routes to a surface that already
  * exists, and every tile drives a flag or singleton the island already has
  * (Flags, NightLight, Walls, Cliphist, lock.sh) — so this surface is a new
  * arrangement of the shell, never a second source of truth for it.
@@ -29,7 +29,7 @@ PillSurface {
     mBottom: 12
 
     ameForm: "dock"
-    amePoint: Qt.point(23 * root.s, 26 * root.s)
+    amePoint: Qt.point(headRow.x + 13 * root.s, 20 * root.s)
 
     signal requestSurface(string name)
 
@@ -67,7 +67,6 @@ PillSurface {
     readonly property bool btOn: root.btAdapter ? root.btAdapter.enabled === true : false
 
     readonly property real gap: 9 * root.s
-    readonly property real railW: 44 * root.s
 
     // ---- identity ----------------------------------------------------------
     property string userName: ""
@@ -135,7 +134,7 @@ PillSurface {
 
     // ---- shared leaf components -------------------------------------------
 
-    /** Rail button: one surface of the pill, lit while it is the open one. */
+    /** Header nav button: one surface of the pill, lit while it is the open one. */
     component RailBtn: Rectangle {
         id: rb
         required property string glyph
@@ -145,9 +144,9 @@ PillSurface {
         property bool battery: false
         signal activated()
 
-        width: 34 * root.s
-        height: 34 * root.s
-        radius: 11 * root.s
+        width: 26 * root.s
+        height: 26 * root.s
+        radius: 8 * root.s
         color: rb.current ? Qt.alpha(Theme.onGlow, 0.16)
             : (rbHover.hovered ? Theme.frameBg : "transparent")
         Behavior on color { ColorAnimation { duration: Motion.fast } }
@@ -159,8 +158,8 @@ PillSurface {
         GlyphIcon {
             id: rbGlyph
             anchors.centerIn: parent
-            width: 20 * root.s
-            height: 20 * root.s
+            width: 17 * root.s
+            height: 17 * root.s
             name: rb.glyph
             color: rb.battery ? rb.battTint
                 : (rb.current ? Theme.vermLit : (rbHover.hovered ? Theme.cream : Theme.iconDim))
@@ -280,54 +279,11 @@ PillSurface {
         }
     }
 
-    // ---- left rail ---------------------------------------------------------
-
-    Item {
-        id: rail
-        anchors.left: parent.left
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        width: root.railW
-
-        Column {
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: parent.top
-            anchors.topMargin: 2 * root.s
-            spacing: 3 * root.s
-
-            RailBtn { glyph: "home";      tip: "Home";      current: true }
-            RailBtn { glyph: "mixer";     tip: "Mixer";     onActivated: root.requestSurface("mixer") }
-            RailBtn { glyph: "calendar";  tip: "Calendar";  onActivated: root.requestSurface("calendar") }
-            RailBtn { glyph: "monitor";   tip: "System";    onActivated: root.requestSurface("sysmon") }
-            RailBtn { glyph: "inbox";     tip: "Notifications"; onActivated: root.requestSurface("link") }
-            RailBtn { glyph: "wifi";      tip: "Wi-Fi";     onActivated: root.openShellWidget("wifi", "wifiIsland") }
-            RailBtn { glyph: "bluetooth"; tip: "Bluetooth"; onActivated: root.openShellWidget("wifi", "btIsland") }
-            RailBtn {
-                glyph: "battery"
-                battery: true
-                tip: "Battery"
-                onActivated: root.requestSurface("battery")
-            }
-        }
-    }
-
-    Rectangle {
-        id: railSeam
-        anchors.left: rail.right
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.topMargin: 4 * root.s
-        anchors.bottomMargin: 4 * root.s
-        width: 1
-        color: Theme.hair
-    }
-
     // ---- body --------------------------------------------------------------
 
     Item {
         id: body
-        anchors.left: railSeam.right
-        anchors.leftMargin: root.gap + 3 * root.s
+        anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: parent.bottom
@@ -341,6 +297,7 @@ PillSurface {
             height: 26 * root.s
 
             Text {
+                id: title
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 text: "Home"
@@ -351,9 +308,10 @@ PillSurface {
                 renderType: Text.NativeRendering
             }
 
-            /** Workspace dots, centred in the header: the same component the pill's hover row uses. */
+            /** Workspace dots, right after the title: the same component the pill's hover row uses. */
             Workspaces {
-                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.left: title.right
+                anchors.leftMargin: 14 * root.s
                 anchors.verticalCenter: parent.verticalCenter
                 width: implicitWidth
                 screenName: root.screenName
@@ -369,9 +327,31 @@ PillSurface {
             }
 
             Row {
+                id: headRow
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 6 * root.s
+
+                RailBtn { glyph: "home";      tip: "Home";      current: true }
+                RailBtn { glyph: "mixer";     tip: "Mixer";     onActivated: root.requestSurface("mixer") }
+                RailBtn { glyph: "calendar";  tip: "Calendar";  onActivated: root.requestSurface("calendar") }
+                RailBtn { glyph: "monitor";   tip: "System";    onActivated: root.requestSurface("sysmon") }
+                RailBtn { glyph: "inbox";     tip: "Notifications"; onActivated: root.requestSurface("link") }
+                RailBtn { glyph: "wifi";      tip: "Wi-Fi";     onActivated: root.openShellWidget("wifi", "wifiIsland") }
+                RailBtn { glyph: "bluetooth"; tip: "Bluetooth"; onActivated: root.openShellWidget("wifi", "btIsland") }
+                RailBtn {
+                    glyph: "battery"
+                    battery: true
+                    tip: "Battery"
+                    onActivated: root.requestSurface("battery")
+                }
+
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 1
+                    height: 16 * root.s
+                    color: Theme.hair
+                }
 
                 HeadBtn {
                     glyph: "cog"
@@ -718,7 +698,7 @@ PillSurface {
                 }
             }
 
-            // clock + weather, filling what the rail leaves ----------------------
+            // clock + weather ----------------------
             Rectangle {
                 anchors.left: parent.left
                 anchors.right: mediaCard.right
