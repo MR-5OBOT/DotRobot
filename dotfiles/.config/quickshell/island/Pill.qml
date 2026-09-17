@@ -97,7 +97,6 @@ Item {
     readonly property bool homeOpen: surface === "home"
     readonly property bool mixerOpen: surface === "mixer"
     readonly property bool calendarOpen: surface === "calendar"
-    readonly property bool launcherOpen: surface === "launcher"
 
     /** The pill's app launcher is replaced by the main shell's (the Super+Space one). */
     function openUserLauncher() {
@@ -128,14 +127,10 @@ Item {
         Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
             "qs", "ipc", "call", "wifi", "btIsland"]);
     }
-    readonly property bool clipboardOpen: surface === "clipboard"
-    readonly property bool wallpaperOpen: surface === "wallpaper"
     readonly property bool powerOpen: surface === "power"
     readonly property bool mediaOpen: surface === "media"
     readonly property bool linkOpen: surface === "link"
     readonly property bool weatherOpen: surface === "weather"
-    readonly property bool wifiOpen: surface === "wifi"
-    readonly property bool btOpen: surface === "bt"
     readonly property bool batteryOpen: surface === "battery"
     readonly property bool sysmonOpen: surface === "sysmon"
     readonly property bool appearanceOpen: surface === "appearance"
@@ -327,19 +322,11 @@ Item {
        the clock card got ~107 and its content overflowed up over the media card. */
     readonly property real homeH: 446 * s
     readonly property real mixerH: 214 * s
-    readonly property real launcherW: 360 * s
-    readonly property real launcherH: 332 * s
-    readonly property real clipboardW: 360 * s
-    readonly property real clipboardH: 332 * s
-    readonly property real wallpaperW: 720 * s
-    readonly property real wallpaperH: 172 * s
     readonly property real powerW: 330 * s
     readonly property real powerH: 150 * s
     readonly property real mediaW: 470 * s
     readonly property real mediaH: 132 * s
     readonly property real batteryW: 316 * s
-    readonly property real wifiW: 272 * s
-    readonly property real btW: 286 * s
     readonly property real sysmonW: 392 * s
     readonly property real settingsScale: 0.9
     readonly property real settingsW: 392 * s * settingsScale
@@ -386,15 +373,10 @@ Item {
         home:      { size: () => { surfaceItem("home"); return Qt.size(homeW, homeH); }, ame: () => surfaceItem("home") },
         calendar:  { size: () => { const it = surfaceItem("calendar"); return Qt.size((it.implicitWidth > 0 ? it.implicitWidth : 282 * calendarS) + 36 * calendarS, it.implicitHeight + 32 * calendarS); }, ame: () => surfaceItem("calendar") },
         weather:   { size: () => { const it = surfaceItem("weather"); return Qt.size((it.implicitWidth > 0 ? it.implicitWidth : 282 * s) + 36 * s, it.implicitHeight + 32 * s); }, ame: () => surfaceItem("weather") },
-        launcher:  { size: () => { surfaceItem("launcher"); return Qt.size(launcherW, launcherH); }, ame: () => surfaceItem("launcher") },
-        clipboard: { size: () => { surfaceItem("clipboard"); return Qt.size(clipboardW, clipboardH); }, ame: () => surfaceItem("clipboard") },
-        wallpaper: { size: () => { surfaceItem("wallpaper"); return Qt.size(wallpaperW, wallpaperH); }, ame: () => null },
         power:     { size: () => { surfaceItem("power"); return Qt.size(powerW, powerH); }, ame: () => surfaceItem("power") },
         media:     { size: () => { surfaceItem("media"); return Qt.size(mediaW, mediaH); }, ame: () => surfaceItem("media") },
         mixer:     { size: () => Qt.size(93 * Math.max(4, surfaceItem("mixer").faderCount) * s, mixerH), ame: () => surfaceItem("mixer") },
         link:      { size: () => { const it = surfaceItem("link"); return Qt.size(it.desiredW, it.implicitHeight + 26 * s); }, ame: () => surfaceItem("link") },
-        wifi:      { size: () => Qt.size(wifiW, surfaceItem("wifi").implicitHeight + 26 * s), ame: () => surfaceItem("wifi") },
-        bt:        { size: () => Qt.size(btW, surfaceItem("bt").implicitHeight + 26 * s), ame: () => surfaceItem("bt") },
         battery:   { size: () => Qt.size(batteryW, surfaceItem("battery").implicitHeight + 26 * s), ame: () => surfaceItem("battery") },
         sysmon:    { size: () => Qt.size(sysmonW, surfaceItem("sysmon").implicitHeight + 33 * s), ame: () => surfaceItem("sysmon") },
         appearance: { size: () => Qt.size(settingsW, surfaceItem("appearance").implicitHeight + 29 * s), ame: () => surfaceItem("appearance") },
@@ -415,15 +397,10 @@ Item {
         home:       () => ldHome,
         calendar:   () => ldCalendar,
         weather:    () => ldWeather,
-        launcher:   () => ldLauncher,
-        clipboard:  () => ldClip,
-        wallpaper:  () => ldWall,
         power:      () => ldPower,
         media:      () => ldMedia,
         mixer:      () => ldMixer,
         link:       () => ldLink,
-        wifi:       () => ldWifi,
-        bt:         () => ldBt,
         battery:    () => ldBattery,
         sysmon:     () => ldSysmon,
         appearance: () => ldAppearance,
@@ -640,92 +617,6 @@ Item {
             return;
         }
         pill.requestClose();
-    }
-
-    /**
-     * Slide the open wallpaper strip's focus by `dir` thumbs; +1 is right (older)
-     * and -1 is left (newer). No-op unless the wallpaper surface is open.
-     */
-    function wallpaperMove(dir) {
-        if (pill.wallpaperOpen && ldWall.item)
-            ldWall.item.move(dir);
-    }
-
-    /**
-     * Apply the wallpaper strip's focused thumb through wallpaper.sh. The
-     * surface stays open so the pick can be iterated. No-op unless the
-     * wallpaper surface is open.
-     */
-    function wallpaperActivate() {
-        if (pill.wallpaperOpen && ldWall.item)
-            ldWall.item.activate();
-    }
-
-    readonly property bool wallpaperSearching: pill.wallpaperOpen && ldWall.item !== null && ldWall.item.searching
-
-    /** True while the strip is browsing wallhaven; bare keys go into its search. */
-    readonly property bool wallpaperWh: pill.wallpaperOpen && ldWall.item !== null && ldWall.item.whSource
-
-    /** True while the wallhaven search field holds keyboard focus, so keys type straight into it. */
-    readonly property bool wallpaperWhTyping: pill.wallpaperOpen && ldWall.item !== null && ldWall.item.whTyping
-
-    /**
-     * Route a printable keystroke into the wallhaven search field, mirroring
-     * the local name filter: focus the field and insert the character. No-op
-     * unless the wallpaper surface is open and browsing wallhaven.
-     */
-    function wallpaperWhType(ch) {
-        if (pill.wallpaperOpen && ldWall.item)
-            ldWall.item.whTypeChar(ch);
-    }
-
-    /**
-     * Route a Backspace into the wallhaven field the same way, so a search can
-     * be re-edited right after Enter applied a wallpaper. No-op unless the
-     * wallpaper surface is open and browsing wallhaven.
-     */
-    function wallpaperWhBackspace() {
-        if (pill.wallpaperOpen && ldWall.item)
-            ldWall.item.whBackspace();
-    }
-
-    /**
-     * Route the first printable keystroke over the open wallpaper strip into
-     * the name filter seeded with that character. No-op unless the wallpaper
-     * surface is open and not browsing wallhaven.
-     */
-    function wallpaperType(ch) {
-        if (pill.wallpaperOpen && ldWall.item)
-            ldWall.item.startSearch(ch);
-    }
-
-    readonly property bool wallpaperMenuOpen: pill.wallpaperOpen && ldWall.item !== null && ldWall.item.menuOpen
-
-    /**
-     * Move the open wallpaper dropdown's cursor by `dir` rows. No-op unless a
-     * dropdown (filter or fit) is open.
-     */
-    function wallpaperMenuMove(dir) {
-        if (pill.wallpaperMenuOpen)
-            ldWall.item.menuMove(dir);
-    }
-
-    /**
-     * Pick the open wallpaper dropdown's currently keyed row. No-op unless a
-     * dropdown is open.
-     */
-    function wallpaperMenuPick() {
-        if (pill.wallpaperMenuOpen)
-            ldWall.item.menuPick();
-    }
-
-    /**
-     * Close any open wallpaper dropdown without picking, so Escape backs out
-     * of just the menu rather than the whole strip.
-     */
-    function wallpaperMenuClose() {
-        if (pill.wallpaperMenuOpen)
-            ldWall.item.menuClose();
     }
 
     /**
@@ -2400,41 +2291,8 @@ Item {
         }
     }
 
-    Loader {
-        id: ldLauncher
-        active: false
-        anchors.fill: parent
-        sourceComponent: Launcher {
-            s: pill.s
-            open: pill.launcherOpen
-            morphCloseness: pill.morphCloseness
-            onRequestClose: pill.requestClose()
-        }
-    }
 
-    Loader {
-        id: ldClip
-        active: false
-        anchors.fill: parent
-        sourceComponent: Clipboard {
-            s: pill.s
-            open: pill.clipboardOpen
-            morphCloseness: pill.morphCloseness
-            onRequestClose: pill.requestClose()
-        }
-    }
 
-    Loader {
-        id: ldWall
-        active: false
-        anchors.fill: parent
-        sourceComponent: Wallpaper {
-            s: pill.s
-            open: pill.wallpaperOpen
-            morphCloseness: pill.morphCloseness
-            onRequestClose: pill.requestClose()
-        }
-    }
 
     Loader {
         id: ldPower
@@ -2480,29 +2338,7 @@ sourceComponent: Media {
         }
     }
 
-    Loader {
-        id: ldWifi
-        active: false
-        anchors.fill: parent
-        sourceComponent: WifiSurface {
-            s: pill.s
-            open: pill.wifiOpen
-            morphCloseness: pill.morphCloseness
-            onRequestClose: pill.requestClose()
-        }
-    }
 
-    Loader {
-        id: ldBt
-        active: false
-        anchors.fill: parent
-        sourceComponent: BtSurface {
-            s: pill.s
-            open: pill.btOpen
-            morphCloseness: pill.morphCloseness
-            onRequestClose: pill.requestClose()
-        }
-    }
 
     Loader {
         id: ldBattery

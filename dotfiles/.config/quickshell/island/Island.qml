@@ -405,32 +405,20 @@ Scope {
                     enabled: !overlay.surfaceOpen && !pill.pinned
                     onHoveredChanged: if (enabled) pill.hovered = hovered
                 }
-                Keys.onEscapePressed: {
-                    if (pill.wallpaperMenuOpen) {
-                        pill.wallpaperMenuClose();
-                    } else {
-                        root.close();
-                    }
-                }
+                Keys.onEscapePressed: root.close()
                 Keys.onUpPressed: (e) => {
-                    if (pill.wallpaperMenuOpen) { pill.wallpaperMenuMove(-1); e.accepted = true; }
-                    else e.accepted = pill.mixerStep(1) || pill.settingsMove(-1);
+                    e.accepted = pill.mixerStep(1) || pill.settingsMove(-1);
                 }
                 Keys.onDownPressed: (e) => {
-                    if (pill.wallpaperMenuOpen) { pill.wallpaperMenuMove(1); e.accepted = true; }
-                    else e.accepted = pill.mixerStep(-1) || pill.settingsMove(1);
+                    e.accepted = pill.mixerStep(-1) || pill.settingsMove(1);
                 }
                 Keys.onLeftPressed: (e) => {
-                    if (pill.wallpaperMenuOpen) { e.accepted = true; }
-                    else if (pill.mixerOpen) { pill.mixerFocusMove(-1); e.accepted = true; }
-                    else if (pill.wallpaperOpen) { pill.wallpaperMove(-1); e.accepted = true; }
+                    if (pill.mixerOpen) { pill.mixerFocusMove(-1); e.accepted = true; }
                     else if (pill.powerOpen) { pill.powerMove(-1); e.accepted = true; }
                     else if (pill.settingsLike) { pill.settingsAdjust(-1); e.accepted = true; }
                 }
                 Keys.onRightPressed: (e) => {
-                    if (pill.wallpaperMenuOpen) { e.accepted = true; }
-                    else if (pill.mixerOpen) { pill.mixerFocusMove(1); e.accepted = true; }
-                    else if (pill.wallpaperOpen) { pill.wallpaperMove(1); e.accepted = true; }
+                    if (pill.mixerOpen) { pill.mixerFocusMove(1); e.accepted = true; }
                     else if (pill.powerOpen) { pill.powerMove(1); e.accepted = true; }
                     else if (pill.settingsLike) { pill.settingsAdjust(1); e.accepted = true; }
                 }
@@ -443,39 +431,9 @@ Scope {
                  * is swallowed for everything else so a held key never re-fires.
                  */
                 Keys.onPressed: (e) => {
-                    if (pill.wallpaperMenuOpen) {
-                        if (e.key === Qt.Key_Return || e.key === Qt.Key_Enter || e.key === Qt.Key_Space) {
-                            if (!e.isAutoRepeat) pill.wallpaperMenuPick();
-                            e.accepted = true;
-                        } else if (e.text.length === 1) {
-                            e.accepted = true;
-                        }
-                        return;
-                    }
-                    if (pill.wallpaperWh && !pill.wallpaperWhTyping) {
-                        if (e.key === Qt.Key_Backspace) {
-                            pill.wallpaperWhBackspace();
-                            e.accepted = true;
-                            return;
-                        }
-                        if (e.text.length === 1 && e.text > " ") {
-                            pill.wallpaperWhType(e.text);
-                            e.accepted = true;
-                            return;
-                        }
-                    }
-                    if (pill.wallpaperOpen && !pill.wallpaperSearching && !pill.wallpaperWh
-                        && e.text.length === 1 && e.text > " ") {
-                        pill.wallpaperType(e.text);
-                        e.accepted = true;
-                        return;
-                    }
                     if (e.key !== Qt.Key_Return && e.key !== Qt.Key_Enter && e.key !== Qt.Key_Space)
                         return;
-                    if (pill.wallpaperOpen) {
-                        if (!e.isAutoRepeat) pill.wallpaperActivate();
-                        e.accepted = true;
-                    } else if (pill.powerOpen) {
+                    if (pill.powerOpen) {
                         if (!e.isAutoRepeat) pill.powerPress();
                         e.accepted = true;
                     } else if (pill.settingsLike) {
@@ -585,13 +543,6 @@ Scope {
 
             onSurfaceOpenChanged: if (surfaceOpen) focusScope.forceActiveFocus()
 
-            Connections {
-                target: pill
-                function onWallpaperSearchingChanged() {
-                    if (!pill.wallpaperSearching && overlay.surfaceOpen)
-                        focusScope.forceActiveFocus();
-                }
-            }
         }
     }
 }
