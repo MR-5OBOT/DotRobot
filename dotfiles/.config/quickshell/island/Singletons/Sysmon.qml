@@ -24,7 +24,10 @@ import Quickshell.Io
 Singleton {
     id: root
 
-    property bool open: false
+    /** Polling runs while the System surface or Home's embedded copy is up. */
+    property bool surfaceOpen: false
+    property bool homeOpen: false
+    readonly property bool open: surfaceOpen || homeOpen
 
     property int cpu: 0
     property int cpuTemp: -1

@@ -30,7 +30,15 @@ PillSurface {
     readonly property var dialKeys: Sysmon.hasGpu ? ["cpu", "gpu", "mem"] : ["cpu", "mem"]
     readonly property var cellKeys: Sysmon.hasVram ? ["net", "disk", "swap", "vram"] : ["net", "disk", "swap"]
 
-    onActiveChanged: Sysmon.open = active
+    /** Home's copy: no header row (Home shows uptime), and its own polling flag. */
+    property bool embedded: false
+
+    onActiveChanged: {
+        if (embedded)
+            Sysmon.homeOpen = active;
+        else
+            Sysmon.surfaceOpen = active;
+    }
 
     property bool speedRunning: false
     property string speedPhase: ""
@@ -299,8 +307,9 @@ PillSurface {
         spacing: 0
 
         Item {
+            visible: !root.embedded
             width: parent.width
-            height: 24 * root.s
+            height: visible ? 24 * root.s : 0
 
             Row {
                 anchors.left: parent.left
@@ -344,7 +353,7 @@ PillSurface {
             }
         }
 
-        Item { width: 1; height: 16 * root.s }
+        Item { width: 1; height: root.embedded ? 0 : 16 * root.s }
 
         Item {
             width: parent.width
