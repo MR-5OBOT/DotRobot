@@ -19,8 +19,6 @@ Singleton {
         return p.length > 1 && p.slice(-1) === "/" ? p.slice(0, -1) : p;
     }
 
-    readonly property string _hypr: configDir
-
     function _localPath(url) {
         var s = String(url);
         if (s.indexOf("file://") === 0) {
@@ -30,9 +28,10 @@ Singleton {
         return s;
     }
 
-    function hyprPath() {
+    /** Join a path under the project folder, e.g. islandPath("scripts", "lock.sh"). */
+    function islandPath() {
         var parts = Array.prototype.slice.call(arguments);
-        return root.join(root._hypr, parts);
+        return root.join(root.configDir, parts);
     }
 
     function join(base, parts) {

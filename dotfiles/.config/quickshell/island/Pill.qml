@@ -1054,7 +1054,7 @@ Item {
         pill.installLine = "";
         pill.installProto = "";
         pill.installPct = "";
-        installProc.command = ["bash", Config.hyprPath("scripts", "app-install.sh"), "install", next];
+        installProc.command = ["bash", Config.islandPath("scripts", "app-install.sh"), "install", next];
         installProc.running = true;
     }
 
