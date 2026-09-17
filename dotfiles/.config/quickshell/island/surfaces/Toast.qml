@@ -65,7 +65,7 @@ Item {
             sourceSize.height: 56
             fillMode: Image.PreserveAspectCrop
             smooth: true
-            visible: source.toString().length > 0
+            visible: status === Image.Ready
         }
 
         Rectangle {
