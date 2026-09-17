@@ -9,9 +9,7 @@ QtObject {
     readonly property color text: "#e8e8e8"
     readonly property color dim: "#7a7a7a"
     readonly property color pink: "#862F55"       // accent
-    readonly property color pinkDim: "#742849"
 
-    readonly property int barWidth: 42
     readonly property int radius: 4               // small rounded corners
     readonly property color notchBg: "#000000"    // top-edge notch cards, styled like the island
     readonly property int notchRadius: 18         // notch cards' bottom corners
