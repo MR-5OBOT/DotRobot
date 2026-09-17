@@ -169,7 +169,7 @@ PillSurface {
                 sourceSize.height: 64
                 fillMode: Image.PreserveAspectCrop
                 smooth: true
-                visible: source.toString().length > 0
+                visible: status === Image.Ready
             }
 
             Rectangle {
@@ -493,7 +493,7 @@ PillSurface {
                                         sourceSize.height: 40
                                         fillMode: Image.PreserveAspectCrop
                                         smooth: true
-                                        visible: source.toString().length > 0
+                                        visible: status === Image.Ready
                                     }
 
                                     Rectangle {
