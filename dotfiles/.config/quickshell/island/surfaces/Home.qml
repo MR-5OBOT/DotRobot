@@ -140,6 +140,8 @@ PillSurface {
         required property string glyph
         required property string tip
         property bool current: false
+        /** Pink glyph without the "current" fill: the power button. */
+        property bool accent: false
         /** Draw the live charge level inside the glyph, as the hover row does. */
         property bool battery: false
         signal activated()
@@ -158,11 +160,11 @@ PillSurface {
         GlyphIcon {
             id: rbGlyph
             anchors.centerIn: parent
-            width: 17 * root.s
-            height: 17 * root.s
+            width: 17.5 * root.s
+            height: 17.5 * root.s
             name: rb.glyph
             color: rb.battery ? rb.battTint
-                : (rb.current ? Theme.vermLit : (rbHover.hovered ? Theme.cream : Theme.iconDim))
+                : (rb.current || rb.accent ? Theme.vermLit : (rbHover.hovered ? Theme.cream : Theme.iconDim))
             stroke: 1.7
             Behavior on color { ColorAnimation { duration: Motion.fast } }
 
@@ -186,45 +188,11 @@ PillSurface {
             cursorShape: Qt.PointingHandCursor
             onClicked: rb.activated()
         }
-    }
-
-    /** Header button: settings, power, dismiss. */
-    component HeadBtn: Rectangle {
-        id: hb
-        required property string glyph
-        required property string tip
-        property bool accent: false
-        signal activated()
-
-        width: 26 * root.s
-        height: 26 * root.s
-        radius: 8 * root.s
-        color: hb.accent ? Qt.alpha(Theme.onGlow, 0.18)
-            : (hbHover.hovered ? Theme.frameBg : Theme.tileBg)
-        border.width: 1
-        border.color: hb.accent ? Qt.alpha(Theme.onGlow, 0.5) : Theme.border
-        Behavior on color { ColorAnimation { duration: Motion.fast } }
-
-        GlyphIcon {
-            anchors.centerIn: parent
-            width: 15 * root.s
-            height: 15 * root.s
-            name: hb.glyph
-            color: hb.accent ? Theme.vermLit : (hbHover.hovered ? Theme.cream : Theme.iconDim)
-            stroke: 1.7
-        }
-
-        HoverHandler { id: hbHover }
-        MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: hb.activated()
-        }
         Tooltip {
             s: root.s
             placement: "below"
-            title: hb.tip
-            show: hbHover.hovered
+            title: rb.tip
+            show: rbHover.hovered
         }
     }
 
@@ -296,22 +264,9 @@ PillSurface {
             anchors.top: parent.top
             height: 26 * root.s
 
-            Text {
-                id: title
-                anchors.left: parent.left
-                anchors.verticalCenter: parent.verticalCenter
-                text: "Home"
-                color: Theme.vermLit
-                font.family: Theme.font
-                font.pixelSize: 14 * root.s
-                font.weight: Font.DemiBold
-                renderType: Text.NativeRendering
-            }
-
-            /** Workspace dots, right after the title: the same component the pill's hover row uses. */
+            /** Workspace dots, left end of the header: the same component the pill's hover row uses. */
             Workspaces {
-                anchors.left: title.right
-                anchors.leftMargin: 14 * root.s
+                anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 width: implicitWidth
                 screenName: root.screenName
@@ -353,12 +308,12 @@ PillSurface {
                     color: Theme.hair
                 }
 
-                HeadBtn {
+                RailBtn {
                     glyph: "cog"
                     tip: "Appearance"
                     onActivated: root.requestSurface("appearance")
                 }
-                HeadBtn {
+                RailBtn {
                     glyph: "shutdown"
                     tip: "Power"
                     accent: true
