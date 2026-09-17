@@ -1046,12 +1046,10 @@ Item {
             } else if (Flags.autoHide && !revealSession && !expanded && !surfaceOpen) {
                 revealSession = true;
                 revealTimer.stop();
-            } else if (bootSettled && !revealSession && !toastActive) {
-                /* A toast owns the pill; hovering it must not latch an expansion
-                 * underneath, or the pill stays open once the toast is dismissed. */
-                hoverLatch = true;
-                graceTimer.stop();
             }
+            /* Hover no longer grows the pill into the icon row: Home carries the
+             * same controls, and a click opens it. hoverLatch is still set by
+             * the media card's Expand. */
         } else {
             if (!pinned && !surfaceOpen && !revealSession)
                 hoverLatch = false;
@@ -2322,11 +2320,9 @@ Item {
         id: backBtn
         z: 100
         visible: Surfaces.back.length > 0 && pill.surfaceOpen
-        anchors.left: parent.left
+        anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        /* Sits in the band PillSurface leaves above the surface, indented to
-           roughly the left margin the surfaces themselves use. */
-        anchors.leftMargin: 17 * pill.s
+        /* Centred in the band PillSurface leaves above the surface. */
         anchors.topMargin: 9 * pill.s
         width: 16 * pill.s
         height: 16 * pill.s
