@@ -31,8 +31,8 @@ Item {
 
     property string screenName: ""
     property real s: 1
-    property real stickW: 17 * s
-    property real dotW: 5 * s
+    property real stickW: 24 * s
+    property real dotW: 8 * s
     property real gap: 4 * s
 
     /**
