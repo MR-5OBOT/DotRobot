@@ -33,6 +33,18 @@ PillSurface {
 
     signal requestSurface(string name)
 
+    /**
+     * The pill's own wifi/bluetooth/wallpaper surfaces are superseded by the
+     * main shell's panels (see openUserWifi/openUserBt/openUserWallpaper in
+     * Pill.qml); the hover row calls those, so the tiles must too, or they open
+     * a different-looking copy of the same widget.
+     */
+    function openShellWidget(target, fn) {
+        root.requestClose();
+        Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
+            "qs", "ipc", "call", target, fn]);
+    }
+
     /** Set by the pill so the workspace dots know which monitor they belong to. */
     property string screenName: ""
 
@@ -113,6 +125,8 @@ PillSurface {
         required property string glyph
         required property string tip
         property bool current: false
+        /** Draw the live charge level inside the glyph, as the hover row does. */
+        property bool battery: false
         signal activated()
 
         width: 34 * root.s
@@ -122,14 +136,33 @@ PillSurface {
             : (rbHover.hovered ? Theme.frameBg : "transparent")
         Behavior on color { ColorAnimation { duration: Motion.fast } }
 
+        readonly property color battTint: Battery.low ? Theme.vermLit
+            : (Battery.charging ? Theme.flameGlow
+            : (rb.current ? Theme.vermLit : (rbHover.hovered ? Theme.cream : Theme.iconDim)))
+
         GlyphIcon {
+            id: rbGlyph
             anchors.centerIn: parent
             width: 20 * root.s
             height: 20 * root.s
             name: rb.glyph
-            color: rb.current ? Theme.vermLit : (rbHover.hovered ? Theme.cream : Theme.iconDim)
+            color: rb.battery ? rb.battTint
+                : (rb.current ? Theme.vermLit : (rbHover.hovered ? Theme.cream : Theme.iconDim))
             stroke: 1.7
             Behavior on color { ColorAnimation { duration: Motion.fast } }
+
+            /* Charge level inside the glyph body: x 4..17, y 9..15 of its
+               24-unit grid, the same geometry the pill's hover row uses. */
+            Rectangle {
+                visible: rb.battery && Battery.present
+                x: 4 * rbGlyph.u
+                y: 9 * rbGlyph.u
+                width: Math.max(rbGlyph.u, 13 * rbGlyph.u * Battery.frac)
+                height: 6 * rbGlyph.u
+                radius: 0.8 * rbGlyph.u
+                color: rb.battTint
+                Behavior on width { NumberAnimation { duration: Motion.standard } }
+            }
         }
 
         HoverHandler { id: rbHover }
@@ -261,7 +294,12 @@ PillSurface {
             RailBtn { glyph: "inbox";     tip: "Notifications"; onActivated: root.requestSurface("link") }
             RailBtn { glyph: "wifi";      tip: "Wi-Fi";     onActivated: root.requestSurface("wifi") }
             RailBtn { glyph: "bluetooth"; tip: "Bluetooth"; onActivated: root.requestSurface("bt") }
-            RailBtn { glyph: "battery";   tip: "Battery";   onActivated: root.requestSurface("battery") }
+            RailBtn {
+                glyph: "battery"
+                battery: true
+                tip: Battery.present ? Battery.pct + "%  " + Battery.stateLabel : "Battery"
+                onActivated: root.requestSurface("battery")
+            }
         }
     }
 
@@ -703,13 +741,13 @@ PillSurface {
                     width: tiles.cellW; height: tiles.cellH
                     glyph: "wifi"; label: "Wi-Fi"
                     on: root.wifiOn
-                    onActivated: root.requestSurface("wifi")
+                    onActivated: root.openShellWidget("wifi", "wifiIsland")
                 }
                 Tile {
                     width: tiles.cellW; height: tiles.cellH
                     glyph: "bluetooth"; label: "Bluetooth"
                     on: root.btOn
-                    onActivated: root.requestSurface("bt")
+                    onActivated: root.openShellWidget("wifi", "btIsland")
                 }
                 Tile {
                     width: tiles.cellW; height: tiles.cellH
@@ -732,7 +770,7 @@ PillSurface {
                 Tile {
                     width: tiles.cellW; height: tiles.cellH
                     glyph: "wallpaper"; label: "Wallpaper"
-                    onActivated: root.requestSurface("wallpaper")
+                    onActivated: root.openShellWidget("wallpicker", "toggle")
                 }
                 Tile {
                     width: tiles.cellW; height: tiles.cellH
