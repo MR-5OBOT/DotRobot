@@ -322,7 +322,10 @@ Item {
     readonly property real hoverH: 58 * s
     readonly property real calendarS: s * 1.05
     readonly property real homeW: 620 * s
-    readonly property real homeH: 396 * s
+    /* Tall enough for the left column's real content: media card 118 + gap 9 +
+       the clock card, whose clock/date/weather/4-day strip needs ~140. At 396
+       the clock card got ~107 and its content overflowed up over the media card. */
+    readonly property real homeH: 446 * s
     readonly property real mixerH: 214 * s
     readonly property real launcherW: 360 * s
     readonly property real launcherH: 332 * s
@@ -827,8 +830,10 @@ Item {
 
     readonly property size targetSize: {
         const sf = surfaces[mode];
-        if (sf)
-            return sf.size();
+        if (sf) {
+            const z = sf.size();
+            return Qt.size(z.width, z.height + Surfaces.pad * s);
+        }
         const f = modeSize[mode];
         if (f)
             return f();
@@ -2299,47 +2304,56 @@ Item {
      */
 
     /**
-     * Back to whichever surface opened this one. Drawn by the pill, not by
-     * PillSurface, because a surface that clips (sysmon's gauges) would clip a
-     * chevron sitting outside its own bounds. Sized to sit inside the left
-     * margin every surface already has (the smallest is Launcher's 11), so no
-     * surface has to give up layout for it.
+     * Breadcrumb back to whichever surface opened this one: no icon, the word
+     * itself is the control. Drawn by the pill rather than PillSurface so a
+     * clipping surface (sysmon's gauges) cannot cut it off, and set in the same
+     * type as every surface's own header eyebrow so it reads as part of it.
+     * Surfaces.pad widens the panel by exactly this much, so nothing overlaps.
      */
-    Rectangle {
+    /**
+     * Breadcrumb back to whichever surface opened this one: no icon, the word
+     * itself is the control. A single Text, not a Row — children with
+     * anchors.fill inside a Row are illegal and stop it laying out at all.
+     * Drawn by the pill so a clipping surface cannot cut it off, set in the
+     * same eyebrow type every surface header uses, and Surfaces.pad widens the
+     * panel by exactly this much so nothing overlaps.
+     */
+    Item {
         id: backBtn
         z: 100
         visible: Surfaces.back.length > 0 && pill.surfaceOpen
         anchors.left: parent.left
         anchors.top: parent.top
-        /* Every surface's header is a 24-unit row anchored to its top-left, so
-           the header centre sits at (mTop + 12). mTop is 13 on most surfaces and
-           16 on calendar/battery; a 20 top margin puts this 11-tall chevron's
-           centre at 25.5, on the header line for both without per-surface work. */
-        anchors.leftMargin: 4 * pill.s
-        anchors.topMargin: 20 * pill.s
-        width: 11 * pill.s
-        height: 11 * pill.s
-        radius: width / 2
-        color: backHover.hovered ? Theme.frameBg : "transparent"
-        border.width: 0
-        Behavior on color { ColorAnimation { duration: Motion.fast } }
+        /* Sits in the band PillSurface leaves above the surface, indented to
+           roughly the left margin the surfaces themselves use. */
+        anchors.leftMargin: 17 * pill.s
+        anchors.topMargin: 9 * pill.s
+        width: 16 * pill.s
+        height: 16 * pill.s
 
         GlyphIcon {
-            anchors.centerIn: parent
-            width: 9 * pill.s
-            height: 9 * pill.s
-            name: "chevron-left"
-            color: backHover.hovered ? Theme.cream : Theme.faint
+            anchors.fill: parent
+            name: "home"
+            color: backHover.hovered ? Theme.cream : Theme.subtle
             stroke: 1.7
+            Behavior on color { ColorAnimation { duration: Motion.fast } }
         }
 
         HoverHandler { id: backHover }
         MouseArea {
             anchors.fill: parent
-            anchors.margins: -4 * pill.s
+            anchors.margins: -7 * pill.s
             cursorShape: Qt.PointingHandCursor
             onClicked: Surfaces.goBack()
         }
+    }
+
+    /** The lane is exactly as wide as the breadcrumb, plus a gap. */
+    Binding {
+        target: Surfaces
+        property: "pad"
+        value: (Surfaces.back.length > 0 && pill.surfaceOpen)
+            ? Math.ceil(backBtn.height / pill.s) + 9 : 0
     }
 
     Loader {
