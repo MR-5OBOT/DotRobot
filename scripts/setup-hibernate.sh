@@ -6,22 +6,18 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 # Disk swap supplies a hibernation target and a lower-priority memory fallback.
 # Only configure layouts that this script can verify: ext4 with mkinitcpio and
 # GRUB and/or a UKI using /etc/kernel/cmdline. Unsupported layouts are skipped.
-# Laptops additionally get suspend-then-hibernate on lid close; desktops keep
-# their existing lid/sleep policy.
+# Nothing hibernates automatically: each hibernation evicts most of RAM, so the
+# desktop is sluggish after resume. Lid close keeps logind's default (suspend).
 
 SWAPFILE="/swapfile"
-HIBERNATE_DELAY="30min"
 MKINITCPIO_CONF="/etc/mkinitcpio.conf"
 KERNEL_CMDLINE="/etc/kernel/cmdline"
 GRUB_DEFAULT="/etc/default/grub"
-LOGIND_DROPIN="/etc/systemd/logind.conf.d/10-lid-hibernate.conf"
-SLEEP_DROPIN="/etc/systemd/sleep.conf.d/10-hibernate-delay.conf"
 MEMINFO="/proc/meminfo"
 SWAPS="/proc/swaps"
 FSTAB="/etc/fstab"
 POWER_STATE="/sys/power/state"
 LOCKDOWN="/sys/kernel/security/lockdown"
-POWER_SUPPLIES="/sys/class/power_supply"
 MKINITCPIO_DROPINS="/etc/mkinitcpio.conf.d"
 PRESET_DIR="/etc/mkinitcpio.d"
 GRUB_CONFIG="/boot/grub/grub.cfg"
@@ -31,7 +27,6 @@ RESUME_ARGS=""
 REBUILD_INITRAMFS=0
 UPDATE_UKI=0
 UPDATE_GRUB=0
-HAS_BATTERY=0
 SWAP_SIZE_G=0
 HOOKS_LIST=()
 
@@ -139,13 +134,7 @@ preflight() {
     fi
     log "Disk space is sufficient for ${SWAP_SIZE_G} GiB of swap plus 2 GiB left free."
   fi
-  HAS_BATTERY=0
-  for type in "${POWER_SUPPLIES}"/*/type; do
-    if [[ -r ${type} ]] && [[ $(<"${type}") == Battery ]]; then
-      HAS_BATTERY=1
-    fi
-  done
-  log "Supported ext4 layout; UKI=${UPDATE_UKI}, GRUB=${UPDATE_GRUB}, battery=${HAS_BATTERY}."
+  log "Supported ext4 layout; UKI=${UPDATE_UKI}, GRUB=${UPDATE_GRUB}."
 }
 
 setup_swapfile() {
@@ -224,25 +213,6 @@ setup_grub() {
   sudo grub-mkconfig -o "${GRUB_CONFIG}"
 }
 
-setup_logind() {
-  if (( ! HAS_BATTERY )); then
-    log "No battery detected; keeping the desktop's existing sleep/lid policy."
-    return 0
-  fi
-  sudo install -Dm 644 /dev/stdin "${LOGIND_DROPIN}" <<'EOF'
-[Login]
-HandleLidSwitch=suspend-then-hibernate
-HandleLidSwitchExternalPower=suspend
-EOF
-  sudo install -Dm 644 /dev/stdin "${SLEEP_DROPIN}" <<EOF
-[Sleep]
-HibernateDelaySec=${HIBERNATE_DELAY}
-EOF
-  log "Installed ${LOGIND_DROPIN} and ${SLEEP_DROPIN}"
-  # logind reads its config only at start; a reload keeps the session alive.
-  sudo systemctl kill -s HUP systemd-logind
-}
-
 main() {
   case "${1:-}" in
     ""|--check) ;;
@@ -255,7 +225,7 @@ main() {
 
   local backup_dir config
   backup_dir=$(sudo mktemp -d /var/tmp/dotrobot-hibernate-backup.XXXXXX)
-  for config in "${FSTAB}" "${MKINITCPIO_CONF}" "${KERNEL_CMDLINE}" "${GRUB_DEFAULT}" "${LOGIND_DROPIN}" "${SLEEP_DROPIN}"; do
+  for config in "${FSTAB}" "${MKINITCPIO_CONF}" "${KERNEL_CMDLINE}" "${GRUB_DEFAULT}"; do
     [[ -f ${config} ]] && sudo cp --parents -a "${config}" "${backup_dir}/"
   done
   log "Saved existing configuration in ${backup_dir}."
@@ -269,7 +239,6 @@ main() {
     log "Rebuilding initramfs/UKI"
     sudo mkinitcpio -P
   fi
-  setup_logind
 
   log "Hibernate set up. Reboot, then test once with: systemctl hibernate"
 }
