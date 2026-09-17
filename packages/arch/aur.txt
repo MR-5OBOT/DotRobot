@@ -1,4 +1,5 @@
 devify
 helium-browser-bin
+ttf-zen-kakugothic-new
 ventoy-bin
 vesktop-git
