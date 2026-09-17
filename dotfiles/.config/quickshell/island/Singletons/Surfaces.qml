@@ -24,6 +24,19 @@ Singleton {
     property string back: ""
     property var host: null
 
+    /**
+     * Width the pill adds, and the lane PillSurface leaves, while a back target
+     * exists. The panel grows by exactly what the breadcrumb occupies, so no
+     * surface loses any of its own layout to it.
+     */
+    /**
+     * Band above the surface that the breadcrumb sits in, in unscaled units, as
+     * measured by the pill. It was a left lane, but reserving a full-height
+     * column for one line of text left a tall empty gutter beside every widget;
+     * a top band costs ~20px of height and no width at all.
+     */
+    property int pad: 0
+
     function goBack() {
         if (root.host)
             root.host.navigateBack();
