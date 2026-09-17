@@ -8,7 +8,8 @@ import "../Singletons"
 
 /**
  * Workspace dots for one monitor. No numbers, no icons. Active one is a larger
- * filled vermillion dot; the rest are small and dim, brightening on hover.
+ * filled vermillion dot; ones holding windows are a deeper flame, empty ones
+ * small and dim, brightening on hover.
  * Clicking a dot focuses that workspace (Hyprland workspace dispatcher). Active
  * marker tracks the monitor's live active workspace name.
  *
@@ -46,6 +47,9 @@ Item {
      */
     property bool watch: true
 
+    /** Always show workspaces 1..fill, empty or not (Home fills its header with the ten bound ones). */
+    property int fill: 0
+
     /**
      * The dot range and active marker are plain properties, recomputed
      * imperatively by rebuild() from the last hyprctl snapshot rather than
@@ -61,6 +65,8 @@ Item {
 
     property string activeWs: ""
     property var wsList: []
+    /** Workspace id -> true when it holds at least one window. */
+    property var occupied: ({})
 
     function refreshData() {
         if (!workspaces.watch)
@@ -71,6 +77,10 @@ Item {
     function rebuild() {
         var out = [];
         var seen = ({});
+        for (var f = 1; f <= workspaces.fill; f++) {
+            seen[f] = true;
+            out.push(f);
+        }
         var ruled = Workspacerules.byMonitor[screenName];
         if (ruled && ruled.length) {
             for (var r = 0; r < ruled.length; r++) {
@@ -164,7 +174,8 @@ Item {
                 || n === "createworkspace" || n === "destroyworkspace"
                 || n === "moveworkspace" || n === "renameworkspace"
                 || n === "focusedmon" || n === "focusedmonv2"
-                || n === "monitoradded" || n === "monitorremoved")
+                || n === "monitoradded" || n === "monitorremoved"
+                || n === "openwindow" || n === "closewindow" || n === "movewindow")
                 workspaces.refreshData();
         }
     }
@@ -193,11 +204,16 @@ Item {
                     }
                 } catch (e) { }
                 var list = [];
+                var occ = ({});
                 try {
                     var arr = JSON.parse(wsJson);
-                    for (var w = 0; w < arr.length; w++)
+                    for (var w = 0; w < arr.length; w++) {
                         list.push({ id: arr[w].id, monitor: arr[w].monitor || "" });
+                        if (arr[w].windows > 0)
+                            occ[arr[w].id] = true;
+                    }
                 } catch (e) { }
+                workspaces.occupied = occ;
                 workspaces.activeWs = act;
                 workspaces.wsList = list;
                 workspaces.rebuild();
@@ -225,6 +241,7 @@ Item {
 
                 readonly property string wsName: String(modelData)
                 readonly property bool isActive: workspaces.activeName === wsName
+                readonly property bool isOccupied: !!workspaces.occupied[slot.modelData]
 
                 Layout.preferredWidth: slot.isActive ? workspaces.stickW : workspaces.dotW
                 Layout.preferredHeight: 22 * workspaces.s
@@ -235,8 +252,11 @@ Item {
                     width: parent.width
                     height: workspaces.dotW
                     radius: height / 2
-                    color: slot.isActive ? Theme.vermLit : Theme.cream
-                    opacity: slot.isActive ? 1.0 : (area.containsMouse ? 0.7 : 0.3)
+                    /* active: bright pill; has windows: deep flame; empty: dim cream */
+                    color: slot.isActive ? Theme.vermLit
+                        : (slot.isOccupied ? (area.containsMouse ? Theme.vermLit : Theme.vermDim) : Theme.cream)
+                    opacity: slot.isActive || slot.isOccupied ? 1.0 : (area.containsMouse ? 0.7 : 0.3)
+                    Behavior on color { ColorAnimation { duration: Motion.fast } }
                     Behavior on opacity { NumberAnimation { duration: Motion.fast } }
                 }
 
