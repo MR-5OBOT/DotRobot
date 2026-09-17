@@ -5,8 +5,10 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
 # Services needed by the desktop are automatic. Hardware/features the user may
 # not use are opt-in so running the installer does not silently start them.
+# Docker is offered as its socket, never the service: the daemon then stays off
+# (and out of boot and RAM) until the first docker command activates it.
 DEFAULT_UNITS=(NetworkManager.service power-profiles-daemon.service)
-OPTIONAL_UNITS=(bluetooth.service docker.service thermald.service)
+OPTIONAL_UNITS=(bluetooth.service docker.socket thermald.service)
 
 enable_unit() {
   local unit="$1"
@@ -50,7 +52,7 @@ main() {
     read -r answer || answer=""
     if [[ ${answer} =~ ^[Yy]$ ]]; then
       enable_unit "${unit}"
-      [[ ${unit} != docker.service ]] || offer_docker_group
+      [[ ${unit} != docker.socket ]] || offer_docker_group
     else
       log "Skipped optional ${unit}"
     fi
