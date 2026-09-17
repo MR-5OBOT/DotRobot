@@ -15,15 +15,8 @@ QtObject {
     // so a fast hover can't open one anchored to a half-revealed item.
     property bool settled: false
 
-    // the bar's visible content rectangle; popouts clamp into its vertical band
-    // ponytail: single-screen assumption (last bar wins), same as activePopup
-    property Item barContent: null
-
     // launcher visibility lives here so both the bar button and IPC can toggle it
     property bool launcherOpen: false
-
-    // network menu (nm-applet-style): toggled by clicking the wifi icon
-    property bool networkOpen: false
 
     // calculator: keypad + paper/tape modes
     property bool calcOpen: false

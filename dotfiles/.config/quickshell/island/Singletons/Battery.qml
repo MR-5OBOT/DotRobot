@@ -48,7 +48,6 @@ Singleton {
 
     property string batteryDir: ""
     property real _energyFullDesign: -1
-    readonly property string batteryRoot: "/sys/class/power_supply"
 
     function fmt(sec) {
         var s = Math.max(0, Math.round(sec));
