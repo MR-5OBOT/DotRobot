@@ -47,9 +47,6 @@ Item {
      */
     property bool watch: true
 
-    /** Always show workspaces 1..fill, empty or not (Home fills its header with the ten bound ones). */
-    property int fill: 0
-
     /**
      * The dot range and active marker are plain properties, recomputed
      * imperatively by rebuild() from the last hyprctl snapshot rather than
@@ -77,10 +74,6 @@ Item {
     function rebuild() {
         var out = [];
         var seen = ({});
-        for (var f = 1; f <= workspaces.fill; f++) {
-            seen[f] = true;
-            out.push(f);
-        }
         var ruled = Workspacerules.byMonitor[screenName];
         if (ruled && ruled.length) {
             for (var r = 0; r < ruled.length; r++) {

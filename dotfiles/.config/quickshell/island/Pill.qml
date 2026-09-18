@@ -2250,6 +2250,7 @@ Item {
         sourceComponent: Home {
             s: pill.s
             open: pill.homeOpen
+            barWindow: pill.barWindow
             morphCloseness: pill.morphCloseness
             screenName: pill.screenName
             onRequestSurface: (name) => pill.requestSurface(name)
