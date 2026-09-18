@@ -74,6 +74,7 @@ ttf-material-symbols-variable
 tumbler
 uwsm
 visidata
+vpl-gpu-rt
 webp-pixbuf-loader
 wezterm
 wine
