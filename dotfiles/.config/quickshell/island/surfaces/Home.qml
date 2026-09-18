@@ -46,6 +46,9 @@ PillSurface {
     /** Set by the pill so the workspace dots know which monitor they belong to. */
     property string screenName: ""
 
+    /** Set by the pill: the tray's native menus open on this window's screen. */
+    property var barWindow: null
+
     /**
      * Uptime is read directly rather than by holding Sysmon open: that flag arms
      * a 500ms and a 1s poller that spawn a shell per tick for cpu/mem/net, and
@@ -201,14 +204,14 @@ PillSurface {
             anchors.top: parent.top
             height: 26 * root.s
 
-            /** Workspace dots, centred in the space left of the nav icons: the same component the pill's hover row uses. */
+            /** Workspace dots — only the workspaces that exist: the same component the pill's hover row uses. */
             Workspaces {
-                x: Math.max(0, (headRow.x - width) / 2)
+                id: dots
+                anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 width: implicitWidth
                 screenName: root.screenName
                 s: root.s
-                fill: 10   // Super+1..0
                 /* Dot height follows dotW with radius height/2, so these scale
                    together to keep the circle round and the active pill's
                    proportion; the defaults (8 / 24) are sized for the thin
@@ -216,6 +219,21 @@ PillSurface {
                 dotW: 12 * root.s
                 stickW: 40 * root.s
                 gap: 11 * root.s
+                enabled: root.active
+            }
+
+            /**
+             * System tray, right of the dots: every app that registers a
+             * StatusNotifier item (OBS, Telegram, Steam...). It used to ride the
+             * pill's hover row, which no longer opens, so Home is where it lives.
+             * Empty tray = zero width, and nothing shifts.
+             */
+            Tray {
+                anchors.left: dots.right
+                anchors.leftMargin: 16 * root.s
+                anchors.verticalCenter: parent.verticalCenter
+                s: root.s
+                barWindow: root.barWindow
                 enabled: root.active
             }
 
