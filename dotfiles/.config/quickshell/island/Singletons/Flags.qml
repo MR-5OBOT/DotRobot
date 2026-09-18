@@ -25,6 +25,27 @@ Singleton {
     property alias wallpaperFit: adapter.wallpaperFit
     property alias randomScope: adapter.randomScope
     property alias uiScale: adapter.uiScale
+
+    /**
+     * First-run UI scale, never a fixed 100%. Every surface sizes off
+     * `(screen height / 1080) * uiScale`, so a screen the compositor already
+     * scales reports fewer logical pixels and the island comes out small:
+     * 1080p at Hyprland scale 1.5 reports 720, which drew it at two thirds.
+     * Default to the offered step nearest the ratio that puts it back at 1:1
+     * — 150% for that screen, 100% for an unscaled 1080p — so the bar is right
+     * out of the box and the Interface page only has to override taste.
+     */
+    readonly property real autoScale: {
+        const screens = Quickshell.screens;
+        const h = (screens && screens.length > 0 && screens[0].height > 0) ? screens[0].height : 1080;
+        const want = 1080 / h;
+        const steps = [1.0, 1.15, 1.3, 1.5];   // the Interface page's own steps
+        let best = steps[0];
+        for (let i = 1; i < steps.length; i++)
+            if (Math.abs(steps[i] - want) < Math.abs(best - want))
+                best = steps[i];
+        return best;
+    }
     property alias reduceMotion: adapter.reduceMotion
     property alias manualHue: adapter.manualHue
     property alias manualDark: adapter.manualDark
@@ -79,7 +100,7 @@ Singleton {
             property string wallpaperFit: "crop"
             /** Super+B random target: "all" repaints every monitor, "cursor" only the one under the pointer. */
             property string randomScope: "all"
-            property real uiScale: 1.0
+            property real uiScale: root.autoScale
             property bool reduceMotion: false
             property int manualHue: 30
             property bool manualDark: true
