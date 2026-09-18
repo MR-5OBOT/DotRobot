@@ -13,8 +13,9 @@ hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 hl.bind(mainMod .. " + C", hl.dsp.window.center())
 hl.bind("ALT + Space", hl.dsp.window.float({ action = "toggle" }))
--- lockscreen: hyprlock (fingerprint unlock)
-hl.bind("ALT + L", hl.dsp.exec_cmd("pidof hyprlock || hyprlock"))
+-- lockscreen: pauses whatever is playing, then hyprlock (fingerprint unlock)
+local LOCK = os.getenv("HOME") .. "/.config/quickshell/island/scripts/lock.sh"
+hl.bind("ALT + L", hl.dsp.exec_cmd(LOCK))
 
 -- Application Launchers
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd("[float]kitty"))
