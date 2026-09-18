@@ -3,10 +3,12 @@
 -- Workspace assignments
 hl.window_rule({ match = { class = "^(brave-.*|helium)$" }, workspace = 1 })
 hl.window_rule({ match = { class = "kitty" }, workspace = 2 })
-hl.window_rule({ match = { class = "^(org.telegram.desktop)$" }, workspace = 3 })
-hl.window_rule({ match = { class = "^(vesktop)$" }, workspace = 4 })
+hl.window_rule({ match = { class = "^(org.telegram.desktop|vesktop)$" }, workspace = 3 })
+hl.window_rule({ match = { class = "(?i).*tradingview.*" }, workspace = 4 })
+hl.window_rule({ match = { title = "(?i).*tradingview.*" }, workspace = 4 })
 hl.window_rule({ match = { class = "^(terminal64.exe)$" }, workspace = 5 })
-hl.window_rule({ match = { class = "^(Foliate)$" }, workspace = 6 })
+hl.window_rule({ match = { class = "^(obs|com.obsproject.Studio)$" }, workspace = 6 })
+hl.window_rule({ match = { class = "(?i)^(org.kde.kdenlive|kdenlive|gimp.*)$" }, workspace = 7 })
 
 -- Anything without a workspace rule above -> workspace 9
 -- hl.window_rule({
