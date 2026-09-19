@@ -179,6 +179,18 @@ Singleton {
         root.popups = [];
     }
 
+    function pruneOld(now) {
+        now = now || Date.now();
+        var cutoff = now - 3600000;
+        root.history = root.history.filter(function(h) { return (h.ts || now) >= cutoff; });
+        var stale = tracked.filter(function(n) { return (arrivalMs[n.id] || now) < cutoff; });
+        if (stale.length === 0) return;
+        var d = Object.assign({}, userDismissed);
+        for (var i = 0; i < stale.length; i++) d[stale[i].id] = true;
+        root.userDismissed = d;
+        for (var j = 0; j < stale.length; j++) stale[j].dismiss();
+    }
+
     function removePopup(n) {
         root.popups = root.popups.filter(function(p) { return p !== n; });
     }
@@ -260,7 +272,10 @@ Singleton {
         interval: 30000
         running: root.count > 0
         repeat: true
-        onTriggered: root.tick++
+        onTriggered: {
+            root.tick++;
+            root.pruneOld();
+        }
     }
 
     NotificationServer {
