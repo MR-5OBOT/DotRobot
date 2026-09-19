@@ -5,20 +5,20 @@ GRN='\033[0;32m'; YEL='\033[0;33m'; RED='\033[0;31m'
 
 echo
 echo -e "${BLD}── RAM by Application (all instances summed) ────────${RST}"
-printf "\n  ${BLD}%-20s %10s %8s${RST}\n" "APP" "Total MiB" "Instances"
-echo "  ──────────────────────────────────────────"
+printf "\n  ${BLD}%-20s %10s %8s  %s${RST}\n" "APP" "Total MiB" "Instances" "PIDs"
+echo "  ──────────────────────────────────────────────────"
 
-ps -eo comm,rss --no-headers \
-  | awk '{sum[$1]+=$2; count[$1]++} END {for(k in sum) printf "%s %d %d\n", k, sum[k], count[k]}' \
+ps -eo pid,comm,rss --no-headers \
+  | awk '{sum[$2]+=$3; count[$2]++; pids[$2]=pids[$2] (pids[$2] ? "," : "") $1} END {for(k in sum) printf "%s %d %d %s\n", k, sum[k], count[k], pids[k]}' \
   | sort -k2 -rn \
   | head -20 \
-  | while read name total_kb count; do
+  | while read name total_kb count pids; do
       mb="$((total_kb / 1024)).$((total_kb % 1024 * 10 / 1024))"
       color=$GRN
       (( total_kb > 1000000 )) && color=$RED
       (( total_kb > 200000 && total_kb <= 1000000 )) && color=$YEL
-      printf "  ${color}%-20s %10s %8s${RST}\n" \
-        "${name:0:20}" "${mb} MiB" "x${count}"
+      printf "  ${color}%-20s %10s %8s  %s${RST}\n" \
+        "${name:0:20}" "${mb} MiB" "x${count}" "$pids"
     done
 
 echo
