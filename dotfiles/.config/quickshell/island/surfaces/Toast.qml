@@ -83,8 +83,8 @@ Item {
         id: col
         anchors.left: iconTile.right
         anchors.leftMargin: 10 * root.s
-        anchors.right: parent.right
-        anchors.rightMargin: 8 * root.s
+        anchors.right: closeButton.left
+        anchors.rightMargin: 10 * root.s
         anchors.top: parent.top
         spacing: 3 * root.s
 
@@ -196,6 +196,27 @@ Item {
                     }
                 }
             }
+        }
+    }
+
+    GlyphIcon {
+        id: closeButton
+        anchors.right: parent.right
+        anchors.rightMargin: 2 * root.s
+        anchors.verticalCenter: parent.verticalCenter
+        width: 12 * root.s
+        height: 12 * root.s
+        name: "close"
+        color: closeArea.containsMouse ? Theme.cream : Theme.dim
+        stroke: 1.9
+
+        MouseArea {
+            id: closeArea
+            anchors.fill: parent
+            anchors.margins: -6 * root.s
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: Notifs.removePopup(root.notif)
         }
     }
 }
