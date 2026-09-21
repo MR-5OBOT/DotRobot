@@ -32,8 +32,8 @@ PillSurface {
     signal requestSurface(string name)
 
     /**
-     * The pill's own wifi/bluetooth/wallpaper surfaces are superseded by the
-     * main shell's panels (see openUserWifi/openUserBt/openUserWallpaper in
+     * The pill's own wifi/wallpaper surfaces are superseded by the
+     * main shell's panels (see openUserWifi/openUserWallpaper in
      * Pill.qml); the hover row calls those, so the nav buttons must too, or they open
      * a different-looking copy of the same widget.
      */
@@ -248,7 +248,7 @@ PillSurface {
                 RailBtn { glyph: "calendar";  tip: "Calendar";  onActivated: root.requestSurface("calendar") }
                 RailBtn { glyph: "inbox";     tip: "Notifications"; onActivated: root.requestSurface("link") }
                 RailBtn { glyph: "wifi";      tip: "Wi-Fi";     onActivated: root.openShellWidget("wifi", "wifiIsland") }
-                RailBtn { glyph: "bluetooth"; tip: "Bluetooth"; onActivated: root.openShellWidget("wifi", "btIsland") }
+                RailBtn { glyph: "bluetooth"; tip: "Bluetooth"; onActivated: { root.requestClose(); Quickshell.execDetached(["blueman-manager"]); } }
                 RailBtn {
                     glyph: "battery"
                     battery: true
