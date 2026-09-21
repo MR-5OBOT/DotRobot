@@ -6,16 +6,14 @@ import Quickshell.Hyprland
 import "widgets"
 import "widgets/network"
 
-// Host window for serpantinum's Wi-Fi/Bluetooth panel (widgets/network/
+// Host window for serpantinum's Wi-Fi/Ethernet panel (widgets/network/
 // NetworkPopup.qml, AGPL-3.0 — see widgets/README.md). The popup is a bare Item
 // with no size of its own; upstream's WindowRegistry gives it 720x600 and pins
 // it to the bar's end of the screen, which is what this reproduces.
-// Toggle with:  qs ipc call wifi toggle
-// The island opens it top-centre instead:  qs ipc call wifi wifiIsland
+// Toggle with:  qs ipc call wifi toggle | wifiIsland
 PanelWindow {
     id: win
     property bool open: false
-    property bool atTop: false   // opened from the island: drop in top-centre like its panels
     readonly property int panelW: 720
     readonly property int panelH: 600
 
@@ -27,11 +25,10 @@ PanelWindow {
     WlrLayershell.namespace: "quickshell-wifi"
     WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
-    // Open straight onto a tab: the bar's wifi and bluetooth buttons each want
-    // their own side. Clicking the button of the tab already showing closes it.
-    // The panel re-reads its mode file every time it becomes visible, so that
-    // file — not the property — decides the tab. Write it, then show; while the
-    // panel is already open it watches the file, so this switches tabs too.
+    // Clicking the button of the tab already showing closes it. The panel re-reads
+    // its mode file every time it becomes visible, so that file — not the property
+    // — decides the tab. Write it, then show; while the panel is already open it
+    // watches the file, so this switches tabs too.
     property string pendingMode: "wifi"
     function openWith(mode) {
         if (win.open && popup.activeMode === mode) {
@@ -55,11 +52,8 @@ PanelWindow {
 
     IpcHandler {
         target: "wifi"
-        function toggle(): void { if (!win.open) win.atTop = false; win.open = !win.open; }
-        function wifi(): void { win.atTop = false; win.openWith("wifi"); }
-        function bt(): void { win.atTop = false; win.openWith("bt"); }
-        function wifiIsland(): void { win.atTop = true; win.openWith("wifi"); }
-        function btIsland(): void { win.atTop = true; win.openWith("bt"); }
+        function toggle(): void { win.open = !win.open; }
+        function wifiIsland(): void { win.openWith("wifi"); }
     }
 
     HyprlandFocusGrab {
@@ -80,14 +74,12 @@ PanelWindow {
 
         Item {
             id: holder
-            // top-right corner, or a top-centre notch like the island's when opened
-            // from it; how much screen it may take is
-            // ~/.config/mr5obot/settings.json -> network.screenFraction
-            anchors.right: win.atTop ? undefined : parent.right
-            anchors.horizontalCenter: win.atTop ? parent.horizontalCenter : undefined
+            // Hard-locked top-centre, the one place every panel in this shell opens.
+            // (It used to swap anchors.right/horizontalCenter per placement; toggling
+            // an anchor to undefined left the panel pinned at the screen's left edge.)
+            // How much screen it may take: ~/.config/mr5obot/settings.json -> network.screenFraction
+            anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
-            anchors.rightMargin: 12
-            anchors.topMargin: win.atTop ? 0 : 12
             readonly property real fraction: Config.rawSettings.network?.screenFraction ?? 0.62
             readonly property real f: Math.min(1, win.width * fraction / win.panelW, win.height * fraction / win.panelH)
             width: win.panelW * f
@@ -95,7 +87,7 @@ PanelWindow {
 
             // the notch slides out of the screen edge as it opens
             transform: Translate {
-                y: win.atTop && !win.open ? -holder.height : 0
+                y: win.open ? 0 : -holder.height
                 Behavior on y { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
             }
 
@@ -109,16 +101,15 @@ PanelWindow {
                 height: win.panelH
                 transformOrigin: Item.TopLeft
                 scale: holder.f
-                notch: win.atTop
+                notch: true
                 notchColor: Theme.notchBg
                 notchRadius: Theme.notchRadius / holder.f   // popup is scaled by f
 
                 /**
                  * Back to the island's Home surface, in the same spot and shape as
-                 * the chevron the island's own surfaces carry. Only when the island
-                 * opened this panel — the corner placement has no Home behind it.
-                 * Reached the way Pill.qml reaches this panel: a detached
-                 * `qs ipc call`, with the shell's own config env stripped.
+                 * the chevron the island's own surfaces carry. Reached the way
+                 * Pill.qml reaches this panel: a detached `qs ipc call`, with the
+                 * shell's own config env stripped.
                  */
                 Item {
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -126,7 +117,7 @@ PanelWindow {
                     anchors.topMargin: 9
                     width: 16
                     height: 16
-                    visible: win.atTop && win.open
+                    visible: win.open
                     z: 10
 
                     Icon {
@@ -156,7 +147,6 @@ PanelWindow {
             NotchEars {
                 anchors.top: parent.top
                 width: parent.width
-                visible: win.atTop
             }
         }
     }

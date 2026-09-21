@@ -15,7 +15,7 @@ ShellRoot {
     Launcher {}          // qs ipc call launcher toggle
     Clipboard {}         // qs ipc call clipboard toggle
     WallpaperPanel {}    // qs ipc call wallpicker toggle
-    NetworkPanel {}      // qs ipc call wifi toggle | wifiIsland | btIsland
+    NetworkPanel {}      // qs ipc call wifi toggle | wifiIsland
     Calculator {}        // qs ipc call calc toggle
     PowerProfileMenu {}  // qs ipc call powerprofile cycle
 }
