@@ -122,10 +122,9 @@ Item {
             "qs", "ipc", "call", "wifi", "wifiIsland"]);
     }
 
-    /** The pill's bluetooth surface is replaced by the same main-shell panel, on its bluetooth tab. */
+    /** Bluetooth is blueman-manager's job; the pill only shows adapter state and toggles it. */
     function openUserBt() {
-        Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
-            "qs", "ipc", "call", "wifi", "btIsland"]);
+        Quickshell.execDetached(["blueman-manager"]);
     }
     readonly property bool powerOpen: surface === "power"
     readonly property bool mediaOpen: surface === "media"

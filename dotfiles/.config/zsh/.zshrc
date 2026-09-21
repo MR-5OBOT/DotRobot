@@ -27,6 +27,3 @@ if command -v fastfetch >/dev/null 2>&1; then
     tmux refresh-client
   fi
 fi
-
-# opencode
-export PATH="$HOME/.opencode/bin:$PATH"

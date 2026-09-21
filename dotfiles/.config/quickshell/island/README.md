@@ -4,7 +4,7 @@ A dynamic-island bar for Hyprland, built with Quickshell.
 
 One black notch hangs from the top edge of every monitor. Click it and the control centre grows out of the notch itself; every other panel opens in the same shape.
 
-It is one part of the quickshell config in `dotfiles/.config/quickshell`: the top-level `shell.qml` loads `island/Island.qml` next to the launcher, clipboard, wallpaper picker, wifi/bluetooth panel, calculator and power-profile menu, so the whole shell runs as a single `qs` process. Those widgets open from the island and are drawn in the same notch style.
+It is one part of the quickshell config in `dotfiles/.config/quickshell`: the top-level `shell.qml` loads `island/Island.qml` next to the launcher, clipboard, wallpaper picker, wifi panel, calculator and power-profile menu, so the whole shell runs as a single `qs` process. Those widgets open from the island and are drawn in the same notch style.
 
 ## Features
 

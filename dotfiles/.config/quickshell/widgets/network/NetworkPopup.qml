@@ -114,11 +114,9 @@ Item {
             window.rebuildBtData(false);
             window.fetchIpData();
             window.fetchFreqData();
-            if (window.activeMode === "bt" && !btProfilePoller.running) btProfilePoller.running = true;
         } else {
             window.stopBtScan();
             window.stopWifiScan();
-            btProfilePoller.running = false;
             ipFetcher.running = false;
             freqFetcher.running = false;
             btConnectSimTimer.stop();
@@ -128,7 +126,6 @@ Item {
             powerMinSpinTimer.stop();
             introPlayTimer.stop();
             focusTimer.stop();
-            mainPollerTimer.stop();
             window.pendingWifiId = "";
             window.pendingWifiSsid = "";
             window.pendingPairThenConnect = "";
@@ -376,13 +373,8 @@ Item {
         }
     }
 
-    function startBtScan() {
-        if (Bluetooth.defaultAdapter) Bluetooth.defaultAdapter.discovering = true;
-    }
-
-    function stopBtScan() {
-        if (Bluetooth.defaultAdapter) Bluetooth.defaultAdapter.discovering = false;
-    }
+    function startBtScan() {}   // blueman-manager drives discovery
+    function stopBtScan() {}
 
     function startWifiScan() {
         if (window.wifiDevice && window.visible && window.activeMode === "wifi" && window.wifiPower === "on") {
@@ -466,7 +458,7 @@ Item {
     property bool btPresent: false
 
     property int btMissCount: 0
-    property bool btFirstLoad: true
+    property bool btFirstLoad: false   // bluetooth is gone: never blocks validateActiveMode()
 
     property bool powerAnimAllowed: false
     Timer { id: powerAnimBlocker; interval: 250; running: true; onTriggered: window.powerAnimAllowed = true }
@@ -556,8 +548,6 @@ Item {
             window.startWifiScan();
         }
     }
-
-    readonly property string scriptsDir: Quickshell.shellDir + "/widgets/network"   // DotRobot: vendored helper lives here
 
     readonly property color sharedAccent: Qt.lighter(ThemeBackend.sapphire, 1.15)
     readonly property color btAccent: ThemeBackend.mauve
@@ -761,7 +751,6 @@ Item {
         window.nextInfoList = null;
 
         window.pendingWifiId = ""; window.pendingWifiSsid = "";
-        if (window.activeMode === "bt" && window.visible && !btProfilePoller.running) btProfilePoller.running = true;
 
         infoListModel.clear();
         window.busyTasks = ({});
@@ -1150,6 +1139,13 @@ Item {
     }
 
     function rebuildBtData(isCache) {
+        // Bluetooth was pulled out of this panel: blueman-manager owns it. Leaving
+        // btPresent false drops the tab, the device orbit and the profile poller;
+        // the code below is upstream's and stays for an easier resync.
+        window.btPresent = false;
+        if (!isCache) window.validateActiveMode();
+        return;
+
         if (!isCache && window.btFirstLoad) {
             window.powerAnimAllowed = false;
             powerAnimBlocker.restart();
@@ -1299,40 +1295,6 @@ Item {
             if (isNowBtConn || window.isWifiConn || window.isEthConn) window.updateInfoNodes();
         }
         if (!isCache) validateActiveMode();
-    }
-
-    Process {
-        id: btProfilePoller
-        command: ["bash", window.scriptsDir + "/bluetooth_panel_logic.sh"]
-        running: false
-        stdout: StdioCollector {
-            onStreamFinished: {
-                try {
-                    let text = this.text.trim();
-                    if (text !== "") {
-                        window.btAudioProfiles = JSON.parse(text);
-                        window.requestBtRebuild();
-                    }
-                } catch(e) {}
-            }
-        }
-    }
-
-    Timer {
-        id: mainPollerTimer
-        interval: (Object.keys(window.busyTasks).length > 0 || Object.keys(window.disconnectingDevices).length > 0) ? 1000 : 3000
-        running: window.visible
-        repeat: true
-        property int tick: 0
-        onTriggered: {
-            tick = (tick + 1) % 4;
-            if (window.activeMode === "bt") {
-                if (!btProfilePoller.running) btProfilePoller.running = true;
-            }
-            if (tick === 0) {
-                if (window.activeMode !== "bt" && !btProfilePoller.running) btProfilePoller.running = true;
-            }
-        }
     }
 
     property real globalOrbitAngle: 0
@@ -2555,7 +2517,7 @@ Item {
                 textColor: ThemeBackend.text
                 activeTextColor: ThemeBackend.crust
                 switchSound: "network/switch.wav"
-                visible: window.visible && availableModes.length > 0
+                visible: window.visible && availableModes.length > 1   // one mode needs no switch
                 enabled: window.visible
 
                 readonly property var availableModes: {
@@ -2624,8 +2586,17 @@ Item {
                 width: window.s(140) + (window.s(42) - window.s(140)) * pwrMorph
                 height: width
 
-                x: ((parent.width / 2) - window.s(70)) + ((parent.width - window.s(24) - window.s(42)) - ((parent.width / 2) - window.s(70))) * pwrMorph
-                y: (((parent.height - window.s(65)) / 2) - window.s(70)) + ((parent.height - window.s(24) - window.s(42)) - (((parent.height - window.s(65)) / 2) - window.s(70))) * pwrMorph
+                // off: the big circle in the middle. on: it shrinks into the bottom bar,
+                // taking the mode switch's spot, and only steps aside to the corner when
+                // that switch is actually shown (more than one mode, i.e. ethernet).
+                readonly property real xOff: (parent.width / 2) - window.s(70)
+                readonly property real yOff: ((parent.height - window.s(65)) / 2) - window.s(70)
+                readonly property real xOn: bottomSwitch.visible ? parent.width - window.s(24) - window.s(42)
+                                                                 : (parent.width - window.s(42)) / 2
+                readonly property real yOn: parent.height - window.s(18) - window.s(42)
+
+                x: xOff + (xOn - xOff) * pwrMorph
+                y: yOff + (yOn - yOff) * pwrMorph
 
                 Rectangle {
                     anchors.fill: parent
