@@ -28,15 +28,18 @@ PanelWindow {
         const q = query.toLowerCase().trim();
         if (!q)
             return [];  // spotlight: empty query shows nothing
-        const starts = [], incl = [];
+        const starts = [], incl = [], other = [];
         for (const a of apps) {
             const n = a.name.toLowerCase();
             if (n.startsWith(q))
                 starts.push(a);
             else if (n.includes(q))
                 incl.push(a);
+            // name miss: fall back to id/keywords (GIMP's Name is "GNU Image Manipulation Program")
+            else if ([a.id, a.genericName, a.keywords.join(" ")].join(" ").toLowerCase().includes(q))
+                other.push(a);
         }
-        return [...starts, ...incl];
+        return [...starts, ...incl, ...other];
     }
 
     function launch() {
