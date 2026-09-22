@@ -9,7 +9,8 @@ hl.window_rule({ match = { title = "(?i).*tradingview.*" }, workspace = 4 })
 hl.window_rule({ match = { class = "(?i).*(terminal64[.]exe|metatrader|metaquotes|mt5|ftmo).*" }, workspace = 5 })
 hl.window_rule({ match = { title = "(?i).*(terminal64[.]exe|metatrader|metaquotes|mt5|ftmo).*" }, workspace = 5 })
 hl.window_rule({ match = { class = "^(obs|com.obsproject.Studio)$" }, workspace = 6 })
-hl.window_rule({ match = { class = "(?i)^(org.kde.kdenlive|kdenlive|gimp.*)$" }, workspace = 7 })
+hl.window_rule({ match = { class = "(?i)^(org.kde.kdenlive|kdenlive)$" }, workspace = 7 })
+hl.window_rule({ match = { class = "(?i)^gimp.*$" }, workspace = 8 })
 
 -- Anything without a workspace rule above -> workspace 9
 -- hl.window_rule({
