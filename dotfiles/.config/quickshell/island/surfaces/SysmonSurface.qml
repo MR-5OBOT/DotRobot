@@ -529,7 +529,10 @@ PillSurface {
                             text: root.speedDown > 0 ? root.fmtSpeed(root.speedDown) : "---"
                             color: root.speedPhase === "download" ? Theme.vermLit : Theme.cream
                             font.family: Theme.font
+                            width: parent.width - 6 * root.s
                             font.pixelSize: 13 * root.s
+                            fontSizeMode: Text.HorizontalFit
+                            minimumPixelSize: 7 * root.s
                             font.weight: Font.ExtraBold
                             font.features: { "tnum": 1 }
                         }
@@ -553,7 +556,10 @@ PillSurface {
                             text: root.speedPing > 0 ? root.speedPing + " ms" : "---"
                             color: root.speedPhase === "ping" ? Theme.vermLit : Theme.cream
                             font.family: Theme.font
+                            width: parent.width - 6 * root.s
                             font.pixelSize: 13 * root.s
+                            fontSizeMode: Text.HorizontalFit
+                            minimumPixelSize: 7 * root.s
                             font.weight: Font.ExtraBold
                             font.features: { "tnum": 1 }
                         }
@@ -577,7 +583,10 @@ PillSurface {
                             text: root.speedUp > 0 ? root.fmtSpeed(root.speedUp) : "---"
                             color: root.speedPhase === "upload" ? Theme.vermLit : Theme.cream
                             font.family: Theme.font
+                            width: parent.width - 6 * root.s
                             font.pixelSize: 13 * root.s
+                            fontSizeMode: Text.HorizontalFit
+                            minimumPixelSize: 7 * root.s
                             font.weight: Font.ExtraBold
                             font.features: { "tnum": 1 }
                         }
