@@ -192,6 +192,8 @@ Singleton {
     }
 
     function removePopup(n) {
+        if (n.appName === "Calendar")
+            Events.stopBeep();
         root.popups = root.popups.filter(function(p) { return p !== n; });
     }
 
