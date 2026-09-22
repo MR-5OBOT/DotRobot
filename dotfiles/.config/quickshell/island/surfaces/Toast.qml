@@ -31,7 +31,7 @@ Item {
      * notification replaces the map.
      */
     property double deadline: 0
-    Component.onCompleted: deadline = Notifs.expireAt[notif.id] || (Date.now() + 8000)
+    Component.onCompleted: deadline = Notifs.expireAt[notif.id] || (Date.now() + 3000)
 
     Timer {
         interval: Math.max(300, root.deadline - Date.now())
