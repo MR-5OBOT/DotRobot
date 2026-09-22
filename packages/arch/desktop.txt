@@ -57,6 +57,7 @@ quickshell
 rnote
 scrcpy
 slurp
+sound-theme-freedesktop
 speedtest-cli
 superfile
 swaybg
