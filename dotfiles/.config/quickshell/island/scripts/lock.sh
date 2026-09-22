@@ -12,12 +12,26 @@
 # Already locked: never stack a second hyprlock on top of the running one.
 pidof hyprlock >/dev/null 2>&1 && exit 0
 
-busctl --user list --no-legend 2>/dev/null \
-    | awk '{ print $1 }' \
-    | grep '^org\.mpris\.MediaPlayer2\.' \
-    | while IFS= read -r player; do
-        busctl --user call "$player" /org/mpris/MediaPlayer2 \
-            org.mpris.MediaPlayer2.Player Pause >/dev/null 2>&1
-    done
+pause_all() {
+    busctl --user list --no-legend 2>/dev/null \
+        | awk '{ print $1 }' \
+        | grep '^org\.mpris\.MediaPlayer2\.' \
+        | while IFS= read -r player; do
+            busctl --user call "$player" /org/mpris/MediaPlayer2 \
+                org.mpris.MediaPlayer2.Player Pause >/dev/null 2>&1
+        done
+}
 
-exec hyprlock
+# Pausing once is not enough: a tab can start again while the screen is locked
+# (after waking from suspend, say). So for as long as hyprlock runs, any player
+# that reports "Playing" is paused again. When hyprlock exits the monitor is
+# killed, the pipe closes and the loop ends with it.
+# hyprlock's own log goes to stderr so the loop never reads it.
+{
+    dbus-monitor --session "type='signal',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged',path='/org/mpris/MediaPlayer2',arg0='org.mpris.MediaPlayer2.Player'" 2>/dev/null &
+    pause_all
+    hyprlock >&2
+    kill $! 2>/dev/null
+} | while IFS= read -r line; do
+    case $line in *'"Playing"'*) pause_all ;; esac
+done
