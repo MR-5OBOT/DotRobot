@@ -302,7 +302,7 @@ Singleton {
             a[n.id] = Date.now();
             root.arrivalMs = a;
             var e = Object.assign({}, root.expireAt);
-            e[n.id] = Date.now() + (n.urgency === NotificationUrgency.Low ? 7500 : 8000);
+            e[n.id] = Date.now() + 3000;
             root.expireAt = e;
             n.tracked = true;
             root.hookClosed(n);
