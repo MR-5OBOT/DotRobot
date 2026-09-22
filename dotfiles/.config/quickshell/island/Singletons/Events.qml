@@ -156,12 +156,14 @@ Singleton {
 
     /**
      * Reminders: every event covering today pops a critical notification, which
-     * the island keeps on screen until clicked. A timed event fires when its start
-     * time arrives, an all-day event once the day is under way (from 08:00). Fired
-     * keys ("id@date") persist in reminded.json for the day, so a restart never
-     * repeats one, and a timed event more than 10 minutes past its start is marked
-     * done instead of being announced late. Reloaded before the first check, so the
-     * saved keys are never overwritten by an empty day.
+     * the island keeps on screen until clicked, and beeps for up to 5s (Notifs
+     * cuts the beep via stopBeep() once the toast is dismissed). A timed event
+     * fires when its start time arrives, an all-day event once the day is under
+     * way (from 08:00). Fired keys ("id@date") persist in reminded.json for the
+     * day, so a restart never repeats one, and a timed event more than 10 minutes
+     * past its start is marked done instead of being announced late. Reloaded
+     * before the first check, so the saved keys are never overwritten by an empty
+     * day.
      */
     property var reminded: ({ date: "", keys: [] })
 
@@ -193,11 +195,21 @@ Singleton {
             var when = timed ? e.time + (e.endTime ? " – " + e.endTime : "") : "All day";
             Quickshell.execDetached(["notify-send", "-a", "Calendar", "-u", "critical", "-i", "x-office-calendar",
                 "📅 " + (e.text || "Event"), when]);
+            beep.running = true;
         }
         if (changed) {
             root.reminded = { date: today, keys: keys };
             remindedFile.setText(JSON.stringify(root.reminded));
         }
+    }
+
+    function stopBeep() {
+        beep.running = false;
+    }
+
+    Process {
+        id: beep
+        command: ["timeout", "5", "pw-play", "/usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga"]
     }
 
     Component.onCompleted: {
