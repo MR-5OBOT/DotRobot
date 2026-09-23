@@ -31,13 +31,14 @@ PanelWindow {
     // watches the file, so this switches tabs too.
     property string pendingMode: "wifi"
     function openWith(mode) {
-        if (win.open && popup.activeMode === mode) {
+        if (win.open && popup && popup.activeMode === mode) {
             win.open = false;
             return;
         }
         win.pendingMode = mode;
+        const dir = Caching.getCacheDir("network");
         Quickshell.execDetached(["bash", "-c",
-            "mkdir -p '" + popup.cacheDir + "' && printf '%s' '" + mode + "' > '" + popup.cacheDir + "/mode'"]);
+            "mkdir -p '" + dir + "' && printf '%s' '" + mode + "' > '" + dir + "/mode'"]);
         modeWriteTimer.restart();
     }
 
@@ -45,10 +46,17 @@ PanelWindow {
         id: modeWriteTimer
         interval: 150
         onTriggered: {
-            popup.activeMode = win.pendingMode;
+            if (popup)
+                popup.activeMode = win.pendingMode;
             win.open = true;
         }
     }
+
+    // Built on open, dropped a minute after close (~45MB idle otherwise); a
+    // fresh popup picks its tab up from the mode file written above.
+    readonly property var popup: popupLoader.item
+    onOpenChanged: if (!open) keepAlive.restart()
+    Timer { id: keepAlive; interval: 60000 }
 
     IpcHandler {
         target: "wifi"
@@ -94,51 +102,54 @@ PanelWindow {
             // stays below the popup, or it swallows the panel's own clicks
             MouseArea { anchors.fill: parent }
 
-            NetworkOrbit {
-                id: popup
-                visible: win.open
-                width: win.panelW
-                height: win.panelH
-                transformOrigin: Item.TopLeft
-                scale: holder.f
-                notch: true
-                notchColor: Theme.notchBg
-                notchRadius: Theme.notchRadius / holder.f   // popup is scaled by f
-
-                /**
-                 * Back to the island's Home surface, in the same spot and shape as
-                 * the chevron the island's own surfaces carry. Reached the way
-                 * Pill.qml reaches this panel: a detached `qs ipc call`, with the
-                 * shell's own config env stripped.
-                 */
-                Item {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.top: parent.top
-                    anchors.topMargin: 9
-                    width: 16
-                    height: 16
+            Loader {
+                id: popupLoader
+                active: win.open || keepAlive.running
+                sourceComponent: NetworkOrbit {
                     visible: win.open
-                    z: 10
+                    width: win.panelW
+                    height: win.panelH
+                    transformOrigin: Item.TopLeft
+                    scale: holder.f
+                    notch: true
+                    notchColor: Theme.notchBg
+                    notchRadius: Theme.notchRadius / holder.f   // popup is scaled by f
 
-                    Icon {
-                        anchors.centerIn: parent
-                        text: "home"
-                        size: 16
-                        filled: false
-                        color: backArea.containsMouse ? Theme.text : Theme.dim
-                        Behavior on color { ColorAnimation { duration: 120 } }
-                    }
+                    /**
+                     * Back to the island's Home surface, in the same spot and shape as
+                     * the chevron the island's own surfaces carry. Reached the way
+                     * Pill.qml reaches this panel: a detached `qs ipc call`, with the
+                     * shell's own config env stripped.
+                     */
+                    Item {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.top: parent.top
+                        anchors.topMargin: 9
+                        width: 16
+                        height: 16
+                        visible: win.open
+                        z: 10
 
-                    MouseArea {
-                        id: backArea
-                        anchors.fill: parent
-                        anchors.margins: -7
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            win.open = false;
-                            Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
-                                "qs", "ipc", "call", "island", "home", ""]);
+                        Icon {
+                            anchors.centerIn: parent
+                            text: "home"
+                            size: 16
+                            filled: false
+                            color: backArea.containsMouse ? Theme.text : Theme.dim
+                            Behavior on color { ColorAnimation { duration: 120 } }
+                        }
+
+                        MouseArea {
+                            id: backArea
+                            anchors.fill: parent
+                            anchors.margins: -7
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                win.open = false;
+                                Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
+                                    "qs", "ipc", "call", "island", "home", ""]);
+                            }
                         }
                     }
                 }
