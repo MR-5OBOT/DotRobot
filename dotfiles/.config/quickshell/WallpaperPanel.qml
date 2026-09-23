@@ -5,6 +5,7 @@ import Quickshell.Wayland
 import Quickshell.Hyprland
 import "widgets" as Widgets
 import "widgets/wallpaper"
+import "island/Singletons" as Island
 
 // Host for serpantinum's wallpaper picker (widgets/wallpaper/WallpaperPicker.qml,
 // AGPL-3.0 — see widgets/README.md). Upstream registers it full width, 650 tall,
@@ -34,6 +35,12 @@ PanelWindow {
         target: "wallpicker"
         function toggle(): void { win.open = !win.open; }
     }
+
+    // The picker holds ~100MB of delegates and decoded previews. With the
+    // island's memory saver on it is built on open and dropped a minute after
+    // close; a cold open then decodes its previews again (~2s of blank cards).
+    onOpenChanged: if (!open) keepAlive.restart()
+    Timer { id: keepAlive; interval: 60000 }
 
     Connections {
         target: Widgets.Wallpaper
@@ -81,14 +88,16 @@ PanelWindow {
                 anchors.fill: parent
                 clip: true   // keep the carousel inside its strip
 
-                WallpaperCarousel {
-                    id: picker
-                    visible: win.open
-                    hostScreen: win.screen
-                    width: holder.width / holder.f
-                    height: win.panelH
-                    transformOrigin: Item.TopLeft
-                    scale: holder.f
+                Loader {
+                    active: win.open || keepAlive.running || !Island.Flags.memorySaver
+                    sourceComponent: WallpaperCarousel {
+                        visible: win.open
+                        hostScreen: win.screen
+                        width: holder.width / holder.f
+                        height: win.panelH
+                        transformOrigin: Item.TopLeft
+                        scale: holder.f
+                    }
                 }
             }
         }
