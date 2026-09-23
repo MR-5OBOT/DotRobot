@@ -197,6 +197,16 @@ Singleton {
         root.popups = root.popups.filter(function(p) { return p !== n; });
     }
 
+    /** Drop every non-critical popup whose deadline has passed (50ms slack for timer jitter). */
+    function expirePopups() {
+        var now = Date.now() + 50;
+        var gone = root.popups.filter(function(p) {
+            return p.urgency !== NotificationUrgency.Critical && (root.expireAt[p.id] || 0) <= now;
+        });
+        for (var i = 0; i < gone.length; i++)
+            root.removePopup(gone[i]);
+    }
+
     /**
      * Drop every pending popup at once. Used when a transient OSD covers a
      * non-critical toast: the toast is retired permanently instead of
