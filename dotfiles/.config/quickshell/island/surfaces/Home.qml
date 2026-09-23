@@ -51,7 +51,7 @@ PillSurface {
 
     /**
      * Uptime is read directly rather than by holding Sysmon open: that flag arms
-     * a 500ms and a 1s poller that spawn a shell per tick for cpu/mem/net, and
+     * two 1s pollers that spawn a shell per tick for cpu/mem/net, and
      * this card only shows uptime, which moves once a minute. Since a click on
      * the notch now opens this surface, pinning those pollers would have cost a
      * shell spawn every second for the whole time the panel is up.

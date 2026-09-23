@@ -486,6 +486,7 @@ Scope {
                     barWindow: overlay
                     surface: overlay.surface
                     forcePinned: root.peekMon === overlay.modelData.name
+                    osdActive: osdPopup.active
 
                     opacity: (overlay.monFullscreen && !pill.transientLive) ? 0 : (osdPopup.active ? 0 : 1)
                     Behavior on opacity {

@@ -8,7 +8,7 @@ import Quickshell.Io
  * network, disk and (when a discrete GPU is present) GPU load, temperature and
  * VRAM, exposing them as live properties the surface binds to. Polling only runs
  * while `open` is true, on three decoupled cadences so a slow source never
- * stalls the dials: the cheap /proc and hwmon reads refresh every 500ms, the GPU
+ * stalls the dials: the cheap /proc and hwmon reads refresh every second, the GPU
  * query every 1s, and disk plus uptime every 5s. Opening the surface primes all
  * three at once so the dials are populated immediately.
  *
@@ -230,8 +230,9 @@ Singleton {
         }
     }
 
+    /** 1s, not faster: every sample re-eases the dials, so a tighter poll keeps them repainting nonstop. */
     Timer {
-        interval: 500
+        interval: 1000
         running: root.open
         repeat: true
         onTriggered: if (!fastProc.running) fastProc.running = true
