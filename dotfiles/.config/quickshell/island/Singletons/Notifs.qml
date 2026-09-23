@@ -247,7 +247,8 @@ Singleton {
                     body: n.body,
                     appIcon: n.appIcon,
                     desktopEntry: n.desktopEntry,
-                    image: n.image,
+                    // browsers pass a temp file they delete on close; drop it so the row falls back to the app icon
+                    image: /^(file:\/\/)?\/tmp\//.test(n.image || "") ? "" : n.image,
                     urgency: n.urgency,
                     ts: root.arrivalMs[n.id] || Date.now(),
                     id: "h" + n.id + "-" + Date.now()
