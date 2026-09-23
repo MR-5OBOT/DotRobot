@@ -167,7 +167,7 @@ PanelWindow {
 
                     width: list.width
                     height: 34
-                    color: current ? Theme.pink : (rowHover.hovered ? Theme.surface : "transparent")
+                    color: current ? Theme.notchAccent : (rowHover.hovered ? Theme.surface : "transparent")
 
                     RowLayout {
                         anchors { left: parent.left; leftMargin: 14; right: parent.right; rightMargin: 14; verticalCenter: parent.verticalCenter }
