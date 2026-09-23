@@ -26,17 +26,21 @@ Item {
     implicitHeight: Math.max(iconTile.height, col.implicitHeight)
 
     /**
-     * Deadline is snapshotted once: binding the interval to Notifs.expireAt
-     * restarts the timer (and drifts the lifetime) every time an unrelated
-     * notification replaces the map.
+     * Deadline is snapshotted per notification: binding the interval to
+     * Notifs.expireAt restarts the timer (and drifts the lifetime) every time
+     * an unrelated notification replaces the map. The pill reuses this item
+     * for the newest popup, so a new notif re-arms it; expiry then drops every
+     * popup past its deadline, so an older one can't flash back underneath.
      */
     property double deadline: 0
-    Component.onCompleted: deadline = Notifs.expireAt[notif.id] || (Date.now() + 3000)
+    function arm() { deadline = notif ? (Notifs.expireAt[notif.id] || (Date.now() + 3000)) : 0; }
+    Component.onCompleted: arm()
+    onNotifChanged: arm()
 
     Timer {
         interval: Math.max(300, root.deadline - Date.now())
         running: root.deadline > 0 && root.live && root.notif.urgency !== NotificationUrgency.Critical
-        onTriggered: Notifs.removePopup(root.notif)
+        onTriggered: Notifs.expirePopups()
     }
 
     MouseArea {
