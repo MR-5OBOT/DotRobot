@@ -196,7 +196,7 @@ PillSurface {
         onArcChanged: display = arc
         Component.onCompleted: display = arc
         onDisplayChanged: face.requestPaint()
-        Behavior on display { NumberAnimation { duration: Math.round(700 * Motion.mult); easing.type: Easing.OutCubic } }
+        Behavior on display { NumberAnimation { duration: Math.round(400 * Motion.mult); easing.type: Easing.OutCubic } }
 
         width: 110 * root.s
         height: 110 * root.s
