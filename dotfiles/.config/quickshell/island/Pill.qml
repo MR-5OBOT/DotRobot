@@ -261,7 +261,8 @@ Item {
         return "";
     }
     readonly property bool toastActive: Notifs.popups.length > 0
-    readonly property bool osdActive: osd.flashing
+    /** Set by Island.qml from the OSD popup that sits beside the pill. */
+    property bool osdActive: false
 
     /**
      * A transient OSD (workspace switch, volume, brightness) that starts while
@@ -2427,21 +2428,6 @@ sourceComponent: Media {
             onRequestClose: pill.requestClose()
             onRequestSurface: (name) => pill.requestSurface(name)
         }
-    }
-
-    /**
-     * OSD state controller only. The visible OSD now lives in its own
-     * decoupled popup (surfaces/OsdPopup.qml); this instance stays hidden and
-     * just feeds the game-mode volume chip and toast-retire logic.
-     */
-    Osd {
-        id: osd
-        s: pill.s
-        screenName: pill.screenName
-        suppressed: pill.surfaceOpen || pill.held
-        expanded: pill.expanded
-        visible: false
-        enabled: false
     }
 
     Loader {

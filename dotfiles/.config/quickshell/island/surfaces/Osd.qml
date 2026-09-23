@@ -513,7 +513,7 @@ Item {
                         to: battFill.width
                         duration: 1200
                         loops: Animation.Infinite
-                        running: root.kind === "battery" && Battery.charging
+                        running: root.flashing && root.kind === "battery" && Battery.charging
                     }
                 }
             }
@@ -534,10 +534,6 @@ Item {
             s: root.s
             gap: 8 * root.s
             enabled: false
-            /** The hidden pill OSD controller is disabled, so stop it from
-             *  spawning sh + hyprctl on every workspace event. The popup OSD
-             *  stays enabled and keeps its watcher live for fresh dots. */
-            watch: root.enabled
         }
     }
 }
