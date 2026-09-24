@@ -79,8 +79,8 @@ PanelWindow {
                 Behavior on y { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
             }
 
-            // below the picker, or it swallows the carousel's clicks
-            MouseArea { anchors.fill: parent }
+            // Empty space in the strip closes the picker.
+            MouseArea { anchors.fill: parent; onClicked: win.open = false }
 
             Item {
                 anchors.fill: parent
@@ -90,6 +90,7 @@ PanelWindow {
                     active: win.open || keepAlive.running || !Island.Flags.memorySaver
                     sourceComponent: WallpaperCarousel {
                         visible: win.open
+                        onCloseRequested: win.open = false
                         hostScreen: win.screen
                         width: holder.width / holder.f
                         height: win.panelH

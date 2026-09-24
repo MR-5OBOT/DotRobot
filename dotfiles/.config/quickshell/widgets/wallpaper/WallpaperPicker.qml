@@ -12,6 +12,7 @@ import "../../island/Singletons" as Island
 
 Item {
     id: window
+    signal closeRequested()
     width: Screen.width
     focus: true
 
@@ -646,6 +647,12 @@ Item {
         header: Item { width: Math.max(0, (view.width / 2) - ((window.itemWidth * 1.5) / 2) + window.selectedCenterOffset) }
         footer: Item { width: Math.max(0, (view.width / 2) - ((window.itemWidth * 1.5) / 2) - window.selectedCenterOffset) }
         model: displayModel
+
+        MouseArea {
+            anchors.fill: parent
+            z: -1 // below the wallpaper delegates
+            onClicked: window.closeRequested()
+        }
 
         MouseArea {
             anchors.fill: parent; acceptedButtons: Qt.NoButton
