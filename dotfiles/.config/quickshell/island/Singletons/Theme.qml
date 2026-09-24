@@ -5,7 +5,7 @@ import Quickshell
 /**
  * Pill palette. Two sources: the curated light/dark hex below is the identity
  * and the default, used whenever the theme is on Light or Dark. On Dynamic the
- * surfaces and the whole accent ramp follow the wallpaper through the matugen-fed
+ * surfaces and the whole accent ramp follow the wallpaper through the generated
  * `Dyn` singleton (Manual feeds it a user-picked hue through wallcolors.py), while
  * the text family, light veils and shadow stay locked here so copy keeps its
  * contrast on any generated background. Each token is a single ternary, so the
@@ -22,7 +22,7 @@ Singleton {
      * Bright warm pop shared by the flame glow, charging glyphs, the recording
      * countdown, the unread inbox dot, the calendar's today cell and the held
      * power tile. The dynamic branch uses the wallpaper accent (Dyn.primary):
-     * matugen's on-primary-container does not populate here and collapses the
+     * on-primary-container can collapse the
      * token to black, while the accent always loads and contrasts the pill
      * surface. The static branches keep the fixed warm hex.
      */
@@ -58,7 +58,7 @@ Singleton {
      * Flame canvas ramp: literal hex strings (color type won't work), fed
      * directly to Canvas addColorStop/strokeStyle. A color property serializes
      * to #aarrggbb and corrupts the gradient render, so the dynamic branch passes
-     * matugen's raw hex strings through untouched rather than any Qt.darker math.
+     * generated hex strings through untouched rather than any Qt.darker math.
      */
     readonly property string flameInk:   dyn ? Dyn.primary : "#f0795a"
     readonly property string flameEmber: dyn ? Dyn.primaryContainer : "#7e2812"
@@ -70,13 +70,7 @@ Singleton {
     readonly property color frameBorder:  Qt.alpha(cream, 0.10)
     readonly property color creamMenu:     Qt.alpha(cream, 0.82)
     readonly property real shadowOpacity: 0.5
-    /**
-     * Snapshot of the system families, not a binding: Qt.fontFamilies() is not
-     * notifiable, so a font dropped onto the pill re-registers through
-     * refreshFonts() once its FontLoader is ready.
-     */
-    property var fontFamilies: Qt.fontFamilies()
-    function refreshFonts() { fontFamilies = Qt.fontFamilies(); }
+    readonly property var fontFamilies: Qt.fontFamilies()
     readonly property string font: (Flags.uiFont.length > 0 && fontFamilies.indexOf(Flags.uiFont) >= 0) ? Flags.uiFont : "Inter"
     readonly property string fontJp: "Zen Kaku Gothic New"
 

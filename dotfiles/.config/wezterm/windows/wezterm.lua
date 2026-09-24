@@ -7,8 +7,7 @@ config.font_size = 11.5
 config.line_height = 1.0
 
 -- Colors mirror ~/.config/kitty/black.ini (Base16 Black, by metalelf0) - the theme
--- actually `include`d by kitty.conf. fsociety.ini also exists in DotRobot as an
--- alternate scheme, ask if you want that ported instead.
+-- actually `include`d by kitty.conf.
 config.colors = {
 	foreground = "#c1c1c1",
 	background = "#000000",

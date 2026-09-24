@@ -56,6 +56,8 @@ symlink_path() {
     return 0
   fi
 
+  # Intentional: this repo is the source of truth. Linking replaces any existing
+  # target, including directories and the wallpaper folder, without a backup.
   if [[ -e "${target}" || -L "${target}" ]]; then
     rm -rf "${target}"
     log "Removed existing ${target}"

@@ -1,35 +1,10 @@
 {
-  "bar": {
-    "position": "left",
-    "style": "fill",
-    "workspaceCount": 10,
-    "modules": {
-      "left": [],
-      "center": [
-        "workspaces",
-        "timedate",
-        "tray",
-        "wifi",
-        "bt",
-        "vol",
-        "bat"
-      ],
-      "right": []
-    },
-    "fitContent": true,
-    "autohide": true,
-    "autohideTimeout": 200,
-    "borderWidth": 0.9
-  },
   "general": {
     "weatherUnit": "metric"
   },
   "theme": {
     "borderRadius": 8,
     "fontFamily": "Adwaita Mono"
-  },
-  "calendar": {
-    "screenFraction": 0.78
   },
   "network": {
     "screenFraction": 0.62

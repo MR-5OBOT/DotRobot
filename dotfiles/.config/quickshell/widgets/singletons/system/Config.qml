@@ -57,15 +57,15 @@ Item {
             pendingUpdates[key] = dataObj[key];
         }
         rawSettings = temp;
+        saveTimer.interval = 150;
         saveTimer.restart();
     }
 
     function flush() {
         let keys = Object.keys(pendingUpdates);
-        if (keys.length === 0) return;
+        if (keys.length === 0 || saveProc.running) return;
 
-        let patchObj = pendingUpdates;
-        pendingUpdates = ({});
+        let patchObj = Object.assign({}, pendingUpdates);
 
         let patchStr = JSON.stringify(patchObj);
         let fallbackStr = JSON.stringify(rawSettings);
@@ -87,13 +87,32 @@ Item {
             '  jq -n --argjson fb "$fallback" --argjson p "$patch" \'($fb // {}) * ($p // {})\' > "$tmp" 2>/dev/null\n' +
             'fi\n' +
             'if [ -s "$tmp" ] && jq -e . "$tmp" >/dev/null 2>&1; then\n' +
-            '  touch "$target"\n' +
-            '  cat "$tmp" > "$target"\n' +
-            '  chmod 644 "$target" 2>/dev/null || true\n' +
-            'fi\n' +
-            'rm -f "$tmp"\n';
+            '  chmod 644 "$tmp" && mv -f "$tmp" "$target"\n' +
+            'else\n' +
+            '  exit 1\n' +
+            'fi\n';
 
-        Quickshell.execDetached(["bash", "-c", script, "_", settingsJsonPath, patchStr, fallbackStr]);
+        saveProc.writingPatch = patchObj;
+        saveProc.command = ["bash", "-c", script, "_", settingsJsonPath, patchStr, fallbackStr];
+        saveProc.running = true;
+    }
+
+    Process {
+        id: saveProc
+        property var writingPatch: ({})
+        onExited: (code) => {
+            if (code === 0) {
+                let remaining = Object.assign({}, config.pendingUpdates);
+                for (const key of Object.keys(writingPatch))
+                    if (JSON.stringify(remaining[key]) === JSON.stringify(writingPatch[key]))
+                        delete remaining[key];
+                config.pendingUpdates = remaining;
+            }
+            if (Object.keys(config.pendingUpdates).length) {
+                saveTimer.interval = code === 0 ? 150 : 5000;
+                saveTimer.restart();
+            }
+        }
     }
 
     Timer {

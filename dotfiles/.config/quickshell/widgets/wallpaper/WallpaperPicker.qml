@@ -8,6 +8,7 @@ import Quickshell
 import Quickshell.Io
 import "../"
 import "../reusables"
+import "../../island/Singletons" as Island
 
 Item {
     id: window
@@ -45,26 +46,12 @@ Item {
     property bool isAnchorScrolling: false
     property bool _silentFilterChange: false
 
-    property var configSettings: Config.rawSettings
-    property string srcDir: {
-        let dummy = configSettings;
-        return Config.getSetting("wallpaperDir", "") || Config.getSetting("wallpaper_dir", "") || Quickshell.env("WALLPAPER_DIR") || (Quickshell.env("HOME") + "/Pictures/wallpapers");
-    }
+    readonly property string srcDir: Island.Config.wallpaperDir
 
     onSrcDirChanged: {
         window.initialFocusSet = false;
         window.syncFromSrcModel();
         window.triggerIndexer();
-    }
-
-    Connections {
-        target: Config
-        function onSettingsLoaded() {
-            let dir = Config.getSetting("wallpaperDir", "") || Config.getSetting("wallpaper_dir", "") || Quickshell.env("WALLPAPER_DIR") || (Quickshell.env("HOME") + "/Pictures/wallpapers");
-            if (dir && dir !== window.srcDir) {
-                window.srcDir = dir;
-            }
-        }
     }
 
     Timer {
@@ -127,7 +114,7 @@ Item {
     Process {
         id: wallpaperHistoryReader
         running: false
-        command: ["cat", Caching.getCacheDir("wallpaper") + "/history.txt"]
+        command: ["cat", (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/island-wallpaper-history"]
         stdout: StdioCollector {
             onStreamFinished: {
                 let lines = this.text.trim().split("\n").map(s => s.trim()).filter(s => s.length > 0);
@@ -137,18 +124,6 @@ Item {
                         window.applyFilters(false);
                     }
                 }
-            }
-        }
-    }
-
-    Process {
-        id: videoSnapshotProcess
-        running: false
-        property string snapPath: Caching.getCacheDir("wallpaper") + "/current_wallpaper.png"
-
-        onExited: (exitCode) => {
-            if (typeof Matugen !== "undefined" && typeof Matugen.generate === "function") {
-                Matugen.generate(snapPath);
             }
         }
     }
@@ -176,30 +151,12 @@ Item {
         globalPreviewPlayer.videoOutput = null;
     }
 
-    Process {
-        id: wallpaperMonitorTracker
-        running: false
-        command: [
-            "bash",
-            "-c",
-            "cat '" + Caching.getCacheDir("wallpaper") + "/current_" + (window.hostScreen ? window.hostScreen.name : "") + "_name' 2>/dev/null || cat '" + Caching.getCacheDir("wallpaper") + "/current_default_name' 2>/dev/null || echo ''"
-        ]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                let activeWallpaper = this.text.trim();
-                if (!activeWallpaper) {
-                    let scName = window.hostScreen ? window.hostScreen.name : "";
-                    activeWallpaper = Wallpaper.getWallpaper(scName);
-                }
-                if (window.widgetArg !== "") {
-                    window.targetWallName = window.widgetArg;
-                } else if (activeWallpaper !== "") {
-                    window.targetWallName = activeWallpaper;
-                }
-                window.initialFocusSet = false;
-                window.selectCurrentWallpaperTabAndFocus();
-            }
-        }
+    function refreshCurrent() {
+        let scName = window.hostScreen ? window.hostScreen.name : "";
+        let activeWallpaper = Wallpaper.getWallpaper(scName);
+        window.targetWallName = window.widgetArg || activeWallpaper;
+        window.initialFocusSet = false;
+        window.selectCurrentWallpaperTabAndFocus();
     }
 
     function getCleanBaseName(name) {
@@ -372,38 +329,10 @@ Item {
             window.reorderHistory();
         }
 
-        wallpaperHistoryReader.running = false;
-        wallpaperHistoryReader.running = true;
-
         let lookup = window.thumbLookup[safeFileName] || window.thumbLookup[window.getCleanBaseName(safeFileName)] || {};
         let finalPath = lookup.filePath || (window.srcDir + "/" + realFileName);
-        let posterPath = lookup.posterPath || "";
-
         window.setWallpaperOnMonitors(finalPath, randomTransition);
-
-        let isVid = isVideo || window.isVideoTarget(safeFileName) || finalPath.toLowerCase().match(/\.(mp4|mkv|mov|webm)$/) !== null;
-
-        if (isVid) {
-            if (posterPath && posterPath !== "") {
-                if (typeof Matugen !== "undefined" && typeof Matugen.generate === "function") {
-                    Matugen.generate(posterPath);
-                }
-            } else {
-                let snap = Caching.getCacheDir("wallpaper") + "/current_wallpaper.png";
-                videoSnapshotProcess.command = [
-                    "bash", "-c",
-                    "ffmpeg -y -hide_banner -loglevel error -ss 0.5 -i \"$1\" -frames:v 1 -q:v 2 \"$2\" 2>/dev/null || ffmpeg -y -hide_banner -loglevel error -i \"$1\" -frames:v 1 -q:v 2 \"$2\" 2>/dev/null",
-                    "_",
-                    finalPath,
-                    snap
-                ];
-                videoSnapshotProcess.running = true;
-            }
-        } else {
-            if (typeof Matugen !== "undefined" && typeof Matugen.generate === "function") {
-                Matugen.generate(finalPath);
-            }
-        }
+        window.historyList = [finalPath].concat(window.historyList.filter(p => p !== finalPath)).slice(0, 100);
     }
 
     function selectCurrentWallpaperTabAndFocus() {
@@ -438,8 +367,7 @@ Item {
 
     function refreshForDisplay() {
         window.initialFocusSet = false;
-        wallpaperMonitorTracker.running = false;
-        wallpaperMonitorTracker.running = true;
+        window.refreshCurrent();
         wallpaperHistoryReader.running = false;
         wallpaperHistoryReader.running = true;
         window.isFilterAnimating = true;
