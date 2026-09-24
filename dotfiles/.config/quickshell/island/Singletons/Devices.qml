@@ -1,7 +1,6 @@
 pragma Singleton
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
 import Quickshell.Io
 
 /**
@@ -70,20 +69,11 @@ Singleton {
 
     /**
      * Probes for brightness controls when the mixer opens. DDC (external-monitor)
-     * detection only runs when more than one monitor is connected AND ddcutil is
-     * installed — on a single-monitor machine ddcutil is never invoked, avoiding
-     * redundant/duplicate faders for the one panel. The internal backlight is
-     * probed regardless.
+     * detection runs whenever the mixer opens: one external monitor may be
+     * the only connected display. The internal backlight is probed separately.
      */
     function detect() {
-        var monValues = Hyprland.monitors.values;
-        var count = monValues ? monValues.length : 0;
-        if (count > 1) {
-            ddcDetect.running = true;
-        } else {
-            ddcDetect.running = false;
-            root.ddcMonitors = [];
-        }
+        ddcDetect.running = true;
         blDetect.running = true;
     }
 

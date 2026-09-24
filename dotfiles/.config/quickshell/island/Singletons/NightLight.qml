@@ -16,7 +16,7 @@ import Quickshell.Io
 Singleton {
     id: root
 
-    readonly property string confPath: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/island/hyprsunset.conf"
+    readonly property string confPath: Quickshell.env("HOME") + "/.local/state/island/hyprsunset.conf"
     property bool available: false
     property string pendingMode: ""
 
@@ -153,6 +153,13 @@ Singleton {
         path: root.confPath
         atomicWrites: true
         printErrors: false
+        onSaved: {
+            if (root.pendingRestart) {
+                root.pendingRestart = false;
+                restartProc.running = true;
+            }
+        }
+        onSaveFailed: root.notify("Night light", "Could not save the night-light schedule.")
     }
 
     Process {
@@ -173,10 +180,6 @@ Singleton {
         interval: 250
         onTriggered: {
             writer.setText(root.buildConf());
-            if (root.pendingRestart) {
-                root.pendingRestart = false;
-                restartProc.running = true;
-            }
         }
     }
 

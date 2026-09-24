@@ -71,16 +71,6 @@ get_mic_icon() {
 	fi
 }
 
-# Get Microphone Volume
-get_mic_volume() {
-	volume=$(pamixer --default-source --get-volume)
-	if [[ "$volume" -eq "0" ]]; then
-		echo "Muted"
-	else
-		echo "$volume%"
-	fi
-}
-
 # Increase MIC Volume
 inc_mic_volume() {
 	if [ "$(pamixer --default-source --get-mute)" == "true" ]; then

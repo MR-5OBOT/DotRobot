@@ -43,19 +43,7 @@ Singleton {
 
     Process {
         id: monitor
-        command: ["sh", "-c",
-            "dev=$(ls /sys/class/backlight 2>/dev/null | head -n1); [ -n \"$dev\" ] || exit 0;" +
-            "d=/sys/class/backlight/$dev; max=$(cat $d/max_brightness);" +
-            "PARENT=$PPID; ( while [ -d /proc/$PARENT ]; do sleep 3; done;" +
-            "  kill -TERM $(pgrep -x udevadm) 2>/dev/null; kill -TERM \"$$\" 2>/dev/null ) &" +
-            "echo \"$(( $(cat $d/brightness) * 100 / max ))\";" +
-            "udevadm monitor --subsystem-match=backlight | while IFS= read -r l; do" +
-            "  case \"$l\" in" +
-            "    KERNEL*\"/$dev (backlight)\")" +
-            "      v=$(cat $d/brightness 2>/dev/null); case \"$v\" in *[!0-9]*|'') continue;; esac;" +
-            "      echo \"$(( v * 100 / max ))\";;" +
-            "  esac;" +
-            "done"]
+        command: ["bash", Config.islandPath("scripts", "backlight-watch.sh")]
         running: true
         stdout: SplitParser {
             onRead: (line) => {

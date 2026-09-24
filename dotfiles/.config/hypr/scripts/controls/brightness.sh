@@ -9,22 +9,6 @@ get_backlight() {
 	echo $(brightnessctl -m | cut -d, -f4)
 }
 
-# Get icons
-get_icon() {
-	current=$(get_backlight | sed 's/%//')
-	if [ "$current" -le "20" ]; then
-		icon=""
-	elif [ "$current" -le "40" ]; then
-		icon=""
-	elif [ "$current" -le "60" ]; then
-		icon=""
-	elif [ "$current" -le "80" ]; then
-		icon=""
-	else
-		icon=""
-	fi
-}
-
 # Change brightness
 change_backlight() {
 	brightnessctl set "$1"

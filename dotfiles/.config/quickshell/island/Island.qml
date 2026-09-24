@@ -440,7 +440,7 @@ Scope {
                  * that opens the strip — so a hidden pill would never see a
                  * dragged file. This target shadows the strip's geometry, pulls
                  * the pill in on drag enter and hands the drop to the same
-                 * install flow as the resting pill. Sits below the pill in the
+                 * wallpaper save flow as the resting pill. Sits below the pill in the
                  * scene so drops on the visible pill itself keep winning.
                  */
                 DropArea {
@@ -449,21 +449,22 @@ Scope {
                     height: 8 * overlay.s
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.top: parent.top
-                    enabled: Flags.autoHide && !pill.surfaceOpen
+                    enabled: Flags.autoHide && !pill.surfaceOpen && !pill.dropBusy
                     visible: enabled
                     keys: ["text/uri-list"]
                     onEntered: (drag) => {
-                        drag.acceptProposedAction();
+                        drag.accepted = pill.dropEntered(drag.urls);
                         pill.revealSession = true;
-                        pill.dropEntered(drag.urls);
                     }
                     onExited: {
                         pill.dropExited();
                         pill.revealSession = false;
                     }
                     onDropped: (drop) => {
-                        drop.acceptProposedAction();
-                        pill.dropDropped(drop.urls);
+                        if (pill.dropDropped(drop.urls))
+                            drop.accept(Qt.CopyAction);
+                        else
+                            drop.accepted = false;
                         pill.revealSession = false;
                     }
                 }

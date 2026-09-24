@@ -27,6 +27,7 @@ hyprlock
 hyprpicker
 hyprpolkitagent
 hyprshutdown
+hyprsunset
 imagemagick
 imv
 inter-font

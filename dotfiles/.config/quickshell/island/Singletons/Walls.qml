@@ -15,10 +15,7 @@ import Quickshell.Io
  * lands. Applying routes through wallpaper.sh so the picker shares the exact
  * transition, palette and state path with the random keybind.
  *
- * The folder resolves through one chain, first hit wins: an explicit
- * `wallpaperDir` in flags.json, then the dir wallpaper.sh resolved and wrote
- * to the island-wallpaper-dir state file on its last run, then
- * ~/Pictures/wallpapers for a first boot before wallpaper.sh init has run.
+ * Config.wallpaperDir is shared with the picker and the shell backend.
  *
  * The pipeline is triggered by the wallpaper strip's refresh button, an
  * explicit folder change, or the strip's own warm-up on open: an empty
@@ -60,44 +57,19 @@ Singleton {
      */
     signal refreshDone()
 
-    property string resolvedDir: ""
-    readonly property string wpDir: Flags.wallpaperDir.length > 0 ? Flags.wallpaperDir
-        : (resolvedDir.length > 0 ? resolvedDir : Quickshell.env("HOME") + "/Pictures/wallpapers")
+    readonly property string wpDir: Config.wallpaperDir
     readonly property string thumbDir: (Quickshell.env("XDG_CACHE_HOME") || (Quickshell.env("HOME") + "/.cache")) + "/island/wp-thumbs/"
     readonly property string thumbScript: Config.islandPath("scripts", "wallpaper-thumbs.sh")
     readonly property string setScript: Config.islandPath("scripts", "wallpaper.sh")
     readonly property string stateFile: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/island-wallpaper"
-    readonly property string dirStateFile: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/island-wallpaper-dir"
-
-    FileView {
-        id: dirFile
-        path: root.dirStateFile
-        blockLoading: true
-        watchChanges: true
-        printErrors: false
-        onLoaded: root.resolvedDir = dirFile.text().trim()
-        onFileChanged: reload()
-        onLoadFailed: root.resolvedDir = ""
-    }
 
     function refresh() {
-        if (resolveProc.running || thumbProc.running || listProc.running || stateProc.running) {
+        if (thumbProc.running || listProc.running || stateProc.running) {
             pending = true;
             return;
         }
         refreshing = true;
-        /**
-         * Re-resolve the folder first when autodetect is in play: it only runs
-         * inside wallpaper.sh, so a shell restart used to leave the strip on
-         * the stale state file. An explicit folder skips that hop entirely and
-         * swaps straight away.
-         */
-        if (Flags.wallpaperDir.length > 0) {
-            thumbProc.running = true;
-            return;
-        }
-        resolveProc.command = ["bash", root.setScript, "resolve"];
-        resolveProc.running = true;
+        thumbProc.running = true;
     }
 
     /**
@@ -119,7 +91,7 @@ Singleton {
     function warm() {
         if (warmRequested)
             return;
-        if (resolveProc.running || thumbProc.running || listProc.running || stateProc.running)
+        if (thumbProc.running || listProc.running || stateProc.running)
             return;
         if (entries.length === 0) {
             warmRequested = true;
@@ -144,25 +116,18 @@ Singleton {
         }
     }
 
-    Process {
-        id: resolveProc
-        onExited: thumbProc.running = true
-    }
-
     /**
-     * wallpaper.sh blocks through the whole transition (awww wave, matugen,
+     * wallpaper.sh blocks through the whole transition (awww wave, palette,
      * reload), easily 1-2s; a pick landing in that window used to be silently
-     * swallowed. Now the newest request is queued and replayed once the
-     * running transition exits, so rapid iteration converges on the last pick.
+     * swallowed. Requests are queued in order so choosing several monitors
+     * applies the wallpaper to every selected output.
      */
-    property string queuedApply: ""
-    property string queuedOutput: ""
+    property var queuedApplies: []
 
     function apply(path, output) {
         var out = output === undefined ? "" : output;
         if (applyProc.running) {
-            queuedApply = path;
-            queuedOutput = out;
+            queuedApplies = queuedApplies.concat([{path: path, output: out}]);
             return;
         }
         applyProc.command = out.length > 0
@@ -249,14 +214,12 @@ Singleton {
     Process {
         id: applyProc
         onExited: {
-            if (root.queuedApply.length) {
-                var next = root.queuedApply;
-                var nextOut = root.queuedOutput;
-                root.queuedApply = "";
-                root.queuedOutput = "";
-                applyProc.command = nextOut.length > 0
-                    ? ["bash", root.setScript, "set", next, nextOut]
-                    : ["bash", root.setScript, "set", next];
+            if (root.queuedApplies.length) {
+                var next = root.queuedApplies[0];
+                root.queuedApplies = root.queuedApplies.slice(1);
+                applyProc.command = next.output.length > 0
+                    ? ["bash", root.setScript, "set", next.path, next.output]
+                    : ["bash", root.setScript, "set", next.path];
                 applyProc.running = true;
                 return;
             }

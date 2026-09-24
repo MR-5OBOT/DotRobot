@@ -51,12 +51,12 @@ compile_and_deploy() {
    ex5="${src%.mq5}.ex5"
 
    echo "[$(date +%H:%M:%S)] $(basename "$src") → $kind"
-   [[ -f "$ex5" ]] && before=$(stat -c %Y "$ex5")
+   [[ -f "$ex5" ]] && before=$(stat -c %y "$ex5")
    wine "$METAEDITOR" /compile:"$win_src" /log:"$(winepath -w "$log")" \
         >/dev/null 2>&1 || true
-   [[ -f "$ex5" ]] && after=$(stat -c %Y "$ex5")
+   [[ -f "$ex5" ]] && after=$(stat -c %y "$ex5")
 
-   if [[ ! -f "$ex5" || "$after" -le "$before" ]]; then
+   if [[ ! -f "$ex5" || "$after" == "$before" ]]; then
       echo "  Compile FAILED."
       [[ -f "$log" ]] && sed 's/\r$//' "$log" | tail -20 | sed 's/^/  /'
       return 1
@@ -117,16 +117,16 @@ echo "Watching $WATCH_ROOT for .mq5 changes  (Ctrl-C to stop)"
 
 declare -A MTIMES
 while IFS= read -r -d '' f; do
-   MTIMES["$f"]=$(stat -c %Y "$f")
+   MTIMES["$f"]=$(stat -c %y "$f")
 done < <(find "$WATCH_ROOT" -type f -name '*.mq5' -print0)
 echo "Tracking ${#MTIMES[@]} file(s). Edit any to trigger a build."
 
 while true; do
    sleep 1
    while IFS= read -r -d '' f; do
-      cur=$(stat -c %Y "$f" 2>/dev/null || echo 0)
-      prev="${MTIMES["$f"]:-0}"
-      if [[ "$cur" != "$prev" && "$cur" -ne 0 ]]; then
+      cur=$(stat -c %y "$f" 2>/dev/null || echo '')
+      prev="${MTIMES["$f"]:-}"
+      if [[ "$cur" != "$prev" && -n "$cur" ]]; then
          MTIMES["$f"]="$cur"
          sleep 0.3
          compile_and_deploy "$f" || true

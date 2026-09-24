@@ -1,13 +1,10 @@
 pragma Singleton
 import QtQuick
-import Quickshell
-import Quickshell.Io
 import "../../"
+import "../../../island/Singletons" as Island
 
 // DotRobot replacement for serpantinum's ThemeBackend. Upstream builds the
-// palette with matugen, which also SIGUSR1s every running kitty; here it is
-// derived in-process from the current wallpaper with quickshell's
-// ColorQuantizer, using the same hue pick as DesktopClock.qml. Slot names stay
+// palette with matugen; here it reads island's shared palette. Slot names stay
 // serpantinum's Catppuccin-style ones so the vendored modules bind unchanged:
 // the neutrals carry a little of the wallpaper's hue, "mauve" is the primary.
 Item {
@@ -18,51 +15,9 @@ Item {
     property int borderRadius: themeConfig.borderRadius ?? 8
     readonly property int clampedBorderRadius: borderRadius <= 24 ? borderRadius : Math.floor(24 + Math.pow(borderRadius - 24, 0.55))
 
-    // same state file and fallback as WallpaperState.qml
-    readonly property string home: Quickshell.env("HOME")
-    property string wallpaper: home + "/Pictures/wallpapers/reborn.png"
-    FileView {
-        path: (Quickshell.env("XDG_STATE_HOME") || (root.home + "/.local/state")) + "/qs-wallpaper"
-        watchChanges: true
-        printErrors: false
-        onLoaded: {
-            const t = text().trim();
-            if (t.length > 0)
-                root.wallpaper = t;
-        }
-        onFileChanged: reload()
-    }
-
-    ColorQuantizer {
-        id: quant
-        source: root.wallpaper.length ? "file://" + root.wallpaper : ""
-        depth: 3          // 8 swatches
-        rescaleSize: 64   // quantize a thumbnail, not the full-size image
-    }
-
-    // Biggest colourful hue group wins (see DesktopClock.qml for why a single
-    // most-colourful swatch is wrong). null = grey wallpaper.
-    function dominant(colors) {
-        const chroma = c => c.hsvSaturation * c.hsvValue;
-        const near = (a, b) => { const d = Math.abs(a - b); return Math.min(d, 1 - d) < 0.06; };
-        let best = null, bestScore = 0;
-        for (let i = 0; i < colors.length; i++) {
-            const c = colors[i];
-            if (chroma(c) < 0.12)
-                continue;
-            let score = chroma(c) * 0.01;
-            for (let j = 0; j < colors.length; j++)
-                if (chroma(colors[j]) >= 0.12 && near(c.hslHue, colors[j].hslHue))
-                    score += chroma(colors[j]);
-            if (score > bestScore) { best = c; bestScore = score; }
-        }
-        return best;
-    }
-
-    readonly property var swatch: dominant(quant.colors)
-    // grey wallpaper: neutral greys, and the primary falls back to DotRobot's pink hue
-    readonly property real hue: swatch ? swatch.hslHue : 0.92
-    readonly property real sat: swatch ? Math.min(Math.max(swatch.hslSaturation, 0.35), 0.75) : 0
+    readonly property color swatch: Island.Dyn.primary
+    readonly property real hue: swatch.hslHue
+    readonly property real sat: Math.min(Math.max(swatch.hslSaturation, 0.35), 0.75)
     function tone(s, l) { return Qt.hsla(root.hue, s, l, 1); }
 
     // Accent slots are pulled part-way to the wallpaper's hue, the way matugen

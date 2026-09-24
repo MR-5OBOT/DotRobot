@@ -3,25 +3,19 @@ set -euo pipefail
 
 flags_file="${XDG_STATE_HOME:-$HOME/.local/state}/island/flags.json"
 WPDIR=$(jq -r '.wallpaperDir // ""' "$flags_file" 2>/dev/null || echo "")
+widgets_settings="${QS_SETTINGS:-${XDG_CONFIG_HOME:-$HOME/.config}/mr5obot/settings.json}"
+[ -n "$WPDIR" ] || WPDIR=$(jq -r '.wallpaperDir // .wallpaper_dir // ""' "$widgets_settings" 2>/dev/null || echo "")
+[ -n "$WPDIR" ] || WPDIR="${WALLPAPER_DIR:-$HOME/Pictures/wallpapers}"
 FIT=$(jq -r '.wallpaperFit // "crop"' "$flags_file" 2>/dev/null || echo crop)
 case "$FIT" in no|crop|fit|stretch) ;; *) FIT=crop ;; esac
-if [ -z "$WPDIR" ]; then
-    # No explicit folder set: adopt an existing collection in the usual spots.
-    # Two or more images counts as a collection, a single stray file does not,
-    # so an incidental picture never hijacks the default.
-    for cand in "$HOME/Pictures/wallpapers" "$HOME/Pictures/Wallpapers" "$HOME/Wallpapers" "$HOME/wallpapers"; do
-        [ -d "$cand" ] || continue
-        n=$(find "$cand" -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.png' -o -iname '*.gif' -o -iname '*.webp' -o -iname '*.mp4' -o -iname '*.webm' -o -iname '*.mkv' -o -iname '*.mov' \) | awk 'NR<=2' | wc -l)
-        if [ "$n" -ge 2 ]; then WPDIR="$cand"; break; fi
-    done
-    [ -n "$WPDIR" ] || WPDIR="$HOME/Pictures/wallpapers"
-fi
 RESOLVED="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-dir"
+mkdir -p "$(dirname "$RESOLVED")"
 printf '%s\n' "$WPDIR" > "$RESOLVED"
 # No-op mode for the QML side: re-resolve the folder and exit before touching any daemon state.
 [ "${1:-}" = "resolve" ] && exit 0
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper"
 MAP="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-map"
+HISTORY="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-history"
 BAG="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-bag"
 STILL="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-still.png"
 FIT_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-fit"
@@ -256,7 +250,7 @@ sync_videos() {
     done <<< "$desired"
 }
 
-# The palette follows the focused monitor: whatever hangs there drives matugen,
+# The palette follows the focused monitor: whatever hangs there drives wallcolors,
 # the global state file and the global still, so the Settings dynamic re-run
 # and the strip's current marker stay coherent with what the user looks at.
 palette_update() {
@@ -281,13 +275,6 @@ palette_update() {
     else
         python3 "$(dirname "$0")/wallcolors.py" "$show" >>"$WLOG" 2>&1 || true
     fi
-    hyprctl reload >/dev/null 2>&1 || true
-    busctl --user call com.mitchellh.ghostty /com/mitchellh/ghostty org.gtk.Actions \
-        Activate "sava{sv}" reload-config 0 0 >/dev/null 2>&1 || true
-    # kitty: remote-control reload (needs allow_remote_control in kitty.conf);
-    # silently skipped when kitty is missing, not running, or IPC is disabled.
-    command -v kitty >/dev/null 2>&1 \
-        && kitty @ set-colors "$HOME/.cache/island/kitty-colors" >/dev/null 2>&1 || true
 }
 
 map_has_video() {
@@ -390,3 +377,5 @@ fi
 apply_visual "$pic" "$target"
 sync_videos
 palette_update
+{ printf '%s\n' "$pic"; awk -v p="$pic" '$0 != p && n++ < 99' "$HISTORY" 2>/dev/null || true; } > "$HISTORY.tmp"
+mv "$HISTORY.tmp" "$HISTORY"

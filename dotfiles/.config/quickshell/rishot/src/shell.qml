@@ -576,7 +576,7 @@ ShellRoot {
      */
     function doCopy() {
         var keep = Config.copyToDisk;
-        var target = keep ? defaultPath : (root.tmpDir + "/rishot-copy.png");
+        var target = keep ? defaultPath : (root.tmpDir + "/rishot-copy-" + Date.now() + ".png");
         grabTo(target, function (ok) {
             if (ok) copyProc.run(target, keep);
             else root.finish("Capture failed", "", true, "");
@@ -604,7 +604,7 @@ ShellRoot {
     }
 
     function doUpload() {
-        var tmp = root.tmpDir + "/rishot-upload.png";
+        var tmp = root.tmpDir + "/rishot-upload-" + Date.now() + ".png";
         grabTo(tmp, function (ok) {
             if (ok) uploadProc.run(tmp);
             else root.finish("Capture failed", "", true, "");
@@ -634,7 +634,10 @@ ShellRoot {
         id: copyFileProc
         property string dst: ""
         function run(src, d) { dst = d; command = ["cp", "--", src, d]; running = true; }
-        onExited: () => root.afterSave(dst)
+        onExited: (code) => {
+            if (code === 0) root.afterSave(dst);
+            else root.finish("Save failed", root.pretty(root.savedAuto), true, root.savedAuto);
+        }
     }
 
     /** Puts an already-saved file on the clipboard for the copy-on-save option. */
@@ -646,7 +649,8 @@ ShellRoot {
             command = ["sh", "-c", "exec 9>&-; wl-copy --type image/png < \"$1\"", "_", path];
             running = true;
         }
-        onExited: () => root.finish("Screenshot saved", root.pretty(p), false, p)
+        onExited: (code) => root.finish(code === 0 ? "Screenshot saved" : "Saved, clipboard copy failed",
+                                       root.pretty(p), code !== 0, p)
     }
 
     /**
@@ -678,18 +682,18 @@ ShellRoot {
             file = f;
             keep = keepFile;
             command = ["sh", "-c",
-                "exec 9>&-; wl-copy --type image/png < \"$1\"; "
+                "exec 9>&-; wl-copy --type image/png < \"$1\" || exit 1; "
                 + "if command -v cliphist >/dev/null 2>&1; then "
                 + "if [ \"$(stat -c%s \"$1\")\" -ge 4900000 ]; then "
                 + "command -v magick >/dev/null 2>&1 && magick \"$1\" -quality 92 jpeg:- | cliphist store; "
                 + "else cliphist store < \"$1\"; fi; fi; "
-                + "[ \"$2\" = keep ] || rm -f \"$1\"",
+                + "[ \"$2\" = keep ] || rm -f \"$1\" || true",
                 "_", f, keep ? "keep" : "drop"];
             running = true;
         }
         onExited: (code) => {
             console.log("rishot: wl-copy exit " + code);
-            if (code !== 0) { root.finish("Copy failed", "", true, ""); return; }
+            if (code !== 0) { root.finish("Copy failed", root.pretty(file), true, file); return; }
             if (keep) root.finish("Screenshot copied", root.pretty(file), false, file);
             else root.finish("Copied to clipboard", "", false, "");
         }
@@ -708,16 +712,20 @@ ShellRoot {
             command = ["setsid", "-f", "sh", "-c",
                 "exec 9>&-; "
                 + "command -v magick >/dev/null 2>&1 && magick \"$1\" -strip \"$1\" >/dev/null 2>&1; "
-                + "url=$(curl -sf --proto '=https' --max-time 30 -A \"Mozilla/5.0\" "
-                + "-F reqtype=fileupload -F time=72h -F fileToUpload=@\"$1\" \"$2\"); "
+                + "reason='Upload failed'; detail=\"Capture kept at $1\"; "
+                + "if url=$(curl -sf --proto '=https' --max-time 30 -A \"Mozilla/5.0\" "
+                + "-F reqtype=fileupload -F time=72h -F fileToUpload=@\"$1\" \"$2\"); then "
+                + "case \"$url\" in https://*|http://*) "
+                + "if printf %s \"$url\" | wl-copy; then "
                 + "rm -f \"$1\"; "
-                + "if [ -n \"$url\" ] && [ \"${url#http}\" != \"$url\" ]; then "
-                + "printf %s \"$url\" | wl-copy; "
-                + "command -v notify-send >/dev/null 2>&1 || exit 0; "
+                + "if command -v notify-send >/dev/null 2>&1; then "
                 + "act=$(notify-send -a rishot -i \"$3\" -u normal -A \"copy=Copy link\" 'Link copied' \"$url\"); "
                 + "[ \"$act\" = copy ] && printf %s \"$url\" | wl-copy; "
-                + "else command -v notify-send >/dev/null 2>&1 && "
-                + "notify-send -a rishot -i \"$3\" -u critical rishot 'Upload failed'; fi",
+                + "fi; exit 0; "
+                + "fi; reason='Link copy failed'; detail=\"$url (capture kept at $1)\" ;; "
+                + "esac; fi; "
+                + "if command -v notify-send >/dev/null 2>&1; then "
+                + "notify-send -a rishot -i \"$3\" -u critical \"$reason\" \"$detail\"; fi",
                 "_", file, root.uploadEndpoint, root.iconPath];
             running = true;
         }

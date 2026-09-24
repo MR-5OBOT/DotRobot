@@ -13,6 +13,39 @@ Item {
 
     property var screenWallpapers: ({})
     property var screenWallpaperPaths: ({})
+    property string currentPath: ""
+    readonly property string stateDir: Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")
+
+    FileView {
+        path: root.stateDir + "/island-wallpaper"
+        blockLoading: true
+        watchChanges: true
+        printErrors: false
+        onLoaded: root.currentPath = text().trim()
+        onFileChanged: reload()
+    }
+
+    FileView {
+        path: root.stateDir + "/island-wallpaper-map"
+        blockLoading: true
+        watchChanges: true
+        printErrors: false
+        onLoaded: {
+            let paths = {};
+            let names = {};
+            for (const line of text().split("\n")) {
+                const tab = line.indexOf("\t");
+                if (tab < 1) continue;
+                const output = line.slice(0, tab);
+                const path = line.slice(tab + 1);
+                paths[output] = path;
+                names[output] = path.slice(path.lastIndexOf("/") + 1);
+            }
+            root.screenWallpaperPaths = paths;
+            root.screenWallpapers = names;
+        }
+        onFileChanged: reload()
+    }
 
     function setWallpaper(screenName: string, path: string, transition: string): void {
         root.wallpaperChanged(screenName, path, transition ? transition : "fade");
@@ -20,18 +53,16 @@ Item {
 
     function getWallpaper(screenName: string): string {
         if (!screenName || screenName === "") {
-            let keys = Object.keys(root.screenWallpapers);
-            return keys.length > 0 ? root.screenWallpapers[keys[0]] : "";
+            return root.currentPath.slice(root.currentPath.lastIndexOf("/") + 1);
         }
-        return root.screenWallpapers[screenName] || "";
+        return root.screenWallpapers[screenName] || root.currentPath.slice(root.currentPath.lastIndexOf("/") + 1);
     }
 
     function getWallpaperPath(screenName: string): string {
         if (!screenName || screenName === "") {
-            let keys = Object.keys(root.screenWallpaperPaths);
-            return keys.length > 0 ? root.screenWallpaperPaths[keys[0]] : "";
+            return root.currentPath;
         }
-        return root.screenWallpaperPaths[screenName] || "";
+        return root.screenWallpaperPaths[screenName] || root.currentPath;
     }
 
     function setPlayback(screenName: string, state: string): void {

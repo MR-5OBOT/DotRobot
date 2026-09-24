@@ -15,8 +15,7 @@ import "../components"
  *
  * Manual palette mode reveals a rainbow hue strip and a dark/light choice; moving
  * either rebuilds the rice colour set from that hue through wallcolors.py --hue
- * and reloads Hyprland and the terminal, debounced so a drag does not spawn a
- * build per pixel.
+ * debounced so a drag does not spawn a build per pixel.
  */
 SettingsSurface {
     id: root
@@ -62,15 +61,15 @@ SettingsSurface {
 
     Process {
         id: paletteProc
-        command: ["sh", "-c",
-            "wallscript=\"" + Config.islandPath("scripts", "wallcolors.py") + "\"; python3 \"$wallscript\" --hue \"$1\" \"$2\" \"$3\" && hyprctl reload >/dev/null 2>&1; busctl --user call com.mitchellh.ghostty /com/mitchellh/ghostty org.gtk.Actions Activate \"sava{sv}\" reload-config 0 0 >/dev/null 2>&1; command -v kitty >/dev/null 2>&1 && kitty @ set-colors \"$HOME/.cache/island/kitty-colors\" >/dev/null 2>&1 || true",
-            "sh", root.hueArg, root.modeArg, root.satArg]
+        command: ["python3", Config.islandPath("scripts", "wallcolors.py"),
+            "--hue", root.hueArg, root.modeArg, root.satArg]
     }
 
     Process {
         id: dynamicProc
         command: ["sh", "-c",
-            "f=\"${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper\"; pic=$(cat \"$f\" 2>/dev/null); case \"$pic\" in *.[Mm][Pp]4|*.[Ww][Ee][Bb][Mm]|*.[Mm][Kk][Vv]|*.[Mm][Oo][Vv]) pic=\"${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-still.png\";; esac; wallscript=\"" + Config.islandPath("scripts", "wallcolors.py") + "\"; [ -f \"$pic\" ] && python3 \"$wallscript\" \"$pic\" >/dev/null 2>&1; hyprctl reload >/dev/null 2>&1; busctl --user call com.mitchellh.ghostty /com/mitchellh/ghostty org.gtk.Actions Activate \"sava{sv}\" reload-config 0 0 >/dev/null 2>&1; command -v kitty >/dev/null 2>&1 && kitty @ set-colors \"$HOME/.cache/island/kitty-colors\" >/dev/null 2>&1 || true"]
+            "f=\"${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper\"; pic=$(cat \"$f\" 2>/dev/null); case \"$pic\" in *.[Mm][Pp]4|*.[Ww][Ee][Bb][Mm]|*.[Mm][Kk][Vv]|*.[Mm][Oo][Vv]) pic=\"${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-still.png\";; esac; [ -f \"$pic\" ] && exec python3 \"$1\" \"$pic\"",
+            "sh", Config.islandPath("scripts", "wallcolors.py")]
     }
 
     Connections {
