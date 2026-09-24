@@ -79,7 +79,8 @@ fi''')
     assert not (cache / "island/kitty-colors").exists()
 
 subprocess.run(["node", "-", str(ROOT / "dotfiles/.config/quickshell/WallpaperPanel.qml"),
-                str(ROOT / "dotfiles/.config/quickshell/island/Singletons/Walls.qml")],
+                str(ROOT / "dotfiles/.config/quickshell/island/Singletons/Walls.qml"),
+                str(ROOT / "dotfiles/.config/quickshell/widgets/wallpaper/WallpaperPicker.qml")],
                input=r"""
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -101,6 +102,43 @@ enqueue('/walls/b.png', 'DP-2', root, applyProc);
 assert.deepEqual(root.queuedApplies, [
     {path: '/walls/a.png', output: 'DP-1'},
     {path: '/walls/b.png', output: 'DP-2'}]);
+
+const picker = fs.readFileSync(process.argv[4], 'utf8');
+const update = picker.match(/    function updateDisplay\(forceSnap\) \{([\s\S]*?)^    \}/m);
+assert(update);
+const model = items => ({items, get count() {return this.items.length},
+    get(i) {return this.items[i]}, clear() {this.items = []}, append(rows) {this.items.push(...rows)}});
+const stills = model([{fileName: 'still.jpg', fileUrl: 'file:///walls/still.jpg', isVideo: false}]);
+const videos = model([{fileName: 'clip.mp4', fileUrl: 'file:///walls/clip.mp4', isVideo: true}]);
+const display = model([]);
+const view = {currentIndex: -1, forceLayout() {}, positionViewAtIndex() {}};
+const widget = {targetWallName: 'clip.mp4', resetPreviewPlayer() {},
+    getCleanName: s => s, getCleanBaseName: s => s.replace(/\.[^.]+$/, '')};
+new Function('forceSnap', 'window', 'localProxyModel', 'videoProxyModel', 'displayModel', 'view',
+    'allowAddAnimationTimer', 'ListView', update[1])(
+        true, widget, stills, videos, display, view, {restart() {}}, {Center: 0});
+assert.deepEqual(display.items.map(item => item.fileName), ['still.jpg', 'clip.mp4']);
+assert.equal(display.get(1).isVideo, true);
+assert.equal(view.currentIndex, 1);
+
+const step = picker.match(/    function stepToNextValidIndex\(direction\) \{([\s\S]*?)^    \}/m);
+assert(step);
+const move = new Function('direction', 'window', 'displayModel', 'view', step[1]);
+move(1, widget, display, view);
+assert.equal(view.currentIndex, 0, 'next must wrap to first wallpaper');
+move(-1, widget, display, view);
+assert.equal(view.currentIndex, 1, 'previous must wrap to last wallpaper');
+view.currentIndex = -1;
+move(-1, widget, display, view);
+assert.equal(view.currentIndex, 1, 'previous must select last wallpaper without a selection');
+
+const directions = [];
+for (const [key, expected] of [['Tab', 1], ['Backtab', -1]]) {
+    const shortcut = picker.match(new RegExp('Shortcut \\{ sequence: "' + key + '";[^\\n]*onActivated: ([^}]+) \\}'));
+    assert(shortcut, key + ' shortcut missing');
+    new Function('window', shortcut[1])({stepToNextValidIndex: n => directions.push(n)});
+    assert.equal(directions.at(-1), expected);
+}
 """, text=True, check=True)
 
 print("wallpaper integration tests passed")
