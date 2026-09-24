@@ -27,24 +27,15 @@ Item {
     property string widgetArg: ""
     property string targetWallName: ""
     property bool initialFocusSet: false
-    property int visibleItemCount: -1
     property int scrollAccum: 0
     property real scrollThreshold: window.s(45)
 
-    property string currentFilter: "All"
-    property string _lastFilter: "All"
-    property var colorMap: ({})
-    property var bucketMap: ({})
     property var thumbLookup: ({})
     property var srcNameLookup: ({})
-    property int cacheVersion: 0
 
     property bool isApplying: false
     property bool isMonitorSelectorOpen: false
     property bool allowAddAnimation: false
-
-    property bool isAnchorScrolling: false
-    property bool _silentFilterChange: false
 
     readonly property string srcDir: Island.Config.wallpaperDir
 
@@ -61,12 +52,6 @@ Item {
         onTriggered: view.forceActiveFocus()
     }
 
-    Timer {
-        id: anchorScrollTimer
-        interval: 450
-        onTriggered: window.isAnchorScrolling = false
-    }
-
     readonly property real dynamicCacheBuffer: window.itemWidth * 3
 
     Timer {
@@ -75,27 +60,9 @@ Item {
         onTriggered: window.isApplying = false
     }
 
-    property bool isStartup: srcModel.status === FolderListModel.Loading && localProxyModel.count === 0 && videoProxyModel.count === 0
     property bool isReady: visible
 
     property bool isModelChanging: false
-    property bool jumpToLastOnFilterChange: false
-
-    property var historyList: []
-
-    readonly property var filterData: [
-        { name: "All", hex: "", label: I18n.t("wallpaper.filters.all") },
-        { name: "History", hex: "", label: I18n.t("wallpaper.filters.history") },
-        { name: "Video", hex: "", label: I18n.t("wallpaper.filters.vid") },
-        { name: "Red", hex: "#FF4500", label: "" },
-        { name: "Orange", hex: "#FFA500", label: "" },
-        { name: "Yellow", hex: "#FFD700", label: "" },
-        { name: "Green", hex: "#32CD32", label: "" },
-        { name: "Blue", hex: "#1E90FF", label: "" },
-        { name: "Purple", hex: "#8A2BE2", label: "" },
-        { name: "Pink", hex: "#FF69B4", label: "" },
-        { name: "Monochrome", hex: "#A9A9A9", label: "" }
-    ]
 
     ListModel { id: monitorModel }
 
@@ -107,23 +74,6 @@ Item {
             onStreamFinished: {
                 let lines = this.text.trim().split("\n").map(s => s.trim()).filter(s => s.length > 0);
                 window.updateMonitorsFromList(lines);
-            }
-        }
-    }
-
-    Process {
-        id: wallpaperHistoryReader
-        running: false
-        command: ["cat", (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/island-wallpaper-history"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                let lines = this.text.trim().split("\n").map(s => s.trim()).filter(s => s.length > 0);
-                window.historyList = lines;
-                if (window.currentFilter === "History") {
-                    if (!window.reorderHistory()) {
-                        window.applyFilters(false);
-                    }
-                }
             }
         }
     }
@@ -156,7 +106,7 @@ Item {
         let activeWallpaper = Wallpaper.getWallpaper(scName);
         window.targetWallName = window.widgetArg || activeWallpaper;
         window.initialFocusSet = false;
-        window.selectCurrentWallpaperTabAndFocus();
+        window.updateDisplay(true);
     }
 
     function getCleanBaseName(name) {
@@ -264,53 +214,7 @@ Item {
         }
     }
 
-    function reorderHistory() {
-        if (window.currentFilter !== "History" || displayModel.count === 0 || !window.targetWallName) {
-            return false;
-        }
-
-        let cleanTarget = window.getCleanBaseName(window.targetWallName);
-        let fullTarget = window.getCleanName(window.targetWallName);
-        let foundIdx = -1;
-
-        for (let i = 0; i < displayModel.count; i++) {
-            let fn = displayModel.get(i).fileName;
-            if (fn === window.targetWallName || window.getCleanName(fn) === fullTarget || window.getCleanBaseName(fn) === cleanTarget) {
-                foundIdx = i;
-                break;
-            }
-        }
-
-        if (foundIdx === -1) {
-            return false;
-        }
-
-        if (foundIdx === 0) {
-            view.currentIndex = 0;
-            return true;
-        }
-
-        let histItems = window.getHistoryItems();
-        if (histItems.length !== displayModel.count) {
-            return false;
-        }
-
-        let displaySet = {};
-        for (let i = 0; i < displayModel.count; i++) {
-            displaySet[displayModel.get(i).fileName] = true;
-        }
-        for (let i = 0; i < histItems.length; i++) {
-            if (!displaySet[histItems[i].fileName]) {
-                return false;
-            }
-        }
-
-        displayModel.move(foundIdx, 0, 1);
-        view.currentIndex = 0;
-        return true;
-    }
-
-    function applyWallpaper(safeFileName, isVideo) {
+    function applyWallpaper(safeFileName) {
         if (!safeFileName || window.isApplying) return;
 
         let outputs = window.getMonitorOutputs();
@@ -322,61 +226,18 @@ Item {
         window.targetWallName = safeFileName;
         let realFileName = window.getOriginalFileName(safeFileName);
 
-        const transitionTypes = ["fade"];
-        const randomTransition = transitionTypes[Math.floor(Math.random() * transitionTypes.length)];
-
-        if (window.currentFilter === "History") {
-            window.reorderHistory();
-        }
-
         let lookup = window.thumbLookup[safeFileName] || window.thumbLookup[window.getCleanBaseName(safeFileName)] || {};
         let finalPath = lookup.filePath || (window.srcDir + "/" + realFileName);
-        window.setWallpaperOnMonitors(finalPath, randomTransition);
-        window.historyList = [finalPath].concat(window.historyList.filter(p => p !== finalPath)).slice(0, 100);
-    }
-
-    function selectCurrentWallpaperTabAndFocus() {
-        if (!window.targetWallName) {
-            window.applyFilters(true);
-            return;
-        }
-
-        let isVid = window.isVideoTarget(window.targetWallName);
-        if (isVid) {
-            if (window.currentFilter !== "Video") {
-                window._silentFilterChange = true;
-                window.currentFilter = "Video";
-                window._silentFilterChange = false;
-            }
-        } else {
-            if (window.currentFilter === "Video") {
-                window._silentFilterChange = true;
-                window.currentFilter = "All";
-                window._silentFilterChange = false;
-            } else if (window.currentFilter !== "All" && window.currentFilter !== "History") {
-                let b = window.bucketMap[window.targetWallName] || window.bucketMap[window.getCleanName(window.targetWallName)] || window.bucketMap[window.getCleanBaseName(window.targetWallName)] || "";
-                if (b && b !== window.currentFilter) {
-                    window._silentFilterChange = true;
-                    window.currentFilter = "All";
-                    window._silentFilterChange = false;
-                }
-            }
-        }
-        window.applyFilters(true);
+        window.setWallpaperOnMonitors(finalPath, "fade");
     }
 
     function refreshForDisplay() {
         window.initialFocusSet = false;
         window.refreshCurrent();
-        wallpaperHistoryReader.running = false;
-        wallpaperHistoryReader.running = true;
-        window.isFilterAnimating = true;
-        filterAnimationTimer.restart();
 
         if (displayModel.count === 0) {
             window.syncFromSrcModel();
         }
-        window.selectCurrentWallpaperTabAndFocus();
     }
 
     onVisibleChanged: {
@@ -393,26 +254,11 @@ Item {
         }
     }
 
-    property bool isLoading: srcModel.status === FolderListModel.Loading
-
-    property bool showSpinner: window.isLoading
-
-    property string currentNotification: {
-        if (isLoading) return I18n.t("wallpaper.notifications.generating_thumbnails");
-        if (window.visibleItemCount === 0) return I18n.t("wallpaper.notifications.no_wallpapers_found");
-        if (window.currentFilter === "All") return "";
-        if (window.currentFilter === "History") return I18n.t("wallpaper.notifications.history");
-        if (window.currentFilter === "Video") return I18n.t("wallpaper.notifications.videos");
-        return window.currentFilter;
-    }
-
-    property bool showNotification: !window.isStartup && currentNotification !== ""
-
     onWidgetArgChanged: {
         if (widgetArg !== "") {
             targetWallName = widgetArg;
             initialFocusSet = false;
-            selectCurrentWallpaperTabAndFocus();
+            window.updateDisplay(true);
         }
     }
 
@@ -420,10 +266,6 @@ Item {
         id: allowAddAnimationTimer
         interval: 300
         onTriggered: window.allowAddAnimation = true
-    }
-
-    function updateVisibleCount() {
-        window.visibleItemCount = displayModel.count;
     }
 
     readonly property real itemWidth: window.s(400)
@@ -434,54 +276,6 @@ Item {
     readonly property real selectedCenterOffset: (window.skewFactor * (window.itemHeight)) / 2 
 
     Timer { id: scrollThrottle; interval: 140 }
-    property bool isFilterAnimating: false
-    Timer { id: filterAnimationTimer; interval: 300; onTriggered: window.isFilterAnimating = false }
-    property bool isItemAnimating: false
-    Timer { id: itemAnimationTimer; interval: 400; onTriggered: window.isItemAnimating = false }
-
-    function getHistoryItems() {
-        let items = [];
-        let seen = {};
-        
-        let listToUse = window.historyList.slice();
-        let currentClean = window.getCleanBaseName(window.targetWallName);
-        if (currentClean !== "") {
-            let existingIdx = -1;
-            for (let k = 0; k < listToUse.length; k++) {
-                if (window.getCleanBaseName(listToUse[k]) === currentClean) {
-                    existingIdx = k;
-                    break;
-                }
-            }
-            if (existingIdx !== -1) {
-                listToUse.splice(existingIdx, 1);
-            }
-            listToUse.unshift(window.targetWallName);
-        }
-
-        for (let i = 0; i < listToUse.length; i++) {
-            let hName = listToUse[i];
-            let cleanH = window.getCleanBaseName(hName);
-            if (!cleanH || seen[cleanH]) continue;
-
-            let lookup = window.thumbLookup[cleanH] || window.thumbLookup[hName];
-            if (lookup && lookup.fileName && !seen[lookup.fileName]) {
-                items.push({
-                    "fileName": lookup.fileName,
-                    "filePath": lookup.filePath,
-                    "fileUrl": String(lookup.fileUrl),
-                    "posterPath": lookup.posterPath || "",
-                    "posterUrl": String(lookup.posterUrl || ""),
-                    "isVideo": !!lookup.isVideo,
-                    "hex": lookup.hex || "#808080",
-                    "bucket": "History"
-                });
-                seen[cleanH] = true;
-                seen[lookup.fileName] = true;
-            }
-        }
-        return items;
-    }
 
     function syncFromSrcModel() {
         if (srcModel.status !== FolderListModel.Ready || srcModel.count === 0) return;
@@ -491,8 +285,6 @@ Item {
         let seen = {};
         let newSrcLookup = Object.assign({}, window.srcNameLookup);
         let newThumbLookup = Object.assign({}, window.thumbLookup);
-        let newColorMap = Object.assign({}, window.colorMap);
-        let newBucketMap = Object.assign({}, window.bucketMap);
 
         for (let i = 0; i < srcModel.count; i++) {
             let fn = srcModel.get(i, "fileName");
@@ -527,23 +319,17 @@ Item {
             newThumbLookup[clean] = item;
             newThumbLookup[base] = item;
 
-            newColorMap[sFn] = item.hex;
-            newBucketMap[sFn] = item.bucket;
-
             if (isVid) videoItems.push(item);
             else localItems.push(item);
         }
 
         window.srcNameLookup = newSrcLookup;
         window.thumbLookup = newThumbLookup;
-        window.colorMap = newColorMap;
-        window.bucketMap = newBucketMap;
-        window.cacheVersion++;
 
         if (localProxyModel.count === 0 && videoProxyModel.count === 0) {
             if (localItems.length > 0) localProxyModel.append(localItems);
             if (videoItems.length > 0) videoProxyModel.append(videoItems);
-            window.selectCurrentWallpaperTabAndFocus();
+            window.updateDisplay(true);
         }
     }
 
@@ -629,7 +415,8 @@ Item {
                 e.fileUrl !== newItems[i].fileUrl ||
                 e.posterUrl !== newItems[i].posterUrl ||
                 e.hex !== newItems[i].hex ||
-                e.bucket !== newItems[i].bucket) {
+                e.bucket !== newItems[i].bucket ||
+                e.isVideo !== newItems[i].isVideo) {
                 return false;
             }
         }
@@ -644,8 +431,6 @@ Item {
         let seen = {};
         let newSrcLookup = {};
         let newThumbLookup = {};
-        let newColorMap = {};
-        let newBucketMap = {};
 
         for (let i = 0; i < data.items.length; i++) {
             let item = data.items[i];
@@ -665,9 +450,6 @@ Item {
             newThumbLookup[clean] = item;
             newThumbLookup[base] = item;
 
-            newColorMap[fname] = item.hex || "#808080";
-            newBucketMap[fname] = item.bucket || "Monochrome";
-
             let isVid = !!item.isVideo || window.isVideoTarget(fname) || fname.toLowerCase().match(/\.(mp4|mkv|mov|webm)$/) !== null;
 
             if (isVid) {
@@ -682,9 +464,6 @@ Item {
 
         window.srcNameLookup = newSrcLookup;
         window.thumbLookup = newThumbLookup;
-        window.colorMap = newColorMap;
-        window.bucketMap = newBucketMap;
-        window.cacheVersion++;
 
         const order = { "Red": 1, "Orange": 2, "Yellow": 3, "Green": 4, "Blue": 5, "Purple": 6, "Pink": 7, "Monochrome": 8 };
         localItems.sort((a, b) => {
@@ -713,7 +492,7 @@ Item {
             if (videoItems.length > 0) videoProxyModel.append(videoItems);
         }
 
-        window.selectCurrentWallpaperTabAndFocus();
+        window.updateDisplay(true);
 
         if (wasAllowing) allowAddAnimationTimer.restart();
         window.isModelChanging = false;
@@ -723,224 +502,56 @@ Item {
         if (displayModel.count === 0) return;
         window.initialFocusSet = true;
 
-        let nextIdx = view.currentIndex + direction;
-        if (nextIdx >= 0 && nextIdx < displayModel.count) {
-            view.currentIndex = nextIdx;
+        if (view.currentIndex < 0) {
+            view.currentIndex = direction > 0 ? 0 : displayModel.count - 1;
+        } else {
+            view.currentIndex = (view.currentIndex + direction + displayModel.count) % displayModel.count;
         }
     }
 
-    function cycleFilter(direction) {
-        let currentIdx = -1;
-        let allFilterNames = window.filterData.map(f => f.name);
-        for (let i = 0; i < allFilterNames.length; i++) {
-            if (allFilterNames[i] === window.currentFilter) { currentIdx = i; break; }
-        }
-        if (currentIdx !== -1) {
-            let nextIdx = (currentIdx + direction + allFilterNames.length) % allFilterNames.length;
-            window.setFilter(allFilterNames[nextIdx]);
-        }
-    }
-
-    function scrollToAnchor(filter) {
-        if (filter === "All") {
-            if (displayModel.count > 0) view.currentIndex = 0;
-            return;
-        }
-        for (let i = 0; i < displayModel.count; i++) {
-            if (displayModel.get(i).bucket === filter) {
-                view.currentIndex = i;
-                return;
-            }
-        }
-    }
-
-    function setFilter(newFilter) {
-        if (window.isApplying || (window.currentFilter === newFilter && !window._silentFilterChange)) return;
-        if (window._silentFilterChange) return;
-
-        let localModes = ["All", "Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Pink", "Monochrome"];
-        let isAnchorSwitch = localModes.indexOf(window.currentFilter) !== -1 && localModes.indexOf(newFilter) !== -1;
-
-        window.allowAddAnimation = false;
-
-        window._lastFilter = window.currentFilter;
-        window.currentFilter = newFilter;
-
-        if (newFilter === "History") {
-            wallpaperHistoryReader.running = false;
-            wallpaperHistoryReader.running = true;
-        }
-
-        Qt.callLater(() => {
-            view.forceActiveFocus();
-            if (isAnchorSwitch) {
-                window.isAnchorScrolling = true;
-                anchorScrollTimer.restart();
-                window.scrollToAnchor(newFilter);
-            } else {
-                window.isModelChanging = true;
-                window.isFilterAnimating = true; filterAnimationTimer.restart();
-                window.applyFilters(true);
-                window.isModelChanging = false;
-            }
-        });
-    }
-
-    function applyFilters(forceSnap) {
-        let sourceModel = window.activeModel;
-
+    function updateDisplay(forceSnap) {
         window.isModelChanging = true;
         window.resetPreviewPlayer();
 
         let newItems = [];
         let seenNames = {};
-        let firstValidIndex = -1;
-        let lastValidIndex = -1;
         let targetIndex = -1;
-        let anchorIndex = -1;
-
         let focusName = window.targetWallName;
         let cleanTarget = window.getCleanBaseName(focusName);
         let fullTarget = window.getCleanName(focusName);
 
-        if (window.currentFilter === "All") {
-            let combined = [];
-            for (let i = 0; i < localProxyModel.count; i++) {
-                let it = localProxyModel.get(i);
-                if (it && it.fileName && !seenNames[it.fileName]) {
-                    if (it.isVideo || window.isVideoTarget(it.fileName)) continue;
-                    seenNames[it.fileName] = true;
-                    combined.push(it);
-                }
-            }
-
-            const order = { "Red": 1, "Orange": 2, "Yellow": 3, "Green": 4, "Blue": 5, "Purple": 6, "Pink": 7, "Monochrome": 8 };
-            combined.sort((a, b) => {
-                let oA = order[a.bucket] !== undefined ? order[a.bucket] : 10;
-                let oB = order[b.bucket] !== undefined ? order[b.bucket] : 10;
-                if (oA !== oB) return oA - oB;
-                return String(a.fileName).localeCompare(String(b.fileName));
-            });
-
-            for (let i = 0; i < combined.length; i++) {
-                let fname = combined[i].fileName || "";
-                let bucket = combined[i].bucket || "Monochrome";
-                newItems.push({
-                    "fileName": fname,
-                    "filePath": combined[i].filePath || "",
-                    "fileUrl": String(combined[i].fileUrl),
-                    "posterPath": combined[i].posterPath || "",
-                    "posterUrl": String(combined[i].posterUrl || ""),
-                    "isVideo": false,
-                    "hex": combined[i].hex || "#808080",
-                    "bucket": bucket
-                });
-
-                let currentIndex = newItems.length - 1;
-                if (firstValidIndex === -1) firstValidIndex = currentIndex;
-                lastValidIndex = currentIndex;
-
-                if (cleanTarget !== "" && (fname === focusName || window.getCleanName(fname) === fullTarget || window.getCleanBaseName(fname) === cleanTarget)) {
-                    targetIndex = currentIndex;
-                }
-            }
-        } else if (window.currentFilter === "History") {
-            let histItems = window.getHistoryItems();
-            for (let h = 0; h < histItems.length; h++) {
-                let fname = histItems[h].fileName;
-                if (seenNames[fname]) continue;
+        for (let sourceModel of [localProxyModel, videoProxyModel]) {
+            for (let i = 0; i < sourceModel.count; i++) {
+                let it = sourceModel.get(i);
+                let fname = it && it.fileName;
+                if (!fname || seenNames[fname]) continue;
                 seenNames[fname] = true;
 
                 newItems.push({
                     "fileName": fname,
-                    "filePath": histItems[h].filePath || "",
-                    "fileUrl": histItems[h].fileUrl,
-                    "posterPath": histItems[h].posterPath || "",
-                    "posterUrl": histItems[h].posterUrl || "",
-                    "isVideo": !!histItems[h].isVideo,
-                    "hex": histItems[h].hex || "#808080",
-                    "bucket": "History"
+                    "filePath": it.filePath || "",
+                    "fileUrl": String(it.fileUrl),
+                    "posterPath": it.posterPath || "",
+                    "posterUrl": String(it.posterUrl || ""),
+                    "isVideo": !!it.isVideo,
+                    "hex": it.hex || "#808080",
+                    "bucket": it.bucket || (it.isVideo ? "Video" : "Monochrome")
                 });
 
-                let currentIndex = newItems.length - 1;
-                if (firstValidIndex === -1) firstValidIndex = currentIndex;
-                lastValidIndex = currentIndex;
-
                 if (cleanTarget !== "" && (fname === focusName || window.getCleanName(fname) === fullTarget || window.getCleanBaseName(fname) === cleanTarget)) {
-                    targetIndex = currentIndex;
-                }
-            }
-        } else if (window.currentFilter === "Video") {
-            if (sourceModel && sourceModel.count > 0) {
-                for (let i = 0; i < sourceModel.count; i++) {
-                    let it = sourceModel.get(i);
-                    let fname = it ? (it.fileName || "") : "";
-                    if (!fname || seenNames[fname]) continue;
-                    seenNames[fname] = true;
-
-                    newItems.push({
-                        "fileName": fname,
-                        "filePath": it.filePath || "",
-                        "fileUrl": String(it.fileUrl),
-                        "posterPath": it.posterPath || "",
-                        "posterUrl": String(it.posterUrl || ""),
-                        "isVideo": !!it.isVideo,
-                        "hex": it.hex || "#808080",
-                        "bucket": window.currentFilter
-                    });
-
-                    let currentIndex = newItems.length - 1;
-                    if (firstValidIndex === -1) firstValidIndex = currentIndex;
-                    lastValidIndex = currentIndex;
-
-                    if (cleanTarget !== "" && (fname === focusName || window.getCleanName(fname) === fullTarget || window.getCleanBaseName(fname) === cleanTarget)) {
-                        targetIndex = currentIndex;
-                    }
-                }
-            }
-        } else {
-            if (sourceModel && sourceModel.count > 0) {
-                for (let i = 0; i < sourceModel.count; i++) {
-                    let it = sourceModel.get(i);
-                    let fname = it ? (it.fileName || "") : "";
-                    if (!fname || seenNames[fname]) continue;
-                    if (it.isVideo || window.isVideoTarget(fname)) continue;
-                    seenNames[fname] = true;
-
-                    let bucket = it.bucket || "Monochrome";
-                    newItems.push({
-                        "fileName": fname,
-                        "filePath": it.filePath || "",
-                        "fileUrl": String(it.fileUrl),
-                        "posterPath": it.posterPath || "",
-                        "posterUrl": String(it.posterUrl || ""),
-                        "isVideo": false,
-                        "hex": it.hex || "#808080",
-                        "bucket": bucket
-                    });
-
-                    let currentIndex = newItems.length - 1;
-                    if (firstValidIndex === -1) firstValidIndex = currentIndex;
-                    lastValidIndex = currentIndex;
-
-                    if (cleanTarget !== "" && (fname === focusName || window.getCleanName(fname) === fullTarget || window.getCleanBaseName(fname) === cleanTarget)) {
-                        targetIndex = currentIndex;
-                    }
-
-                    if (anchorIndex === -1 && bucket === window.currentFilter) {
-                        anchorIndex = currentIndex;
-                    }
+                    targetIndex = newItems.length - 1;
                 }
             }
         }
 
-        let isIdentical = (displayModel.count === newItems.length);
+        let isIdentical = displayModel.count === newItems.length;
         if (isIdentical) {
             for (let i = 0; i < newItems.length; i++) {
-                if (displayModel.get(i).fileName !== newItems[i].fileName ||
-                    displayModel.get(i).fileUrl !== newItems[i].fileUrl ||
-                    displayModel.get(i).posterUrl !== newItems[i].posterUrl ||
-                    displayModel.get(i).bucket !== newItems[i].bucket) {
+                let old = displayModel.get(i);
+                let item = newItems[i];
+                if (old.fileName !== item.fileName || old.fileUrl !== item.fileUrl ||
+                    old.posterUrl !== item.posterUrl || old.bucket !== item.bucket ||
+                    old.isVideo !== item.isVideo) {
                     isIdentical = false;
                     break;
                 }
@@ -949,42 +560,18 @@ Item {
 
         if (!isIdentical) {
             displayModel.clear();
-            if (newItems.length > 0) {
-                displayModel.append(newItems);
-            }
-            window.updateVisibleCount();
+            if (newItems.length > 0) displayModel.append(newItems);
         }
 
-        let indexToFocus = targetIndex !== -1 ? targetIndex : (window.jumpToLastOnFilterChange && lastValidIndex !== -1 ? lastValidIndex : (displayModel.count > 0 ? (view.currentIndex >= 0 && view.currentIndex < displayModel.count ? view.currentIndex : 0) : -1));
-        window.jumpToLastOnFilterChange = false;
-
-        let localModes = ["Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Pink", "Monochrome"];
-        if (localModes.indexOf(window.currentFilter) !== -1 && anchorIndex !== -1 && targetIndex === -1 && forceSnap) {
-             indexToFocus = anchorIndex;
-        }
-
-        if (indexToFocus !== -1 && displayModel.count > 0) {
+        let indexToFocus = targetIndex !== -1 ? targetIndex :
+            (displayModel.count > 0 ? (view.currentIndex >= 0 && view.currentIndex < displayModel.count ? view.currentIndex : 0) : -1);
+        if (indexToFocus !== -1) {
             view.currentIndex = indexToFocus;
             if (forceSnap) {
                 view.forceLayout();
                 view.positionViewAtIndex(indexToFocus, ListView.Center);
             }
-
-            if (targetIndex !== -1 || cleanTarget === "") {
-                window.initialFocusSet = true;
-            }
-
-            let localAnchorModes = ["All", "Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Pink", "Monochrome"];
-            if (indexToFocus >= 0 && indexToFocus < displayModel.count && localAnchorModes.indexOf(window.currentFilter) !== -1) {
-                let bucket = displayModel.get(indexToFocus).bucket || "All";
-                if (indexToFocus === 0) bucket = "All";
-                if (window.currentFilter !== bucket && localAnchorModes.indexOf(bucket) !== -1) {
-                    window._silentFilterChange = true;
-                    window.currentFilter = bucket;
-                    window._silentFilterChange = false;
-                }
-            }
-
+            if (targetIndex !== -1 || cleanTarget === "") window.initialFocusSet = true;
             allowAddAnimationTimer.restart();
         }
 
@@ -999,18 +586,16 @@ Item {
         onActivated: {
             if (view.currentIndex >= 0 && view.currentIndex < displayModel.count) {
                 let item = displayModel.get(view.currentIndex);
-                if (item && item.fileName) window.applyWallpaper(String(item.fileName), !!item.isVideo);
+                if (item && item.fileName) window.applyWallpaper(String(item.fileName));
             }
         }
     }
-    Shortcut { sequence: "Tab"; enabled: window.visible && !window.isApplying; onActivated: window.cycleFilter(1) }
-    Shortcut { sequence: "Backtab"; enabled: window.visible && !window.isApplying; onActivated: window.cycleFilter(-1) }
+    Shortcut { sequence: "Tab"; enabled: window.visible && !window.isApplying; onActivated: window.stepToNextValidIndex(1) }
+    Shortcut { sequence: "Backtab"; enabled: window.visible && !window.isApplying; onActivated: window.stepToNextValidIndex(-1) }
 
     ListModel { id: localProxyModel }
     ListModel { id: videoProxyModel }
     ListModel { id: displayModel }
-    readonly property var activeModel: window.currentFilter === "Video" ? videoProxyModel : localProxyModel
-
     ListView {
         id: view
         anchors.fill: parent
@@ -1026,52 +611,35 @@ Item {
         preferredHighlightBegin: (width / 2) - ((window.itemWidth * 1.5 + window.s(4)) / 2) + window.selectedCenterOffset
         preferredHighlightEnd: (width / 2) + ((window.itemWidth * 1.5 + window.s(4)) / 2) + window.selectedCenterOffset
 
-        highlightMoveDuration: (window.isFilterAnimating || window.isModelChanging) ? 0 : 400
+        highlightMoveDuration: window.isModelChanging ? 0 : 400
         focus: true
 
-        onCurrentIndexChanged: {
-            window.isItemAnimating = true; itemAnimationTimer.restart();
-
-            let localModes = ["All", "Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Pink", "Monochrome"];
-            if (!window.isModelChanging && !window.isFilterAnimating && !window.isAnchorScrolling && localModes.indexOf(window.currentFilter) !== -1) {
-                if (currentIndex >= 0 && currentIndex < displayModel.count) {
-                    let bucket = displayModel.get(currentIndex).bucket || "All";
-                    if (currentIndex === 0) bucket = "All";
-                    if (window.currentFilter !== bucket && localModes.indexOf(bucket) !== -1) {
-                        window._silentFilterChange = true;
-                        window.currentFilter = bucket;
-                        window._silentFilterChange = false;
-                    }
-                }
-            }
-        }
-
         add: Transition {
-            enabled: window.allowAddAnimation && !window.isModelChanging && !window.isFilterAnimating
+            enabled: window.allowAddAnimation && !window.isModelChanging
             NumberAnimation { properties: "x,y"; duration: 400; easing.type: Easing.OutCubic }
         }
         addDisplaced: Transition {
-            enabled: window.allowAddAnimation && !window.isModelChanging && !window.isFilterAnimating
+            enabled: window.allowAddAnimation && !window.isModelChanging
             NumberAnimation { properties: "x,y"; duration: 400; easing.type: Easing.OutCubic }
         }
         move: Transition {
-            enabled: !window.isModelChanging && !window.isFilterAnimating
+            enabled: !window.isModelChanging
             NumberAnimation { properties: "x,y"; duration: 400; easing.type: Easing.OutCubic }
         }
         moveDisplaced: Transition {
-            enabled: !window.isModelChanging && !window.isFilterAnimating
+            enabled: !window.isModelChanging
             NumberAnimation { properties: "x,y"; duration: 400; easing.type: Easing.OutCubic }
         }
         remove: Transition {
-            enabled: window.allowAddAnimation && !window.isModelChanging && !window.isFilterAnimating
+            enabled: window.allowAddAnimation && !window.isModelChanging
             NumberAnimation { properties: "x,y"; duration: 400; easing.type: Easing.OutCubic }
         }
         removeDisplaced: Transition {
-            enabled: window.allowAddAnimation && !window.isModelChanging && !window.isFilterAnimating
+            enabled: window.allowAddAnimation && !window.isModelChanging
             NumberAnimation { properties: "x,y"; duration: 400; easing.type: Easing.OutCubic }
         }
         displaced: Transition {
-            enabled: window.allowAddAnimation && !window.isModelChanging && !window.isFilterAnimating
+            enabled: window.allowAddAnimation && !window.isModelChanging
             NumberAnimation { properties: "x,y"; duration: 400; easing.type: Easing.OutCubic }
         }
 
@@ -1107,7 +675,6 @@ Item {
                         displayModel.remove(i);
                     }
                 }
-                window.updateVisibleCount();
                 if (view.currentIndex >= displayModel.count) {
                     view.currentIndex = Math.max(0, displayModel.count - 1);
                 }
@@ -1193,8 +760,8 @@ Item {
             z: isVisuallyEnlarged ? 100 : Math.max(1, 50 - dist)
 
             Behavior on opacity { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
-            Behavior on width { enabled: window.initialFocusSet && !window.isModelChanging && !window.isFilterAnimating; NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
-            Behavior on height { enabled: window.initialFocusSet && !window.isModelChanging && !window.isFilterAnimating; NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
+            Behavior on width { enabled: window.initialFocusSet && !window.isModelChanging; NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
+            Behavior on height { enabled: window.initialFocusSet && !window.isModelChanging; NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
             Item {
                 id: skewedWrapper
@@ -1212,7 +779,7 @@ Item {
 
                 MouseArea {
                     anchors.fill: parent; enabled: !window.isApplying && !delegateRoot.isFailed
-                    onClicked: { window.initialFocusSet = true; view.currentIndex = index; window.applyWallpaper(delegateRoot.safeFileName, delegateRoot.isVideo); }
+                    onClicked: { window.initialFocusSet = true; view.currentIndex = index; window.applyWallpaper(delegateRoot.safeFileName); }
                 }
 
                 Item {
@@ -1326,50 +893,17 @@ Item {
     }
 
     Rectangle {
-        id: filterBarBackground; anchors.top: parent.top
+        id: monitorBar; anchors.top: parent.top
+        visible: monitorModel.count > 1
         anchors.topMargin: window.isReady ? window.s(65) : window.s(-75)
         opacity: window.isReady ? 1.0 : 0.0
         Behavior on anchors.topMargin { NumberAnimation { duration: 650; easing.type: Easing.OutQuint } }
         Behavior on opacity { NumberAnimation { duration: 450; easing.type: Easing.OutCubic } }
-        anchors.horizontalCenter: parent.horizontalCenter; z: 200; height: window.s(48); width: filterRow.width + window.s(20); radius: ThemeBackend.borderRadius
+        anchors.horizontalCenter: parent.horizontalCenter; z: 200; height: window.s(48); width: monitorRow.width + window.s(20); radius: ThemeBackend.borderRadius
         color: Qt.rgba(ThemeBackend.base.r, ThemeBackend.base.g, ThemeBackend.base.b, 0.90); border.color: ThemeBackend.surface0; border.width: 1
 
         Row {
-            id: filterRow; anchors.centerIn: parent ? parent : undefined; spacing: window.s(8)
-
-            Rectangle {
-                id: notifDrawer; height: window.s(34)
-                property real paddingLeft: window.showSpinner ? window.s(36) : window.s(12)
-                property real targetWidth: window.showNotification ? Math.min(notifTextDrawer.implicitWidth + paddingLeft + window.s(16), window.s(300)) : 0
-                width: targetWidth; visible: width > 0.1; radius: ThemeBackend.borderRadius; clip: true; anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-                color: ThemeBackend.surface0; border.color: ThemeBackend.surface1; border.width: 1
-                Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
-                Behavior on color { ColorAnimation { duration: 200 } }
-                Behavior on border.color { ColorAnimation { duration: 200 } }
-
-                Item {
-                    visible: window.showSpinner
-                    width: window.s(34)
-                    height: window.s(34)
-                    anchors.left: parent ? parent.left : undefined
-                    anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-
-                    LoaderIcon {
-                        anchors.centerIn: parent
-                        width: window.s(16)
-                        height: window.s(16)
-                        accentColor: ThemeBackend.text
-                        running: window.showSpinner && window.showNotification
-                        morphSpeed: 1.2
-                    }
-                }
-                Text {
-                    id: notifTextDrawer; anchors.left: parent ? parent.left : undefined; anchors.leftMargin: window.showSpinner ? window.s(36) : window.s(12); anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-                    width: Math.min(implicitWidth, window.s(300) - anchors.leftMargin - window.s(12)); text: window.currentNotification; color: ThemeBackend.text; font.family: ThemeBackend.fontFamily; font.pixelSize: window.s(12); font.bold: true; elide: Text.ElideRight
-                    opacity: window.showNotification ? 0.9 : 0.0; Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutQuart } }
-                    Behavior on anchors.leftMargin { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
-                }
-            }
+            id: monitorRow; anchors.centerIn: parent ? parent : undefined; spacing: window.s(8)
 
             Rectangle {
                 id: monitorDrawer; visible: monitorModel.count > 1; height: window.s(34)
@@ -1431,136 +965,6 @@ Item {
                                     monitorModel.setProperty(index, "selected", true);
                                 }
                             }
-                        }
-                    }
-                }
-            }
-
-            Repeater {
-                model: window.filterData
-                delegate: Item {
-                    width: (modelData.name === "Video" || modelData.name === "All" || modelData.name === "History") ? window.s(34) : (modelData.hex === "" ? filterText.contentWidth + window.s(16) : window.s(34))
-                    height: window.s(34); anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-
-                    CanvasIconButton {
-                        visible: modelData.name === "All"
-                        anchors.fill: parent
-                        size: window.s(34)
-                        cornerRadius: window.s(10)
-                        iconSize: window.s(14)
-                        accentColor: window.currentFilter === modelData.name ? ThemeBackend.surface2 : ThemeBackend.surface0
-                        textColor: window.currentFilter === modelData.name ? ThemeBackend.text : ThemeBackend.subtext0
-                        action_highlight: window.currentFilter === modelData.name
-                        paintCanvas: function(ctx, canvas) {
-                            var s = window.s;
-                            ctx.fillStyle = textColor;
-                            ctx.fillRect(0, 0, s(5), s(5));
-                            ctx.fillRect(s(7), 0, s(5), s(5));
-                            ctx.fillRect(0, s(7), s(5), s(5));
-                            ctx.fillRect(s(7), s(7), s(5), s(5));
-                        }
-                        onClicked: window.setFilter(modelData.name)
-                    }
-
-                    CanvasIconButton {
-                        visible: modelData.name === "History"
-                        anchors.fill: parent
-                        size: window.s(34)
-                        cornerRadius: window.s(10)
-                        iconSize: window.s(14)
-                        accentColor: window.currentFilter === modelData.name ? ThemeBackend.surface2 : ThemeBackend.surface0
-                        textColor: window.currentFilter === modelData.name ? ThemeBackend.text : ThemeBackend.subtext0
-                        action_highlight: window.currentFilter === modelData.name
-                        paintCanvas: function(ctx, canvas) {
-                            var s = window.s;
-                            ctx.strokeStyle = textColor;
-                            ctx.lineWidth = s(1.5);
-                            ctx.lineCap = "round";
-                            ctx.beginPath();
-                            ctx.arc(s(6), s(6), s(4.5), 0, Math.PI * 2);
-                            ctx.stroke();
-                            ctx.beginPath();
-                            ctx.moveTo(s(6), s(3));
-                            ctx.lineTo(s(6), s(6));
-                            ctx.lineTo(s(8.5), s(6));
-                            ctx.stroke();
-                        }
-                        onClicked: window.setFilter(modelData.name)
-                    }
-
-                    CanvasIconButton {
-                        visible: modelData.name === "Video"
-                        anchors.fill: parent
-                        size: window.s(34)
-                        cornerRadius: window.s(10)
-                        iconSize: window.s(12)
-                        accentColor: window.currentFilter === modelData.name ? ThemeBackend.surface2 : ThemeBackend.surface0
-                        textColor: window.currentFilter === modelData.name ? ThemeBackend.text : ThemeBackend.subtext0
-                        action_highlight: window.currentFilter === modelData.name
-                        paintCanvas: function(ctx, canvas) {
-                            var s = window.s;
-                            ctx.fillStyle = textColor;
-                            ctx.beginPath();
-                            ctx.moveTo(0, 0);
-                            ctx.lineTo(s(10), s(6));
-                            ctx.lineTo(0, s(12));
-                            ctx.closePath();
-                            ctx.fill();
-                        }
-                        onClicked: window.setFilter(modelData.name)
-                    }
-
-                    Rectangle {
-                        visible: modelData.hex === "" && modelData.name !== "Video" && modelData.name !== "All" && modelData.name !== "History"
-                        anchors.fill: parent
-                        radius: ThemeBackend.borderRadius
-                        color: window.currentFilter === modelData.name ? ThemeBackend.surface2 : (filterMouse.containsMouse ? ThemeBackend.surface1 : ThemeBackend.surface0)
-                        border.color: window.currentFilter === modelData.name ? ThemeBackend.text : ThemeBackend.surface1
-                        border.width: window.currentFilter === modelData.name ? window.s(1.5) : 1
-                        scale: window.currentFilter === modelData.name ? 1.05 : (filterMouse.containsMouse ? 1.03 : 1.0)
-                        Behavior on scale { NumberAnimation { duration: 250; easing.type: Easing.OutQuint } }
-                        Behavior on border.color { ColorAnimation { duration: 200 } }
-                        Behavior on color { ColorAnimation { duration: 200 } }
-
-                        Text {
-                            id: filterText
-                            text: modelData.label
-                            anchors.centerIn: parent
-                            color: window.currentFilter === modelData.name ? ThemeBackend.text : ThemeBackend.subtext0
-                            font.family: ThemeBackend.fontFamily
-                            font.pixelSize: window.s(12)
-                            font.bold: window.currentFilter === modelData.name
-                            Behavior on color { ColorAnimation { duration: 200 } }
-                        }
-
-                        MouseArea {
-                            id: filterMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            enabled: !window.isApplying
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: window.setFilter(modelData.name)
-                        }
-                    }
-
-                    Rectangle {
-                        visible: modelData.hex !== ""
-                        anchors.fill: parent
-                        radius: ThemeBackend.borderRadius
-                        color: modelData.hex
-                        border.color: window.currentFilter === modelData.name ? ThemeBackend.text : ThemeBackend.surface1
-                        border.width: window.currentFilter === modelData.name ? window.s(1.5) : 1
-                        scale: window.currentFilter === modelData.name ? 1.05 : (colorMouse.containsMouse ? 1.03 : 1.0)
-                        Behavior on scale { NumberAnimation { duration: 250; easing.type: Easing.OutQuint } }
-                        Behavior on border.color { ColorAnimation { duration: 200 } }
-
-                        MouseArea {
-                            id: colorMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            enabled: !window.isApplying
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: window.setFilter(modelData.name)
                         }
                     }
                 }
