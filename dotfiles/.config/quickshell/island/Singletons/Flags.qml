@@ -52,13 +52,9 @@ Singleton {
     property alias manualSat: adapter.manualSat
     property alias uiFont: adapter.uiFont
     property alias pillOpacity: adapter.pillOpacity
-    property alias pillBlur: adapter.pillBlur
     property alias autoHide: adapter.autoHide
     property alias topGap: adapter.topGap
     property alias appGap: adapter.appGap
-    property alias idleLockMin: adapter.idleLockMin
-    property alias idleScreenOffMin: adapter.idleScreenOffMin
-    property alias idleSuspendMin: adapter.idleSuspendMin
     property alias weatherCity: adapter.weatherCity
     property alias musicViz: adapter.musicViz
     property alias nightLightMode: adapter.nightLightMode
@@ -107,15 +103,11 @@ Singleton {
             property real manualSat: 0.5
             property string uiFont: ""
             property real pillOpacity: 1.0
-            property bool pillBlur: false
             property bool autoHide: true
             /** Top margin as a fraction of the shipped 8px. 0 sits the pill flush to the screen edge. */
             property real topGap: 1.0
             /** Pill-to-window band as a fraction of the shipped 12px. 0 tucks the windows flush under the pill. */
             property real appGap: 1.0
-            property int idleLockMin: 5
-            property int idleScreenOffMin: 6
-            property int idleSuspendMin: 0
             property string weatherCity: ""
             property bool musicViz: true
             property string nightLightMode: "off"

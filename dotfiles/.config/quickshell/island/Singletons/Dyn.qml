@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Io
 
 /**
- * Live wallpaper-derived palette. matugen writes a small colour JSON on every
+ * Live wallpaper-derived palette. wallcolors.py writes a small colour JSON on every
  * wallpaper change (via wallcolors.py) and this singleton watches it, so the
  * tokens update the moment the wallpaper does. Theme reads these only while the
  * dynamic-palette flag is on; otherwise the curated washi hex wins. Defaults are
@@ -13,23 +13,6 @@ import Quickshell.Io
  */
 Singleton {
     id: root
-
-    /**
-     * Follow the main shell's wallpaper picker. It persists the current path to
-     * qs-wallpaper, so every change re-runs wallcolors.py and the colors.json
-     * watch below picks up the new palette.
-     */
-    FileView {
-        path: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/qs-wallpaper"
-        watchChanges: true
-        printErrors: false
-        onLoaded: {
-            const p = text().trim();
-            if (p.length > 0)
-                Quickshell.execDetached(["python3", Config.islandPath("scripts", "wallcolors.py"), p]);
-        }
-        onFileChanged: reload()
-    }
 
     readonly property string surface: adapter.surface
     readonly property string primary: adapter.primary

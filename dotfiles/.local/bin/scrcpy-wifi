@@ -114,11 +114,15 @@ if [ -z "$DEVICE" ]; then
             (( i % MAX_SCAN_JOBS == 0 )) && wait
         done
         wait
-        ip=$(head -n1 "$scan"); rm -f "$scan"
-        if [ -n "$ip" ]; then
+        while IFS= read -r ip; do
+            [ -n "$ip" ] || continue
             log "Found :$PORT open on $ip"
-            try_connect "$ip:$PORT" && DEVICE="$ip:$PORT"
-        fi
+            if try_connect "$ip:$PORT"; then
+                DEVICE="$ip:$PORT"
+                break
+            fi
+        done < "$scan"
+        rm -f "$scan"
     done < <(scan_bases)
 fi
 

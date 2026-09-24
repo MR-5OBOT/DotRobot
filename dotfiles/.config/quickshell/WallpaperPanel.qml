@@ -11,9 +11,7 @@ import "island/Singletons" as Island
 // AGPL-3.0 — see widgets/README.md). Upstream registers it full width, 650 tall,
 // anchored centre-left, and pairs it with its own WallpaperEngine that paints
 // the wallpaper. That engine is not vendored: the picker asks its Wallpaper
-// singleton to apply, and this bridges that signal to WallpaperState, so the
-// shell's own Wallpaper.qml keeps painting and DesktopClock and the vendored
-// ThemeBackend keep reading the same state file.
+// singleton to apply; this bridges that signal to island's wallpaper backend.
 // serp is imported under a namespace because its state singleton is also
 // called Wallpaper, which would clash with this shell's Wallpaper.qml.
 // Here it hangs from the top edge like the island's panels, on a transparent background.
@@ -46,7 +44,7 @@ PanelWindow {
         target: Widgets.Wallpaper
         function onWallpaperChanged(screenName, path, transition) {
             if (path && path.length > 0)
-                WallpaperState.apply(path);
+                Island.Walls.apply(path, screenName);
         }
     }
 

@@ -3,7 +3,9 @@
 # Fuzzy-cd into a directory under $1 (defaults to $HOME).
 f() {
   local dir root="${1:-$HOME}"
-  local cache="${XDG_CACHE_HOME:-$HOME/.cache}/fzf-dirs"
+  root="${root:A}"
+  local cache="${XDG_CACHE_HOME:-$HOME/.cache}/fzf-dirs-$(printf '%s' "$root" | sha256sum | cut -d' ' -f1)"
+  mkdir -p -- "${cache:h}" || return 1
 
   # Skip noisy dirs; keep useful ones like .config and .local.
   local -a ex
@@ -16,12 +18,16 @@ f() {
 
   # Refresh cache in background if >5min stale
   if [[ ! -f "$cache" || -n "$(find "$cache" -mmin +5 2>/dev/null)" ]]; then
-    fd --type d --hidden $ex --max-depth 8 . "$root" >| "$cache" &!
+    (
+      tmp=$(mktemp "${cache}.XXXXXX") || exit
+      trap 'rm -f -- "$tmp"' EXIT
+      fd --type d --hidden "${ex[@]}" --max-depth 8 . "$root" > "$tmp" && mv -f -- "$tmp" "$cache"
+    ) &!
   fi
 
   dir=$(
     { [[ -s "$cache" ]] && cat "$cache" \
-        || fd --type d --hidden $ex --max-depth 8 . "$root"; } \
+        || fd --type d --hidden "${ex[@]}" --max-depth 8 . "$root"; } \
     | fzf \
         --height=30% \
         --margin=0,25% \

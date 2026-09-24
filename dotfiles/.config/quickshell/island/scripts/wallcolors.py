@@ -9,20 +9,17 @@ text, so the surfaces and the text flip together for contrast across the full
 range. The dominant hue tints every tier in HSL. An achromatic wallpaper drops to
 a neutral grey ramp.
 
-The terminal gets a normal light scheme no matter the pill's tone: a near-white,
-hue-tinted background with dark text tiers (the classic default look), then the
-16 ANSI slots are shaped by matugen's light variant so the readout stays legible
-on the light background. The pill JSON carries surfaces, accent and the
-contrast-matched text.
+The JSON carries surfaces, accent, and contrast-matched text for Quickshell.
 """
 import colorsys
 import json
+import os
 import re
 import subprocess
 import sys
 from pathlib import Path
 
-CACHE = Path.home() / ".cache" / "island"
+CACHE = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache") / "island"
 
 SURF_NAMES = ["surface", "surface_container_low", "surface_container",
               "surface_container_high", "surface_container_highest", "outline_variant"]
@@ -65,14 +62,6 @@ def analyze(wallpaper):
     return win["best"][1], win["best"][2], mean_l
 
 
-def matugen(source_hex):
-    out = subprocess.run(
-        ["matugen", "color", "hex", source_hex, "-m", "dark", "-j", "hex"],
-        capture_output=True, text=True, check=True,
-    )
-    return json.loads(out.stdout)
-
-
 def tint(hue, sat, light):
     r, g, b = colorsys.hls_to_rgb(hue % 1.0, max(0.0, min(1.0, light)), max(0.0, min(1.0, sat)))
     return "#%02x%02x%02x" % (round(r * 255), round(g * 255), round(b * 255))
@@ -81,79 +70,6 @@ def tint(hue, sat, light):
 def lerp(x, x0, x1, y0, y1):
     t = max(0.0, min(1.0, (x - x0) / (x1 - x0)))
     return y0 + t * (y1 - y0)
-
-
-def rgb(h):
-    return tuple(int(h[i:i + 2], 16) / 255 for i in (1, 3, 5))
-
-
-def to_hex(v):
-    return "#%02x%02x%02x" % tuple(round(c * 255) for c in v)
-
-
-def lum(h):
-    lin = [c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4 for c in rgb(h)]
-    return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
-
-
-def contrast(a, b):
-    l1, l2 = lum(a), lum(b)
-    lo, hi = min(l1, l2), max(l1, l2)
-    return (hi + 0.05) / (lo + 0.05)
-
-
-def ensure_contrast(color, bg, ratio):
-    """Shift a colour until it clears ratio:1 against bg, keeping its hue:
-    toward white on a dark background, toward black on a light one."""
-    if contrast(color, bg) >= ratio:
-        return color
-    h, l, s = colorsys.rgb_to_hls(*rgb(color))
-    dark_bg = lum(bg) < 0.5
-    lo, hi = (l, 1.0) if dark_bg else (0.0, l)
-    for _ in range(30):
-        mid = (lo + hi) / 2
-        if contrast(to_hex(colorsys.hls_to_rgb(h, mid, s)), bg) >= ratio:
-            if dark_bg:
-                hi = mid
-            else:
-                lo = mid
-        else:
-            if dark_bg:
-                lo = mid
-            else:
-                hi = mid
-    return to_hex(colorsys.hls_to_rgb(h, hi if dark_bg else lo, s))
-
-
-def render_fastfetch(pill):
-    """
-    Recolour the fastfetch readout from the same pill palette. fastfetch has no
-    daemon, so writing the rendered config is enough, the next run picks it up.
-    The accent drives the keys and the torii, the surface ramp the lantern body,
-    and a dim text tone the section rules, so it tracks the wallpaper like the
-    pill and terminal do.
-    """
-    ff = Path.home() / ".config" / "fastfetch"
-    tmpl = ff / "config.jsonc.in"
-    if not tmpl.is_file():
-        return
-    seq = lambda h: "%d;%d;%d" % tuple(int(h[i:i + 2], 16) for i in (1, 3, 5))
-    repl = {
-        "__LANTERN__": str(ff / "lantern.txt"),
-        "__KEYS__": seq(pill["primary"]),
-        "__SEP__": seq(pill["dim"]),
-        "__LOGO1__": seq(pill["primary"]),
-        "__LOGO2__": seq(pill["on_primary_container"]),
-        "__LOGO3__": seq(pill["surface_container"]),
-        "__LOGO4__": seq(pill["surface_container_high"]),
-        "__LOGO5__": seq(pill["subtle"]),
-        "__LOGO6__": seq(pill["outline"]),
-        "__LOGO7__": seq(pill["bright"]),
-    }
-    out = tmpl.read_text()
-    for key, val in repl.items():
-        out = out.replace(key, val)
-    (ff / "config.jsonc").write_text(out)
 
 
 def main():
@@ -194,56 +110,7 @@ def main():
     for key, (lit, st) in zip(TEXT_KEYS, text):
         pill[key] = tint(hue, st, lit)
     (CACHE / "colors.json").write_text(json.dumps(pill, indent=2) + "\n")
-    render_fastfetch(pill)
 
-    try:
-        # Terminal ramp: a normal light scheme (dark text tiers on the
-        # terminal's OWN background — the background is never overridden, so a
-        # transparent/blurred terminal keeps its configured look). base07
-        # clears ~7:1 and base04 ~4.5:1 against a light background.
-        ramp = [(0.93, 0.03), (0.88, 0.03), (0.80, 0.03), (0.70, 0.04),
-                (0.55, 0.05), (0.40, 0.05), (0.25, 0.04), (0.13, 0.03)]
-        b = {"base%02x" % i: tint(hue, s, l) for i, (l, s) in enumerate(ramp)}
-        b00 = b["base00"]
-        # matugen shapes the 16 ANSI slots from its light variant; a hue-anchored
-        # ramp covers its absence.
-        try:
-            theme = matugen(tint(hue, sat, 0.45) if chromatic else "#787878")
-            ansi = [theme["base16"]["base%02x" % i]["light"]["color"]
-                    for i in range(8, 16)]
-        except (OSError, ValueError, KeyError, subprocess.SubprocessError):
-            ansi = [tint(h, s, l) for (h, s, l) in (
-                (0.00, 0.55, 0.45), (0.062, 0.55, 0.40), (0.14, 0.50, 0.42),
-                (0.33, 0.47, 0.40), (0.50, 0.45, 0.40), (0.60, 0.50, 0.42),
-                (0.76, 0.50, 0.42), (0.083, 0.60, 0.38))]
-        for i, c in enumerate(ansi):
-            b["base%02x" % (8 + i)] = ensure_contrast(c, b00, 3.0)
-
-        (CACHE / "hypr-colors.lua").write_text(
-            'return {\n    active = "%s",\n    inactive = "%s",\n}\n'
-            % (pill["primary"], b["base01"]))
-
-        lines = [
-            f'foreground = {b["base07"]}',
-            f'cursor-color = {pill["primary"]}',
-            f'selection-background = {b["base02"]}',
-            f'selection-foreground = {b["base07"]}',
-        ]
-        for i in range(16):
-            lines.append(f'palette = {i}={b["base%02x" % i]}')
-        (CACHE / "ghostty-colors").write_text("\n".join(lines) + "\n")
-
-        kitty_lines = [
-            f'foreground {b["base07"]}',
-            f'cursor {pill["primary"]}',
-            f'selection_background {b["base02"]}',
-            f'selection_foreground {b["base07"]}',
-        ]
-        for i in range(16):
-            kitty_lines.append(f'color{i} {b["base%02x" % i]}')
-        (CACHE / "kitty-colors").write_text("\n".join(kitty_lines) + "\n")
-    except (OSError, subprocess.SubprocessError):
-        pass
     return 0
 
 

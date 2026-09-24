@@ -1,6 +1,5 @@
 singleton Sounds 1.0 singletons/audio/Sounds.qml
 
-singleton Matugen 1.0 singletons/theme/Matugen.qml
 singleton Wallpaper 1.0 singletons/theme/Wallpaper.qml
 singleton Scaler 1.0 singletons/theme/Scaler.qml
 singleton ThemeBackend 1.0 singletons/theme/ThemeBackend.qml

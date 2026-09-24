@@ -3,7 +3,7 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
-main() {
+main() (
   require_arch
 
   if command -v paru >/dev/null 2>&1; then
@@ -11,9 +11,8 @@ main() {
     exit 0
   fi
 
-  local build_dir
   build_dir="$(mktemp -d)"
-  trap 'rm -rf "${build_dir}"' EXIT
+  trap 'rm -rf -- "${build_dir}"' EXIT
 
   log "Installing paru"
   sudo pacman -Syu --needed --noconfirm base-devel git
@@ -22,6 +21,6 @@ main() {
     cd "${build_dir}/paru"
     makepkg -si --noconfirm
   )
-}
+)
 
 main "$@"

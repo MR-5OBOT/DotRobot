@@ -70,13 +70,12 @@ PillSurface {
     /**
      * Walls.current only fills in after Walls.warm() runs and nothing here asks
      * for it, so the hero was binding to an empty string and showed plain black.
-     * The shell persists the live wallpaper to qs-wallpaper (Dyn watches the
-     * same file), which is always current.
+     * The wallpaper backend persists the current path to island-wallpaper.
      */
     property string wallPath: ""
 
     FileView {
-        path: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/qs-wallpaper"
+        path: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/island-wallpaper"
         watchChanges: true
         printErrors: false
         onLoaded: root.wallPath = text().trim()
