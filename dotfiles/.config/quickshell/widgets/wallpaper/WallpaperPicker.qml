@@ -1015,9 +1015,7 @@ Item {
         id: view
         anchors.fill: parent
         opacity: window.isReady ? 1.0 : 0.0
-        anchors.margins: window.isReady ? 0 : window.s(40)
         Behavior on opacity { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
-        Behavior on anchors.margins { NumberAnimation { duration: 650; easing.type: Easing.OutQuint } }
 
         spacing: 0; orientation: ListView.Horizontal; clip: false
         interactive: !window.isApplying
