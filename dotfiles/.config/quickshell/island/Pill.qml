@@ -73,7 +73,25 @@ Item {
     onSurfaceChanged: {
         if (pill.prevSurface.length > 0 && pill.prevSurface !== pill.surface)
             pill.scheduleUnload(pill.prevSurface);
+        if (pill.surface.length === 0 && pill.prevSurface.length > 0) {
+            pill.retractSurface = pill.prevSurface;
+            retractTimer.restart();
+        }
         pill.prevSurface = pill.surface;
+    }
+
+    /**
+     * The surface that just closed. While the pill auto-hides, `mode` keeps its
+     * shape so the whole panel slides straight up and out instead of shrinking
+     * into the hover card on screen; once the slide is done the pill turns back
+     * into the card off-screen.
+     */
+    property string retractSurface: ""
+
+    Timer {
+        id: retractTimer
+        interval: Motion.morph + 50 // the hide slide in Island.qml runs Motion.morph
+        onTriggered: pill.retractSurface = ""
     }
 
     Component.onCompleted: Surfaces.register(pill)
@@ -308,7 +326,7 @@ Item {
     }
     readonly property real hoverPad: 20 * s
     readonly property real hoverW: hoverRow.implicitWidth + 2 * hoverPad
-    readonly property real hoverH: 58 * s
+    readonly property real hoverH: 50 * s
     readonly property real calendarS: s * 1.05
     readonly property real homeW: 620 * s
     /* Tall enough for the left column's real content: media card 118 + gap 9 +
@@ -512,9 +530,12 @@ Item {
 
     readonly property string mode: dragActive ? "dragOver"
         : (surfaceOpen && surfaces[surface] !== undefined ? surface
+        : (hidden && surfaces[retractSurface] !== undefined ? retractSurface
         : (toastActive && Notifs.toastCritical && !held ? "toast"
         : (toastActive && !held ? "toast"
-        : (expanded ? "hover" : "rest"))))
+        // Auto-hide only ever shows the pill while revealed, so it rests as the hover
+        // card: reveal and retract slide that card in and out, never the old rest face.
+        : ((expanded || Flags.autoHide) ? "hover" : "rest")))))
 
     /**
      * Wallpaper drop state: hover -> saving -> done, or bad/fail for rejected drops.
@@ -909,7 +930,8 @@ Item {
         wake: pill.wakePoint
         wickDir: pill.powerOpen ? 1 : -1
         form: pill.ameSurface ? pill.ameSurface.ameForm
-            : (pill.mode === "hover" && pill.hoverSoulGate ? "soul" : "off")
+            // Off while retracted: a visible bead keeps ticking its canvas even off-screen.
+            : (pill.mode === "hover" && pill.hoverSoulGate && !pill.hidden ? "soul" : "off")
         point: pill.ameSurface
             ? Qt.point(pill.ameSurface.x + pill.ameSurface.amePoint.x,
                        pill.ameSurface.y + pill.ameSurface.amePoint.y)
@@ -927,13 +949,19 @@ Item {
                  * (TapHandler below). Game mode never hands the bar to the
                  * player, or the exit chip would be buried under it. */
                 pill.requestSurface("media");
-            } else if (Flags.autoHide && !revealSession && !expanded && !surfaceOpen) {
-                revealSession = true;
-                revealTimer.stop();
+            } else {
+                if (Flags.autoHide && !revealSession && !expanded && !surfaceOpen) {
+                    revealSession = true;
+                    revealTimer.stop();
+                }
+                /* Hover grows the pill into workspaces + clock. A toast owns the
+                 * pill; latching under it would keep the pill open once the toast
+                 * is dismissed. */
+                if (bootSettled && !toastActive && !surfaceOpen) {
+                    hoverLatch = true;
+                    graceTimer.stop();
+                }
             }
-            /* Hover no longer grows the pill into the icon row: Home carries the
-             * same controls, and a click opens it. hoverLatch is still set by
-             * the media card's Expand. */
         } else {
             if (!pinned && !surfaceOpen && !revealSession)
                 hoverLatch = false;
@@ -1234,7 +1262,7 @@ Item {
     Item {
         id: rest
         anchors.fill: parent
-        opacity: (pill.expanded || pill.dragActive || pill.mode === "toast") ? 0 : Math.pow(pill.morphCloseness, 1.5)
+        opacity: pill.mode !== "rest" ? 0 : Math.pow(pill.morphCloseness, 1.5)
         visible: opacity > 0.01
         Behavior on opacity { NumberAnimation { duration: pill.mode === "rest" ? Motion.fast : Math.round(260 * Motion.mult) } }
 
@@ -1574,7 +1602,6 @@ Item {
                 width: implicitWidth
                 screenName: pill.screenName
                 s: pill.s
-                gap: 8 * pill.s
                 enabled: hover.live
                 onHoverIndexChanged: if (hoverIndex >= 0) {
                     pill.soulTarget = "ws";
@@ -1594,42 +1621,35 @@ Item {
                 width: hoverClock.implicitWidth
                 height: hoverClock.implicitHeight
 
-                Column {
+                // Same date + time line as the "classic" rest pill.
+                Row {
                     id: hoverClock
                     anchors.centerIn: parent
-                    spacing: 2 * pill.s
+                    spacing: 9 * pill.s
                     Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: clock.hhmm
-                        color: Theme.cream
-                        font.family: Theme.font
-                        font.pixelSize: 18 * pill.s
-                        font.weight: Font.DemiBold
-                        font.features: { "tnum": 1 }
-                    }
-                    Text {
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter: parent.verticalCenter
                         text: clock.date
                         color: Theme.dim
                         font.family: Theme.font
-                        font.pixelSize: 8.5 * pill.s
-                        font.weight: Font.Medium
-                        font.capitalization: Font.AllUppercase
-                        font.letterSpacing: 1.6 * pill.s
+                        font.pixelSize: 11 * pill.s
+                        font.weight: Font.DemiBold
+                    }
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: clock.hhmm
+                        color: Theme.cream
+                        font.family: Theme.font
+                        font.pixelSize: 16 * pill.s
+                        font.weight: Font.DemiBold
+                        font.features: { "tnum": 1 }
                     }
                 }
-
-                MouseArea {
-                    anchors.centerIn: parent
-                    width: hoverClock.implicitWidth + 22 * pill.s
-                    height: hoverClock.implicitHeight + 10 * pill.s
-                    enabled: hover.live
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: pill.requestSurface("calendar")
-                }
+                // No click of its own: a click here falls through to the pill's TapHandler and opens Home.
             }
 
+            // Hover is workspaces + clock only for now; flip these back to bring the status icons back.
             Rectangle {
+                visible: false
                 anchors.verticalCenter: parent.verticalCenter
                 width: 1
                 height: 22 * pill.s
@@ -1638,6 +1658,7 @@ Item {
 
             Row {
                 id: statusRow
+                visible: false
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 12 * pill.s
 
