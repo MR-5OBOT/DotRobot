@@ -32,9 +32,10 @@ Item {
 
     property string screenName: ""
     property real s: 1
-    property real stickW: 24 * s
-    property real dotW: 8 * s
-    property real gap: 4 * s
+    // One size everywhere (hover card and Home header), big enough to hit easily.
+    property real stickW: 36 * s
+    property real dotW: 14 * s
+    property real gap: 12 * s
 
     /**
      * The dot range and active marker are plain properties, recomputed
@@ -255,6 +256,32 @@ Item {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Wheel cycles through the dots, wrapping at either end: down/right = next.
+     * Touchpads send small deltas, so they are summed into whole notches. The
+     * active marker moves ahead of the hyprctl refresh, so fast scrolling steps
+     * from where it just went instead of the stale snapshot. Button-less and
+     * hover-less, so clicks and dot hovers still reach the slots underneath.
+     */
+    MouseArea {
+        anchors.fill: row
+        anchors.topMargin: -8 * workspaces.s
+        anchors.bottomMargin: -8 * workspaces.s
+        acceptedButtons: Qt.NoButton
+        property real acc: 0
+        onWheel: (e) => {
+            e.accepted = true;
+            acc += e.angleDelta.y || e.angleDelta.x;
+            var n = workspaces.range.length;
+            if (Math.abs(acc) < 120 || n < 2)
+                return;
+            var next = (Math.max(0, workspaces.activeIndex) + (acc < 0 ? 1 : -1) + n) % n;
+            acc = 0;
+            workspaces.activeName = String(workspaces.range[next]);
+            Hyprland.dispatch("hl.dsp.focus({ workspace = " + workspaces.range[next] + " })");
         }
     }
 }

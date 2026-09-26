@@ -211,20 +211,13 @@ PillSurface {
                 width: implicitWidth
                 screenName: root.screenName
                 s: root.s
-                /* Dot height follows dotW with radius height/2, so these scale
-                   together to keep the circle round and the active pill's
-                   proportion; the defaults (8 / 24) are sized for the thin
-                   hover row, which is too small for this header. */
-                dotW: 12 * root.s
-                stickW: 40 * root.s
-                gap: 11 * root.s
                 enabled: root.active
             }
 
             /**
              * System tray, right of the dots: every app that registers a
-             * StatusNotifier item (OBS, Telegram, Steam...). It used to ride the
-             * pill's hover row, which no longer opens, so Home is where it lives.
+             * StatusNotifier item (OBS, Telegram, Steam...). The pill's hover row
+             * only holds workspaces and the clock, so Home is where it lives.
              * Empty tray = zero width, and nothing shifts.
              */
             Tray {

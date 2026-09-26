@@ -383,9 +383,21 @@ Scope {
                 anchors.fill: parent
                 focus: overlay.surfaceOpen
 
+                /**
+                 * Pill hover. While a surface is open the mask covers the whole screen,
+                 * so after it closes Qt still holds the pointer's last position and
+                 * replays it as a hover even though the pointer is nowhere near the
+                 * island; that falsely revealed the pill. Only a point over the strip
+                 * or the pill counts.
+                 */
                 HoverHandler {
                     enabled: !overlay.surfaceOpen && !pill.pinned
-                    onHoveredChanged: if (enabled) pill.hovered = hovered
+                    readonly property point p: point.position
+                    function over(r) {
+                        return p.x >= r.x && p.x <= r.x + r.width && p.y >= r.y && p.y <= r.y + r.height;
+                    }
+                    readonly property bool overIsland: hovered && (over(revealRegion) || over(pillRegion))
+                    onOverIslandChanged: if (enabled) pill.hovered = overIsland
                 }
                 Keys.onEscapePressed: root.close()
                 Keys.onUpPressed: (e) => {
