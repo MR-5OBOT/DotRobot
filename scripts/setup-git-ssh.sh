@@ -9,8 +9,8 @@ LOCAL_GIT_CONFIG="${HOME}/.config/git/local.conf"
 configure_git_identity() {
   local current_name current_email git_name git_email
 
-  current_name="$(git config --global --get user.name || true)"
-  current_email="$(git config --global --get user.email || true)"
+  current_name="$(git config --global --includes --get user.name || true)"
+  current_email="$(git config --global --includes --get user.email || true)"
 
   read -rp "Git user.name [${current_name}]: " git_name
   read -rp "Git user.email [${current_email}]: " git_email
@@ -34,7 +34,7 @@ ensure_key() {
   if [[ -f "${KEY_PATH}" ]]; then
     log "SSH key already exists at ${KEY_PATH}"
   else
-    ssh-keygen -t ed25519 -C "$(git config --global --get user.email)" -f "${KEY_PATH}"
+    ssh-keygen -t ed25519 -C "$(git config --global --includes --get user.email)" -f "${KEY_PATH}"
     log "Generated ${KEY_PATH}"
   fi
 

@@ -59,11 +59,8 @@
     frag       = magenta
     context    = white
     whitespace = yellow reverse
-[user]
-	name = MR-5OBOT
-	email = yassir7m7@gmail.com
-[url "git@github.com:MR-5OBOT/"]
-	insteadOf = https://github.com/MR-5OBOT/
 
+# Identity and the ssh rewrite for your own repos live here, written by
+# scripts/setup-git-ssh.sh, so a fresh clone is not forced onto ssh before a key exists.
 [include]
 	path = ~/.config/git/local.conf
