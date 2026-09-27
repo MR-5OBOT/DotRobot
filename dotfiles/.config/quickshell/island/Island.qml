@@ -256,7 +256,9 @@ Scope {
             /**
              * True while this monitor's active workspace reports a fullscreen
              * client. The pill then retracts off the top edge and the whole
-             * layer becomes click-through so fullscreen content owns the screen.
+             * layer becomes click-through so fullscreen content owns the screen,
+             * except while a toast is up: it slides in over the app and must take
+             * its clicks, or a critical toast could never be dismissed.
              */
             readonly property bool monFullscreen: {
                 var mons = Hyprland.monitors.values;
@@ -286,7 +288,7 @@ Scope {
 
             anchors { top: true; left: true; right: true; bottom: true }
 
-            mask: monFullscreen ? hiddenRegion : (modal ? fullRegion : (Flags.autoHide ? (pill.revealSession || pill.transientLive ? revealPillRegion : (pill.expanded ? pillRegion : revealRegion)) : pillRegion))
+            mask: (monFullscreen && !pill.transientLive) ? hiddenRegion : (modal ? fullRegion : (Flags.autoHide ? (pill.revealSession || pill.transientLive ? revealPillRegion : (pill.expanded ? pillRegion : revealRegion)) : pillRegion))
             Region { id: hiddenRegion }
 
             /**
