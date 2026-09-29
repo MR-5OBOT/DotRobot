@@ -18,4 +18,5 @@ ShellRoot {
     NetworkPanel {}      // qs ipc call wifi toggle | wifiIsland
     Calculator {}        // qs ipc call calc toggle
     PowerProfileMenu {}  // qs ipc call powerprofile cycle
+    Keymaps {}           // qs ipc call keymaps toggle
 }
