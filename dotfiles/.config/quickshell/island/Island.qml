@@ -274,8 +274,9 @@ Scope {
                 ? Qt.rect(pillRegion.x, pillRegion.y, pillRegion.width, pillRegion.height) : Qt.rect(0, 0, 0, 0)
 
             /**
-             * True while this monitor's active workspace reports a fullscreen
-             * client. The pill then retracts off the top edge and the whole
+             * True while this monitor's active workspace has a fullscreen client
+             * (mode bit 2; a maximized window, bit 1, also sets the workspace's
+             * hasfullscreen but keeps the island). The pill then retracts off the top edge and the whole
              * layer becomes click-through so fullscreen content owns the screen,
              * except while a toast is up: it slides in over the app and must take
              * its clicks, or a critical toast could never be dismissed.
@@ -285,8 +286,7 @@ Scope {
                 for (var i = 0; i < mons.length; i++) {
                     if (mons[i].name === modelData.name) {
                         var ws = mons[i].activeWorkspace;
-                        var o = ws ? ws.lastIpcObject : null;
-                        return o ? !!o.hasfullscreen : false;
+                        return ws ? ws.toplevels.values.some(t => t.lastIpcObject && (t.lastIpcObject.fullscreen & 2)) : false;
                     }
                 }
                 return false;
