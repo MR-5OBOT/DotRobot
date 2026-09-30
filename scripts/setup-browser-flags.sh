@@ -3,28 +3,23 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
-# Chromium-based browsers whose Arch launcher reads a flags file from
-# $XDG_CONFIG_HOME, as "command:flags file". A browser is only offered when its
-# installed launcher script actually mentions that file, so a package that drops
-# or renames the feature is skipped instead of getting a file nothing reads.
-readonly BROWSERS=(
-  "chromium:chromium-flags.conf"
-  "google-chrome-stable:chrome-flags.conf"
-  "brave:brave-flags.conf"
-  "helium-browser:helium-browser-flags.conf"
-  "vivaldi-stable:vivaldi-stable.conf"
-  "microsoft-edge-stable:microsoft-edge-stable-flags.conf"
-)
 readonly FLAGS_FILE="${DOTFILES_DIR}/browser-flags/chromium-hwaccel.conf"
+readonly LAUNCHER_DIR="${LAUNCHER_DIR:-/usr/bin}"
 
-# Binaries never read a flags file; only the wrapper scripts packages install do.
-launcher_reads() {
-  local cmd="$1" conf="$2" path
+# Chromium-based packages (chromium, chrome, brave, brave-origin, helium, edge, ...)
+# install a wrapper script that reads "<name>-flags.conf" from $XDG_CONFIG_HOME;
+# vivaldi's is "vivaldi-*.conf". Find them by scanning the wrappers instead of
+# keeping a list, so a new browser or a renamed package (brave-origin) is picked
+# up. Prints "command:flags file", one per flags file. -I skips real binaries,
+# which never read one.
+find_launchers() {
+  local path conf
 
-  path="$(command -v "${cmd}" 2>/dev/null)" || return 1
-  path="$(readlink -f "${path}")"
-  grep -Iq . "${path}" 2>/dev/null || return 1
-  grep -Fq "${conf}" "${path}"
+  while IFS= read -r path; do
+    { grep -IoE -- '[[:alnum:]._-]+-flags\.conf|vivaldi[[:alnum:]-]*\.conf' "${path}" || true; } | sort -u |
+      while IFS= read -r conf; do printf '%s:%s\n' "${path##*/}" "${conf}"; done
+  done < <(grep -IlE -- '-flags\.conf|vivaldi[[:alnum:]-]*\.conf' "${LAUNCHER_DIR}"/* 2>/dev/null) |
+    sort -t: -k2,2 -u
 }
 
 # symlink_path deletes whatever is at the target, so keep a hand-written flags
@@ -51,11 +46,7 @@ main() {
     warn "vainfo reports no VA-API decode profiles; install your GPU's VA-API driver or the flags have nothing to use"
   fi
 
-  for entry in "${BROWSERS[@]}"; do
-    if launcher_reads "${entry%%:*}" "${entry#*:}"; then
-      found+=("${entry}")
-    fi
-  done
+  mapfile -t found < <(find_launchers)
   if ((${#found[@]} == 0)); then
     log "No installed browser reads a flags file; nothing to link"
     return 0
