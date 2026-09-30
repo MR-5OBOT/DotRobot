@@ -23,6 +23,7 @@ printf 'n\ny\ny\nn\n' | main
 actions="$(<"${TEST_STATE}/actions")"
 [[ ${actions} == *'enable --now NetworkManager.service'* ]]
 [[ ${actions} == *'enable --now power-profiles-daemon.service'* ]]
+[[ ${actions} == *'enable --now paccache.timer'* ]]
 [[ ${actions} != *'thermald.service'* ]]
 [[ ${actions} != *'bluetooth.service'* ]]
 [[ ${actions} == *'enable --now docker.socket'* ]]
