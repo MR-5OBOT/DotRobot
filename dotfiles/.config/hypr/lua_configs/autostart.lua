@@ -1,8 +1,7 @@
 local SCRIPTS = os.getenv("HOME") .. "/.config/hypr/scripts"
 
 hl.on("hyprland.start", function()
-  -- Critical Services
-  hl.exec_cmd("sleep 1 && dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
+  -- Critical Services (Hyprland and uwsm already export the session env to systemd/dbus)
   hl.exec_cmd("/usr/lib/hyprpolkitagent/hyprpolkitagent")
 
   -- Daemons
