@@ -78,6 +78,30 @@ end
 hl.bind(mainMod .. " + 0", hl.dsp.focus({ workspace = 10 }))
 hl.bind(mainMod .. " + SHIFT + 0", hl.dsp.window.move({ workspace = 10 }))
 
+-- Monitors: O (the letter, not 0) jumps to the other screen, SHIFT + O carries the
+-- active window there (onto whatever workspace that screen is showing). ALT + H/L
+-- also cross over at the edge. Each switch flashes a Hyprland notification rather
+-- than an island toast, which would pile up in the notification history.
+local monToast
+local function toast(text)
+	if monToast and monToast:is_alive() then monToast:dismiss() end -- rapid presses replace, not stack
+	monToast = hl.notification.create({ text = text, timeout = 1500, icon = "info" })
+end
+local function label(m)
+	return m.name:match("^eDP") and "Laptop" or "Monitor"
+end
+hl.bind(mainMod .. " + O", function()
+	local m = hl.get_monitor("+1")
+	hl.dispatch(hl.dsp.focus({ monitor = m.name }))
+	toast("Focus → " .. label(m))
+end)
+hl.bind(mainMod .. " + SHIFT + O", function()
+	if not hl.get_active_window() then return end
+	local m = hl.get_monitor("+1")
+	hl.dispatch(hl.dsp.window.move({ workspace = m.active_workspace.id }))
+	toast("Window → " .. label(m))
+end)
+
 -- Move/Resize mouse bindings
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
