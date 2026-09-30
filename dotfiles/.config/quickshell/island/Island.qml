@@ -31,6 +31,9 @@ Scope {
     property string openSurface: ""
     property string peekMon: ""
 
+    /** Bottom edge of the open top-centre widget notch (calculator, launcher…), 0 when none. Set by shell.qml. */
+    property real widgetDrop: 0
+
     /** Where the open surface was reached from, "" when it was opened directly. */
     property string backSurface: ""
     onBackSurfaceChanged: Surfaces.back = root.backSurface
@@ -241,7 +244,22 @@ Scope {
         }
     }
 
+    /**
+     * The overlay windows, and where the toast hangs while it is dropped below a
+     * widget notch (empty otherwise). shell.qml hands both to the widgets: they
+     * cut the hole out of their input mask and keep these windows in their focus
+     * grab, so the toast takes its own clicks without closing the widget.
+     */
+    readonly property var windows: overlays.instances
+    readonly property rect toastHole: {
+        const w = overlays.instances;
+        for (let i = 0; i < w.length; i++)
+            if (w[i].toastHole.width > 0) return w[i].toastHole;
+        return Qt.rect(0, 0, 0, 0);
+    }
+
     Variants {
+        id: overlays
         model: Quickshell.screens
 
         PanelWindow {
@@ -252,6 +270,8 @@ Scope {
             readonly property string surface: root.openMon === modelData.name ? root.openSurface : ""
             readonly property bool surfaceOpen: surface.length > 0
             readonly property bool modal: surfaceOpen || pill.held || pill.expandLatch
+            readonly property rect toastHole: pill.detached
+                ? Qt.rect(pillRegion.x, pillRegion.y, pillRegion.width, pillRegion.height) : Qt.rect(0, 0, 0, 0)
 
             /**
              * True while this monitor's active workspace reports a fullscreen
@@ -270,6 +290,17 @@ Scope {
                     }
                 }
                 return false;
+            }
+
+            /**
+             * A widget notch shares the pill's top-centre spot and stacks over the
+             * island, so a toast or OSD fired while one is open would grow under it.
+             * They drop below the widget's card instead (kept on screen for tall
+             * widgets) and detach from the edge while there.
+             * ponytail: drops on every monitor; match the widget's screen if you run multi-head.
+             */
+            function dropFor(h) {
+                return root.widgetDrop > 0 ? Math.max(0, Math.min(root.widgetDrop + 8 * s, height - h - 8 * s)) : 0;
             }
 
             onMonFullscreenChanged: if (monFullscreen) {
@@ -486,7 +517,8 @@ Scope {
                 Pill {
                     id: pill
                     anchors.top: parent.top
-                    anchors.topMargin: 0
+                    anchors.topMargin: pill.mode === "toast" ? overlay.dropFor(pill.targetH) : 0
+                    detached: anchors.topMargin > 0
                     anchors.horizontalCenter: parent.horizontalCenter
 
                     Behavior on anchors.topMargin {
@@ -529,12 +561,12 @@ Scope {
                 OsdPopup {
                     id: osdPopup
                     anchors.top: parent.top
-                    anchors.topMargin: 0
+                    anchors.topMargin: overlay.dropFor(osdPopup.height)
                     anchors.horizontalCenter: parent.horizontalCenter
                     s: overlay.s
                     screenName: overlay.modelData.name
                     expanded: pill.expanded
-                    topFlat: 1
+                    topFlat: anchors.topMargin > 0 ? 0 : 1
                     suppressed: overlay.surfaceOpen || pill.held || (pill.toastActive && Notifs.toastCritical)
                 }
             }

@@ -110,6 +110,8 @@ Item {
     property bool forcePinned: false
     /** Latch held by an explicit Expand click in the media card. Unlike hoverLatch it survives cursor exit, so the expanded pill stays up until the user dismisses it (tap the pill, open a surface, or focus loss). */
     property bool expandLatch: false
+    /** Set by Island.qml while the pill hangs below a widget notch instead of the screen edge: round top corners, no ears. */
+    property bool detached: false
 
     readonly property bool held: pinned || forcePinned
     readonly property bool homeOpen: surface === "home"
@@ -825,7 +827,8 @@ Item {
          * top corners square off against the edge (NotchEars flare them into
          * it) while the bottom corners stay rounded.
          */
-        property real topFlat: 1
+        property real topFlat: pill.detached ? 0 : 1
+        Behavior on topFlat { NumberAnimation { duration: Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
 
         radius: pill.morphRadius
         topLeftRadius: pill.morphRadius * (1 - topFlat)
@@ -859,6 +862,7 @@ Item {
         width: parent.width
         r: 14 * pill.s
         color: Qt.alpha(Theme.cardTop, Flags.pillOpacity)
+        opacity: body.topFlat
     }
 
     /**

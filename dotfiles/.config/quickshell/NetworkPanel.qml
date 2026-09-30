@@ -21,7 +21,9 @@ PanelWindow {
     anchors { top: true; bottom: true; left: true; right: true }
     exclusiveZone: 0
     color: "transparent"
-    WlrLayershell.layer: WlrLayer.Overlay
+    // Top, not Overlay: the island stays above this big panel, so a toast or OSD
+    // shows at its usual top-edge spot over it and takes its own clicks.
+    WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "quickshell-wifi"
     WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
@@ -66,7 +68,7 @@ PanelWindow {
 
     HyprlandFocusGrab {
         active: win.open
-        windows: [win]
+        windows: [win].concat(BarState.islandWindows)
         onCleared: win.open = false
     }
 
