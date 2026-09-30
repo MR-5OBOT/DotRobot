@@ -10,7 +10,6 @@ hl.config({
             inactive_border = 0xff200a13
         },
         resize_on_border = false,
-        allow_tearing = true,
         hover_icon_on_border = true,
         snap = {
             enabled = true,
