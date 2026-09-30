@@ -6,13 +6,20 @@
 -- 240Hz isn't a TV mode, so it gets full-range RGB. At 240Hz, HDMI 2.0 only has
 -- room for 8-bit colour. vrr = 2: adaptive sync only for fullscreen apps, which
 -- avoids desktop flicker.
+local GIGABYTE = "desc:GIGA-BYTE TECHNOLOGY CO. LTD. GS25F2A"
 hl.monitor({
-	output = "desc:GIGA-BYTE TECHNOLOGY CO. LTD. GS25F2A",
+	output = GIGABYTE,
 	mode = "1920x1080@240",
 	position = "auto-right",
 	scale = 1,
 	vrr = 2,
 })
+-- Workspaces 1-10 open on it, so the window rules' app -> workspace mapping lands
+-- there too. The laptop keeps whatever it shows (11+). Unplugged, they fall back to
+-- the laptop.
+for i = 1, 10 do
+	hl.workspace_rule({ workspace = tostring(i), monitor = GIGABYTE })
+end
 
 require("lua_configs.env")
 require("lua_configs.input")
