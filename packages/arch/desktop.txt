@@ -35,6 +35,8 @@ iw
 jq
 kdialog
 kitty
+tecla
+wev
 libnotify
 libpulse
 mpv
