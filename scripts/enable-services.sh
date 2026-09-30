@@ -7,7 +7,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 # not use are opt-in so running the installer does not silently start them.
 # Docker is offered as its socket, never the service: the daemon then stays off
 # (and out of boot and RAM) until the first docker command activates it.
-DEFAULT_UNITS=(NetworkManager.service power-profiles-daemon.service)
+DEFAULT_UNITS=(NetworkManager.service power-profiles-daemon.service paccache.timer)
 OPTIONAL_UNITS=(bluetooth.service docker.socket thermald.service)
 
 enable_unit() {
