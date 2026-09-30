@@ -13,6 +13,7 @@ PanelWindow {
 
     // state lives in BarState so the bar's apps button can toggle it too
     readonly property bool open: BarState.launcherOpen
+    readonly property real drop: open ? card.height : 0  // island drops toasts below the card
     property string query: ""
     property int sel: 0
     onSelChanged: list.positionViewAtIndex(sel, ListView.Contain)
@@ -53,7 +54,8 @@ PanelWindow {
     visible: open || card.opacity > 0.01
     // fullscreen transparent overlay: any click outside the card closes it
     anchors { top: true; bottom: true; left: true; right: true }
-    exclusiveZone: 0   // float over windows, don't reserve space (kitty was shrinking)
+    exclusionMode: ExclusionMode.Ignore   // float over windows, don't reserve space (kitty was shrinking)
+    mask: BarState.widgetMask
     color: "transparent"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.namespace: "quickshell-launcher"
@@ -68,7 +70,7 @@ PanelWindow {
 
     HyprlandFocusGrab {
         active: win.open
-        windows: [win]
+        windows: [win].concat(BarState.islandWindows)
         onCleared: BarState.launcherOpen = false
     }
 

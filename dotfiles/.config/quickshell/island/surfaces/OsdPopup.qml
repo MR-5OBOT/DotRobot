@@ -73,6 +73,7 @@ Item {
         width: parent.width
         r: 14 * popup.s
         color: Qt.alpha(Theme.cardTop, Flags.pillOpacity)
+        opacity: popup.topFlat
     }
 
     Osd {

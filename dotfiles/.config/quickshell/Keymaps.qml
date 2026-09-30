@@ -30,6 +30,7 @@ PanelWindow {
     ]
 
     property bool open: false
+    readonly property real drop: open ? card.height : 0  // island drops toasts below the card
 
     IpcHandler {
         target: "keymaps"
@@ -38,7 +39,8 @@ PanelWindow {
 
     visible: open || card.opacity > 0.01
     anchors { top: true; bottom: true; left: true; right: true }
-    exclusiveZone: 0
+    exclusionMode: ExclusionMode.Ignore
+    mask: BarState.widgetMask
     color: "transparent"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.namespace: "quickshell-keymaps"
@@ -46,7 +48,7 @@ PanelWindow {
 
     HyprlandFocusGrab {
         active: win.open
-        windows: [win]
+        windows: [win].concat(BarState.islandWindows)
         onCleared: win.open = false
     }
 
