@@ -34,6 +34,7 @@ inter-font
 iw
 jq
 kdialog
+keyd
 kitty
 tecla
 wev
