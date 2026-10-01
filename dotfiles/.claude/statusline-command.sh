@@ -103,6 +103,10 @@ if [[ -n $model ]]; then
   [[ $fast == true ]] && line+=" ${Y}fast${N}"
 fi
 
+# ponytail plugin level; its hooks delete the flag when ponytail is off.
+read -r pt 2>/dev/null <"${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.ponytail-active"
+[[ -n $pt ]] && line+="${SEP}${L}ponytail ${V}${pt}${N}"
+
 [[ -n $rl5_pct ]] && line+="${SEP}$(meter session "$rl5_pct" "${rl5_reset:+resets in $(dur $((rl5_reset - now)))}")"
 [[ -n $rl7_pct ]] && line+="${SEP}$(meter week "$rl7_pct")"
 
