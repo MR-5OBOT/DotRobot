@@ -6,24 +6,25 @@ import "../Singletons"
 import "../components"
 
 /**
- * 時 DISPLAY sub-surface: how the pill itself looks and what the clock shows —
- * the resting display mode, the 12/24h format, running seconds, the Japanese
- * header glyphs and the music visualizer. Reached from the Appearance index and
- * folds back to it on the back chevron or an empty click.
+ * 時 DISPLAY settings: UI scale, the 12/24h clock and running seconds, plus
+ * general shell behaviour: reduced motion, auto-hide, keep-awake (blocks lock,
+ * screen-off and sleep) and memory saver. Opened by the cog; an empty click
+ * closes it.
  */
 SettingsSurface {
     id: root
 
-    backSurface: "appearance"
+    backSurface: ""
     implicitHeight: content.implicitHeight
 
     rows: [
-        { item: mainRow, kind: "seg", vals: ["minimal", "classic", "system", "strip"], get: function () { return Flags.mainDisplay; }, set: function (v) { Flags.mainDisplay = v; } },
-        { item: expandRow, kind: "seg", vals: ["media", "pill"], get: function () { return Flags.expandTo; }, set: function (v) { Flags.expandTo = v; } },
+        { item: scaleRow, kind: "seg", vals: [1.0, 1.15, 1.3, 1.5], get: function () { return Flags.uiScale; }, set: function (v) { Flags.uiScale = v; } },
         { item: timeRow, kind: "seg", vals: [false, true], get: function () { return Flags.time12h; }, set: function (v) { Flags.time12h = v; } },
         { item: secRow, kind: "toggle", get: function () { return Flags.clockSeconds; }, set: function (v) { Flags.clockSeconds = v; } },
-        { item: glyphRow, kind: "toggle", get: function () { return Flags.showGlyphs; }, set: function (v) { Flags.showGlyphs = v; } },
-        { item: vizRow, kind: "toggle", get: function () { return Flags.musicViz; }, set: function (v) { Flags.musicViz = v; } }
+        { item: motionRow, kind: "toggle", get: function () { return Flags.reduceMotion; }, set: function (v) { Flags.reduceMotion = v; } },
+        { item: autoHideRow, kind: "toggle", get: function () { return Flags.autoHide; }, set: function (v) { Flags.autoHide = v; } },
+        { item: awakeRow, kind: "toggle", get: function () { return Flags.keepAwake; }, set: function (v) { Flags.keepAwake = v; } },
+        { item: saverRow, kind: "toggle", get: function () { return Flags.memorySaver; }, set: function (v) { Flags.memorySaver = v; } }
     ]
 
     Column {
@@ -35,38 +36,23 @@ SettingsSurface {
 
         SettingsHeader {
             s: root.s
-            glyph: "時"
             title: "DISPLAY"
-            showBack: true
+            showBack: false
         }
 
         Item { width: 1; height: 12 * root.s }
 
         SettingsRow {
-            id: mainRow
+            id: scaleRow
             surface: root
-            name: "Main display"
-            icon: "clock"
+            name: "UI scale"
+            icon: "scaling"
 
             SettingsSeg {
                 s: root.s
-                options: [{ label: "Minimal", value: "minimal" }, { label: "Classic", value: "classic" }, { label: "System", value: "system" }, { label: "Strip", value: "strip" }]
-                value: Flags.mainDisplay
-                onPicked: (v) => Flags.mainDisplay = v
-            }
-        }
-
-        SettingsRow {
-            id: expandRow
-            surface: root
-            name: "Media expand"
-            icon: "layers"
-
-            SettingsSeg {
-                s: root.s
-                options: [{ label: "Media", value: "media" }, { label: "Full pill", value: "pill" }]
-                value: Flags.expandTo
-                onPicked: (v) => Flags.expandTo = v
+                options: [{ label: "100%", value: 1.0 }, { label: "115%", value: 1.15 }, { label: "130%", value: 1.3 }, { label: "150%", value: 1.5 }]
+                value: Flags.uiScale
+                onPicked: (v) => Flags.uiScale = v
             }
         }
 
@@ -98,29 +84,55 @@ SettingsSurface {
         }
 
         SettingsRow {
-            id: glyphRow
+            id: motionRow
             surface: root
-            name: "Japanese glyphs"
-            icon: "language"
+            name: "Reduce motion"
+            icon: "waves"
 
             LinkToggle {
                 s: root.s
-                on: Flags.showGlyphs
-                onToggled: Flags.showGlyphs = !Flags.showGlyphs
+                on: Flags.reduceMotion
+                onToggled: Flags.reduceMotion = !Flags.reduceMotion
             }
         }
 
         SettingsRow {
-            id: vizRow
+            id: autoHideRow
             surface: root
-            name: "Music visualizer"
-            icon: "music"
+            name: "Auto hide"
+            icon: "eye-off"
+
+            LinkToggle {
+                s: root.s
+                on: Flags.autoHide
+                onToggled: Flags.autoHide = !Flags.autoHide
+            }
+        }
+
+        SettingsRow {
+            id: awakeRow
+            surface: root
+            name: "Keep awake"
+            icon: "awake"
+
+            LinkToggle {
+                s: root.s
+                on: Flags.keepAwake
+                onToggled: Flags.keepAwake = !Flags.keepAwake
+            }
+        }
+
+        SettingsRow {
+            id: saverRow
+            surface: root
+            name: "Memory saver"
+            icon: "stopwatch"
             last: true
 
             LinkToggle {
                 s: root.s
-                on: Flags.musicViz
-                onToggled: Flags.musicViz = !Flags.musicViz
+                on: Flags.memorySaver
+                onToggled: Flags.memorySaver = !Flags.memorySaver
             }
         }
     }

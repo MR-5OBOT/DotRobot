@@ -20,7 +20,7 @@ import "../components"
 SettingsSurface {
     id: root
 
-    backSurface: "appearance"
+    backSurface: "display"
     implicitHeight: content.implicitHeight
 
     property string hueArg: String(Math.round(Flags.manualHue))
@@ -104,7 +104,6 @@ SettingsSurface {
 
         SettingsHeader {
             s: root.s
-            glyph: "色"
             title: "THEME"
             showBack: true
         }

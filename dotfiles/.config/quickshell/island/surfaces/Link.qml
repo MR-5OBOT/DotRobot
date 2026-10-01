@@ -306,15 +306,6 @@ PillSurface {
 
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
-                    visible: Flags.showGlyphs
-                    text: "報"
-                    color: Theme.cream
-                    font.family: Theme.fontJp
-                    font.weight: Font.Medium
-                    font.pixelSize: 16 * root.s
-                }
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
                     text: "INBOX"
                     color: Theme.subtle
                     font.family: Theme.font
@@ -369,18 +360,8 @@ PillSurface {
                         id: clearRow
                         spacing: 4 * root.s
 
-                        Text {
-                            anchors.verticalCenter: parent.verticalCenter
-                            visible: Flags.showGlyphs
-                            text: "払"
-                            color: clearArea.containsMouse ? Theme.vermLit : Theme.vermDim
-                            font.family: Theme.fontJp
-                            font.pixelSize: 9 * root.s
-                            font.weight: Font.Bold
-                        }
                         GlyphIcon {
                             anchors.verticalCenter: parent.verticalCenter
-                            visible: !Flags.showGlyphs
                             width: 11 * root.s
                             height: 11 * root.s
                             name: "trash"
@@ -623,22 +604,12 @@ PillSurface {
 
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
-                visible: Flags.showGlyphs
-                text: "静"
-                color: Theme.ghost
-                opacity: 0.55
-                font.family: Theme.fontJp
-                font.weight: Font.Medium
-                font.pixelSize: 32 * root.s
-            }
-            Text {
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: Flags.showGlyphs ? "SILENCE" : "No notifications to display"
+                text: "No notifications to display"
                 color: Theme.faint
                 font.family: Theme.font
                 font.pixelSize: 9 * root.s
                 font.weight: Font.Bold
-                font.letterSpacing: Flags.showGlyphs ? 2.2 * root.s : 0.8 * root.s
+                font.letterSpacing: 0.8 * root.s
             }
         }
     }

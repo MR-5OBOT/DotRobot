@@ -181,10 +181,6 @@ Scope {
             Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
                 "qs", "ipc", "call", "wallpicker", "toggle"]);
         }
-        function media(mon: string): void {
-            if (Players.list.length > 0)
-                root.toggleSurface(mon, "media");
-        }
         function peek(mon: string): void { root.peek(mon); }
         function hide(): void { root.close(); }
 
@@ -224,10 +220,8 @@ Scope {
              */
             readonly property real restFaceH: 44 * s
 
-                        /** Trimming the reserved band below the pill's bottom lets windows climb, so App gap sets the pill-to-window air without touching the desktop gaps_out. The strip face docks flush to the screen top (its own topGap is zero), so it never adds the margin. */
-            readonly property real reservedH: Flags.mainDisplay === "strip"
-                ? Math.max(0, restFaceH - 12 * (1 - Flags.appGap) * s)
-                : Math.max(0, restFaceH + topGap - 12 * (1 - Flags.appGap) * s)
+            /** Trimming the reserved band below the pill's bottom lets windows climb, so App gap sets the pill-to-window air without touching the desktop gaps_out. */
+            readonly property real reservedH: Math.max(0, restFaceH + topGap - 12 * (1 - Flags.appGap) * s)
 
 
             screen: modelData
@@ -269,7 +263,7 @@ Scope {
             readonly property real topGap: 8 * Flags.topGap * s
             readonly property string surface: root.openMon === modelData.name ? root.openSurface : ""
             readonly property bool surfaceOpen: surface.length > 0
-            readonly property bool modal: surfaceOpen || pill.held || pill.expandLatch
+            readonly property bool modal: surfaceOpen || pill.held
             readonly property rect toastHole: pill.detached
                 ? Qt.rect(pillRegion.x, pillRegion.y, pillRegion.width, pillRegion.height) : Qt.rect(0, 0, 0, 0)
 
@@ -307,7 +301,6 @@ Scope {
                 if (root.openMon === modelData.name) root.close();
                 if (root.peekMon === modelData.name) root.peekMon = "";
                 pill.pinned = false;
-                pill.expandLatch = false;
             }
 
             screen: modelData
@@ -334,7 +327,7 @@ Scope {
              */
             Region {
                 id: revealRegion
-                readonly property real revealW: pill.stripBar ? Math.max(420 * pill.s, pill.stripFaceW) : 420 * pill.s
+                readonly property real revealW: 420 * pill.s
                 readonly property real revealH: 10 * pill.s
                 x: Math.max(0, overlay.width / 2 - revealW / 2)
                 y: 0
@@ -392,7 +385,6 @@ Scope {
                             pill.surfaceBack();
                     } else {
                         pill.pinned = false;
-                        pill.expandLatch = false;
                         root.peekMon = "";
                     }
                 }
@@ -490,7 +482,7 @@ Scope {
                  */
                 DropArea {
                     id: stripDrop
-                    width: pill.stripBar ? Math.max(420 * overlay.s, pill.width) : 420 * overlay.s
+                    width: 420 * overlay.s
                     height: 8 * overlay.s
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.top: parent.top

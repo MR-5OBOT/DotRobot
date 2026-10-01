@@ -2,57 +2,22 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell.Services.Mpris
-import Quickshell.Bluetooth
-import Quickshell.Io
 import Quickshell.Widgets
 import "../Singletons"
 import "../components"
 
 /**
- * Now-playing card. A small square cover floats detached on the left; the
- * middle stacks the source line, title, artist·album and the seek seam with
- * the transport controls; the right end carries three minimal live reads —
- * network speed, the first connected Bluetooth device with battery, and the
- * toggle that keeps the pill expanded. Nothing bleeds off the card and no
- * cover wash tints it, so the background stays the theme gradient. The seam's
- * brush head docks the pill's soul bead (Ame). Now-playing data comes from
- * [[Players]]; with several players running the source token glows into a
- * bubble that opens a picker.
+ * Now-playing card, embedded in Home. A square cover on the left; to its right
+ * the source line, title, artist·album, the wave seek seam with the loop chip,
+ * and the transport (skip, the play/pause seal, skip). Now-playing data comes
+ * from [[Players]]; with several players running the source token glows into a
+ * bubble that opens a picker. The host draws the card frame.
  */
-PillSurface {
+Item {
     id: root
 
-    /** Squared top corners when the pill is in strip mode; 0 = rounded everywhere. */
-    property real topFlat: 0
-    Behavior on topFlat { NumberAnimation { duration: Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
-
-    /** Pin state: the right-end toggle keeps the expanded pill open after the card closes. */
-    property bool pinned: false
-    signal requestPin()
-    signal requestExpand()
-
-    /**
-     * With expandTo "media" the card is hover-driven in every auto-hide mode:
-     * leaving it (past a small margin + grace window) closes the surface again
-     * so the pill shrinks back to rest (or hides). Pinning disarms the guard.
-     */
-    Timer {
-        id: leaveGuardT
-        interval: 120
-        onTriggered: root.requestClose()
-    }
-
-    HoverHandler {
-        id: leaveGuard
-        enabled: root.open && Flags.expandTo === "media" && !root.pinned
-        margin: 10 * root.s
-        onHoveredChanged: {
-            if (enabled && !hovered)
-                leaveGuardT.start();
-            else if (enabled)
-                leaveGuardT.stop();
-        }
-    }
+    property real s: 1
+    property bool active: false
 
     readonly property var player: Players.active
     readonly property bool hasPlayer: player !== null
@@ -86,105 +51,8 @@ PillSurface {
             root.player.loopState = MprisLoopState.None;
     }
 
-    /** Live throughput (MB/s) read straight from /proc/net/dev while the card is open. */
-    property real netDown: 0
-    property real netUp: 0
-    property bool netOk: false
-    property real netPrevRx: 0
-    property real netPrevTx: 0
-    property real netPrevTime: 0
-    function fmtNet(v) {
-        if (!(v > 0))
-            return "0";
-        if (v >= 1)
-            return v.toFixed(1) + "M";
-        var kb = v * 1024;
-        return (kb >= 10 ? Math.round(kb) : kb.toFixed(1)) + "K";
-    }
-
-    /** First connected Bluetooth device plus its battery, when BlueZ reports one. */
-    readonly property var btDevices: (typeof Bluetooth !== "undefined" && Bluetooth && Bluetooth.devices) ? Bluetooth.devices.values : []
-    readonly property var btConnected: {
-        var out = [];
-        for (var i = 0; i < root.btDevices.length; i++)
-            if (root.btDevices[i] && root.btDevices[i].connected) out.push(root.btDevices[i]);
-        return out;
-    }
-    function batteryOf(d) {
-        if (!d || d.battery === undefined || d.battery === null || d.battery <= 0)
-            return -1;
-        var b = d.battery;
-        if (b <= 1)
-            b = b * 100;
-        return Math.round(b);
-    }
-    readonly property var btPick: {
-        var first = null;
-        for (var i = 0; i < root.btConnected.length; i++) {
-            var d = root.btConnected[i];
-            if (!first)
-                first = d;
-            if (root.batteryOf(d) >= 0)
-                return d;
-        }
-        return first;
-    }
-    readonly property string btName: btPick ? (btPick.deviceName || btPick.name || "Bluetooth device") : ""
-    readonly property int btBat: btPick ? root.batteryOf(btPick) : -1
-    readonly property color btBatColor: root.btBat >= 50 ? Theme.cream : root.btBat >= 20 ? Theme.dim : Theme.vermDeep
-    readonly property string btGlyph: {
-        var icon = btPick ? (btPick.icon || "") : "";
-        var n = btName.toLowerCase();
-        switch (icon) {
-        case "audio-headset":
-        case "audio-headphones":
-        case "audio-headset-mic":
-            return "headphones";
-        case "audio-card":
-            return "speaker";
-        case "audio-input-mic":
-            return "mic";
-        case "phone":
-            return "phone";
-        case "watch":
-            return "watch";
-        case "computer":
-        case "laptop":
-            return "computer";
-        case "input-keyboard":
-            return "keyboard";
-        case "input-mouse":
-        case "input-tablet":
-            return "mouse";
-        case "input-gaming":
-            return "gamepad";
-        case "tv":
-            return "tv";
-        case "printer":
-        case "scanner":
-        case "multifunction-printer":
-            return "printer";
-        case "camera-video":
-        case "camera-photo":
-            return "camera";
-        }
-        if (n.indexOf("earbud") >= 0 || n.indexOf("buds") >= 0 || n.indexOf("headphone") >= 0 || n.indexOf("headset") >= 0)
-            return "headphones";
-        if (n.indexOf("phone") >= 0 || n.indexOf("mobile") >= 0)
-            return "phone";
-        if (n.indexOf("watch") >= 0)
-            return "watch";
-        if (n.indexOf("keyboard") >= 0)
-            return "keyboard";
-        if (n.indexOf("mouse") >= 0)
-            return "mouse";
-        if (n.indexOf("speaker") >= 0)
-            return "speaker";
-        return "bluetooth";
-    }
-
     /**
-     * Art only decodes while this monitor's surface is open, keyed on the track
+     * Art only decodes while Home is open on this monitor, keyed on the track
      * so a browser reusing one file path still reloads on a new song. The shared
      * url means every monitor shows the same cover, never a stale neighbour.
      */
@@ -215,29 +83,12 @@ PillSurface {
 
     /** Card geometry tokens, all scaled to the monitor. */
     readonly property real pad: 12 * s
-    readonly property real artSize: 88 * s
-    readonly property real artMargin: 16 * s
-    readonly property real gapArt: 10 * s
+    readonly property real artSize: 80 * s
+    readonly property real artMargin: 14 * s
+    readonly property real gapArt: 12 * s
     readonly property real textX: root.artMargin + root.artSize + root.gapArt
-    readonly property real textColW: 190 * s
-    readonly property real railW: 96 * s
-    readonly property real railInset: 24 * s
 
     property real sealPulse: 0
-
-    readonly property point seamHead: {
-        void root.width;
-        void root.height;
-        void root.frac;
-        void stroke.x;
-        void stroke.width;
-        return stroke.mapToItem(root, stroke.headX, stroke.headY);
-    }
-    readonly property real seamHeadX: seamHead.x
-    readonly property real seamHeadY: seamHead.y
-
-    ameForm: "seam"
-    amePoint: Qt.point(seamHeadX, seamHeadY)
 
     function fmt(sec) {
         if (!(sec > 0))
@@ -261,42 +112,7 @@ PillSurface {
         onTriggered: if (root.player) root.player.positionChanged();
     }
 
-    Process {
-        id: netProc
-        command: ["sh", "-c", "awk 'NR>2{gsub(\":\",\" \");if($1!=\"lo\"){rx+=$2;tx+=$10}}END{print \"NET\",rx+0,tx+0}' /proc/net/dev; for i in /sys/class/net/wl*/; do [ -d \"$i\" ] && [ \"$(cat \"$i/operstate\")\" = up ] && { echo WIFI up; exit 0; }; done; echo WIFI down"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var p = this.text.trim().split(/\s+/);
-                if (p.length < 3 || p[0] !== "NET")
-                    return;
-                var rx = parseFloat(p[1]);
-                var tx = parseFloat(p[2]);
-                var now = Date.now();
-                var dt = (now - root.netPrevTime) / 1000;
-                if (root.netPrevTime > 0 && dt > 0) {
-                    root.netDown = Math.max(0, (rx - root.netPrevRx) / dt / 1048576);
-                    root.netUp = Math.max(0, (tx - root.netPrevTx) / dt / 1048576);
-                }
-                root.netPrevRx = rx;
-                root.netPrevTx = tx;
-                root.netPrevTime = now;
-                root.netOk = p.indexOf("WIFI") >= 0 && p[p.indexOf("WIFI") + 1] === "up";
-            }
-        }
-    }
-
-    Timer {
-        interval: 500
-        running: root.active
-        repeat: true
-        onTriggered: if (!netProc.running) netProc.running = true
-    }
-    onActiveChanged: {
-        if (!active)
-            picking = false;
-        else if (!netProc.running)
-            netProc.running = true;
-    }
+    onActiveChanged: if (!active) picking = false
 
     SequentialAnimation {
         id: pulseAnim
@@ -304,33 +120,20 @@ PillSurface {
         NumberAnimation { target: root; property: "sealPulse"; to: 0; duration: Motion.standard; easing.type: Motion.easeStandard }
     }
 
-    component KanjiSkip: Item {
+    component SkipButton: Item {
         id: skip
 
         property bool can: false
-        property string kanjiText: ""
         property string icon: ""
         signal activated()
 
         anchors.verticalCenter: parent.verticalCenter
-        implicitWidth: Flags.showGlyphs ? kanjiLabel.implicitWidth : 15 * root.s
-        implicitHeight: Flags.showGlyphs ? kanjiLabel.implicitHeight : 15 * root.s
+        implicitWidth: 15 * root.s
+        implicitHeight: 15 * root.s
         opacity: skip.can ? 1 : 0.4
         Behavior on opacity { NumberAnimation { duration: Motion.fast } }
 
-        Text {
-            id: kanjiLabel
-            visible: Flags.showGlyphs
-            anchors.centerIn: parent
-            text: skip.kanjiText
-            font.family: Theme.fontJp
-            font.pixelSize: 11 * root.s
-            color: skipArea.containsMouse ? Theme.cream : Theme.dim
-            Behavior on color { ColorAnimation { duration: Motion.fast } }
-        }
-
         GlyphIcon {
-            visible: !Flags.showGlyphs
             anchors.centerIn: parent
             width: 14 * root.s
             height: 14 * root.s
@@ -364,20 +167,6 @@ PillSurface {
             fillMode: Image.PreserveAspectCrop
             asynchronous: true
             visible: status === Image.Ready
-        }
-    }
-
-    Rectangle {
-        id: card
-        anchors.fill: parent
-        radius: 20 * root.s
-        topLeftRadius: radius * (1 - root.topFlat)
-        topRightRadius: radius * (1 - root.topFlat)
-        border.width: 0
-
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: Theme.cardTop }
-            GradientStop { position: 1.0; color: Theme.cardBot }
         }
     }
 
@@ -462,127 +251,13 @@ PillSurface {
         }
     }
 
-    /** Right-end rail: wifi speed, connected bluetooth device with power, pin toggle. */
-    Item {
-        id: infoStack
-        anchors.right: parent.right
-        anchors.rightMargin: root.railInset
-        anchors.verticalCenter: parent.verticalCenter
-        width: root.railW
-        height: infoCol.height
-
-        Column {
-            id: infoCol
-            anchors.left: parent.left
-            anchors.right: parent.right
-            spacing: 14 * root.s
-
-            Row {
-                width: infoStack.width
-                height: 15 * root.s
-                spacing: 6 * root.s
-
-                GlyphIcon {
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 12 * root.s
-                    height: 12 * root.s
-                    name: "wifi"
-                    color: Theme.iconDim
-                }
-
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: Math.max(0, parent.width - 18 * root.s)
-                    text: root.netOk
-                        ? "↓ " + root.fmtNet(root.netDown) + "  ↑ " + root.fmtNet(root.netUp)
-                        : "Not connected"
-                    elide: Text.ElideRight
-                    color: root.netOk ? Theme.cream : Theme.subtle
-                    font.family: Theme.font
-                    font.pixelSize: 10 * root.s
-                    font.features: { "tnum": 1 }
-                }
-            }
-
-            Row {
-                width: infoStack.width
-                height: 15 * root.s
-                spacing: 5 * root.s
-
-                GlyphIcon {
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 12 * root.s
-                    height: 12 * root.s
-                    name: root.btGlyph
-                    color: Theme.iconDim
-                }
-
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: Math.max(0, parent.width - 12 * root.s - 5 * root.s - (root.btBat >= 0 ? 22 * root.s : 0) - 5 * root.s)
-                    text: root.btName.length > 0 ? root.btName : "Not connected"
-                    elide: Text.ElideRight
-                    color: root.btName.length > 0 ? Theme.dim : Theme.subtle
-                    font.family: Theme.font
-                    font.pixelSize: 10 * root.s
-                    font.features: { "tnum": 1 }
-                }
-
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    visible: root.btBat >= 0
-                    width: 22 * root.s
-                    text: root.btBat >= 0 ? root.btBat + "%" : ""
-                    horizontalAlignment: Text.AlignRight
-                    color: root.btBatColor
-                    font.family: Theme.font
-                    font.pixelSize: 10 * root.s
-                    font.weight: Font.DemiBold
-                    font.features: { "tnum": 1 }
-                }
-            }
-
-            Item {
-                width: infoStack.width
-                height: 15 * root.s
-
-                Row {
-                    width: infoStack.width
-                    spacing: 6 * root.s
-
-                    GlyphIcon {
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: 12 * root.s
-                        height: 12 * root.s
-                        name: "layers"
-                        color: Theme.iconDim
-                    }
-
-                    Text {
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: "Expand"
-                        color: Theme.dim
-                        font.family: Theme.font
-                        font.pixelSize: 10 * root.s
-                    }
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: root.requestExpand()
-                }
-            }
-        }
-    }
-
     Column {
         id: textCol
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.leftMargin: root.textX
-        width: root.textColW
+        anchors.right: parent.right
+        anchors.rightMargin: root.pad
         spacing: 3 * root.s
 
         /** Source line: plain service, or the glowing picker bubble when several players run. */
@@ -816,18 +491,7 @@ PillSurface {
                         : (root.loopNone ? "transparent" : Qt.alpha(Theme.vermLit, root.loopTrack ? 0.5 : 0.8))
                 }
 
-                Text {
-                    visible: Flags.showGlyphs
-                    anchors.centerIn: parent
-                    text: "循"
-                    font.family: Theme.fontJp
-                    font.pixelSize: 10 * root.s
-                    color: root.loopNone ? Theme.dim : Theme.vermLit
-                    Behavior on color { ColorAnimation { duration: Motion.fast } }
-                }
-
                 GlyphIcon {
-                    visible: !Flags.showGlyphs
                     anchors.centerIn: parent
                     width: 11 * root.s
                     height: 11 * root.s
@@ -964,14 +628,13 @@ PillSurface {
             }
         }
 
-        /** Transport: kanji-skip, the play/pause seal, kanji-next. */
+        /** Transport: skip back, the play/pause seal, skip next. */
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: 12 * root.s
             height: 20 * root.s
 
-            KanjiSkip {
-                kanjiText: "前"
+            SkipButton {
                 icon: "prev"
                 can: root.hasPlayer && root.player.canGoPrevious
                 onActivated: if (root.player) root.player.previous()
@@ -999,18 +662,7 @@ PillSurface {
                     GradientStop { position: 1.0; color: root.mix(Theme.vermDeep, Theme.tileBg, 0.55 - 0.27 * seal.sat) }
                 }
 
-                Text {
-                    visible: Flags.showGlyphs
-                    anchors.centerIn: parent
-                    text: root.playing ? "奏" : "休"
-                    color: Theme.bright
-                    font.family: Theme.fontJp
-                    font.pixelSize: 11 * root.s
-                    font.weight: Font.DemiBold
-                }
-
                 GlyphIcon {
-                    visible: !Flags.showGlyphs
                     anchors.centerIn: parent
                     width: 11 * root.s
                     height: 11 * root.s
@@ -1029,8 +681,7 @@ PillSurface {
                 }
             }
 
-            KanjiSkip {
-                kanjiText: "次"
+            SkipButton {
                 icon: "next"
                 can: root.hasPlayer && root.player.canGoNext
                 onActivated: if (root.player) root.player.next()
