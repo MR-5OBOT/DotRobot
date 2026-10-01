@@ -1,10 +1,7 @@
-Appearance Appearance.qml
 BatterySurface BatterySurface.qml
 Calendar Calendar.qml
 DisplaySurface DisplaySurface.qml
-FontPicker FontPicker.qml
 Home Home.qml
-InterfaceSurface InterfaceSurface.qml
 Link Link.qml
 Media Media.qml
 MinimizedTray MinimizedTray.qml
@@ -15,4 +12,3 @@ Power Power.qml
 SysmonSurface SysmonSurface.qml
 ThemeSurface ThemeSurface.qml
 Toast Toast.qml
-WeatherSurface WeatherSurface.qml

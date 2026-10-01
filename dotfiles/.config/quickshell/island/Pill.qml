@@ -56,7 +56,6 @@ Item {
         mixer:       unloadS * 1000,
         // thirsty frequent fliers: one generous reset, then reclaim
         clipboard:   unloadS * 2 * 1000,
-        media:       unloadS * 2 * 1000,
         calendar:    unloadS * 2 * 1000,
         // everything else: a single 60s reset for quick re-toggles, then reclaim
         default:     unloadS * 2 * 1000
@@ -108,8 +107,6 @@ Item {
     property bool revealSession: false
     property bool pinned: false
     property bool forcePinned: false
-    /** Latch held by an explicit Expand click in the media card. Unlike hoverLatch it survives cursor exit, so the expanded pill stays up until the user dismisses it (tap the pill, open a surface, or focus loss). */
-    property bool expandLatch: false
     /** Set by Island.qml while the pill hangs below a widget notch instead of the screen edge: round top corners, no ears. */
     property bool detached: false
 
@@ -141,18 +138,12 @@ Item {
         Quickshell.execDetached(["blueman-manager"]);
     }
     readonly property bool powerOpen: surface === "power"
-    readonly property bool mediaOpen: surface === "media"
     readonly property bool linkOpen: surface === "link"
-    readonly property bool weatherOpen: surface === "weather"
     readonly property bool batteryOpen: surface === "battery"
     readonly property bool sysmonOpen: surface === "sysmon"
-    readonly property bool appearanceOpen: surface === "appearance"
     readonly property bool displayOpen: surface === "display"
     readonly property bool themeOpen: surface === "theme"
-    readonly property bool interfaceOpen: surface === "interface"
-    readonly property bool fontpickerOpen: surface === "fontpicker"
-    readonly property bool settingsLike: appearanceOpen || displayOpen || themeOpen || interfaceOpen || fontpickerOpen
-    readonly property bool hasMedia: Players.list.length > 0
+    readonly property bool settingsLike: displayOpen || themeOpen
 
     readonly property var netDevices: (typeof Networking !== "undefined" && Networking && Networking.devices) ? Networking.devices.values : []
     readonly property var wifiDev: netDevices.find(function(d) { return d && d.type === DeviceType.Wifi }) || null
@@ -180,7 +171,7 @@ Item {
         onTriggered: pill.bootSettled = true
     }
 
-    readonly property bool expanded: surfaceOpen || held || hoverLatch || expandLatch
+    readonly property bool expanded: surfaceOpen || held || hoverLatch
 
     /**
      * First expansion (hover, latch, held, or any surface) marks weather as
@@ -191,15 +182,6 @@ Item {
         if (pill.expanded)
             Weather.needed = true;
     }
-
-    /**
-     * The collapsed pill becomes a compact top-centre capsule when the "strip"
-     * main display is picked: it docks flush against the top screen edge, so
-     * its top corners square off while the bottom corners stay rounded — the
-     * Dynamic Glacier silhouette. Window reservation and auto-hide behave
-     * exactly like the other faces.
-     */
-    readonly property bool stripBar: Flags.mainDisplay === "strip"
 
     /**
      * True when this pill sits on the monitor Hyprland currently has focused.
@@ -221,7 +203,6 @@ Item {
     onMonFocusedChanged: if (!monFocused && Flags.autoHide) {
         revealSession = false;
         hoverLatch = false;
-        expandLatch = false;
     }
 
     /**
@@ -290,42 +271,6 @@ Item {
     readonly property real restW: 160 * s
     readonly property real restH: 38 * s
 
-    /**
-     * Strip-face geometry: a compact top-centre notch pill. Its width is
-     * computed explicitly (not from the row's implicit width) so the media
-     * title can be elided to exactly what the budget allows; on a 1920px
-     * screen the content lands around 500-600px wide. Lower-priority sections
-     * (visualizer, then media) fold away first when the budget tightens.
-     */
-    readonly property real stripPad: 20 * s
-    readonly property real stripGap: 16 * s
-    readonly property real stripCap: Math.max(320 * s, Math.min(600 * s, (barWindow ? barWindow.width : 1920 * s) - 60 * s))
-    readonly property real stripArtW: 22 * s
-    readonly property real stripMinTitle: 55 * s
-    readonly property real stripMaxTitle: 220 * s
-
-    readonly property real stripVizW: (Cava.bars * 1.8 + (Cava.bars - 1) * 1.2) * s
-
-    /** Media-side gaps depend only on the visualizer state. */
-    readonly property int stripMediaGaps: 1 + (Cava.active ? 1 : 0)
-
-    readonly property bool stripMedia: Players.has && stripRoomForTitle >= stripMinTitle
-    readonly property real stripRoomForTitle: stripCap - 2 * stripPad - stripArtW - stripFixedW
-        - 4 * stripGap - stripMediaGaps * stripGap
-        - (Cava.active ? stripVizW : 0)
-    readonly property real stripTitleW: stripMedia ? Math.min(stripMaxTitle, stripRoomForTitle, Math.max(stripMinTitle, stripTitleMetrics.advanceWidth)) : 0
-    readonly property real stripFixedW: stripDay.implicitWidth + stripTime.implicitWidth
-        + stripWs.implicitWidth + stripLay.implicitWidth + stripBat.implicitWidth
-
-    readonly property real stripFaceW: {
-        let w = 2 * stripPad + stripFixedW + 4 * stripGap;
-        if (stripMedia) {
-            w += stripArtW + stripGap + stripTitleW;
-            if (Cava.active) w += stripVizW + stripGap;
-            w += stripGap;
-        }
-        return w;
-    }
     readonly property real hoverPad: 20 * s
     readonly property real hoverW: hoverRow.implicitWidth + 2 * hoverPad
     readonly property real hoverH: 50 * s
@@ -338,13 +283,10 @@ Item {
     readonly property real mixerH: 214 * s
     readonly property real powerW: 330 * s
     readonly property real powerH: 150 * s
-    readonly property real mediaW: 470 * s
-    readonly property real mediaH: 132 * s
     readonly property real batteryW: 316 * s
     readonly property real sysmonW: 392 * s
     readonly property real settingsScale: 0.9
     readonly property real settingsW: 392 * s * settingsScale
-    readonly property real fontpickerW: 360 * s * settingsScale
     readonly property real toastW: 342 * s
     readonly property real dragOverW: 300 * s
     readonly property real dragOverH: 126 * s
@@ -386,18 +328,13 @@ Item {
     readonly property var surfaces: ({
         home:      { size: () => { surfaceItem("home"); return Qt.size(homeW, homeH); }, ame: () => surfaceItem("home") },
         calendar:  { size: () => { const it = surfaceItem("calendar"); return Qt.size((it.implicitWidth > 0 ? it.implicitWidth : 282 * calendarS) + 36 * calendarS, it.implicitHeight + 32 * calendarS); }, ame: () => surfaceItem("calendar") },
-        weather:   { size: () => { const it = surfaceItem("weather"); return Qt.size((it.implicitWidth > 0 ? it.implicitWidth : 282 * s) + 36 * s, it.implicitHeight + 32 * s); }, ame: () => surfaceItem("weather") },
         power:     { size: () => { surfaceItem("power"); return Qt.size(powerW, powerH); }, ame: () => surfaceItem("power") },
-        media:     { size: () => { surfaceItem("media"); return Qt.size(mediaW, mediaH); }, ame: () => surfaceItem("media") },
         mixer:     { size: () => Qt.size(93 * Math.max(4, surfaceItem("mixer").faderCount) * s, mixerH), ame: () => surfaceItem("mixer") },
         link:      { size: () => { const it = surfaceItem("link"); return Qt.size(it.desiredW, it.implicitHeight + 26 * s); }, ame: () => surfaceItem("link") },
         battery:   { size: () => Qt.size(batteryW, surfaceItem("battery").implicitHeight + 26 * s), ame: () => surfaceItem("battery") },
         sysmon:    { size: () => Qt.size(sysmonW, surfaceItem("sysmon").implicitHeight + 33 * s), ame: () => surfaceItem("sysmon") },
-        appearance: { size: () => Qt.size(settingsW, surfaceItem("appearance").implicitHeight + 29 * s), ame: () => surfaceItem("appearance") },
         display:    { size: () => Qt.size(settingsW, surfaceItem("display").implicitHeight + 29 * s), ame: () => surfaceItem("display") },
-        theme:      { size: () => Qt.size(settingsW, surfaceItem("theme").implicitHeight + 29 * s), ame: () => surfaceItem("theme") },
-        interface:  { size: () => Qt.size(settingsW, surfaceItem("interface").implicitHeight + 29 * s), ame: () => surfaceItem("interface") },
-        fontpicker: { size: () => Qt.size(fontpickerW, surfaceItem("fontpicker").implicitHeight + 29 * s), ame: () => surfaceItem("fontpicker") }
+        theme:      { size: () => Qt.size(settingsW, surfaceItem("theme").implicitHeight + 29 * s), ame: () => surfaceItem("theme") }
     })
 
     /**
@@ -410,18 +347,13 @@ Item {
     readonly property var loaders: ({
         home:       () => ldHome,
         calendar:   () => ldCalendar,
-        weather:    () => ldWeather,
         power:      () => ldPower,
-        media:      () => ldMedia,
         mixer:      () => ldMixer,
         link:       () => ldLink,
         battery:    () => ldBattery,
         sysmon:     () => ldSysmon,
-        appearance: () => ldAppearance,
         display:    () => ldDisplay,
-        theme:      () => ldTheme,
-        interface:  () => ldInterface,
-        fontpicker: () => ldFontpicker
+        theme:      () => ldTheme
     })
 
     /**
@@ -568,20 +500,14 @@ Item {
 
     /**
      * Resolve which settings-family surface owns keyboard row navigation right
-     * now: the category index or one of its morphing sub-surfaces. Returns null
+     * now: Display or Theme. Returns null
      * when none of them is open.
      */
     function rowNavSurface() {
-        if (pill.appearanceOpen)
-            return ldAppearance.item;
         if (pill.displayOpen)
             return ldDisplay.item;
         if (pill.themeOpen)
             return ldTheme.item;
-        if (pill.interfaceOpen)
-            return ldInterface.item;
-        if (pill.fontpickerOpen)
-            return ldFontpicker.item;
         return null;
     }
 
@@ -622,14 +548,13 @@ Item {
     }
 
     /**
-     * Step the open surface back one level when its header bar is clicked: a
-     * settings sub-surface (display, theme, interface, font picker) returns to
-     * the appearance index, and the index or any other surface dismisses to the
-     * hover pill. Empty space in the body never triggers this.
+     * Step the open surface back one level when its header bar is clicked: the
+     * theme sub-surface returns to Display, and Display or any other surface
+     * dismisses to the hover pill. Empty space in the body never triggers this.
      */
     function surfaceBack() {
-        if (pill.displayOpen || pill.themeOpen || pill.interfaceOpen || pill.fontpickerOpen) {
-            pill.requestSurface("appearance");
+        if (pill.themeOpen) {
+            pill.requestSurface("display");
             return;
         }
         pill.requestClose();
@@ -666,7 +591,6 @@ Item {
         pinned = false;
         revealSession = false;
         hoverLatch = false;
-        expandLatch = false;
         revealTimer.stop();
     }
 
@@ -728,12 +652,8 @@ Item {
         dragOver:    () => Qt.size(dragOverW, dragOverH)
     })
 
-    /**
-     * The pill's resting size for the current display mode.
-     */
-    readonly property size restSize: stripBar
-        ? Qt.size(Math.max(restW, stripFaceW), restH)
-        : Qt.size(Math.max(restW, restRow.implicitWidth + 36 * s), restH)
+    /** The pill's resting size: the date + time row plus padding. */
+    readonly property size restSize: Qt.size(Math.max(restW, restRow.implicitWidth + 36 * s), restH)
 
     readonly property size targetSize: {
         const sf = surfaces[mode];
@@ -791,18 +711,9 @@ Item {
             soulWsIndex = -1;
         }
     }
-    onHoverSoulGateChanged: if (hoverSoulGate) kanjiFlashAnim.restart()
 
     property string soulTarget: ""
     property int soulWsIndex: -1
-
-    property real kanjiFlash: 0
-
-    SequentialAnimation {
-        id: kanjiFlashAnim
-        NumberAnimation { target: pill; property: "kanjiFlash"; to: 1; duration: 90; easing.type: Easing.OutCubic }
-        NumberAnimation { target: pill; property: "kanjiFlash"; to: 0; duration: 320; easing.type: Easing.OutCubic }
-    }
 
     Behavior on width { NumberAnimation { id: morphAnimW; duration: pill.hoverHop ? Motion.glide : Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
     Behavior on height { NumberAnimation { id: morphAnimH; duration: pill.hoverHop ? Motion.glide : Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
@@ -866,13 +777,13 @@ Item {
     }
 
     /**
-     * Rest anchor for Ame: the 時 kanji centre. The idle outline condenses into
-     * the bead here before it moves.
+     * Rest anchor for Ame: the left end of the date + time row. The idle outline
+     * condenses into the bead here before it moves.
      */
     readonly property point wakePoint: {
         void pill.width;
         void pill.height;
-        return restKanji.mapToItem(pill, restKanji.width / 2, restKanji.height / 2);
+        return restRow.mapToItem(pill, 0, restRow.height / 2);
     }
 
     /**
@@ -892,8 +803,6 @@ Item {
             return btIcon.mapToItem(pill, btIcon.width / 2, btIcon.height + drop * 0.55);
         if (soulTarget === "battery")
             return batteryIcon.mapToItem(pill, batteryIcon.width / 2, batteryIcon.height + drop * 0.55);
-        if (soulTarget === "media")
-            return mediaIcon.mapToItem(pill, mediaIcon.width / 2, mediaIcon.height + drop * 0.55);
         if (soulTarget === "inbox")
             return inboxIcon.mapToItem(pill, inboxIcon.width / 2, inboxIcon.height + drop * 0.55);
         if (soulTarget === "mixer")
@@ -944,27 +853,16 @@ Item {
 
     onHoveredChanged: {
         if (hovered) {
-            if (!Flags.autoHide && Flags.expandTo === "media" && pill.hasMedia
-                && !pill.surfaceOpen && !pill.dragActive
-                && bootSettled && !toastActive) {
-                /* expandTo "media" with auto-hide off: a hover grows the pill
-                 * into the player itself instead of the icon face. Auto-hide
-                 * still reveals the normal pill; a click opens the player
-                 * (TapHandler below). Game mode never hands the bar to the
-                 * player, or the exit chip would be buried under it. */
-                pill.requestSurface("media");
-            } else {
-                if (Flags.autoHide && !revealSession && !expanded && !surfaceOpen) {
-                    revealSession = true;
-                    revealTimer.stop();
-                }
-                /* Hover grows the pill into workspaces + clock. A toast owns the
-                 * pill; latching under it would keep the pill open once the toast
-                 * is dismissed. */
-                if (bootSettled && !toastActive && !surfaceOpen) {
-                    hoverLatch = true;
-                    graceTimer.stop();
-                }
+            if (Flags.autoHide && !revealSession && !expanded && !surfaceOpen) {
+                revealSession = true;
+                revealTimer.stop();
+            }
+            /* Hover grows the pill into workspaces + clock. A toast owns the
+             * pill; latching under it would keep the pill open once the toast
+             * is dismissed. */
+            if (bootSettled && !toastActive && !surfaceOpen) {
+                hoverLatch = true;
+                graceTimer.stop();
             }
         } else {
             if (!pinned && !surfaceOpen && !revealSession)
@@ -1003,35 +901,7 @@ Item {
     TapHandler {
         enabled: !pill.surfaceOpen
         gesturePolicy: TapHandler.WithinBounds
-        onTapped: {
-            if (pill.expandLatch) {
-                pill.expandLatch = false;
-                pill.hoverLatch = false;
-                return;
-            }
-            if (Flags.expandTo === "media" && pill.hasMedia)
-                pill.requestSurface("media");
-            else
-                pill.requestSurface("home");
-        }
-    }
-
-    /**
-     * Right-click toggles the media player from anywhere on the pill: on the
-     * collapsed pill it pops the now-playing surface open, and on the open
-     * media surface it dismisses back to the clock. Other surfaces are left to
-     * their own clicks and the modal backdrop.
-     */
-    TapHandler {
-        acceptedButtons: Qt.RightButton
-        enabled: !pill.surfaceOpen || pill.mediaOpen
-        gesturePolicy: TapHandler.WithinBounds
-        onTapped: {
-            if (pill.mediaOpen)
-                pill.requestClose();
-            else
-                pill.requestSurface("media");
-        }
+        onTapped: pill.requestSurface("home")
     }
 
     property var wallpaperQueue: []
@@ -1270,226 +1140,12 @@ Item {
         visible: opacity > 0.01
         Behavior on opacity { NumberAnimation { duration: pill.mode === "rest" ? Motion.fast : Math.round(260 * Motion.mult) } }
 
-        /**
-         * Strip face: one compact pill of media + status hanging from the top
-         * edge. Media art and title lead, then a live cava spark, and finally weekday, time, workspace, layout and
-         * battery. Sections fold (visualizer, then media) as the width budget
-         * tightens; the row is centred so the pill hugs the screen top like a
-         * notch. Width is pill.stripFaceW, not the row's implicit width, so the
-         * elided title never inflates the pill.
-         *
-         * The active-workspace number is served by the hover `ws` instance
-         * (Phase 4 dedupe): it is always alive, so the number is current the
-         * moment this mode is shown, and its `enabled: hover.live` only gates
-         * the dot MouseAreas, never its hyprctl watcher.
-         */
-        Row {
-            id: stripFace
-            visible: pill.specialView === "" && pill.stripBar
-            anchors.centerIn: parent
-            spacing: pill.stripGap
-
-            Rectangle {
-                id: stripArt
-                anchors.verticalCenter: parent.verticalCenter
-                visible: pill.stripMedia
-                width: pill.stripArtW
-                height: pill.stripArtW
-                radius: 5 * pill.s
-                color: Theme.tileBg
-                clip: true
-                Image {
-                    id: stripArtImg
-                    anchors.fill: parent
-                    source: Players.artUrl
-                    sourceSize: Qt.size(Math.ceil(width * 2), Math.ceil(height * 2))
-                    fillMode: Image.PreserveAspectCrop
-                    asynchronous: true
-                    visible: status === Image.Ready
-                }
-                /** No art from the player: the source's own app icon stands in. */
-                Image {
-                    id: stripArtIcon
-                    anchors.centerIn: parent
-                    width: parent.width - 8 * pill.s
-                    height: parent.height - 8 * pill.s
-                    source: Players.appIconFor(Players.active)
-                    sourceSize: Qt.size(Math.ceil(width * 2), Math.ceil(height * 2))
-                    fillMode: Image.PreserveAspectFit
-                    asynchronous: true
-                    smooth: true
-                    visible: stripArtImg.status !== Image.Ready && status === Image.Ready
-                }
-            }
-
-            Text {
-                id: stripTitle
-                anchors.verticalCenter: parent.verticalCenter
-                visible: pill.stripMedia
-                text: Players.title
-                width: pill.stripTitleW
-                elide: Text.ElideRight
-                color: Theme.cream
-                font.family: Theme.font
-                font.pixelSize: 12.5 * pill.s
-                font.weight: Font.Medium
-            }
-
-            MusicBars {
-                id: stripViz
-                anchors.verticalCenter: parent.verticalCenter
-                visible: pill.stripMedia && Cava.active
-                s: pill.s
-                span: 14
-            }
-
-            Text {
-                id: stripDay
-                anchors.verticalCenter: parent.verticalCenter
-                text: clock.weekday
-                color: Theme.dim
-                font.family: Theme.font
-                font.pixelSize: 12 * pill.s
-                font.weight: Font.DemiBold
-            }
-            Text {
-                id: stripTime
-                anchors.verticalCenter: parent.verticalCenter
-                text: clock.hhmm
-                color: Theme.cream
-                font.family: Theme.font
-                font.pixelSize: 17 * pill.s
-                font.weight: Font.DemiBold
-                font.features: { "tnum": 1 }
-            }
-            Text {
-                id: stripWs
-                anchors.verticalCenter: parent.verticalCenter
-                text: ws.activeWs
-                color: Theme.vermLit
-                font.family: Theme.font
-                font.pixelSize: 12 * pill.s
-                font.weight: Font.DemiBold
-                font.features: { "tnum": 1 }
-            }
-            Text {
-                id: stripLay
-                anchors.verticalCenter: parent.verticalCenter
-                text: kbLayout.code
-                color: Theme.dim
-                font.family: Theme.font
-                font.pixelSize: 12 * pill.s
-                font.weight: Font.DemiBold
-            }
-            Row {
-                id: stripBat
-                anchors.verticalCenter: parent.verticalCenter
-                visible: Battery.present
-                spacing: 4 * pill.s
-                GlyphIcon {
-                    anchors.verticalCenter: parent.verticalCenter
-                    visible: Battery.charging
-                    width: 11 * pill.s
-                    height: 11 * pill.s
-                    name: "bolt"
-                    color: Battery.low ? Theme.vermLit : Theme.dim
-                    stroke: 1.6
-                }
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: Battery.pct + "%"
-                    color: Battery.low ? Theme.vermLit : Theme.dim
-                    font.family: Theme.font
-                    font.pixelSize: 12 * pill.s
-                    font.weight: Font.DemiBold
-                    font.features: { "tnum": 1 }
-                }
-            }
-        }
-
-        TextMetrics {
-            id: stripTitleMetrics
-            text: Players.title
-            font.family: Theme.font
-            font.pixelSize: 12.5 * pill.s
-            font.weight: Font.Medium
-        }
-
         Row {
             id: restRow
-            visible: !pill.stripBar
             anchors.centerIn: parent
             spacing: 9 * pill.s
-            Item {
-                id: restKanji
-                visible: pill.specialView === "" && Flags.mainDisplay === "minimal"
-                anchors.verticalCenter: parent.verticalCenter
-                width: kanjiFill.implicitWidth
-                height: kanjiFill.implicitHeight
-
-                /** Audio leaving the speakers flips the clock glyph over to the live waveform. */
-                readonly property bool barsOn: Flags.musicViz && Cava.active
-
-                Text {
-                    anchors.fill: parent
-                    opacity: (Flags.showGlyphs && !restKanji.barsOn) ? 1 : 0
-                    text: kanjiFill.text
-                    color: "transparent"
-                    font: kanjiFill.font
-                    style: Text.Outline
-                    styleColor: Qt.alpha(Theme.vermLit,
-                        Math.min(1, (pill.mode === "rest" || !pill.hoverSoulGate ? 0.5 : 0) + pill.kanjiFlash))
-                    Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
-                }
-
-                Text {
-                    id: kanjiFill
-                    opacity: (Flags.showGlyphs && !restKanji.barsOn) ? 1 : 0
-                    text: "時"
-                    color: Theme.cream
-                    font.family: Theme.fontJp
-                    font.weight: Font.Medium
-                    font.pixelSize: 15 * pill.s
-                    Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
-                }
-
-                GlyphIcon {
-                    anchors.centerIn: parent
-                    opacity: (!Flags.showGlyphs && !restKanji.barsOn) ? 1 : 0
-                    width: 17 * pill.s
-                    height: 17 * pill.s
-                    name: "clock"
-                    color: Theme.cream
-                    stroke: 1.7
-                    Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
-                }
-
-                MusicBars {
-                    id: musicBars
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.bottom: kanjiFill.baseline
-                    s: pill.s
-                    /** Culled (not just faded) while the waveform is off, so the
-                     *  per-bar easing anims don't keep ticking at 60fps invisibly. */
-                    visible: restKanji.barsOn
-                    opacity: restKanji.barsOn ? 1 : 0
-                    scale: restKanji.barsOn ? 1 : 0.7
-                    Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
-                    Behavior on scale { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
-                }
-            }
             Text {
-                visible: pill.specialView === "" && Flags.mainDisplay === "minimal"
-                anchors.verticalCenter: parent.verticalCenter
-                text: clock.hhmm
-                color: Theme.cream
-                font.family: Theme.font
-                font.pixelSize: 16 * pill.s
-                font.weight: Font.DemiBold
-                font.features: { "tnum": 1 }
-            }
-            Text {
-                visible: pill.specialView === "" && Flags.mainDisplay === "classic"
+                visible: pill.specialView === ""
                 anchors.verticalCenter: parent.verticalCenter
                 text: clock.date
                 color: Theme.dim
@@ -1498,7 +1154,7 @@ Item {
                 font.weight: Font.DemiBold
             }
             Text {
-                visible: pill.specialView === "" && Flags.mainDisplay === "classic"
+                visible: pill.specialView === ""
                 anchors.verticalCenter: parent.verticalCenter
                 text: clock.hhmm
                 color: Theme.cream
@@ -1506,69 +1162,6 @@ Item {
                 font.pixelSize: 16 * pill.s
                 font.weight: Font.DemiBold
                 font.features: { "tnum": 1 }
-            }
-            Text {
-                visible: pill.specialView === "" && Flags.mainDisplay === "system"
-                anchors.verticalCenter: parent.verticalCenter
-                text: clock.weekday
-                color: Theme.dim
-                font.family: Theme.font
-                font.pixelSize: 11 * pill.s
-                font.weight: Font.DemiBold
-            }
-            Text {
-                visible: pill.specialView === "" && Flags.mainDisplay === "system"
-                anchors.verticalCenter: parent.verticalCenter
-                text: clock.hhmm
-                color: Theme.cream
-                font.family: Theme.font
-                font.pixelSize: 15 * pill.s
-                font.weight: Font.DemiBold
-                font.features: { "tnum": 1 }
-            }
-            Text {
-                visible: pill.specialView === "" && Flags.mainDisplay === "system"
-                    && ws.activeWs !== ""
-                anchors.verticalCenter: parent.verticalCenter
-                text: ws.activeWs
-                color: Theme.vermLit
-                font.family: Theme.font
-                font.pixelSize: 11 * pill.s
-                font.weight: Font.Bold
-                font.features: { "tnum": 1 }
-            }
-            Text {
-                visible: pill.specialView === "" && Flags.mainDisplay === "system"
-                anchors.verticalCenter: parent.verticalCenter
-                text: kbLayout.code
-                color: Theme.dim
-                font.family: Theme.font
-                font.pixelSize: 11 * pill.s
-                font.weight: Font.DemiBold
-            }
-            Row {
-                visible: pill.specialView === "" && Flags.mainDisplay === "system"
-                    && Battery.present
-                anchors.verticalCenter: parent.verticalCenter
-                spacing: 3 * pill.s
-                GlyphIcon {
-                    anchors.verticalCenter: parent.verticalCenter
-                    visible: Battery.charging
-                    width: 10 * pill.s
-                    height: 10 * pill.s
-                    name: "bolt"
-                    color: Battery.low ? Theme.vermLit : Theme.dim
-                    stroke: 1.6
-                }
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: Battery.pct + "%"
-                    color: Battery.low ? Theme.vermLit : Theme.dim
-                    font.family: Theme.font
-                    font.pixelSize: 11 * pill.s
-                    font.weight: Font.DemiBold
-                    font.features: { "tnum": 1 }
-                }
             }
             Text {
                 visible: pill.specialView !== ""
@@ -1665,76 +1258,6 @@ Item {
                 visible: false
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 12 * pill.s
-
-                Item {
-                    id: mediaIcon
-                    anchors.verticalCenter: parent.verticalCenter
-                    visible: pill.hasMedia
-                    width: 17 * pill.s
-                    height: 17 * pill.s
-
-                    GlyphIcon {
-                        anchors.fill: parent
-                        name: "music"
-                        color: mediaArea.containsMouse ? Theme.cream : (Players.playing ? Theme.flameGlow : Theme.iconDim)
-                        stroke: 1.7
-                    }
-
-                    MouseArea {
-                        id: mediaArea
-                        anchors.fill: parent
-                        anchors.margins: -6 * pill.s
-                        hoverEnabled: true
-                        enabled: hover.live
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: pill.requestSurface("media")
-                        onContainsMouseChanged: if (containsMouse) pill.soulTarget = "media"
-                    }
-                }
-
-                Item {
-                    id: weatherGlance
-                    anchors.verticalCenter: parent.verticalCenter
-                    visible: Weather.ready
-                    width: weatherRow.implicitWidth
-                    height: weatherRow.implicitHeight
-
-                    Row {
-                        id: weatherRow
-                        anchors.centerIn: parent
-                        spacing: 5 * pill.s
-
-                        GlyphIcon {
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: 16 * pill.s
-                            height: 16 * pill.s
-                            name: Weather.glyphFor(Weather.codeNow, Weather.isDay)
-                            color: Theme.subtle
-                            stroke: 1.8
-                        }
-
-                        Text {
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: Weather.tempNow + "°"
-                            color: Theme.subtle
-                            font.family: Theme.font
-                            font.pixelSize: 12.5 * pill.s
-                            font.weight: Font.Medium
-                            font.features: { "tnum": 1 }
-                        }
-                    }
-
-                    MouseArea {
-                        id: weatherArea
-                        anchors.centerIn: parent
-                        width: weatherRow.implicitWidth + 12 * pill.s
-                        height: weatherRow.implicitHeight + 8 * pill.s
-                        hoverEnabled: true
-                        enabled: hover.live
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: pill.requestSurface("weather")
-                    }
-                }
 
                 MinimizedTray {
                     id: minimized
@@ -2092,7 +1615,7 @@ Item {
                         hoverEnabled: true
                         enabled: hover.live
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: pill.requestSurface("appearance")
+                        onClicked: pill.requestSurface("display")
                         onContainsMouseChanged: if (containsMouse) pill.soulTarget = "appearance"
                     }
                 }
@@ -2224,21 +1747,6 @@ Item {
     }
 
     Loader {
-        id: ldWeather
-        active: false
-        anchors.fill: parent
-        sourceComponent: WeatherSurface {
-            s: pill.s
-            open: pill.weatherOpen
-            morphCloseness: pill.morphCloseness
-            onRequestClose: pill.requestClose()
-        }
-    }
-
-
-
-
-    Loader {
         id: ldPower
         active: false
         anchors.fill: parent
@@ -2247,26 +1755,6 @@ Item {
             open: pill.powerOpen
             morphCloseness: pill.morphCloseness
             onRequestClose: pill.requestClose()
-        }
-    }
-
-    Loader {
-        id: ldMedia
-        active: false
-        anchors.fill: parent
-sourceComponent: Media {
-            s: pill.s
-            open: pill.mediaOpen
-            morphCloseness: pill.morphCloseness
-            topFlat: pill.stripBar ? 1 : 0
-            pinned: pill.pinned
-            onRequestClose: pill.requestClose()
-            onRequestPin: pill.forcePinned = !pill.forcePinned
-            onRequestExpand: {
-                pill.requestClose();
-                pill.hoverLatch = true;
-                pill.expandLatch = true;
-            }
         }
     }
 
@@ -2309,19 +1797,6 @@ sourceComponent: Media {
     }
 
     Loader {
-        id: ldAppearance
-        active: false
-        anchors.fill: parent
-        sourceComponent: Appearance {
-            s: pill.s * pill.settingsScale
-            open: pill.appearanceOpen
-            morphCloseness: pill.morphCloseness
-            onRequestClose: pill.requestClose()
-            onRequestSurface: (name) => pill.requestSurface(name)
-        }
-    }
-
-    Loader {
         id: ldDisplay
         active: false
         anchors.fill: parent
@@ -2341,32 +1816,6 @@ sourceComponent: Media {
         sourceComponent: ThemeSurface {
             s: pill.s * pill.settingsScale
             open: pill.themeOpen
-            morphCloseness: pill.morphCloseness
-            onRequestClose: pill.requestClose()
-            onRequestSurface: (name) => pill.requestSurface(name)
-        }
-    }
-
-    Loader {
-        id: ldInterface
-        active: false
-        anchors.fill: parent
-        sourceComponent: InterfaceSurface {
-            s: pill.s * pill.settingsScale
-            open: pill.interfaceOpen
-            morphCloseness: pill.morphCloseness
-            onRequestClose: pill.requestClose()
-            onRequestSurface: (name) => pill.requestSurface(name)
-        }
-    }
-
-    Loader {
-        id: ldFontpicker
-        active: false
-        anchors.fill: parent
-        sourceComponent: FontPicker {
-            s: pill.s * pill.settingsScale
-            open: pill.fontpickerOpen
             morphCloseness: pill.morphCloseness
             onRequestClose: pill.requestClose()
             onRequestSurface: (name) => pill.requestSurface(name)

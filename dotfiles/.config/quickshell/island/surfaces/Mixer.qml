@@ -6,7 +6,7 @@ import "../Singletons"
 import "../components"
 
 /**
- * Mixer surface: header with DND / Keep-Awake chips and a row of vertical
+ * Mixer surface: header with DND / night-light chips and a row of vertical
  * ink-faders wired to real hardware (brightness via ddcutil or brightnessctl,
  * volume and mic via Pipewire). Fills the lower body of the pill.
  */
@@ -287,15 +287,6 @@ PillSurface {
             spacing: 8 * root.s
             Text {
                 anchors.verticalCenter: parent.verticalCenter
-                visible: Flags.showGlyphs
-                text: "調"
-                color: Theme.cream
-                font.family: Theme.fontJp
-                font.weight: Font.Medium
-                font.pixelSize: 16 * root.s
-            }
-            Text {
-                anchors.verticalCenter: parent.verticalCenter
                 text: "MIXER"
                 color: Theme.subtle
                 font.family: Theme.font
@@ -328,13 +319,6 @@ PillSurface {
                 tipTitle: "Do not disturb"
                 tipDesc: "Silence notifications"
                 onToggled: Flags.dnd = !Flags.dnd
-            }
-            IconChip {
-                glyph: "awake"
-                on: Flags.keepAwake
-                tipTitle: "Keep awake"
-                tipDesc: "Block sleep & screen-off"
-                onToggled: Flags.keepAwake = !Flags.keepAwake
             }
             IconChip {
                 glyph: "sun"

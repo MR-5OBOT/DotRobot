@@ -70,9 +70,7 @@ Singleton {
     readonly property color frameBorder:  Qt.alpha(cream, 0.10)
     readonly property color creamMenu:     Qt.alpha(cream, 0.82)
     readonly property real shadowOpacity: 0.5
-    readonly property var fontFamilies: Qt.fontFamilies()
-    readonly property string font: (Flags.uiFont.length > 0 && fontFamilies.indexOf(Flags.uiFont) >= 0) ? Flags.uiFont : "Inter"
-    readonly property string fontJp: "Zen Kaku Gothic New"
+    readonly property string font: "Inter"
 
     /**
      * MPRIS trackArtists arrives as a JS array from some players and as a

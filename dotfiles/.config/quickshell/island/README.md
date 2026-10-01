@@ -10,16 +10,16 @@ It is one part of the quickshell config in `dotfiles/.config/quickshell`: the to
 
 - **Home** — a click on the notch opens the control centre: a header of workspace dots and every surface's button, the identity card over the live wallpaper, now-playing, clock/weather and live system vitals. A keybind still opens any surface directly.
 - **Notch** — flush with the top edge, pure black, concave shoulders, slides out of the screen; panels and the volume/brightness popup share the shape.
-- **Panels** — calendar with events and reminders, weather, media player, mixer (volume, mic, brightness, DND, keep-awake, night light), battery with power-profile button, system monitor with a speed test, notification inbox and toasts, minimized-window stash, power menu, settings (display, font, interface).
+- **Panels** — calendar with events and reminders, mixer (volume, mic, brightness, DND, night light), battery with power-profile button, system monitor with a speed test, notification inbox and toasts, minimized-window stash, power menu, settings (display incl. keep-awake).
 - **Notifications** — the island owns the notification server: toasts stay 8 seconds, the inbox shows each notification's title, body and icon.
-- **Weather** — Open-Meteo forecast in a wide panel. Location comes from GeoClue (wifi networks in range), falls back to an IP lookup, and can be overridden by typing a town or exact `lat,lon`.
+- **Weather** — Open-Meteo forecast on Home's clock card. Location comes from GeoClue (wifi networks in range) and falls back to an IP lookup.
 - **Colours** — surfaces stay black and neutral grey; the accent follows the current wallpaper.
 
 ## Requirements
 
 - Hyprland and Quickshell 0.3+
 - `upower`, `bluez`, NetworkManager (`nmcli`), `jq`, ImageMagick (`magick`), `awww`, `brightnessctl`, `cliphist` + `wl-clipboard`
-- Optional: `cava` (music bars), `hyprsunset` (night light), `power-profiles-daemon` (power profiles), `geoclue` (precise weather location)
+- Optional: `hyprsunset` (night light), `power-profiles-daemon` (power profiles), `geoclue` (precise weather location)
 
 ## Launch
 
@@ -31,10 +31,9 @@ Target `island`; the first argument is the monitor (`""` = focused).
 
 ```sh
 qs ipc call island calendar ""
-qs ipc call island page "" weather
 ```
 
-Handlers: `home`, `mixer`, `calendar`, `launcher`, `power`, `link`, `battery`, `sysmon`/`system`, `clipboard`, `wallpaper`, `media`, `peek`, `hide`, `unloadAll`, `page`, `nav`. `launcher`, `clipboard` and `wallpaper` open the shell's own widgets.
+Handlers: `home`, `mixer`, `calendar`, `launcher`, `power`, `link`, `battery`, `sysmon`/`system`, `clipboard`, `wallpaper`, `peek`, `hide`, `unloadAll`, `page`, `nav`. `launcher`, `clipboard` and `wallpaper` open the shell's own widgets.
 
 ## Precise location (GeoClue)
 

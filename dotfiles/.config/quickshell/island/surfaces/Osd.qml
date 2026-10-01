@@ -74,8 +74,8 @@ Item {
     /**
      * Media (track) flashes are intentionally disabled: a playing browser throws
      * an announce on every title/metadata churn, so any autoplaying feed
-     * (YouTube Shorts, Instagram Reels) would pop the pill open on loop. The
-     * media surface is the one now-playing view; no OSD flash for it.
+     * (YouTube Shorts, Instagram Reels) would pop the pill open on loop. Home's
+     * now-playing card is the one now-playing view; no OSD flash for it.
      */
 
     /**

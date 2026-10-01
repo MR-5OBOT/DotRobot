@@ -4,14 +4,12 @@ import Quickshell
 import Quickshell.Io
 
 /**
- * Live weather for the pill's hover glance, served by Open-Meteo with no API key.
+ * Live weather for Home's clock card, served by Open-Meteo with no API key.
  * Location resolves once and is cached so a restart never re-hits the network for
- * coordinates: by default GeoClue locates the machine from the wifi networks in
- * range (the keyless ip-api lookup covers a missing GeoClue) and OpenStreetMap
- * names the spot, but a non-empty `Flags.weatherCity` override (a town name, or
- * exact "lat,lon") wins. Once coordinates are known the forecast runs
- * immediately and then every 20 minutes, exposing the current conditions plus a
- * 24-hour hourly strip.
+ * coordinates: GeoClue locates the machine from the wifi networks in range (the
+ * keyless ip-api lookup covers a missing GeoClue) and OpenStreetMap names the
+ * spot. Once coordinates are known the forecast runs immediately and then every
+ * 20 minutes, exposing the current conditions plus a 5-day daily strip.
  *
  * Everything is async through `Process` + `curl`, mirroring how Sysmon and Devices
  * fetch, so startup never blocks on a slow or absent connection. Every JSON parse
@@ -20,9 +18,9 @@ import Quickshell.Io
  * singleton arms on first hover the glance renders instantly from cache and the
  * fresh fetch lands ~1 second later in the background.
  *
- * Conditions render as on-brand kanji rather than icons — 晴 clear, 曇 cloud,
- * 雨 rain, 雪 snow, 霧 fog, 雷 thunder, 月 a clear night — keyed off the WMO weather
- * code via `glyphFor`, with `labelFor` giving the short english word.
+ * Conditions render as icons (sun, cloud, rain, snow, fog, lightning, moon for a
+ * clear night) keyed off the WMO weather code via `glyphFor`, with `labelFor`
+ * giving the short english word.
  */
 Singleton {
     id: root
@@ -31,10 +29,8 @@ Singleton {
 
     property int tempNow: 0
     property int codeNow: 0
-    property int humidity: 0
     property bool isDay: true
     property string city: ""
-    property var hourly: []
     property var daily: []
     property bool ready: false
 
@@ -51,7 +47,7 @@ Singleton {
     property bool needed: false
 
     /**
-     * Maps a WMO weather code to its on-brand kanji. Clear skies show 月 at night
+     * Maps a WMO weather code to its icon name. Clear skies show the moon at night
      * so the glance reads day-versus-night at a glance; every other condition is
      * the same glyph round the clock.
      */
@@ -101,7 +97,6 @@ Singleton {
         weatherCache.setText(JSON.stringify({
             tempNow: root.tempNow,
             codeNow: root.codeNow,
-            humidity: root.humidity,
             isDay: root.isDay,
             ts: Date.now()
         }));
@@ -117,7 +112,6 @@ Singleton {
             if (c && typeof c.codeNow === "number") {
                 root.tempNow = c.tempNow || 0;
                 root.codeNow = c.codeNow;
-                root.humidity = c.humidity || 0;
                 root.isDay = c.isDay !== false;
                 root.ready = true;
             }
@@ -130,20 +124,17 @@ Singleton {
         wxProc.running = true;
     }
 
-    readonly property bool hasOverride: (Flags.weatherCity || "").trim().length > 0
-
     /**
      * First weather demand arms the network path (loads fresh data on hover). The
-     * cached spot renders at once; without a manual override a fresh GeoClue fix
-     * is taken each session too, since a laptop moves between them.
+     * cached spot renders at once; a fresh GeoClue fix is taken each session
+     * too, since a laptop moves between them.
      */
     onNeededChanged: {
         if (!root.needed)
             return;
         if (root.located)
             root.fetchWeather();
-        if (!root.located || !root.hasOverride)
-            root.locate();
+        root.locate();
     }
 
     /**
@@ -178,27 +169,10 @@ Singleton {
         printErrors: false
     }
 
-    /**
-     * Resolve coordinates: an exact "lat,lon" override is used as-is, a town name
-     * is geocoded, and an empty override asks GeoClue (IP lookup as the fallback).
-     */
+    /** Resolve coordinates through GeoClue (IP lookup as the fallback). */
     function locate() {
-        if (!root.needed)
-            return;
-        var q = (Flags.weatherCity || "").trim();
-        var m = q.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
-        if (m) {
-            root.lat = Number(m[1]);
-            root.lon = Number(m[2]);
-            root.city = root.lat.toFixed(3) + ", " + root.lon.toFixed(3);
-            root.located = true;
-            root.writeLoc();
-            root.fetchWeather();
-        } else if (q.length > 0) {
-            geoProc.running = true;
-        } else if (!geoclueProc.running) {
+        if (root.needed && !geoclueProc.running)
             geoclueProc.running = true;
-        }
     }
 
     /**
@@ -263,17 +237,12 @@ Singleton {
         }
     }
 
-    /** Re-locate hourly while in automatic mode, in case the laptop moved. */
+    /** Re-locate hourly, in case the laptop moved. */
     Timer {
         interval: 3600000
-        running: root.needed && !root.hasOverride
+        running: root.needed
         repeat: true
         onTriggered: root.locate()
-    }
-
-    Connections {
-        target: Flags
-        function onWeatherCityChanged() { root.locate(); }
     }
 
     Process {
@@ -297,39 +266,12 @@ Singleton {
     }
 
     Process {
-        id: geoProc
-        command: ["curl", "-s", "--max-time", "8", "-G",
-            "https://geocoding-api.open-meteo.com/v1/search",
-            "--data-urlencode", "name=" + (Flags.weatherCity || ""),
-            "--data-urlencode", "count=1"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                try {
-                    var d = JSON.parse(this.text);
-                    var r = d.results && d.results[0];
-                    if (r && typeof r.latitude === "number" && typeof r.longitude === "number") {
-                        root.city = r.name || "";
-                        root.lat = r.latitude;
-                        root.lon = r.longitude;
-                        root.located = true;
-                        root.writeLoc();
-                        root.fetchWeather();
-                    } else {
-                        ipProc.running = true;
-                    }
-                } catch (e) { ipProc.running = true; }
-            }
-        }
-    }
-
-    Process {
         id: wxProc
         command: ["curl", "-s", "--max-time", "10",
             "https://api.open-meteo.com/v1/forecast?latitude=" + root.lat
             + "&longitude=" + root.lon
-            + "&current=temperature_2m,weather_code,is_day,relative_humidity_2m"
-            + "&hourly=temperature_2m,weather_code&forecast_hours=24"
-            + "&daily=weather_code,temperature_2m_max,relative_humidity_2m_mean&forecast_days=5&timezone=auto"]
+            + "&current=temperature_2m,weather_code,is_day"
+            + "&daily=weather_code,temperature_2m_max&forecast_days=5&timezone=auto"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try {
@@ -337,37 +279,22 @@ Singleton {
                     var cur = d.current;
                     if (!cur)
                         return;
-                    var rows = [];
-                    var h = d.hourly;
-                    if (h && h.time && h.temperature_2m && h.weather_code) {
-                        var n = Math.min(h.time.length, h.temperature_2m.length, h.weather_code.length);
-                        for (var i = 0; i < n; i++) {
-                            rows.push({
-                                hour: h.time[i].slice(11, 13),
-                                temp: Math.round(h.temperature_2m[i]),
-                                code: h.weather_code[i]
-                            });
-                        }
-                    }
                     var days = [];
                     var dd = d.daily;
-                    if (dd && dd.time && dd.weather_code && dd.temperature_2m_max && dd.relative_humidity_2m_mean) {
+                    if (dd && dd.time && dd.weather_code && dd.temperature_2m_max) {
                         var dn = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-                        var m = Math.min(dd.time.length, dd.weather_code.length, dd.temperature_2m_max.length, dd.relative_humidity_2m_mean.length);
+                        var m = Math.min(dd.time.length, dd.weather_code.length, dd.temperature_2m_max.length);
                         for (var j = 0; j < m; j++) {
                             days.push({
                                 day: dn[new Date(dd.time[j]).getDay()],
                                 code: dd.weather_code[j],
-                                temp: Math.round(dd.temperature_2m_max[j]),
-                                rh: Math.round(dd.relative_humidity_2m_mean[j])
+                                temp: Math.round(dd.temperature_2m_max[j])
                             });
                         }
                     }
                     root.tempNow = Math.round(cur.temperature_2m);
                     root.codeNow = cur.weather_code;
-                    root.humidity = Math.round(cur.relative_humidity_2m);
                     root.isDay = cur.is_day === 1;
-                    root.hourly = rows;
                     root.daily = days;
                     root.ready = true;
                     root.writeWeather();
