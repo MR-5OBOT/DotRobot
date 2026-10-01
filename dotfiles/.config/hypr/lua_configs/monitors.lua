@@ -14,7 +14,7 @@ hl.monitor({
 	mode = "1920x1080@240",
 	position = "auto-right",
 	scale = 1,
-	vrr = 2, -- FreeSync in fullscreen apps only; always-on flickers the desktop
+	-- No vrr: Intel offers VRR only on DisplayPort/USB-C here, not HDMI.
 })
 
 -- Workspaces 1-10 live on the Gigabyte, so apps that windowrules.lua sends to them
