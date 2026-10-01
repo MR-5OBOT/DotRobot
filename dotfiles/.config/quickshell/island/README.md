@@ -8,9 +8,9 @@ It is one part of the quickshell config in `dotfiles/.config/quickshell`: the to
 
 ## Features
 
-- **Home** — a click on the notch opens the control centre: a header of workspace dots and every surface's button, the identity card over the live wallpaper, now-playing, clock/weather and live system vitals. A keybind still opens any surface directly.
+- **Home** — a click on the notch opens the control centre: a header of workspace dots and every surface's button, the identity card over the live wallpaper with volume-mute, mic-mute and DND toggles, now-playing, clock/weather and live system vitals. A keybind still opens any surface directly.
 - **Notch** — flush with the top edge, pure black, concave shoulders, slides out of the screen; panels and the volume/brightness popup share the shape.
-- **Panels** — calendar with events and reminders, mixer (volume, mic, brightness, DND, night light), battery with power-profile button, system monitor with a speed test, notification inbox and toasts, minimized-window stash, power menu, settings (display incl. keep-awake).
+- **Panels** — calendar with events and reminders, mixer (volume, mic, brightness), battery with power-profile button, system monitor with a speed test, notification inbox and toasts, minimized-window stash, power menu, settings (display incl. keep-awake).
 - **Notifications** — the island owns the notification server: toasts stay 8 seconds, the inbox shows each notification's title, body and icon.
 - **Weather** — Open-Meteo forecast on Home's clock card. Location comes from GeoClue (wifi networks in range) and falls back to an IP lookup.
 - **Colours** — surfaces stay black and neutral grey; the accent follows the current wallpaper.
@@ -19,7 +19,7 @@ It is one part of the quickshell config in `dotfiles/.config/quickshell`: the to
 
 - Hyprland and Quickshell 0.3+
 - `upower`, `bluez`, NetworkManager (`nmcli`), `jq`, ImageMagick (`magick`), `awww`, `brightnessctl`, `cliphist` + `wl-clipboard`
-- Optional: `hyprsunset` (night light), `power-profiles-daemon` (power profiles), `geoclue` (precise weather location)
+- Optional: `power-profiles-daemon` (power profiles), `geoclue` (precise weather location)
 
 ## Launch
 
@@ -48,5 +48,5 @@ Check with `/usr/lib/geoclue-2.0/demos/where-am-i -t 30`; an accuracy of a few d
 
 ## State and cache
 
-- state: `~/.local/state/island` (flags, calendar events and reminders, spaces, night light) and `~/.local/state/island-wallpaper*`
+- state: `~/.local/state/island` (flags, calendar events and reminders, spaces) and `~/.local/state/island-wallpaper*`
 - cache: `~/.cache/island` (palette, thumbnails, weather)
