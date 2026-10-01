@@ -51,10 +51,6 @@ Singleton {
     property alias autoHide: adapter.autoHide
     property alias topGap: adapter.topGap
     property alias appGap: adapter.appGap
-    property alias nightLightMode: adapter.nightLightMode
-    property alias nightLightTemp: adapter.nightLightTemp
-    property alias nightLightOnMin: adapter.nightLightOnMin
-    property alias nightLightOffMin: adapter.nightLightOffMin
     property alias memorySaver: adapter.memorySaver
     property alias unloadSec: adapter.unloadSec
 
@@ -96,10 +92,6 @@ Singleton {
             property real topGap: 1.0
             /** Pill-to-window band as a fraction of the shipped 12px. 0 tucks the windows flush under the pill. */
             property real appGap: 1.0
-            property string nightLightMode: "off"
-            property int nightLightTemp: 4000
-            property int nightLightOnMin: 1260
-            property int nightLightOffMin: 450
             /** Drop closed surfaces after their own idle tier instead of holding them in RAM all session. */
             property bool memorySaver: true
             /** Wallpaper-tier idle in seconds when memorySaver is on; the other tiers scale off it. */

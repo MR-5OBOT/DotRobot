@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Services.Pipewire
 import Quickshell.Widgets
 import "../Singletons"
 import "../components"
@@ -124,6 +125,16 @@ PillSurface {
     readonly property string hhmm: Qt.formatDateTime(clock.date, Flags.time12h ? "h:mm AP" : "HH:mm")
     readonly property string dateLine: Qt.formatDateTime(clock.date, "dddd, yyyy-MM-dd")
 
+    // ---- quick toggles -----------------------------------------------------
+    readonly property var sink: Pipewire.defaultAudioSink
+    readonly property var source: Pipewire.defaultAudioSource
+    readonly property bool sinkMuted: !!(sink && sink.audio && sink.audio.muted)
+    readonly property bool sourceMuted: !!(source && source.audio && source.audio.muted)
+
+    PwObjectTracker {
+        objects: [root.sink, root.source].filter(Boolean)
+    }
+
     // ---- shared leaf components -------------------------------------------
 
     /** Header nav button: one surface of the pill, lit while it is the open one. */
@@ -183,6 +194,51 @@ PillSurface {
             placement: "below"
             title: rb.tip
             show: rbHover.hovered
+        }
+    }
+
+    /**
+     * Quick toggle on the identity card: a dark glass square so it reads over
+     * any wallpaper, lit in the accent while engaged (muted, DND on).
+     */
+    component HeroToggle: Rectangle {
+        id: ht
+        required property string glyph
+        required property string tip
+        property bool on: false
+        signal toggled()
+
+        width: 32 * root.s
+        height: 32 * root.s
+        radius: 10 * root.s
+        color: ht.on ? Qt.alpha(Theme.onGlow, 0.2)
+            : Qt.rgba(0, 0, 0, htHover.hovered ? 0.62 : 0.42)
+        border.width: 1
+        border.color: ht.on ? Qt.alpha(Theme.onGlow, 0.55) : Theme.frameBorder
+        Behavior on color { ColorAnimation { duration: Motion.fast } }
+        Behavior on border.color { ColorAnimation { duration: Motion.fast } }
+
+        GlyphIcon {
+            anchors.centerIn: parent
+            width: 17 * root.s
+            height: 17 * root.s
+            name: ht.glyph
+            color: ht.on ? Theme.vermLit : (htHover.hovered ? Theme.bright : Theme.iconDim)
+            stroke: 1.7
+            Behavior on color { ColorAnimation { duration: Motion.fast } }
+        }
+
+        HoverHandler { id: htHover }
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: ht.toggled()
+        }
+        Tooltip {
+            s: root.s
+            placement: "below"
+            title: ht.tip
+            show: htHover.hovered
         }
     }
 
@@ -357,6 +413,35 @@ PillSurface {
                     renderType: Text.NativeRendering
                     visible: root.kernel.length > 0
                 }
+            }
+        }
+
+        /** Toggles on the card's open right side. A sibling rather than a child so
+            the hero's clip never cuts their tooltips off. */
+        Row {
+            z: 1
+            anchors.right: hero.right
+            anchors.rightMargin: 18 * root.s
+            anchors.verticalCenter: hero.verticalCenter
+            spacing: 8 * root.s
+
+            HeroToggle {
+                glyph: root.sinkMuted ? "speaker-off" : "speaker"
+                tip: root.sinkMuted ? "Unmute volume" : "Mute volume"
+                on: root.sinkMuted
+                onToggled: if (root.sink && root.sink.audio) root.sink.audio.muted = !root.sinkMuted
+            }
+            HeroToggle {
+                glyph: root.sourceMuted ? "mic-off" : "mic"
+                tip: root.sourceMuted ? "Unmute microphone" : "Mute microphone"
+                on: root.sourceMuted
+                onToggled: if (root.source && root.source.audio) root.source.audio.muted = !root.sourceMuted
+            }
+            HeroToggle {
+                glyph: Flags.dnd ? "dnd" : "inbox"
+                tip: "Do not disturb"
+                on: Flags.dnd
+                onToggled: Flags.dnd = !Flags.dnd
             }
         }
 
