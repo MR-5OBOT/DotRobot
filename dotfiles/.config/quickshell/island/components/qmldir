@@ -4,7 +4,6 @@ HeatHold HeatHold.qml
 KbLayout KbLayout.qml
 LinkToggle LinkToggle.qml
 Marquee Marquee.qml
-MusicBars MusicBars.qml
 PillSurface PillSurface.qml
 SettingsHeader SettingsHeader.qml
 SettingsRow SettingsRow.qml

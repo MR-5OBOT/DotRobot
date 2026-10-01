@@ -6,7 +6,7 @@ import Quickshell.Services.Mpris
 import Quickshell.Hyprland
 
 /**
- * The one now-playing source the pill views read: the media surface, the source
+ * The one now-playing source the pill views read: Home's now-playing card, the source
  * switcher and the OSD. Selection is by player object so the
  * pick survives metadata churn and falls away when that player's process dies.
  * `active` is the player you last picked by hand, else the one auto-tracked by
