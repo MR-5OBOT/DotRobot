@@ -30,7 +30,6 @@ hl.bind(mainMod .. " + equal", hl.dsp.exec_cmd("qs ipc call calc toggle"))
 hl.bind(mainMod .. " + slash", hl.dsp.exec_cmd("qs ipc call keymaps toggle")) -- keymap cheat sheet
 hl.bind("XF86Calculator", hl.dsp.exec_cmd("qs ipc call calc toggle"))
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("hyprpicker -a -n"))
-hl.bind(mainMod .. " + SHIFT + I", hl.dsp.exec_cmd(SCRIPTS .. "/speedtest.sh"))
 
 -- Screenshots
 hl.bind("Print", hl.dsp.exec_cmd(RISHOT))                     -- drag region or click a window
