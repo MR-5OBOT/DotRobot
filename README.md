@@ -10,8 +10,7 @@ review them before running the installer. Wallpapers live in
 
 The wallpaper picker, Island strip, random keybind, and dynamic palette use
 `dotfiles/.config/quickshell/island/scripts/wallpaper.sh`. It supports stills
-through `awww` and videos through `mpvpaper`. Night light uses `hyprsunset` and
-the user service configured by `scripts/setup-night-light.sh`.
+through `awww` and videos through `mpvpaper`.
 
 Run all repository checks with `./scripts/test.sh` (requires Bash, Python 3,
 Node.js, jq, and the utilities named by individual test scripts). Individual

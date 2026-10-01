@@ -8,7 +8,7 @@ import "../../widgets" as Widgets
  * app root is this file's own directory tree (the quickshell project folder),
  * so nothing depends on where the shell was launched from or on exported
  * ISLAND_* environment variables. Hyprland-compat outputs (generated modules/*,
- * hypridle.conf, hyprsunset.conf and scripts/) all resolve under the same
+ * hypridle.conf and scripts/) all resolve under the same
  * project folder.
  */
 Singleton {

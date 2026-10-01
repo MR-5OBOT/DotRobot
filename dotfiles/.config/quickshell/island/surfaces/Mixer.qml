@@ -6,9 +6,9 @@ import "../Singletons"
 import "../components"
 
 /**
- * Mixer surface: header with DND / night-light chips and a row of vertical
- * ink-faders wired to real hardware (brightness via ddcutil or brightnessctl,
- * volume and mic via Pipewire). Fills the lower body of the pill.
+ * Mixer surface: header with output/input device pickers and a row of
+ * vertical ink-faders wired to real hardware (brightness via ddcutil or
+ * brightnessctl, volume and mic via Pipewire). Fills the lower body of the pill.
  */
 PillSurface {
     id: root
@@ -186,47 +186,6 @@ PillSurface {
         }
     }
 
-    component IconChip: Rectangle {
-        id: chip
-        property string glyph: ""
-        property bool on: false
-        property string tipTitle: ""
-        property string tipDesc: ""
-        signal toggled()
-
-        width: 26 * root.s
-        height: 26 * root.s
-        radius: 8 * root.s
-        color: chip.on ? Theme.frameBg : "transparent"
-        border.width: 1
-        border.color: chip.on ? Theme.frameBorder : Theme.border
-
-        GlyphIcon {
-            anchors.centerIn: parent
-            width: 15 * root.s
-            height: 15 * root.s
-            name: chip.glyph
-            color: chip.on ? Theme.vermLit : Theme.iconDim
-            stroke: 1.7
-        }
-        HoverHandler {
-            id: chipHover
-        }
-        MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: chip.toggled()
-        }
-
-        Tooltip {
-            s: root.s
-            placement: "below"
-            title: chip.tipTitle
-            desc: chip.tipDesc
-            show: chipHover.hovered
-        }
-    }
-
     /**
      * Header device picker: an icon-only button that toggles its dropdown. It
      * reads as an open field (onGlow tint and border) while its list is showing,
@@ -312,20 +271,6 @@ PillSurface {
                 open: root.openPicker === "in"
                 tip: "Input device"
                 onToggled: root.openPicker = root.openPicker === "in" ? "" : "in"
-            }
-            IconChip {
-                glyph: "dnd"
-                on: Flags.dnd
-                tipTitle: "Do not disturb"
-                tipDesc: "Silence notifications"
-                onToggled: Flags.dnd = !Flags.dnd
-            }
-            IconChip {
-                glyph: "sun"
-                on: Flags.nightLightMode !== "off"
-                tipTitle: "Night light"
-                tipDesc: "Warm the screen"
-                onToggled: NightLight.setMode(Flags.nightLightMode === "off" ? "on" : "off")
             }
         }
     }

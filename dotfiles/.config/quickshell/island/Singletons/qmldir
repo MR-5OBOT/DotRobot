@@ -14,5 +14,4 @@ singleton Workspacerules Workspacerules.qml
 singleton Spaces Spaces.qml
 singleton Surfaces Surfaces.qml
 singleton Players Players.qml
-singleton NightLight NightLight.qml
 singleton Config Config.qml
