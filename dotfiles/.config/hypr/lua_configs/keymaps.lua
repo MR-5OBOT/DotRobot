@@ -106,7 +106,7 @@ hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
 -- Thumb side buttons:
---   lower / back  (BTN_SIDE)   -> toggle speaker mute
+--   lower / back  (BTN_SIDE)   -> toggle mic mute
 --   upper / forward (BTN_EXTRA) -> region screenshot (see alternatives below)
-hl.bind("mouse:275", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --toggle"))
+hl.bind("mouse:275", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --toggle-mic"))
 hl.bind("mouse:276", hl.dsp.exec_cmd(RISHOT))
