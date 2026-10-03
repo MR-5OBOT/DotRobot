@@ -414,6 +414,12 @@ Scope {
                  * replays it as a hover even though the pointer is nowhere near the
                  * island; that falsely revealed the pill. Only a point over the strip
                  * or the pill counts.
+                 *
+                 * The write is deferred (Qt.callLater): pillRegion follows the pill's
+                 * target size, so a mode change can flip overIsland mid-update, and
+                 * writing hovered right there fed revealSession/hoverLatch back into
+                 * the hidden/mode bindings still being updated (binding loops in the
+                 * log). Deferred, it lands once they settle, with the final value.
                  */
                 HoverHandler {
                     enabled: !overlay.surfaceOpen && !pill.pinned
@@ -422,7 +428,11 @@ Scope {
                         return p.x >= r.x && p.x <= r.x + r.width && p.y >= r.y && p.y <= r.y + r.height;
                     }
                     readonly property bool overIsland: hovered && (over(revealRegion) || over(pillRegion))
-                    onOverIslandChanged: if (enabled) pill.hovered = overIsland
+                    function syncHover() {
+                        if (enabled)
+                            pill.hovered = overIsland;
+                    }
+                    onOverIslandChanged: Qt.callLater(syncHover)
                 }
                 Keys.onEscapePressed: root.close()
                 Keys.onUpPressed: (e) => {
