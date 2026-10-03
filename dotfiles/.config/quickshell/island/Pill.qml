@@ -312,7 +312,10 @@ Item {
         if (!ld)
             return null;
         ld.active = true;
-        pill.cancelUnload(name);
+        // Only an open surface cancels its tail: while auto-hide slides a just-closed
+        // surface away, `mode` still sizes it through here, and that must not keep it.
+        if (name === pill.surface)
+            pill.cancelUnload(name);
         return ld.item;
     }
 
