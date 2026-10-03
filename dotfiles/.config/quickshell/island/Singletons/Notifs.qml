@@ -16,6 +16,30 @@ Singleton {
     property var expireAt: ({})
     property var hookedIds: ({})
 
+    /**
+     * Arrival times, read state and history across QS reloads: the server keeps
+     * the notifications themselves (keepOnReload), but this singleton restarts
+     * empty, so ages read "now" and everything turned unread. Stored as JSON
+     * text because the restore copies values between engines, which strings
+     * survive. `reloaded` lands after the server may have re-sent notifications,
+     * so the old values are merged in over whatever was filled meanwhile.
+     */
+    PersistentProperties {
+        id: persist
+        reloadableId: "islandNotifs"
+        property string arrivalJson: "{}"
+        property string seenJson: "{}"
+        property string historyJson: "[]"
+        onReloaded: {
+            root.arrivalMs = Object.assign({}, root.arrivalMs, JSON.parse(arrivalJson));
+            root.seenIds = Object.assign({}, root.seenIds, JSON.parse(seenJson));
+            root.history = JSON.parse(historyJson).concat(root.history).slice(0, 50);
+        }
+    }
+    onArrivalMsChanged: persist.arrivalJson = JSON.stringify(arrivalMs)
+    onSeenIdsChanged: persist.seenJson = JSON.stringify(seenIds)
+    onHistoryChanged: persist.historyJson = JSON.stringify(history)
+
     readonly property var tracked: server.trackedNotifications.values
     readonly property int count: tracked.length + history.length
 
@@ -97,6 +121,23 @@ Singleton {
         return "";
     }
 
+    /**
+     * The app's themed icon by name, skipping images and paths: the fallback once
+     * iconFor's pick fails to load (Chromium's temp image is already gone, a sent
+     * icon path does not exist).
+     */
+    function appIconFor(n) {
+        if (!n) return "";
+        var names = [n.appIcon, n.desktopEntry, (n.appName || n.app || "").toLowerCase()];
+        for (var i = 0; i < names.length; i++) {
+            var nm = names[i];
+            if (!nm || nm.indexOf("/") >= 0) continue;
+            var p = Quickshell.iconPath(nm, true);
+            if (p.length) return p;
+        }
+        return "";
+    }
+
     function dismissEntry(e) {
         if (!e || !e.items) return;
         var d = Object.assign({}, userDismissed);
@@ -104,7 +145,8 @@ Singleton {
         var live = [];
         for (var i = 0; i < e.items.length; i++) {
             var n = e.items[i];
-            if (typeof n.dismiss === "function") {
+            // tracked, not "has dismiss()": a notification invoke() just closed is not dismissable again
+            if (root.tracked.indexOf(n) >= 0) {
                 d[n.id] = true;
                 live.push(n);
             } else {
@@ -148,6 +190,13 @@ Singleton {
     /** Inbox-row entry wrapper: activate the app, then dismiss the entry. */
     function activateEntry(e) {
         if (!e || !e.n) return;
+        // invoke() closes a non-resident notification on the spot, and the closed
+        // handler files anything not marked dismissed into history, so mark first.
+        var d = Object.assign({}, userDismissed);
+        for (var i = 0; i < e.items.length; i++)
+            if (root.tracked.indexOf(e.items[i]) >= 0)
+                d[e.items[i].id] = true;
+        root.userDismissed = d;
         activateNotif(e.n);
         dismissEntry(e);
     }
@@ -197,6 +246,16 @@ Singleton {
         root.popups = root.popups.filter(function(p) { return p !== n; });
     }
 
+    /** Queue n as the newest toast; Do Not Disturb holds back all but criticals. */
+    function showPopup(n) {
+        if (Flags.dnd && n.urgency !== NotificationUrgency.Critical)
+            return;
+        var e = Object.assign({}, root.expireAt);
+        e[n.id] = Date.now() + 3000;
+        root.expireAt = e;
+        root.popups = root.popups.concat([n]).slice(-3);
+    }
+
     /** Drop every non-critical popup whose deadline has passed (50ms slack for timer jitter). */
     function expirePopups() {
         var now = Date.now() + 50;
@@ -226,7 +285,8 @@ Singleton {
     }
 
     /**
-     * Bind the history-snapshot handler to a notification's `closed` signal once.
+     * Bind the history-snapshot handler to a notification's `closed` signal, and
+     * the re-toast handler to its replacement, once.
      * `keepOnReload` re-runs Component.onCompleted on every QS reload over the
      * still-tracked notifications, so the id set gates re-hooks: without it each
      * reload would stack another handler and a single close would push duplicate
@@ -239,6 +299,16 @@ Singleton {
         var hooked = Object.assign({}, root.hookedIds);
         hooked[n.id] = true;
         root.hookedIds = hooked;
+        // A replacement (notify-send -r) updates this same object and emits no new
+        // `notification`, so toast it again unless it is still queued. libnotify's
+        // per-process sender-pid hint makes even a same-text repeat change `hints`.
+        var replaced = function() {
+            if (root.popups.indexOf(n) < 0)
+                root.showPopup(n);
+        };
+        n.summaryChanged.connect(replaced);
+        n.bodyChanged.connect(replaced);
+        n.hintsChanged.connect(replaced);
         n.closed.connect(function(reason) {
             if (!root.userDismissed[n.id])
                 root.history = [{
@@ -310,16 +380,14 @@ Singleton {
 
         onNotification: function(n) {
             var a = Object.assign({}, root.arrivalMs);
-            a[n.id] = Date.now();
+            if (!n.lastGeneration || !a[n.id])   // a re-sent one keeps its restored arrival
+                a[n.id] = Date.now();
             root.arrivalMs = a;
-            var e = Object.assign({}, root.expireAt);
-            e[n.id] = Date.now() + 3000;
-            root.expireAt = e;
             n.tracked = true;
             root.hookClosed(n);
-            var critical = n.urgency === NotificationUrgency.Critical;
-            if (!Flags.dnd || critical)
-                root.popups = root.popups.concat([n]).slice(-3);
+            // keepOnReload re-sends every held notification on each reload; it was toasted already.
+            if (!n.lastGeneration)
+                root.showPopup(n);
         }
     }
 }
