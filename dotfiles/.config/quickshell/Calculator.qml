@@ -128,7 +128,7 @@ PanelWindow {
                 }
                 Rectangle {   // mode toggle
                     radius: Theme.radius
-                    width: 26; height: 22
+                    Layout.preferredWidth: 26; Layout.preferredHeight: 22
                     color: modeHover.hovered ? Theme.surface : "transparent"
                     Icon {
                         anchors.centerIn: parent
@@ -144,7 +144,7 @@ PanelWindow {
                 }
                 Rectangle {   // close
                     radius: Theme.radius
-                    width: 26; height: 22
+                    Layout.preferredWidth: 26; Layout.preferredHeight: 22
                     color: closeHover.hovered ? Theme.notchAccent : "transparent"
                     Icon {
                         anchors.centerIn: parent
@@ -157,7 +157,7 @@ PanelWindow {
                 }
             }
 
-            Rectangle { Layout.fillWidth: true; height: 1; color: Theme.border }
+            Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: Theme.border }
 
             // ---- PAPER MODE: tape on top, input + Enter at bottom -------------
             ColumnLayout {
@@ -201,7 +201,7 @@ PanelWindow {
                         }
                     }
                 }
-                Rectangle { Layout.fillWidth: true; height: 1; color: Theme.border }
+                Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: Theme.border }
                 RowLayout {
                     Layout.fillWidth: true
                     Layout.fillHeight: false   // nested layouts default fillHeight=true; keep this row at 44
@@ -291,7 +291,7 @@ PanelWindow {
                     }
                 }
 
-                Rectangle { Layout.fillWidth: true; height: 1; color: Theme.border }
+                Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: Theme.border }
 
                 GridLayout {
                     Layout.fillWidth: true
