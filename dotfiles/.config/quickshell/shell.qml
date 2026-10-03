@@ -11,7 +11,8 @@ ShellRoot {
 
     // Top-edge island bar: notch, panels, notifications, OSD (island/).
     // Toasts and OSD flashes drop below whichever notch card is open; the big
-    // panels (wallpaper, wifi) sit on a lower layer and get them on top instead.
+    // wallpaper panel sits on a lower layer and gets them on top instead.
+    // Wi-Fi is nm-applet's tray icon (Home's tray); the radio panel is gone.
     IslandShell.Island {
         id: island
         widgetDrop: Math.max(launcher.drop, clipboard.drop, calc.drop, powerProfile.drop, keymaps.drop)
@@ -23,7 +24,6 @@ ShellRoot {
     Launcher { id: launcher }                  // qs ipc call launcher toggle
     Clipboard { id: clipboard }                // qs ipc call clipboard toggle
     WallpaperPanel {}                          // qs ipc call wallpicker toggle
-    NetworkPanel {}                            // qs ipc call wifi toggle | wifiIsland
     Calculator { id: calc }                    // qs ipc call calc toggle
     PowerProfileMenu { id: powerProfile }      // qs ipc call powerprofile cycle
     Keymaps { id: keymaps }                    // qs ipc call keymaps toggle
