@@ -30,15 +30,20 @@ PillSurface {
     readonly property var dialKeys: Sysmon.hasGpu ? ["cpu", "gpu", "mem"] : ["cpu", "mem"]
     readonly property var cellKeys: Sysmon.hasVram ? ["net", "disk", "swap", "vram"] : ["net", "disk", "swap"]
 
-    /** Home's copy: no header row (Home shows uptime), and its own polling flag. */
+    /** Home's copy: no header row (Home shows uptime). */
     property bool embedded: false
 
-    onActiveChanged: {
-        if (embedded)
-            Sysmon.homeOpen = active;
-        else
-            Sysmon.surfaceOpen = active;
+    /** This view's share of Sysmon.viewers; `counted` keeps it to exactly one, also when unloaded while open. */
+    property bool counted: false
+    function syncViewer() {
+        if (active === counted)
+            return;
+        counted = active;
+        Sysmon.viewers += active ? 1 : -1;
     }
+    onActiveChanged: syncViewer()
+    Component.onCompleted: syncViewer()
+    Component.onDestruction: if (counted) Sysmon.viewers -= 1
 
     property bool speedRunning: false
     property string speedPhase: ""

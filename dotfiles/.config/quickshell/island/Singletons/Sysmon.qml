@@ -24,10 +24,14 @@ import Quickshell.Io
 Singleton {
     id: root
 
-    /** Polling runs while the System surface or Home's embedded copy is up. */
-    property bool surfaceOpen: false
-    property bool homeOpen: false
-    readonly property bool open: surfaceOpen || homeOpen
+    /**
+     * Polling runs while any System view is up (the System surface or Home's
+     * embedded copy, on any monitor). A count, not a flag per kind: one flag
+     * written by every monitor's copy let the last writer switch polling off
+     * under a view that was still open.
+     */
+    property int viewers: 0
+    readonly property bool open: viewers > 0
 
     property int cpu: 0
     property int cpuTemp: -1
