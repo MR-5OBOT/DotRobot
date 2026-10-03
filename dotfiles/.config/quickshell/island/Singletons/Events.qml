@@ -119,7 +119,8 @@ Singleton {
                 return -1;
             if (bt === "")
                 return 1;
-            return at < bt ? -1 : 1;
+            // by minutes, not string: the editor accepts "9:30", which sorts after "10:00" as text
+            return root.minutesOf(at) - root.minutesOf(bt);
         });
         return out;
     }
