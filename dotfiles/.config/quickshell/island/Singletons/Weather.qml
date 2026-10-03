@@ -286,7 +286,8 @@ Singleton {
                         var m = Math.min(dd.time.length, dd.weather_code.length, dd.temperature_2m_max.length);
                         for (var j = 0; j < m; j++) {
                             days.push({
-                                day: dn[new Date(dd.time[j]).getDay()],
+                                // "T00:00" reads the date as local midnight; a bare "YYYY-MM-DD" is UTC and lands a day early west of it
+                                day: dn[new Date(dd.time[j] + "T00:00").getDay()],
                                 code: dd.weather_code[j],
                                 temp: Math.round(dd.temperature_2m_max[j])
                             });
