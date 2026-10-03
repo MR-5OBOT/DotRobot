@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
+import "island/components" as Island
 
 // cliphist-backed clipboard history, coloured like the island (black,
 // neutral greys, purple accent), 4px corners. Keyboard-driven like the launcher. Toggle: qs ipc call
@@ -27,7 +28,8 @@ PanelWindow {
     readonly property color clipDim: "#8c8c8c"
     readonly property color clipAccent: "#7981ec"
     readonly property var selected: matches[sel] || null
-    readonly property string cacheDir: (Quickshell.env("XDG_RUNTIME_DIR") || Quickshell.cacheDir) + "/qs-cliphist-" + Quickshell.processId
+    // one fixed dir: a per-PID name left every past session's thumbnails in RAM (XDG_RUNTIME_DIR is tmpfs)
+    readonly property string cacheDir: (Quickshell.env("XDG_RUNTIME_DIR") || Quickshell.cacheDir) + "/qs-cliphist"
     onSelChanged: list.positionViewAtIndex(sel, ListView.Contain)
 
     // fresh thumbnail cache each shell session (cliphist ids reset after a wipe)
@@ -195,23 +197,42 @@ PanelWindow {
                 }
 
                 Text {
-                    text: win.matches.length + " / " + win.items.length
+                    text: sweepMA.containsMouse ? "hold to clear all" : win.matches.length + " / " + win.items.length
                     font.family: Theme.font
                     font.pixelSize: 11
                     color: win.clipDim
                 }
 
-                Icon {  // wipe all history
+                Icon {  // wipe all history: hold to confirm, the island's destructive-gesture rule
                     text: "delete_sweep"
                     size: 18
-                    color: sweepMA.containsMouse ? win.clipAccent : win.clipDim
+                    color: sweepMA.containsMouse || sweepHeat.holding ? win.clipAccent : win.clipDim
                     Behavior on color { ColorAnimation { duration: 120 } }
+
+                    Rectangle {  // hold progress
+                        anchors.left: parent.left
+                        anchors.top: parent.bottom
+                        anchors.topMargin: 2
+                        width: parent.width * sweepHeat.hold
+                        height: 2
+                        radius: 1
+                        color: win.clipAccent
+                    }
+
+                    Island.HeatHold {
+                        id: sweepHeat
+                        onConfirmed: win.wipe()
+                    }
+
                     MouseArea {
                         id: sweepMA
                         anchors.fill: parent
                         anchors.margins: -4
                         hoverEnabled: true
-                        onClicked: win.wipe()
+                        onPressed: sweepHeat.press()
+                        onReleased: sweepHeat.release()
+                        onExited: sweepHeat.cancel()
+                        onCanceled: sweepHeat.cancel()
                     }
                 }
             }
