@@ -164,7 +164,7 @@ Singleton {
         id: listProc
         command: ["sh", "-c",
             "key=$(printf %s \"${1%/}\" | md5sum | cut -d' ' -f1); "
-            + "find \"$1\" -type f \\( -iname '*.jpg' -o -iname '*.png' -o -iname '*.gif' -o -iname '*.webp' -o -iname '*.mp4' -o -iname '*.webm' -o -iname '*.mkv' -o -iname '*.mov' \\) -printf '%T@\\t%p\\n' | sort -rn "
+            + "find -H \"$1\" -type f \\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.gif' -o -iname '*.webp' -o -iname '*.bmp' -o -iname '*.mp4' -o -iname '*.webm' -o -iname '*.mkv' -o -iname '*.mov' \\) -printf '%T@\\t%p\\n' | sort -rn "
             + "| awk -F'\\t' -v c=\"$2$key\" '{ n = split($2, p, \"/\"); printf \"%s\\t%s\\t%s\\n\", $1, $2, c \"/\" p[n] \".png\" }'",
             "_", root.wpDir, root.thumbDir]
         stdout: StdioCollector {
