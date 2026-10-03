@@ -11,7 +11,7 @@ import "../components"
 /**
  * Home surface: the control centre a click on the notch opens, in place of the
  * thin hover row. A header carrying the surfaces the pill already owns,
- * an identity card over the live wallpaper, the now-playing card, the
+ * an identity card over the live wallpaper with the tray and quick toggles, the now-playing card, the
  * clock/weather card, and live system vitals.
  *
  * Nothing here owns state. Every nav button routes to a surface that already
@@ -31,18 +31,6 @@ PillSurface {
     amePoint: Qt.point(headRow.x + 13 * root.s, 20 * root.s)
 
     signal requestSurface(string name)
-
-    /**
-     * The pill's own wifi/wallpaper surfaces are superseded by the
-     * main shell's panels (see openUserWifi/openUserWallpaper in
-     * Pill.qml); the hover row calls those, so the nav buttons must too, or they open
-     * a different-looking copy of the same widget.
-     */
-    function openShellWidget(target, fn) {
-        root.requestClose();
-        Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
-            "qs", "ipc", "call", target, fn]);
-    }
 
     /** Set by the pill so the workspace dots know which monitor they belong to. */
     property string screenName: ""
@@ -270,21 +258,6 @@ PillSurface {
                 enabled: root.active
             }
 
-            /**
-             * System tray, right of the dots: every app that registers a
-             * StatusNotifier item (OBS, Telegram, Steam...). The pill's hover row
-             * only holds workspaces and the clock, so Home is where it lives.
-             * Empty tray = zero width, and nothing shifts.
-             */
-            Tray {
-                anchors.left: dots.right
-                anchors.leftMargin: 16 * root.s
-                anchors.verticalCenter: parent.verticalCenter
-                s: root.s
-                barWindow: root.barWindow
-                enabled: root.active
-            }
-
             Row {
                 id: headRow
                 anchors.right: parent.right
@@ -295,7 +268,6 @@ PillSurface {
                 RailBtn { glyph: "mixer";     tip: "Mixer";     onActivated: root.requestSurface("mixer") }
                 RailBtn { glyph: "calendar";  tip: "Calendar";  onActivated: root.requestSurface("calendar") }
                 RailBtn { glyph: "inbox";     tip: "Notifications"; onActivated: root.requestSurface("link") }
-                RailBtn { glyph: "wifi";      tip: "Wi-Fi";     onActivated: root.openShellWidget("wifi", "wifiIsland") }
                 RailBtn { glyph: "bluetooth"; tip: "Bluetooth"; onActivated: { root.requestClose(); Quickshell.execDetached(["blueman-manager"]); } }
                 RailBtn {
                     glyph: "battery"
@@ -416,14 +388,37 @@ PillSurface {
             }
         }
 
-        /** Toggles on the card's open right side. A sibling rather than a child so
-            the hero's clip never cuts their tooltips off. */
+        /** Tray and toggles on the card's open right side. A sibling rather than a
+            child so the hero's clip never cuts their tooltips off. */
         Row {
             z: 1
             anchors.right: hero.right
             anchors.rightMargin: 18 * root.s
             anchors.verticalCenter: hero.verticalCenter
             spacing: 8 * root.s
+
+            /**
+             * System tray: every app that registers a StatusNotifier item (OBS,
+             * Telegram, Steam...), in a dark glass capsule like the toggles so its
+             * icons read over any wallpaper. Gone when no app has an item.
+             */
+            Rectangle {
+                visible: tray.trayItems.length > 0   // not tray.visible: that is false while this is hidden
+                width: tray.implicitWidth + 8 * root.s
+                height: 32 * root.s
+                radius: 10 * root.s
+                color: Qt.rgba(0, 0, 0, 0.42)
+                border.width: 1
+                border.color: Theme.frameBorder
+
+                Tray {
+                    id: tray
+                    anchors.centerIn: parent
+                    s: root.s
+                    barWindow: root.barWindow
+                    enabled: root.active
+                }
+            }
 
             HeroToggle {
                 glyph: root.sinkMuted ? "speaker-off" : "speaker"
