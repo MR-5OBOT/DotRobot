@@ -149,7 +149,7 @@ PanelWindow {
             Rectangle {  // separator, only when results show
                 Layout.fillWidth: true
                 visible: win.matches.length > 0
-                height: 1
+                Layout.preferredHeight: 1
                 color: Theme.border
             }
 
