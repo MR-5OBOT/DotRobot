@@ -49,10 +49,13 @@ PanelWindow {
     }
     function equals() {
         const r = calc(input);
-        if (r === "") return;
+        if (r === "") return false;
         tape = tape.concat([{ expr: input, res: r }]);
         input = r;                       // chain from the result (pad); paper clears on Enter
+        return true;
     }
+    // paper Enter: clear only once the line made it onto the tape, so a typo stays to be fixed
+    function paperEnter() { if (equals()) input = ""; }
 
     readonly property var keys: ["C", "⌫", "%", "÷", "7", "8", "9", "×", "4", "5", "6", "−", "1", "2", "3", "+", "√", "0", ".", "="]
 
@@ -224,7 +227,7 @@ PanelWindow {
                             color: Theme.dim
                         }
                         Keys.onEscapePressed: BarState.calcOpen = false
-                        onAccepted: { win.equals(); win.input = ""; }
+                        onAccepted: win.paperEnter()
                     }
                     Rectangle {
                         radius: Theme.radius
@@ -239,7 +242,7 @@ PanelWindow {
                             color: Theme.text
                         }
                         HoverHandler { id: enterHover }
-                        MouseArea { anchors.fill: parent; onClicked: { win.equals(); win.input = ""; paperInput.forceActiveFocus(); } }
+                        MouseArea { anchors.fill: parent; onClicked: { win.paperEnter(); paperInput.forceActiveFocus(); } }
                     }
                 }
             }
