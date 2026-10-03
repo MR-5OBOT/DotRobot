@@ -25,17 +25,17 @@ Singleton {
     property var host: null
 
     /**
-     * Width the pill adds, and the lane PillSurface leaves, while a back target
-     * exists. The panel grows by exactly what the breadcrumb occupies, so no
-     * surface loses any of its own layout to it.
+     * Band above the surface that the breadcrumb sits in, in unscaled units:
+     * the breadcrumb's 16 (Pill.qml backBtn) plus its 9 top margin. It was a
+     * left lane, but reserving a full-height column for one line of text left a
+     * tall empty gutter beside every widget; a top band costs ~20px of height
+     * and no width at all.
+     *
+     * Derived here, not written by the pills: every monitor's pill used to bind
+     * it, and the last writer won when focus moved between screens. One surface
+     * is open at a time and `back` is only set while it is, so this is exact.
      */
-    /**
-     * Band above the surface that the breadcrumb sits in, in unscaled units, as
-     * measured by the pill. It was a left lane, but reserving a full-height
-     * column for one line of text left a tall empty gutter beside every widget;
-     * a top band costs ~20px of height and no width at all.
-     */
-    property int pad: 0
+    readonly property int pad: back.length > 0 ? 16 + 9 : 0
 
     function goBack() {
         if (root.host)

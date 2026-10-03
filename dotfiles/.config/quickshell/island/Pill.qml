@@ -1703,14 +1703,6 @@ Item {
         }
     }
 
-    /** The lane is exactly as wide as the breadcrumb, plus a gap. */
-    Binding {
-        target: Surfaces
-        property: "pad"
-        value: (Surfaces.back.length > 0 && pill.surfaceOpen)
-            ? Math.ceil(backBtn.height / pill.s) + 9 : 0
-    }
-
     Loader {
         id: ldHome
         active: false
