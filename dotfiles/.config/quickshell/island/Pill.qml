@@ -127,10 +127,9 @@ Item {
             "qs", "ipc", "call", "wallpicker", "toggle"]);
     }
 
-    /** The pill's wifi surface is replaced by the main shell's wifi panel, opened top-centre. */
+    /** Wi-Fi is nm-applet's job (its tray icon); this opens its connection editor. */
     function openUserWifi() {
-        Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
-            "qs", "ipc", "call", "wifi", "wifiIsland"]);
+        Quickshell.execDetached(["nm-connection-editor"]);
     }
 
     /** Bluetooth is blueman-manager's job; the pill only shows adapter state and toggles it. */
