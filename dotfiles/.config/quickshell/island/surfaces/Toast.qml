@@ -62,9 +62,14 @@ Item {
 
         Image {
             id: toastImg
+            /** The notification whose own image failed to load; it shows its app icon instead. */
+            property var failedFor: null
+            readonly property bool fallback: failedFor === root.notif
             anchors.fill: parent
-            anchors.margins: root.notif.image ? 0 : 6 * root.s
-            source: Notifs.iconFor(root.notif)
+            anchors.margins: root.notif.image && !fallback ? 0 : 6 * root.s
+            source: fallback ? Notifs.appIconFor(root.notif) : Notifs.iconFor(root.notif)
+            // deferred: a missing local file errors inside the source update, and switching it there is a binding loop
+            onStatusChanged: if (status === Image.Error) { const n = root.notif; Qt.callLater(() => toastImg.failedFor = n); }
             sourceSize.width: 56
             sourceSize.height: 56
             fillMode: Image.PreserveAspectCrop

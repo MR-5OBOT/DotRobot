@@ -162,9 +162,14 @@ PillSurface {
 
             Image {
                 id: nrowImg
+                /** The notification whose own image failed to load; it shows its app icon instead. */
+                property var failedFor: null
+                readonly property bool fallback: failedFor === nrow.n
                 anchors.fill: parent
-                anchors.margins: nrow.n.image ? 0 : 4 * root.s
-                source: Notifs.iconFor(nrow.n)
+                anchors.margins: nrow.n.image && !fallback ? 0 : 4 * root.s
+                source: fallback ? Notifs.appIconFor(nrow.n) : Notifs.iconFor(nrow.n)
+                // deferred: a missing local file errors inside the source update, and switching it there is a binding loop
+                onStatusChanged: if (status === Image.Error) { const n = nrow.n; Qt.callLater(() => nrowImg.failedFor = n); }
                 sourceSize.width: 64
                 sourceSize.height: 64
                 fillMode: Image.PreserveAspectCrop
@@ -467,9 +472,14 @@ PillSurface {
 
                                     Image {
                                         id: headImg
+                                        /** The notification whose own image failed to load; it shows its app icon instead. */
+                                        property var failedFor: null
+                                        readonly property bool fallback: failedFor === group.modelData.newest
                                         anchors.fill: parent
-                                        anchors.margins: group.modelData.newest.image ? 0 : 3 * root.s
-                                        source: Notifs.iconFor(group.modelData.newest)
+                                        anchors.margins: group.modelData.newest.image && !fallback ? 0 : 3 * root.s
+                                        source: fallback ? Notifs.appIconFor(group.modelData.newest) : Notifs.iconFor(group.modelData.newest)
+                                        // deferred: a missing local file errors inside the source update, and switching it there is a binding loop
+                                        onStatusChanged: if (status === Image.Error) { const n = group.modelData.newest; Qt.callLater(() => headImg.failedFor = n); }
                                         sourceSize.width: 40
                                         sourceSize.height: 40
                                         fillMode: Image.PreserveAspectCrop
