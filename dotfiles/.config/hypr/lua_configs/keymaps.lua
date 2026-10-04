@@ -20,7 +20,10 @@ hl.bind("ALT + L", hl.dsp.exec_cmd(LOCK))
 -- Application Launchers
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd("[float]kitty"))
 hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("qs ipc call launcher toggle"))
-hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("pkill -x qs; env MALLOC_CONF=background_thread:true,dirty_decay_ms:100,muzzy_decay_ms:100 qs")) -- restart quickshell (island included)
+hl.bind(
+	mainMod .. " + SHIFT + N",
+	hl.dsp.exec_cmd("pkill -x qs; env MALLOC_CONF=background_thread:true,dirty_decay_ms:100,muzzy_decay_ms:100 qs")
+) -- restart quickshell (island included)
 hl.bind(mainMod .. " + X", hl.dsp.exec_cmd(ISLAND .. ' power ""'))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("qs ipc call wallpicker toggle"))
 hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("qs ipc call clipboard toggle"))
@@ -32,7 +35,7 @@ hl.bind("XF86Calculator", hl.dsp.exec_cmd("qs ipc call calc toggle"))
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("hyprpicker -a -n"))
 
 -- Screenshots
-hl.bind("Print", hl.dsp.exec_cmd(RISHOT))                     -- drag region or click a window
+hl.bind("Print", hl.dsp.exec_cmd(RISHOT)) -- drag region or click a window
 hl.bind("SHIFT + Print", hl.dsp.exec_cmd(RISHOT .. " monitor")) -- whole output
 
 -- Volume & Brightness
@@ -83,7 +86,9 @@ hl.bind(mainMod .. " + SHIFT + 0", hl.dsp.window.move({ workspace = 10 }))
 -- than an island toast, which would pile up in the notification history.
 local monToast
 local function toast(text)
-	if monToast and monToast:is_alive() then monToast:dismiss() end -- rapid presses replace, not stack
+	if monToast and monToast:is_alive() then
+		monToast:dismiss()
+	end -- rapid presses replace, not stack
 	monToast = hl.notification.create({ text = text, timeout = 1500, icon = "info" })
 end
 local function label(m)
@@ -95,7 +100,9 @@ hl.bind(mainMod .. " + O", function()
 	toast("Focus → " .. label(m))
 end)
 hl.bind(mainMod .. " + SHIFT + O", function()
-	if not hl.get_active_window() then return end
+	if not hl.get_active_window() then
+		return
+	end
 	local m = hl.get_monitor("+1")
 	hl.dispatch(hl.dsp.window.move({ workspace = m.active_workspace.id }))
 	toast("Window → " .. label(m))
@@ -106,7 +113,5 @@ hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
 -- Thumb side buttons:
---   lower / back  (BTN_SIDE)   -> toggle mic mute
---   upper / forward (BTN_EXTRA) -> region screenshot (see alternatives below)
 hl.bind("mouse:275", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --toggle-mic"))
 hl.bind("mouse:276", hl.dsp.exec_cmd(RISHOT))
