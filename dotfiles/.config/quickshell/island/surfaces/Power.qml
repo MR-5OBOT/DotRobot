@@ -14,7 +14,7 @@ import "../components"
  * bottom-up heat fill, releasing early drains it, so a stray click can never
  * reboot the machine. Only the hovered, focused or held action shows its label.
  *
- * Arrow keys move a keyboard focus across the tiles; the focused tile lights and
+ * Arrow keys and Tab/Shift+Tab move focus across the tiles; the focused tile lights and
  * docks the soul bead exactly like a hovered one. Enter fires a safe tile at
  * once; on a destructive tile a held Enter drives the same heat fill as a
  * pointer hold (release before it completes drains), so the keyboard path can
