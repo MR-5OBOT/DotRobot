@@ -8,6 +8,31 @@ your home directory. Existing link targets are replaced intentionally, so
 review them before running the installer. Wallpapers live in
 `~/Pictures/wallpapers` unless changed in Island's wallpaper settings.
 
+For a machine with a cellular modem, the installer offers
+`./scripts/setup-mobile-broadband.sh`, which also runs on its own. It asks
+before installing packages (including an Arch upgrade), enabling services,
+saving a connection, or connecting. Its carrier menu includes Maroc Telecom
+(subscription/Jawal), Orange Morocco, inwi, a custom APN, and setup later.
+APNs and usernames are editable; existing connections are preserved. New
+connections have autoconnect and roaming off and are marked as metered.
+SIM PINs and APN passwords are requested by `nmcli --ask` when connecting;
+the script does not save them. An activated SIM/data plan is needed to connect.
+It skips machines without kernel WWAN/MBIM/QMI ports; BIOS-disabled modems,
+missing drivers and serial-only modems need separate detection/setup.
+Failed connections show recent ModemManager logs, with guidance for radio
+blocks and [vendor FCC-unlock requirements](https://modemmanager.org/docs/modemmanager/fcc-unlock/).
+For the Dell DW5825e/Fibocom FM101R-GL (`413c:8213`), the script offers to
+build/install the local `fibocom-fm101r-unlock` Arch package and enable its
+two helpers. It uses pinned [Fibocom vendor code](https://github.com/fibocom-pc/linux_apps_opensource)
+and its unlock binary, with root-only D-Bus/IPC access. It installs no
+firmware images or flashing services. It installs missing build tools and
+runtime dependencies, starts the helpers, and runs the unlock immediately.
+The helpers and ModemManager unlock hook persist across reboots. An existing
+internet connection and sudo access are needed; no files from `/tmp` are required.
+Preset references: [Orange's setup guide](https://www.orange.ma/Assistance/Mobiles-et-tablettes/Utiliser-votre-tablette),
+the installed `mobile-broadband-provider-info` database for IAM plans, and
+the [ASUS router carrier database](https://github.com/RMerl/asuswrt-merlin.ng/blob/main/release/src/router/rom/spn_asus.dat) for inwi.
+
 The wallpaper picker, Island strip, random keybind, and dynamic palette use
 `dotfiles/.config/quickshell/island/scripts/wallpaper.sh`. It supports stills
 through `awww` and videos through `mpvpaper`.
