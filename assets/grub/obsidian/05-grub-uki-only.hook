@@ -1,0 +1,10 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = grub
+
+[Action]
+Description = Keeping GRUB on the working unified kernel image...
+When = PostTransaction
+Exec = /usr/bin/chmod a-x /etc/grub.d/10_linux

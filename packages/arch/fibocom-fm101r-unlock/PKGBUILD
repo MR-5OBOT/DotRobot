@@ -1,0 +1,86 @@
+pkgname=fibocom-fm101r-unlock
+pkgver=1.0.13
+pkgrel=1
+pkgdesc='Dell DW5825e / Fibocom FM101R-GL FCC unlock support'
+arch=(x86_64)
+url=https://github.com/fibocom-pc/linux_apps_opensource
+license=('GPL-2.0-only' MIT)
+depends=('libmbim>=1.32' libmm-glib libxml2 libxml2-legacy dbus dmidecode gcc-libs)
+makedepends=(cmake glib2-devel)
+_commit=a508df86f988f7de7669f4ef5eadcfeb2b5b49ee
+source=("fibocom-${_commit}.tar.gz::${url}/archive/${_commit}.tar.gz" arch.patch)
+sha256sums=('7f48d7694104508bc0a678cf30c9e4e5e3b443eed6f73222f78e70982971c67e'
+            '968e00e635c5ace85458e545ffde5dd4cf63d88239d862f9b01682189c2f95d4')
+
+prepare() {
+  cd "linux_apps_opensource-${_commit}"
+  # Use Arch's library paths and keep privileged modem IPC restricted to root.
+  patch -Np1 -i "${srcdir}/arch.patch"
+}
+
+build() {
+  cmake -S "linux_apps_opensource-${_commit}" -B build \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.6 -DCMAKE_C_FLAGS=-DMBIM_FUNCTION_SUPPORTED
+  cmake --build build --target fibo_helperd fibo_helperm
+}
+
+package() {
+  local upstream="${srcdir}/linux_apps_opensource-${_commit}"
+  install -Dm755 build/application/fibo_helper_service/fibo_helperd \
+    "${pkgdir}/opt/fibocom/fibo_helper_service/fibo_helperd"
+  install -Dm755 build/application/fibo_helper_service/fibo_helperm \
+    "${pkgdir}/opt/fibocom/fibo_helper_service/fibo_helperm"
+  install -Dm755 "${upstream}/application/fibo_ma_service/fibo_ma" \
+    "${pkgdir}/opt/fibocom/fibo_ma_service/fibo_ma"
+  install -Dm644 "${upstream}/application/fibo_ma_service/LICENSE" \
+    "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm644 "${upstream}/COPYING" "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+
+  install -dm755 "${pkgdir}/usr/lib/systemd/system" "${pkgdir}/usr/share/dbus-1/system.d"
+  cat > "${pkgdir}/usr/lib/systemd/system/fibo_helper.service" <<'EOF'
+[Unit]
+Description=Fibocom modem unlock helper
+Requires=ModemManager.service
+After=ModemManager.service
+
+[Service]
+Type=dbus
+BusName=com.fibocom.helper
+WorkingDirectory=/opt/fibocom/fibo_helper_service
+ExecStart=/opt/fibocom/fibo_helper_service/fibo_helperd
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+  cat > "${pkgdir}/usr/lib/systemd/system/fibo_helper_mbim.service" <<'EOF'
+[Unit]
+Description=Fibocom modem unlock MBIM helper
+Requires=fibo_helper.service
+After=fibo_helper.service
+
+[Service]
+WorkingDirectory=/opt/fibocom/fibo_helper_service
+ExecStart=/opt/fibocom/fibo_helper_service/fibo_helperm
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+  cat > "${pkgdir}/usr/share/dbus-1/system.d/com.fibocom.helper.conf" <<'EOF'
+<!DOCTYPE busconfig PUBLIC "-//freedesktop//DTD D-BUS Bus Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">
+<busconfig>
+  <policy user="root">
+    <allow own="com.fibocom.helper"/>
+    <allow send_destination="com.fibocom.helper"/>
+  </policy>
+</busconfig>
+EOF
+  install -dm755 "${pkgdir}/usr/lib/ModemManager/fcc-unlock.d"
+  cat > "${pkgdir}/usr/lib/ModemManager/fcc-unlock.d/413c:8213" <<'EOF'
+#!/bin/sh
+exec /opt/fibocom/fibo_ma_service/fibo_ma
+EOF
+  chmod 700 "${pkgdir}/usr/lib/ModemManager/fcc-unlock.d/413c:8213"
+}
