@@ -451,6 +451,14 @@ Scope {
                     else if (pill.powerOpen) { pill.powerMove(1); e.accepted = true; }
                     else if (pill.settingsLike) { pill.settingsAdjust(1); e.accepted = true; }
                 }
+                Keys.onTabPressed: (e) => {
+                    e.accepted = pill.powerOpen;
+                    if (e.accepted) pill.powerMove(1);
+                }
+                Keys.onBacktabPressed: (e) => {
+                    e.accepted = pill.powerOpen;
+                    if (e.accepted) pill.powerMove(-1);
+                }
 
                 /**
                  * Return/Enter/Space: the wallpaper strip applies its focused
