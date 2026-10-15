@@ -17,6 +17,10 @@ APNs and usernames are editable; existing connections are preserved. New
 connections have autoconnect and roaming off and are marked as metered.
 SIM PINs and APN passwords are requested by `nmcli --ask` when connecting;
 the script does not save them. An activated SIM/data plan is needed to connect.
+Before connecting it offers modem/SIM-slot selection, waits for a switched modem
+to reappear, and checks SIM readiness. For the DW5825e, slot 1 is the physical
+SIM and slot 2 is the eSIM. An empty eSIM profile or missing SIM stops the
+connection attempt before carrier authentication; insert the SIM and re-run.
 It skips machines without kernel WWAN/MBIM/QMI ports; BIOS-disabled modems,
 missing drivers and serial-only modems need separate detection/setup.
 Failed connections show recent ModemManager logs, with guidance for radio
