@@ -1,0 +1,92 @@
+title-text: ""
+desktop-image: "background.png"
+desktop-image-scale-method: "crop"
+desktop-color: "#000000"
+terminal-font: "Obsidian Regular 22"
+terminal-left: "8%"
+terminal-top: "10%"
+terminal-width: "84%"
+terminal-height: "80%"
+
++ label {
+  left = 24%
+  top = 24%
+  width = 52%
+  height = 28
+  align = "center"
+  text = "M R 5 O B O T   /   B O O T"
+  font = "Obsidian Regular 22"
+  color = "#DDDDDB"
+}
+
++ label {
+  left = 24%
+  top = 31%
+  width = 52%
+  height = 60
+  align = "center"
+  text = "Choose your system."
+  font = "Obsidian Bold 42"
+  color = "#FFFFFF"
+}
+
++ boot_menu {
+  left = 24%
+  top = 44%
+  width = 52%
+  height = 25%
+  item_font = "Obsidian Regular 22"
+  selected_item_font = "Obsidian Regular 22"
+  item_color = "#DDDDDB"
+  selected_item_color = "#FFFFFF"
+  item_height = 38
+  item_padding = 12
+  item_spacing = 10
+  selected_item_pixmap_style = "selected_*.png"
+  icon_width = 0
+  icon_height = 0
+  scrollbar = true
+}
+
++ label {
+  id = "__timeout__"
+  left = 24%
+  top = 70%
+  width = 52%
+  height = 28
+  align = "center"
+  text = "Starting in %d seconds"
+  font = "Obsidian Regular 22"
+  color = "#DDDDDB"
+}
+
++ label {
+  left = 24%
+  top = 74%
+  width = 52%
+  height = 28
+  align = "center"
+  text = "UP / DOWN   Select       ENTER   Boot"
+  font = "Obsidian Regular 22"
+  color = "#DDDDDB"
+}
+
++ label {
+  left = 24%
+  top = 79%
+  width = 52%
+  height = 28
+  align = "center"
+  text = "C  Console    E  Edit    ESC  Back"
+  font = "Obsidian Regular 22"
+  color = "#DDDDDB"
+}
+
+# GRUB paints siblings in reverse order, so the frame goes last.
++ image {
+  left = 20%
+  top = 16%
+  width = 60%
+  height = 68%
+  file = "frame.png"
+}

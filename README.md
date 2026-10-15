@@ -26,7 +26,8 @@ build/install the local `fibocom-fm101r-unlock` Arch package and enable its
 two helpers. It uses pinned [Fibocom vendor code](https://github.com/fibocom-pc/linux_apps_opensource)
 and its unlock binary, with root-only D-Bus/IPC access. It installs no
 firmware images or flashing services. It installs missing build tools and
-runtime dependencies, starts the helpers, and runs the unlock immediately.
+runtime dependencies, starts the helpers, runs the unlock immediately, and
+reads back the hardware radio state before reporting success.
 The helpers and ModemManager unlock hook persist across reboots. An existing
 internet connection and sudo access are needed; no files from `/tmp` are required.
 Preset references: [Orange's setup guide](https://www.orange.ma/Assistance/Mobiles-et-tablettes/Utiliser-votre-tablette),
@@ -36,6 +37,10 @@ the [ASUS router carrier database](https://github.com/RMerl/asuswrt-merlin.ng/bl
 The wallpaper picker, Island strip, random keybind, and dynamic palette use
 `dotfiles/.config/quickshell/island/scripts/wallpaper.sh`. It supports stills
 through `awww` and videos through `mpvpaper`.
+
+The [Obsidian GRUB theme](assets/grub/obsidian) uses the default wallpaper with
+a centered translucent frame. Preview it with `bash scripts/preview-grub-theme.sh`;
+apply it with `sudo bash scripts/setup-grub-theme.sh` on the UKI/Windows setup.
 
 Run all repository checks with `./scripts/test.sh` (requires Bash, Python 3,
 Node.js, jq, and the utilities named by individual test scripts). Individual

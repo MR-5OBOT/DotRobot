@@ -1,0 +1,24 @@
+diff --git a/application/fibo_helper_service/CMakeLists.txt b/application/fibo_helper_service/CMakeLists.txt
+index a7805af..1c5ed34 100755
+--- a/application/fibo_helper_service/CMakeLists.txt
++++ b/application/fibo_helper_service/CMakeLists.txt
+@@ -23 +23 @@ find_package(LibXml2 REQUIRED)
+-pkg_check_modules(deps REQUIRED IMPORTED_TARGET glib-2.0 gio-2.0 gio-unix-2.0 udev)
++pkg_check_modules(deps REQUIRED IMPORTED_TARGET glib-2.0 gio-2.0 gio-unix-2.0 udev dbus-1 mbim-glib mm-glib)
+diff --git a/application/fibo_helper_service/fibo_helper_adapter.c b/application/fibo_helper_service/fibo_helper_adapter.c
+index ea04bc2..6bebe72 100755
+--- a/application/fibo_helper_service/fibo_helper_adapter.c
++++ b/application/fibo_helper_service/fibo_helper_adapter.c
+@@ -1762,6 +1762,9 @@ fibo_adapter_helper_queue_init(void)
+-        ret = msgget(ipc_key, 0666|IPC_EXCL|IPC_CREAT);  // Create new seq, if existed, will return error.
++        ret = msgget(ipc_key, 0600|IPC_CREAT);
+         if (RET_ERROR == ret)
+         {
+-            FIBO_LOG_DEBUG("seq already existed!\n");
+-            return RET_OK;
++            return RET_ERROR;
+         }
++        struct msqid_ds status;
++        if (msgctl(ret, IPC_STAT, &status) != 0 || status.msg_perm.uid != geteuid() ||
++            (status.msg_perm.mode & 0777) != 0600)
++            return RET_ERROR;
