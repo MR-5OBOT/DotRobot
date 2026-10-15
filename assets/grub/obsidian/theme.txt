@@ -61,23 +61,12 @@ terminal-height: "80%"
 }
 
 + label {
-  left = 24%
-  top = 74%
-  width = 52%
+  left = 20%
+  top = 77%
+  width = 60%
   height = 28
   align = "center"
-  text = "UP / DOWN   Select       ENTER   Boot"
-  font = "Obsidian Regular 22"
-  color = "#DDDDDB"
-}
-
-+ label {
-  left = 24%
-  top = 79%
-  width = 52%
-  height = 28
-  align = "center"
-  text = "C  Console    E  Edit    ESC  Back"
+  text = "↑↓ Select · Enter Boot · C Console · E Edit · Esc Back"
   font = "Obsidian Regular 22"
   color = "#DDDDDB"
 }
