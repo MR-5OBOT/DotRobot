@@ -42,6 +42,13 @@ The wallpaper picker, Island strip, random keybind, and dynamic palette use
 `dotfiles/.config/quickshell/island/scripts/wallpaper.sh`. It supports stills
 through `awww` and videos through `mpvpaper`.
 
+`Super+D` opens the Quickshell workspace overview with previews for workspaces
+0–10 that contain windows. Hold Super and use Tab/Shift+Tab or arrow keys to
+cycle through the occupied workspaces. Release Super to switch.
+Enter or a click also switches; Escape or a click outside cancels.
+Workspace 0 is named `0`; Super+0 still selects workspace 10.
+Run its logic checks with `node tests/workspaces.test.cjs`.
+
 The [Obsidian GRUB theme](assets/grub/obsidian) uses the default wallpaper with
 a centered translucent frame. Preview it with `bash scripts/preview-grub-theme.sh`;
 apply it with `sudo bash scripts/setup-grub-theme.sh` on the UKI/Windows setup.
