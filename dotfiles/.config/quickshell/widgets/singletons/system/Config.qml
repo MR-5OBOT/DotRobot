@@ -124,10 +124,24 @@ Item {
     }
 
     FileView {
+        id: defaultSettings
+        path: Qt.resolvedUrl("../../settings.json")
+        blockLoading: true
+    }
+
+    FileView {
         id: settingsWatcher
         path: config.settingsJsonPath
         watchChanges: true
         onFileChanged: reload()
+
+        onLoadFailed: (error) => {
+            if (error === FileViewError.FileNotFound) {
+                config.updateJsonBulk(JSON.parse(defaultSettings.text()));
+                config.dataReady = true;
+                config.settingsLoaded();
+            }
+        }
 
         onLoaded: {
             try {

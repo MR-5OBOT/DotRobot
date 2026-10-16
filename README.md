@@ -45,7 +45,3 @@ through `awww` and videos through `mpvpaper`.
 The [Obsidian GRUB theme](assets/grub/obsidian) uses the default wallpaper with
 a centered translucent frame. Preview it with `bash scripts/preview-grub-theme.sh`;
 apply it with `sudo bash scripts/setup-grub-theme.sh` on the UKI/Windows setup.
-
-Run all repository checks with `./scripts/test.sh` (requires Bash, Python 3,
-Node.js, jq, and the utilities named by individual test scripts). Individual
-checks are `scripts/test-*.sh`, `scripts/test-*.py`, and `scripts/test-*.js`.
