@@ -24,6 +24,7 @@ ShellRoot {
     Launcher { id: launcher }                  // qs ipc call launcher toggle
     Clipboard { id: clipboard }                // qs ipc call clipboard toggle
     WallpaperPanel {}                          // qs ipc call wallpicker toggle
+    WorkspacePanel {}                          // qs ipc call workspaces toggle
     Calculator { id: calc }                    // qs ipc call calc toggle
     PowerProfileMenu { id: powerProfile }      // qs ipc call powerprofile cycle
     Keymaps { id: keymaps }                    // qs ipc call keymaps toggle
