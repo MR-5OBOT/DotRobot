@@ -2,15 +2,17 @@
 
 Vendored from [serpantinum](https://github.com/ilyamiro/serpantinum) v2.1.5
 (commit `cab9a01`), `src/quickshell/`. AGPL-3.0: see `LICENSE.md` here.
-Hosted by `../WallpaperPanel.qml`; `settings.json` seeds the writable user
-settings. The network popup was dropped: Wi-Fi is nm-applet's tray icon.
+Hosted by `../WallpaperPanel.qml`; QS seeds the writable user settings from
+`settings.json` on first launch. The network popup was dropped: Wi-Fi is
+nm-applet's tray icon.
 
 Only what that popup references is kept (the side bar is gone). Changed from upstream:
 
 - `singletons/theme/ThemeBackend.qml` — reads island's shared palette instead
   of extracting the wallpaper a second time.
 - `singletons/audio/Sounds.qml` — no-op stub; the sound assets aren't vendored.
-- `singletons/system/Config.qml` — reads `~/.config/mr5obot/settings.json`.
+- `singletons/system/Config.qml` — reads `~/.config/mr5obot/settings.json`,
+  creating it from the bundled defaults when missing.
 - `wallpaper/WallpaperPicker.qml` — scripts resolve inside `widgets/scripts`,
   and `masterWindow.screen` (an id from upstream's Main.qml) became a
   `hostScreen` property the host window sets.
