@@ -25,7 +25,7 @@ configure_git_identity() {
 }
 
 ensure_key() {
-  local ssh_dir
+  local ssh_dir public_key
   ssh_dir="$(dirname "${KEY_PATH}")"
 
   mkdir -p "${ssh_dir}"
@@ -39,7 +39,8 @@ ensure_key() {
   fi
 
   if [[ ! -s "${KEY_PATH}.pub" ]]; then
-    printf '%s\n' "$(ssh-keygen -y -f "${KEY_PATH}")" >"${KEY_PATH}.pub"
+    public_key="$(ssh-keygen -y -f "${KEY_PATH}")" || die "Could not recover the public key from ${KEY_PATH}."
+    printf '%s\n' "${public_key}" >"${KEY_PATH}.pub"
     log "Rebuilt missing public key ${KEY_PATH}.pub"
   fi
 

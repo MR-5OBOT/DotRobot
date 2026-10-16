@@ -22,8 +22,7 @@ set_statusline() {
     return 0
   fi
 
-  command="bash ${script}"
-  [[ "${script}" == "${HOME}"/* ]] && command="bash ~/${script#"${HOME}"/}"
+  printf -v command 'bash %q' "${script}"
   [[ -s "${SETTINGS_FILE}" ]] || printf '{}\n' > "${SETTINGS_FILE}"
   tmp="$(mktemp "${CLAUDE_DIR}/.settings.json.XXXXXX")"
   if jq --arg cmd "${command}" '.statusLine = {type: "command", command: $cmd}' \

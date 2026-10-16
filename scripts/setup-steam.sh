@@ -22,7 +22,6 @@ set -uo pipefail
 PACMAN_CONF=/etc/pacman.conf
 BACKUP="${PACMAN_CONF}.dotrobot-steam.bak"
 MIN_FREE_GB=20          # a single modern game can be bigger than this
-STALE_DB_DAYS=7
 
 DRY_RUN=no
 CHECK_ONLY=no
@@ -56,7 +55,6 @@ GPU_VENDORS=()
 PKGS=()
 NOTES=()
 NEED_MULTILIB=no
-NEED_SYNC=no
 
 have_pkg()  { pacman -Qq "$1" &>/dev/null; }
 has_vendor() {
@@ -185,17 +183,7 @@ if multilib_enabled; then
     ok "[multilib] already enabled"
 else
     NEED_MULTILIB=yes
-    NEED_SYNC=yes
     warn "[multilib] is off - no lib32-* package can be installed until it is on"
-fi
-
-# A stale database plus a fresh install is how a partial upgrade happens.
-db=/var/lib/pacman/sync/core.db
-if [[ -f "$db" ]]; then
-    age=$(( ( $(date +%s) - $(stat -c %Y "$db") ) / 86400 ))
-    (( age >= STALE_DB_DAYS )) && { NEED_SYNC=yes; warn "package databases are ${age} days old"; }
-else
-    NEED_SYNC=yes
 fi
 
 # --------------------------------------------------------- 3. sanity checks
@@ -220,9 +208,9 @@ printf '\n%sPlan%s\n' "$B" "$Z"
 [[ "$NEED_MULTILIB" == yes ]] \
     && printf '  multilib   enable in %s (backup: %s)\n' "$PACMAN_CONF" "$BACKUP" \
     || printf '  multilib   already on, no change\n'
-[[ "$NEED_SYNC" == yes ]] \
-    && printf '  sync       full "pacman -Syu" first (never a bare -Sy)\n' \
-    || printf '  sync       databases are fresh, no upgrade needed\n'
+if [[ ${#PKGS[@]} -gt 0 || "$NEED_MULTILIB" == yes ]]; then
+    printf '  sync       full system upgrade with installation (pacman -Syu)\n'
+fi
 if [[ ${#PKGS[@]} -eq 0 ]]; then
     printf '  install    nothing - everything needed is already here\n\n'
 else
@@ -265,24 +253,11 @@ if [[ "$DRY_RUN" == no && "$CHECK_ONLY" == no ]]; then
         NOCONFIRM=()
         [[ "$ASSUME_YES" == yes ]] && NOCONFIRM=(--noconfirm)
 
-        # ---- 5b. sync. -Syu, not -Sy: refreshing the databases and then
-        # installing against a not-upgraded system is the classic Arch
-        # partial-upgrade breakage.
-        if [[ "$NEED_SYNC" == yes ]]; then
-            info "Refreshing databases and upgrading the system (pacman -Syu)"
-            sudo pacman -Syu ${NOCONFIRM[@]+"${NOCONFIRM[@]}"} \
-                || die "upgrade failed - no Steam packages were installed"
-        fi
-
-        # ---- 5c. one transaction, so a bad target changes nothing. The
-        # drivers are in the same call as steam, which also stops pacman
-        # asking you to pick a lib32 Vulkan provider.
-        if [[ ${#PKGS[@]} -gt 0 ]]; then
-            info "Installing ${#PKGS[@]} package(s)"
-            sudo pacman -S --needed ${NOCONFIRM[@]+"${NOCONFIRM[@]}"} "${PKGS[@]}" \
-                || die "install failed - run 'pacman -S ${PKGS[*]}' by hand to see why"
-            ok "installed"
-        fi
+        # Upgrade and install together so a recently synced database cannot cause a partial upgrade.
+        info "Upgrading the system and installing ${#PKGS[@]} package(s)"
+        sudo pacman -Syu --needed ${NOCONFIRM[@]+"${NOCONFIRM[@]}"} "${PKGS[@]}" \
+            || die "upgrade/install failed - resolve the error and rerun this script"
+        ok "installed"
     else
         ok "nothing to do"
     fi

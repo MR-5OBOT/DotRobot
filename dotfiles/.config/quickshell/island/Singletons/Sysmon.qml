@@ -65,7 +65,7 @@ Singleton {
     property real prevNetTime: 0
 
     function primeAll() {
-        if (tempPath.length === 0 || gpuVendor.length === 0) {
+        if (gpuVendor.length === 0) {
             detectProc.running = true;
             return;
         }
