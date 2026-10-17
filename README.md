@@ -42,8 +42,9 @@ The wallpaper picker, Island strip, random keybind, and dynamic palette use
 `dotfiles/.config/quickshell/island/scripts/wallpaper.sh`. It supports stills
 through `awww` and videos through `mpvpaper`.
 
-`Super+D` opens the Quickshell workspace overview with previews for workspaces
-0–10 that contain windows. Hold Super and use Tab/Shift+Tab or arrow keys to
+`Super+D` opens the Quickshell workspace overview on the focused monitor,
+with previews of occupied workspaces across all monitors, including 11+ on
+secondary screens. Hold Super and use Tab/Shift+Tab or arrow keys to
 cycle through the occupied workspaces. Release Super to switch.
 Enter or a click also switches; Escape or a click outside cancels.
 Workspace 0 is named `0`; Super+0 still selects workspace 10.

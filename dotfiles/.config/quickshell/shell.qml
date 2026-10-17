@@ -15,7 +15,14 @@ ShellRoot {
     // Wi-Fi is nm-applet's tray icon (Home's tray); the radio panel is gone.
     IslandShell.Island {
         id: island
-        widgetDrop: Math.max(launcher.drop, clipboard.drop, calc.drop, powerProfile.drop, keymaps.drop)
+        widgetDrops: {
+            const drops = {};
+            for (const widget of [launcher, clipboard, calc, powerProfile, keymaps]) {
+                if (widget.drop > 0 && widget.screen)
+                    drops[widget.screen.name] = Math.max(drops[widget.screen.name] || 0, widget.drop);
+            }
+            return drops;
+        }
     }
     Binding { target: BarState; property: "islandWindows"; value: island.windows }
     Binding { target: BarState; property: "toastHole"; value: island.toastHole }

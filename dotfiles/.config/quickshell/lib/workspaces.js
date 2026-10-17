@@ -1,7 +1,7 @@
 function workspaceIndex(workspace) {
     if (!workspace) return -1;
     if (workspace.name === "0") return 0;
-    return workspace.id >= 1 && workspace.id <= 10 ? workspace.id : -1;
+    return workspace.id >= 1 ? workspace.id : -1;
 }
 
 function containsWindow(client, index) {
