@@ -14,6 +14,7 @@ It is one part of the quickshell config in `dotfiles/.config/quickshell`: the to
 - **Notifications** — the island owns the notification server: toasts stay 8 seconds, the inbox shows each notification's title, body and icon.
 - **Weather** — Open-Meteo forecast on Home's clock card. Location comes from GeoClue (wifi networks in range) and falls back to an IP lookup.
 - **Colours** — surfaces stay black and neutral grey; the accent follows the current wallpaper.
+- **Monitors** — the focused screen owns hotkey panels and volume/brightness flashes. Widget clearance is tracked per screen. Shared Hyprland IPC state handles focus changes and display hotplug even when Quickshell's monitor model is empty.
 
 ## Requirements
 

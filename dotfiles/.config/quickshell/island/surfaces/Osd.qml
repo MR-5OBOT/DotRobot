@@ -63,7 +63,7 @@ Item {
      * the active one marked, so the OSD would only be a redundant morph.
      */
     readonly property string activeWsName: {
-        var mons = Hyprland.monitors.values;
+        var mons = Monitors.list;
         for (var i = 0; i < mons.length; i++)
             if (mons[i].name === screenName)
                 return mons[i].activeWorkspace ? mons[i].activeWorkspace.name : "";
@@ -84,7 +84,7 @@ Item {
      * Workspace flashes skip it: those are already keyed to this screen's own
      * active workspace.
      */
-    readonly property bool onFocusedMonitor: !Hyprland.focusedMonitor || Hyprland.focusedMonitor.name === screenName
+    readonly property bool onFocusedMonitor: Monitors.focusedName === screenName
 
     function flash(which) {
         if (!armed || suppressed)
