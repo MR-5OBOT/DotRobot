@@ -8,7 +8,8 @@ vm.runInContext(fs.readFileSync(path.join(__dirname,
 
 assert.equal(logic.workspaceIndex({ id: -1337, name: '0' }), 0);
 assert.equal(logic.workspaceIndex({ id: 10, name: '10' }), 10);
-assert.equal(logic.workspaceIndex({ id: 11, name: '11' }), -1);
+assert.equal(logic.workspaceIndex({ id: 11, name: '11' }), 11);
+assert.equal(logic.workspaceIndex({ id: 21, name: '21' }), 21);
 assert.equal(logic.workspaceIndex({ id: -99, name: 'special:0' }), -1);
 assert.equal(logic.workspaceIndex(null), -1);
 const client = { mapped: true, hidden: false, workspace: { id: 2, name: '2' }, at: [5, 5], size: [600, 700] };
@@ -28,7 +29,10 @@ const zeroClient = { ...client, workspace: { id: -1337, name: '0' } };
 assert.deepEqual(occupied([...occupiedClients, zeroClient]), [0, 1, 2, 9]);
 assert.deepEqual(occupied([...occupiedClients, { ...zeroClient, hidden: true },
     { ...zeroClient, mapped: false }, { ...client, workspace: { id: 11, name: '11' } },
-    { ...client, workspace: { id: -99, name: 'special:0' } }]), [1, 2, 9]);
+    { ...client, workspace: { id: -99, name: 'special:0' } }]), [1, 2, 9, 11]);
+assert.deepEqual(occupied([...occupiedClients,
+    { ...client, monitor: 0, workspace: { id: 11, name: '11' } },
+    { ...client, monitor: 2, workspace: { id: 21, name: '21' } }]), [1, 2, 9, 11, 21]);
 
 assert.equal(logic.move(10, 1, 4, 11), 0);
 assert.equal(logic.move(0, -1, 4, 11), 10);
@@ -36,7 +40,7 @@ assert.equal(logic.move(2, 4, 4, 11), 6);
 assert.equal(logic.move(10, 4, 4, 11), 2);
 assert.equal(logic.move(3, -4, 4, 11), 7);
 assert.equal(logic.move(7, 4, 4, 11), 3);
-for (let count = 1; count <= 11; count++) {
+for (let count = 1; count <= 16; count++) {
     const columns = Math.min(4, count);
     for (let index = 0; index < count; index++) {
         for (const step of [1, -1, columns, -columns]) {
@@ -53,4 +57,5 @@ assert.equal(JSON.stringify(logic.monitorGeometry({ ...monitor, transform: 1 }))
     JSON.stringify({ x: 1280, y: -100, width: 720, height: 1280 }));
 assert.equal(logic.focusRequest(0), 'hl.dsp.focus({ workspace = "name:0" })');
 assert.equal(logic.focusRequest(10), 'hl.dsp.focus({ workspace = 10 })');
+assert.equal(logic.focusRequest(21), 'hl.dsp.focus({ workspace = 21 })');
 console.log('Workspace navigation, filtering, scaled geometry and dispatch checks passed.');

@@ -188,10 +188,7 @@ Item {
      * central and does not key off monitor focus, so transient (OSD/toast)
      * appearances retract on their own even on the focused monitor.
      */
-    readonly property bool monFocused: {
-        const m = Hyprland.focusedMonitor;
-        return m ? m.name === pill.screenName : false;
-    }
+    readonly property bool monFocused: Monitors.focusedName === pill.screenName
 
     /**
      * Auto-hide mode retracts as soon as this monitor loses focus, even if the
@@ -233,10 +230,10 @@ Item {
      * or the private space rather than your real desktop. Empty in the normal case.
      */
     readonly property string specialView: {
-        var ms = Hyprland.monitors.values;
+        var ms = Monitors.list;
         for (var i = 0; i < ms.length; i++) {
             if (ms[i] && ms[i].name === pill.screenName) {
-                var o = ms[i].lastIpcObject;
+                var o = ms[i];
                 var sw = (o && o.specialWorkspace) ? o.specialWorkspace.name : "";
                 if (sw && sw.indexOf("special:") === 0) {
                     var id = sw.slice("special:".length);

@@ -23,11 +23,11 @@ Row {
      * clicked, falling back to the focused workspace.
      */
     function restoreWorkspace() {
-        var ms = Hyprland.monitors.values;
+        var ms = Monitors.list;
         for (var i = 0; i < ms.length; i++)
             if (ms[i].name === root.screenName && ms[i].activeWorkspace)
                 return ms[i].activeWorkspace.id;
-        return Hyprland.focusedWorkspace ? Hyprland.focusedWorkspace.id : 1;
+        return Monitors.focused && Monitors.focused.activeWorkspace ? Monitors.focused.activeWorkspace.id : 1;
     }
 
     readonly property var items: {

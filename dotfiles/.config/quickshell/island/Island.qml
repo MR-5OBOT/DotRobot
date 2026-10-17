@@ -31,8 +31,8 @@ Scope {
     property string openSurface: ""
     property string peekMon: ""
 
-    /** Bottom edge of the open top-centre widget notch (calculator, launcher…), 0 when none. Set by shell.qml. */
-    property real widgetDrop: 0
+    /** Bottom edge of an open widget notch, keyed by its monitor. Set by shell.qml. */
+    property var widgetDrops: ({})
 
     /** Where the open surface was reached from, "" when it was opened directly. */
     property string backSurface: ""
@@ -115,7 +115,7 @@ Scope {
      */
     function toggleSurface(mon, surface) {
         if (!mon || mon.length === 0)
-            mon = Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : "";
+            mon = Monitors.focusedName;
         if (root.openMon === mon && root.openSurface === surface) {
             root.close();
             return;
@@ -132,7 +132,7 @@ Scope {
      */
     function navigate(mon, surface) {
         if (!mon || mon.length === 0)
-            mon = Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : "";
+            mon = Monitors.focusedName;
         root.backSurface = (root.openMon === mon && root.openSurface.length > 0
             && root.openSurface !== surface) ? root.openSurface : "";
         root.openMon = mon;
@@ -157,6 +157,14 @@ Scope {
 
     function peek(mon) {
         root.peekMon = root.peekMon === mon ? "" : mon;
+    }
+
+    Connections {
+        target: Quickshell
+        function onScreensChanged() {
+            if (root.openMon && !Quickshell.screens.some(s => s.name === root.openMon)) root.close();
+            if (root.peekMon && !Quickshell.screens.some(s => s.name === root.peekMon)) root.peekMon = "";
+        }
     }
 
     IpcHandler {
@@ -248,7 +256,7 @@ Scope {
     readonly property rect toastHole: {
         const w = overlays.instances;
         for (let i = 0; i < w.length; i++)
-            if (w[i].toastHole.width > 0) return w[i].toastHole;
+            if (root.widgetDrops[w[i].screen.name] > 0 && w[i].toastHole.width > 0) return w[i].toastHole;
         return Qt.rect(0, 0, 0, 0);
     }
 
@@ -276,14 +284,11 @@ Scope {
              * its clicks, or a critical toast could never be dismissed.
              */
             readonly property bool monFullscreen: {
-                var mons = Hyprland.monitors.values;
-                for (var i = 0; i < mons.length; i++) {
-                    if (mons[i].name === modelData.name) {
-                        var ws = mons[i].activeWorkspace;
-                        return ws ? ws.toplevels.values.some(t => t.lastIpcObject && (t.lastIpcObject.fullscreen & 2)) : false;
-                    }
-                }
-                return false;
+                const monitor = Monitors.list.find(m => m.name === modelData.name);
+                return !!monitor && Hyprland.toplevels.values.some(t => {
+                    const client = t.lastIpcObject;
+                    return client.workspace && client.workspace.id === monitor.activeWorkspace.id && (client.fullscreen & 2);
+                });
             }
 
             /**
@@ -291,10 +296,10 @@ Scope {
              * island, so a toast or OSD fired while one is open would grow under it.
              * They drop below the widget's card instead (kept on screen for tall
              * widgets) and detach from the edge while there.
-             * ponytail: drops on every monitor; match the widget's screen if you run multi-head.
              */
             function dropFor(h) {
-                return root.widgetDrop > 0 ? Math.max(0, Math.min(root.widgetDrop + 8 * s, height - h - 8 * s)) : 0;
+                const drop = root.widgetDrops[modelData.name] || 0;
+                return drop > 0 ? Math.max(0, Math.min(drop + 8 * s, height - h - 8 * s)) : 0;
             }
 
             onMonFullscreenChanged: if (monFullscreen) {

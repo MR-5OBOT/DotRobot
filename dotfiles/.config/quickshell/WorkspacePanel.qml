@@ -10,16 +10,14 @@ import "widgets" as Widgets
 import "island/Singletons" as Island
 import "lib/workspaces.js" as Workspaces
 
-// Occupied workspaces from 0–10. Toggle: qs ipc call workspaces toggle.
+// Occupied workspaces across all monitors. Toggle: qs ipc call workspaces toggle.
 PanelWindow {
     id: win
 
     property bool open: false
     property int selected: -1
     property int pendingWorkspace: -1
-    property var monitors: []
-    property bool selectOnRefresh: false
-    property string error: ""
+    readonly property var monitors: Island.Monitors.list
     readonly property var occupied: Workspaces.occupiedWorkspaces(
         Hyprland.toplevels.values.map(t => t.lastIpcObject))
     readonly property int columns: Math.max(1, Math.min(4, occupied.length))
@@ -33,7 +31,13 @@ PanelWindow {
 
     function refresh() {
         Hyprland.refreshToplevels();
-        monitorProc.running = true;
+        Island.Monitors.refresh();
+    }
+
+    function toggle() {
+        if (!open && Island.Monitors.focusedScreen)
+            screen = Island.Monitors.focusedScreen;
+        open = !open;
     }
 
     function activate(index) {
@@ -69,7 +73,9 @@ PanelWindow {
     onOpenChanged: {
         if (open) {
             pendingWorkspace = -1;
-            selectOnRefresh = true;
+            const current = Workspaces.workspaceIndex(Island.Monitors.focused
+                ? Island.Monitors.focused.activeWorkspace : null);
+            selected = occupied.indexOf(current) !== -1 ? current : (occupied.length ? occupied[0] : -1);
             refresh();
             keys.forceActiveFocus();
         }
@@ -85,7 +91,7 @@ PanelWindow {
 
     IpcHandler {
         target: "workspaces"
-        function toggle(): void { win.open = !win.open; }
+        function toggle(): void { win.toggle(); }
     }
 
     HyprlandFocusGrab {
@@ -94,39 +100,6 @@ PanelWindow {
         onCleared: win.open = false
     }
 
-    // The compositor's monitor model can be empty on startup, even with windows loaded.
-    Process {
-        id: monitorProc
-        command: ["hyprctl", "monitors", "-j"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                try {
-                    const data = JSON.parse(text);
-                    if (!Array.isArray(data) || data.length === 0) throw new Error("No monitors");
-                    win.monitors = data;
-                    win.error = "";
-                    if (win.open && win.selectOnRefresh) {
-                        const focused = data.find(m => m.focused) || data[0];
-                        const screen = Quickshell.screens.find(s => s.name === focused.name);
-                        if (screen) win.screen = screen;
-                        const current = Workspaces.workspaceIndex(focused.activeWorkspace);
-                        win.selected = win.occupied.indexOf(current) !== -1 ? current
-                            : (win.occupied.length ? win.occupied[0] : -1);
-                        win.selectOnRefresh = false;
-                    }
-                } catch (e) {
-                    win.error = "Could not read workspaces";
-                }
-            }
-        }
-        onExited: code => { if (code !== 0) win.error = "Could not read workspaces"; }
-    }
-
-    Connections {
-        target: win.open ? Hyprland : null
-        function onRawEvent(event) { refreshSoon.restart(); }
-    }
-    Timer { id: refreshSoon; interval: 80; onTriggered: win.refresh() }
     // Geometry changes do not always emit IPC events.
     Timer { interval: 750; repeat: true; running: win.open; onTriggered: Hyprland.refreshToplevels() }
 
@@ -146,8 +119,7 @@ PanelWindow {
         Keys.onReleased: event => {
             if (win.open && (event.key === Qt.Key_Meta || event.key === Qt.Key_Super_L || event.key === Qt.Key_Super_R)) {
                 event.accepted = true;
-                if (win.selectOnRefresh) win.open = false;
-                else win.activate(win.selected);
+                win.activate(win.selected);
             }
         }
 
@@ -186,7 +158,7 @@ PanelWindow {
                 }
                 Item { Layout.fillWidth: true }
                 Text {
-                    text: win.error || win.occupied.length + (win.occupied.length === 1 ? " workspace" : " workspaces")
+                    text: win.occupied.length + (win.occupied.length === 1 ? " workspace" : " workspaces")
                     color: Theme.dim
                     font { family: Theme.font; pixelSize: 12 }
                 }

@@ -11,6 +11,7 @@ singleton Dyn Dyn.qml
 singleton Weather Weather.qml
 singleton Events Events.qml
 singleton Workspacerules Workspacerules.qml
+singleton Monitors Monitors.qml
 singleton Spaces Spaces.qml
 singleton Surfaces Surfaces.qml
 singleton Players Players.qml
