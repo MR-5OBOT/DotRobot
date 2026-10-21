@@ -13,9 +13,7 @@ Item {
     property bool activeFill: false
     property bool canUndo: false
     property bool canRedo: false
-    property bool settingsOpen: false
 
-    readonly property real gearCenterX: gear.x + row.x + gear.width / 2
     readonly property real colorCenterX: colorBtn.x + row.x + colorBtn.width / 2
     readonly property real widthCenterX: widthBtn.x + row.x + widthBtn.width / 2
 
@@ -28,7 +26,7 @@ Item {
     signal copyRequested()
     signal saveRequested()
     signal uploadRequested()
-    signal settingsRequested()
+    signal closeRequested()
 
     /**
      * Incremental drag delta since the last move, in pixels. The toolbar never
@@ -334,14 +332,16 @@ Item {
             Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 20; color: tb.sep; Layout.leftMargin: 3; Layout.rightMargin: 3 }
 
             IconButton {
-                id: gear
-                icon: "gear"
-                active: tb.settingsOpen
-                onClicked: tb.settingsRequested()
+                id: closeBtn
+                icon: "cancel"
+                Accessible.role: Accessible.Button
+                Accessible.name: "Close screenshot"
+                Accessible.onPressAction: tb.closeRequested()
+                onClicked: tb.closeRequested()
                 HoverHandler {
                     onHoveredChanged: hovered
-                        ? tb.showTip("Settings", ",", gear.x + row.x + gear.width / 2)
-                        : tb.hideTip("Settings")
+                        ? tb.showTip("Close", "Esc", closeBtn.x + row.x + closeBtn.width / 2)
+                        : tb.hideTip("Close")
                 }
             }
         }

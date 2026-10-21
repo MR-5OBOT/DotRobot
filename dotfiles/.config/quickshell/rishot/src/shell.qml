@@ -24,7 +24,6 @@ ShellRoot {
     property var draft: null
     property int annRevision: 0
     property int commitRevision: 0
-    property bool settingsOpen: false
     property bool textEditing: false
 
     property real toolbarDX: 0
@@ -79,7 +78,6 @@ ShellRoot {
         var s = Object.assign({}, toolStyle);
         s[activeTool] = styleEntry();
         toolStyle = s;
-        persistToolStyle();
     }
 
     function setToolWidth(w) {
@@ -87,7 +85,6 @@ ShellRoot {
         var s = Object.assign({}, toolStyle);
         s[activeTool] = styleEntry();
         toolStyle = s;
-        persistToolStyle();
     }
 
     function setToolFill(f) {
@@ -95,7 +92,6 @@ ShellRoot {
         var s = Object.assign({}, toolStyle);
         s[activeTool] = styleEntry();
         toolStyle = s;
-        persistToolStyle();
     }
 
     /**
@@ -109,23 +105,6 @@ ShellRoot {
         if (draft) {
             if (draft.type === "text") { draft = Object.assign({}, draft, { size: textSize() }); bumpAnn(); }
             else if (draft.width !== undefined) { draft.width = w; bumpAnn(); }
-        }
-    }
-
-    /** Coalesces rapid style changes (a scroll burst) into one settings write. */
-    Timer {
-        id: persistTimer
-        interval: 400
-        onTriggered: { Config.toolStyle = root.toolStyle; Config.save(); }
-    }
-    function persistToolStyle() { persistTimer.restart(); }
-
-    Connections {
-        target: Config
-        function onLoaded() {
-            if (Config.toolStyle && typeof Config.toolStyle === "object")
-                root.toolStyle = Config.toolStyle;
-            root.selectTool(root.activeTool);
         }
     }
 
@@ -152,7 +131,6 @@ ShellRoot {
             : homeDir + "/Pictures/Screenshots")
     readonly property string uploadEndpoint: Quickshell.env("RISHOT_UPLOAD")
         || "https://litterbox.catbox.moe/resources/internals/api.php"
-    readonly property string keybindFile: Quickshell.env("RISHOT_KEYBIND_FILE") || ""
 
     /**
      * KWin runs none of the screencopy protocols, so spotting a Plasma session lets
@@ -359,7 +337,7 @@ ShellRoot {
         else if (activeTool === "blur" || activeTool === "pixelate")
             draft = { type: activeTool, points: [p, p] };
         else if (activeTool === "zoom")
-            draft = { type: "zoom", points: [p, p], zoom: Config.zoomFactor };
+            draft = { type: "zoom", points: [p, p], zoom: 2 };
         else
             draft = { type: activeTool, points: [p, p], color: String(activeColor), width: activeWidth, filled: activeFill };
         bumpAnn();
@@ -462,9 +440,7 @@ ShellRoot {
         return "shot-" + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate())
             + "-" + p(d.getHours()) + p(d.getMinutes()) + p(d.getSeconds()) + ".png";
     }
-    /** Save target: the folder picked in settings, or shotsDir when none is set. */
-    readonly property string effectiveSaveDir: Config.saveDir !== "" ? Config.saveDir : shotsDir
-    readonly property string defaultPath: effectiveSaveDir + "/" + timestampName()
+    readonly property string defaultPath: shotsDir + "/" + timestampName()
 
     function anchorOverlay() {
         if (!globalSel) return null;
@@ -488,6 +464,7 @@ ShellRoot {
     }
 
     function grabTo(path, after) {
+        if (textEditing) commitText();
         var w = anchorOverlay();
         if (!w) { if (after) after(false); return; }
         if (spansMonitors()) { seamStitch(path, after); return; }
@@ -568,17 +545,11 @@ ShellRoot {
         onExited: () => Qt.quit()
     }
 
-    /**
-     * Copy honours the "save a copy on disk" setting. When off the shot lands in
-     * a throwaway tmp file that copyProc deletes after it reaches the clipboard,
-     * so a plain copy leaves no screenshot behind. When on it writes to the
-     * normal shots dir and keeps it, same as save.
-     */
+    /** The temporary capture is deleted only after it reaches the clipboard. */
     function doCopy() {
-        var keep = Config.copyToDisk;
-        var target = keep ? defaultPath : (root.tmpDir + "/rishot-copy-" + Date.now() + ".png");
+        var target = root.tmpDir + "/rishot-copy-" + Date.now() + ".png";
         grabTo(target, function (ok) {
-            if (ok) copyProc.run(target, keep);
+            if (ok) copyProc.run(target);
             else root.finish("Capture failed", "", true, "");
         });
     }
@@ -588,19 +559,13 @@ ShellRoot {
         grabTo(auto, function (ok) {
             if (!ok) { root.finish("Capture failed", "", true, ""); return; }
             root.savedAuto = auto;
-            if (Config.skipSaveDialog) { root.afterSave(auto); return; }
             root.dialogMode = true;
             saveDialog.open();
         });
     }
 
-    /**
-     * Finishes a save: the file is already on disk at path, so this only adds the
-     * clipboard copy when the copy-on-save setting is on, then fires the toast.
-     */
     function afterSave(path) {
-        if (Config.copyOnSave) saveCopyProc.run(path);
-        else root.finish("Screenshot saved", root.pretty(path), false, path);
+        root.finish("Screenshot saved", root.pretty(path), false, path);
     }
 
     function doUpload() {
@@ -640,62 +605,25 @@ ShellRoot {
         }
     }
 
-    /** Puts an already-saved file on the clipboard for the copy-on-save option. */
-    Process {
-        id: saveCopyProc
-        property string p: ""
-        function run(path) {
-            p = path;
-            command = ["sh", "-c", "exec 9>&-; wl-copy --type image/png < \"$1\"", "_", path];
-            running = true;
-        }
-        onExited: (code) => root.finish(code === 0 ? "Screenshot saved" : "Saved, clipboard copy failed",
-                                       root.pretty(p), code !== 0, p)
-    }
-
-    /**
-     * Folder picker for the save directory. The overlay holds an exclusive
-     * keyboard grab, so dialogMode drops it while kdialog runs and the overlay
-     * returns with its frozen capture intact once a folder is chosen or the
-     * picker is cancelled.
-     */
-    Process {
-        id: saveDirPick
-        stdout: StdioCollector { id: saveDirOut }
-        function open() {
-            root.dialogMode = true;
-            command = ["kdialog", "--getexistingdirectory", root.effectiveSaveDir];
-            running = true;
-        }
-        onExited: (code) => {
-            root.dialogMode = false;
-            var dir = saveDirOut.text.trim();
-            if (code === 0 && dir.length > 0) { Config.saveDir = dir; Config.save(); }
-        }
-    }
-
     Process {
         id: copyProc
         property string file: ""
-        property bool keep: true
-        function run(f, keepFile) {
+        function run(f) {
             file = f;
-            keep = keepFile;
             command = ["sh", "-c",
                 "exec 9>&-; wl-copy --type image/png < \"$1\" || exit 1; "
                 + "if command -v cliphist >/dev/null 2>&1; then "
                 + "if [ \"$(stat -c%s \"$1\")\" -ge 4900000 ]; then "
                 + "command -v magick >/dev/null 2>&1 && magick \"$1\" -quality 92 jpeg:- | cliphist store; "
                 + "else cliphist store < \"$1\"; fi; fi; "
-                + "[ \"$2\" = keep ] || rm -f \"$1\" || true",
-                "_", f, keep ? "keep" : "drop"];
+                + "rm -f \"$1\" || true",
+                "_", f];
             running = true;
         }
         onExited: (code) => {
             console.log("rishot: wl-copy exit " + code);
             if (code !== 0) { root.finish("Copy failed", root.pretty(file), true, file); return; }
-            if (keep) root.finish("Screenshot copied", root.pretty(file), false, file);
-            else root.finish("Copied to clipboard", "", false, "");
+            root.finish("Copied to clipboard", "", false, "");
         }
     }
 
@@ -866,35 +794,27 @@ ShellRoot {
                 anchors.fill: parent
                 focus: true
 
-                /**
-                 * Re-asserts scope focus once no overlay child holds it. The
-                 * SettingsPanel key-catcher and the colour hex field grab active
-                 * focus while open; when they hide, Qt drops their focus without
-                 * restoring the scope default, which would silently kill the
-                 * single-key tool shortcuts. Re-grabbing here keeps them live.
-                 */
+                /** Restore tool shortcuts after the colour hex field loses focus. */
                 function reclaimFocus() {
-                    if (!root.textEditing && root.openPopover === "" && !root.settingsOpen)
+                    if (!root.textEditing && root.openPopover === "")
                         keyScope.forceActiveFocus();
                 }
 
                 Connections {
                     target: root
                     function onOpenPopoverChanged() { keyScope.reclaimFocus(); }
-                    function onSettingsOpenChanged() { keyScope.reclaimFocus(); }
                 }
 
                 Keys.onEscapePressed: {
                     if (root.textEditing) root.cancelText();
                     else if (root.openPopover !== "") root.openPopover = "";
-                    else if (root.settingsOpen) root.settingsOpen = false;
                     else if (root.selectedIndex !== null) root.clearSelection();
                     else Qt.quit();
                 }
                 Keys.onPressed: (e) => {
                     if (root.textEditing) return;
                     if (e.modifiers & Qt.ControlModifier) {
-                        if (e.key === Qt.Key_C) { root.doCopy(); e.accepted = true; }
+                        if (e.key === Qt.Key_C) { if (root.phase === "editing") root.doCopy(); e.accepted = true; }
                         else if (e.key === Qt.Key_S) { if (root.phase === "editing") root.doSave(); e.accepted = true; }
                         else if (e.key === Qt.Key_U) { if (root.phase === "editing") root.doUpload(); e.accepted = true; }
                         else if (e.key === Qt.Key_Z) { root.undo(); e.accepted = true; }
@@ -912,16 +832,10 @@ ShellRoot {
                         root.openPopover = "";
                         root.selectTool(t);
                         e.accepted = true;
-                    } else if (root.phase === "editing" && e.text === ",") {
-                        root.openPopover = "";
-                        root.settingsOpen = !root.settingsOpen;
-                        e.accepted = true;
                     } else if (root.phase === "editing" && e.text === "c") {
-                        root.settingsOpen = false;
                         root.openPopover = root.openPopover === "color" ? "" : "color";
                         e.accepted = true;
                     } else if (root.phase === "editing" && e.text === "w") {
-                        root.settingsOpen = false;
                         root.openPopover = root.openPopover === "width" ? "" : "width";
                         e.accepted = true;
                     } else if (root.phase === "editing" && e.text === "f" && root.toolHasFill(root.activeTool)) {
@@ -984,7 +898,6 @@ ShellRoot {
                     activeFill: root.activeFill
                     canUndo: { root.commitRevision; return root.model ? root.model.canUndo() : false; }
                     canRedo: { root.commitRevision; return root.model ? root.model.canRedo() : false; }
-                    settingsOpen: root.settingsOpen
 
                     x: {
                         if (!win.selLocal) return 0;
@@ -999,15 +912,15 @@ ShellRoot {
                     }
 
                     onToolPicked: (t) => root.selectTool(t)
-                    onColorButtonClicked: { root.settingsOpen = false; root.openPopover = root.openPopover === "color" ? "" : "color"; }
-                    onWidthButtonClicked: { root.settingsOpen = false; root.openPopover = root.openPopover === "width" ? "" : "width"; }
+                    onColorButtonClicked: root.openPopover = root.openPopover === "color" ? "" : "color"
+                    onWidthButtonClicked: root.openPopover = root.openPopover === "width" ? "" : "width"
                     onFillToggled: root.setToolFill(!root.activeFill)
                     onUndoRequested: root.undo()
                     onRedoRequested: root.redo()
                     onCopyRequested: root.doCopy()
                     onSaveRequested: root.doSave()
                     onUploadRequested: root.doUpload()
-                    onSettingsRequested: { root.openPopover = ""; root.settingsOpen = !root.settingsOpen; }
+                    onCloseRequested: Qt.quit()
                     onDragMoved: (dx, dy) => {
                         if (!win.selLocal) return;
                         var ax = win.selLocal.x + win.selLocal.w / 2 - toolbar.width / 2;
@@ -1019,25 +932,6 @@ ShellRoot {
                         root.toolbarDY = Math.max(minDY, Math.min(root.toolbarDY + dy, maxDY));
                     }
                     onDragReset: { root.toolbarDX = 0; root.toolbarDY = 0; }
-                }
-
-                SettingsPanel {
-                    id: hotkeyPopover
-                    visible: toolbar.visible && root.settingsOpen
-                    luaPath: root.keybindFile
-                    x: Math.max(8, Math.min(toolbar.x + toolbar.gearCenterX - width / 2,
-                                            win.width - width - 8))
-                    y: {
-                        var above = toolbar.y - height - 6;
-                        if (above < 8) {
-                            var below = toolbar.y + toolbar.height + 6;
-                            return Math.min(below, win.height - height - 8);
-                        }
-                        return above;
-                    }
-                    onCloseRequested: root.settingsOpen = false
-                    onRebound: Qt.quit()
-                    onPickSaveDir: saveDirPick.open()
                 }
 
                 ColorPopover {
