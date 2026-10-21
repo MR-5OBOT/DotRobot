@@ -3,14 +3,11 @@
 -- Workspace assignments
 hl.window_rule({ match = { class = "^(brave-.*|helium)$" }, workspace = 1 })
 hl.window_rule({ match = { class = "kitty" }, workspace = 2 })
-hl.window_rule({ match = { class = "^(org.telegram.desktop|vesktop)$" }, workspace = 3 })
 hl.window_rule({ match = { class = "(?i).*tradingview.*" }, workspace = 4 })
-hl.window_rule({ match = { title = "(?i).*tradingview.*" }, workspace = 4 })
 hl.window_rule({ match = { class = "(?i).*(terminal64[.]exe|metatrader|metaquotes|mt5|ftmo).*" }, workspace = 5 })
-hl.window_rule({ match = { title = "(?i).*(terminal64[.]exe|metatrader|metaquotes|mt5|ftmo).*" }, workspace = 5 })
 hl.window_rule({ match = { class = "^(obs|com.obsproject.Studio)$" }, workspace = 6 })
 hl.window_rule({ match = { class = "(?i)^(org.kde.kdenlive|kdenlive)$" }, workspace = 7 })
-hl.window_rule({ match = { class = "(?i)^gimp.*$" }, workspace = 8 })
+hl.window_rule({ match = { class = "(?i)^gimp.*$" }, workspace = 3 })
 
 -- Anything without a workspace rule above -> workspace 9
 -- hl.window_rule({
@@ -91,10 +88,6 @@ hl.window_rule({
 	max_size = "1 1",
 	no_blur = true,
 })
-
--- Borders on floating windows only: general.border_size is 0, this puts it back
--- for anything floating.
--- hl.window_rule({ match = { float = true }, border_size = 4 })
 
 -- Shadows on floating windows only: decoration.shadow is on, this strips it from
 -- tiled windows. Shadow colours match the old border colours.

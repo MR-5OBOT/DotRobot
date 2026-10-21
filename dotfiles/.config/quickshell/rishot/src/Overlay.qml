@@ -20,6 +20,7 @@ Item {
     readonly property bool frozenReady: captureBackend === "image"
         ? frozenPng.status === Image.Ready
         : frozenWlr.hasContent
+    onFrozenReadyChanged: if (frozenReady) ready = true
 
     property var globalSel: null
     property bool capturing: false
@@ -117,11 +118,10 @@ Item {
             asynchronous: true
             onStatusChanged: {
                 if (status === Image.Error) overlay.captureTimedOut();
-                else if (status === Image.Ready && overlay.captureBackend === "image") overlay.ready = true;
             }
         }
 
-        readonly property real mosaicFactor: Config.mosaicFactor
+        readonly property real mosaicFactor: 14
 
         function committedOfType(t) {
             var src = overlay.model ? overlay.model.items : [];
@@ -166,7 +166,7 @@ Item {
                 FastBlur {
                     anchors.fill: parent
                     source: blurSrc
-                    radius: Config.blurRadius
+                    radius: 64
                 }
             }
         }
@@ -241,7 +241,7 @@ Item {
                 readonly property real srcMinY: valid ? Math.min(a.points[0].y, a.points[1].y) : 0
                 readonly property real srcW: valid ? Math.abs(a.points[1].x - a.points[0].x) : 0
                 readonly property real srcH: valid ? Math.abs(a.points[1].y - a.points[0].y) : 0
-                readonly property real zf: (valid && a.zoom) ? a.zoom : Config.zoomFactor
+                readonly property real zf: (valid && a.zoom) ? a.zoom : 2
 
                 readonly property real rx: srcMinX - overlay.sx + off.x
                 readonly property real ry: srcMinY - overlay.sy + off.y
@@ -336,14 +336,12 @@ Item {
         id: capTimer
         interval: 50
         repeat: true
-        running: overlay.captureBackend !== "image"
+        triggeredOnStart: true
+        running: overlay.captureBackend !== "image" && !overlay.ready
         property int tries: 0
         onTriggered: {
             tries += 1;
-            if (overlay.frozenReady) {
-                running = false;
-                overlay.ready = true;
-            } else if (tries > 60) {
+            if (tries > 60) {
                 running = false;
                 console.warn("rishot: screen capture timed out after 3s, no frame from compositor");
                 overlay.captureTimedOut();
@@ -500,10 +498,10 @@ Item {
         ShaderEffectSource {
             id: exportSrc
             sourceItem: scene
-            width: scene.width
-            height: scene.height
-            x: overlay.localSel ? -overlay.localSel.x : 0
-            y: overlay.localSel ? -overlay.localSel.y : 0
+            anchors.fill: parent
+            sourceRect: overlay.localSel
+                ? Qt.rect(overlay.localSel.x, overlay.localSel.y, overlay.localSel.w, overlay.localSel.h)
+                : Qt.rect(0, 0, 0, 0)
             live: false
             recursive: false
         }

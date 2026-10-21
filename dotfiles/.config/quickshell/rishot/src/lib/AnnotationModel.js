@@ -7,10 +7,6 @@ function cloneItem(a) {
     return c;
 }
 
-function clone(items) {
-    return items.map(cloneItem);
-}
-
 function create() {
     return {
         items: [],
@@ -18,25 +14,28 @@ function create() {
         redoStack: [],
 
         commit: function () {
-            this.undoStack.push(clone(this.items));
+            // Stored annotations stay immutable so history can share their points.
+            this.undoStack.push(this.items.slice());
             if (this.undoStack.length > UNDO_LIMIT) this.undoStack.shift();
             this.redoStack = [];
         },
 
         add: function (ann) {
             this.commit();
-            this.items.push(ann);
+            this.items.push(cloneItem(ann));
             return ann;
         },
 
         move: function (index, dx, dy) {
             if (index < 0 || index >= this.items.length) return false;
             this.commit();
-            var pts = this.items[index].points;
+            var moved = cloneItem(this.items[index]);
+            var pts = moved.points;
             for (var i = 0; i < pts.length; i++) {
                 pts[i].x += dx;
                 pts[i].y += dy;
             }
+            this.items[index] = moved;
             return true;
         },
 
@@ -49,14 +48,14 @@ function create() {
 
         undo: function () {
             if (this.undoStack.length === 0) return false;
-            this.redoStack.push(clone(this.items));
+            this.redoStack.push(this.items.slice());
             this.items = this.undoStack.pop();
             return true;
         },
 
         redo: function () {
             if (this.redoStack.length === 0) return false;
-            this.undoStack.push(clone(this.items));
+            this.undoStack.push(this.items.slice());
             this.items = this.redoStack.pop();
             return true;
         },
