@@ -3,17 +3,12 @@
 -- Workspace assignments
 hl.window_rule({ match = { class = "^(brave-.*|helium)$" }, workspace = 1 })
 hl.window_rule({ match = { class = "kitty" }, workspace = 2 })
-hl.window_rule({ match = { class = "(?i).*tradingview.*" }, workspace = 4 })
 hl.window_rule({ match = { class = "(?i).*(terminal64[.]exe|metatrader|metaquotes|mt5|ftmo).*" }, workspace = 5 })
 hl.window_rule({ match = { class = "^(obs|com.obsproject.Studio)$" }, workspace = 6 })
 hl.window_rule({ match = { class = "(?i)^(org.kde.kdenlive|kdenlive)$" }, workspace = 7 })
 hl.window_rule({ match = { class = "(?i)^gimp.*$" }, workspace = 3 })
-
--- Anything without a workspace rule above -> workspace 9
--- hl.window_rule({
--- 	match = { class = "negative:^(brave-.*|kitty|org.telegram.desktop|vesktop|terminal64.exe|Foliate)$" },
--- 	workspace = 9,
--- })
+hl.window_rule({ match = { class = "(?i).*tradingview.*" }, workspace = 4 })
+hl.window_rule({ match = { title = "(?i).*tradingview.*" }, workspace = 4 })
 
 -- Floating rules with size/center
 hl.window_rule({ match = { class = "kitty" }, float = true, center = true, size = "620 360" })
