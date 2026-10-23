@@ -11,6 +11,12 @@ hl.window_rule({ match = { class = "(?i).*tradingview.*" }, workspace = 4 })
 hl.window_rule({ match = { title = "(?i).*tradingview.*" }, workspace = 4 })
 
 -- Floating rules with size/center
+hl.window_rule({
+	match = { initial_title = "^_crx_[a-p]{32}$" },
+	float = true,
+	center = true,
+	size = "480 600",
+})
 hl.window_rule({ match = { class = "kitty" }, float = true, center = true, size = "620 360" })
 hl.window_rule({ match = { title = "^(Calculator)$" }, float = true, center = true, size = "280 340" })
 hl.window_rule({ match = { title = "^(Calendar)$" }, float = true, center = true })
