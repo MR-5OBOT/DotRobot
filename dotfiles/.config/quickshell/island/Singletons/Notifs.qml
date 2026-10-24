@@ -10,7 +10,6 @@ Singleton {
     property var arrivalMs: ({})
     property var popups: []
     property int tick: 0
-    property var expandedApps: ({})
     property var history: []
     property var userDismissed: ({})
     property var expireAt: ({})
@@ -275,13 +274,6 @@ Singleton {
      */
     function clearPopups() {
         root.popups = [];
-    }
-
-    /** App groups start expanded; only an explicit `false` collapses one. */
-    function toggleExpanded(app) {
-        var e = Object.assign({}, expandedApps);
-        e[app] = e[app] === false;
-        root.expandedApps = e;
     }
 
     /**

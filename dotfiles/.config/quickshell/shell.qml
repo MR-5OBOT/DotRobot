@@ -15,6 +15,7 @@ ShellRoot {
     // Wi-Fi is nm-applet's tray icon (Home's tray); the radio panel is gone.
     IslandShell.Island {
         id: island
+        onRequestNotifications: monitor => notifications.toggle(monitor)
         widgetDrops: {
             const drops = {};
             for (const widget of [launcher, clipboard, calc, powerProfile, keymaps]) {
@@ -26,6 +27,10 @@ ShellRoot {
     }
     Binding { target: BarState; property: "islandWindows"; value: island.windows }
     Binding { target: BarState; property: "toastHole"; value: island.toastHole }
+    NotificationCenter {
+        id: notifications
+        onOpened: island.close()
+    }
 
     // Widgets the island opens, drawn as top-edge notches in the same style.
     Launcher { id: launcher }                  // qs ipc call launcher toggle

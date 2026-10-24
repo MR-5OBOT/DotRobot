@@ -120,6 +120,9 @@ ShellRoot {
     function textSize() { return activeWidth * 5 + 8; }
 
     property var overlays: []
+    readonly property bool captureReady: overlays.length > 0
+        && overlays.length === Quickshell.screens.length
+        && overlays.every(w => w.captureReady)
     property int captureFails: 0
 
     readonly property string mode: Quickshell.env("RISHOT_MODE") === "monitor" ? "monitor" : "region"
@@ -777,10 +780,13 @@ ShellRoot {
             anchors { top: true; left: true; right: true; bottom: true }
             color: "transparent"
             exclusionMode: ExclusionMode.Ignore
+            // Freeze every output before stealing focus or hover from open widgets.
+            mask: Region { item: root.captureReady ? keyScope : null }
             WlrLayershell.layer: WlrLayer.Overlay
-            WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+            WlrLayershell.keyboardFocus: root.captureReady ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
             WlrLayershell.namespace: "rishot"
 
+            readonly property bool captureReady: ov.ready
             readonly property string scrName: win.modelData.name
             readonly property bool showToolbar: root.toolbarFor(win).visible
 
@@ -956,7 +962,8 @@ ShellRoot {
 
             }
 
-            Component.onCompleted: root.overlays.push(win)
+            Component.onCompleted: root.overlays = root.overlays.concat([win])
+            Component.onDestruction: root.overlays = root.overlays.filter(w => w !== win)
 
             function grabExport(path, cb) { ov.grabExport(path, cb); }
         }
