@@ -137,7 +137,6 @@ Item {
         Quickshell.execDetached(["blueman-manager"]);
     }
     readonly property bool powerOpen: surface === "power"
-    readonly property bool linkOpen: surface === "link"
     readonly property bool batteryOpen: surface === "battery"
     readonly property bool sysmonOpen: surface === "sysmon"
     readonly property bool displayOpen: surface === "display"
@@ -329,7 +328,6 @@ Item {
         calendar:  { size: () => { const it = surfaceItem("calendar"); return Qt.size((it.implicitWidth > 0 ? it.implicitWidth : 282 * calendarS) + 36 * calendarS, it.implicitHeight + 32 * calendarS); }, ame: () => surfaceItem("calendar") },
         power:     { size: () => { surfaceItem("power"); return Qt.size(powerW, powerH); }, ame: () => surfaceItem("power") },
         mixer:     { size: () => Qt.size(93 * Math.max(4, surfaceItem("mixer").faderCount) * s, mixerH), ame: () => surfaceItem("mixer") },
-        link:      { size: () => { const it = surfaceItem("link"); return Qt.size(it.desiredW, it.implicitHeight + 26 * s); }, ame: () => surfaceItem("link") },
         battery:   { size: () => Qt.size(batteryW, surfaceItem("battery").implicitHeight + 26 * s), ame: () => surfaceItem("battery") },
         sysmon:    { size: () => Qt.size(sysmonW, surfaceItem("sysmon").implicitHeight + 33 * s), ame: () => surfaceItem("sysmon") },
         display:    { size: () => Qt.size(settingsW, surfaceItem("display").implicitHeight + 29 * s), ame: () => surfaceItem("display") },
@@ -348,7 +346,6 @@ Item {
         calendar:   () => ldCalendar,
         power:      () => ldPower,
         mixer:      () => ldMixer,
-        link:       () => ldLink,
         battery:    () => ldBattery,
         sysmon:     () => ldSysmon,
         display:    () => ldDisplay,
@@ -1748,20 +1745,6 @@ Item {
             onRequestClose: pill.requestClose()
         }
     }
-
-    Loader {
-        id: ldLink
-        active: false
-        anchors.fill: parent
-        sourceComponent: Link {
-            s: pill.s
-            open: pill.linkOpen
-            morphCloseness: pill.morphCloseness
-            onRequestClose: pill.requestClose()
-        }
-    }
-
-
 
     Loader {
         id: ldBattery

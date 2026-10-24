@@ -30,6 +30,7 @@ Scope {
     property string openMon: ""
     property string openSurface: ""
     property string peekMon: ""
+    signal requestNotifications(string monitor)
 
     /** Bottom edge of an open widget notch, keyed by its monitor. Set by shell.qml. */
     property var widgetDrops: ({})
@@ -114,6 +115,11 @@ Scope {
      * one IPC call instead of three process spawns.
      */
     function toggleSurface(mon, surface) {
+        if (surface === "link") {
+            root.close();
+            root.requestNotifications(mon || Monitors.focusedName);
+            return;
+        }
         if (!mon || mon.length === 0)
             mon = Monitors.focusedName;
         if (root.openMon === mon && root.openSurface === surface) {
@@ -131,6 +137,10 @@ Scope {
      * repeat, because it is a navigation, not a toggle.
      */
     function navigate(mon, surface) {
+        if (surface === "link") {
+            root.toggleSurface(mon, surface);
+            return;
+        }
         if (!mon || mon.length === 0)
             mon = Monitors.focusedName;
         root.backSurface = (root.openMon === mon && root.openSurface.length > 0

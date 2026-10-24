@@ -11,7 +11,7 @@ It is one part of the quickshell config in `dotfiles/.config/quickshell`: the to
 - **Home** — a click on the notch opens the control centre: a header of workspace dots and every surface's button, the identity card over the live wallpaper with volume-mute, mic-mute and DND toggles, now-playing, clock/weather and live system vitals. A keybind still opens any surface directly.
 - **Notch** — flush with the top edge, pure black, concave shoulders, slides out of the screen; panels and the volume/brightness popup share the shape.
 - **Panels** — calendar with events and reminders, mixer (volume, mic, brightness), battery with power-profile button, system monitor with a speed test, notification inbox and toasts, minimized-window stash, power menu, settings (display incl. keep-awake).
-- **Notifications** — the island owns the notification server: toasts stay 8 seconds, the inbox shows each notification's title, body and icon.
+- **Notifications** — Super+N toggles the notification center on the right of the focused screen. Notifications stack by app with the app icon beside each title; hover to expand, or click the icon to keep a stack expanded. Right-click an app icon to clear its notifications. Cards retain images, actions, unread markers and critical alerts. Dismiss one card or clear the inbox; Escape or clicking outside closes it. The island still owns the notification server and its 8-second toasts.
 - **Weather** — Open-Meteo forecast on Home's clock card. Location comes from GeoClue (wifi networks in range) and falls back to an IP lookup.
 - **Colours** — surfaces stay black and neutral grey; the accent follows the current wallpaper.
 - **Monitors** — the focused screen owns hotkey panels and volume/brightness flashes. Widget clearance is tracked per screen. Shared Hyprland IPC state handles focus changes and display hotplug even when Quickshell's monitor model is empty.
@@ -35,6 +35,10 @@ qs ipc call island calendar ""
 ```
 
 Handlers: `home`, `mixer`, `calendar`, `launcher`, `power`, `link`, `battery`, `sysmon`/`system`, `clipboard`, `wallpaper`, `peek`, `hide`, `unloadAll`, `page`, `nav`. `launcher`, `clipboard` and `wallpaper` open the shell's own widgets.
+
+`qs ipc call notifications toggle` opens the notification center; `notifications hide` closes it. The island's `link`, `page "" link` and `nav "" link` routes open the same panel.
+
+Run `bash tests/notifications.sh` from the repository to check grouping, stacked-card layout, expansion and clearing on an isolated D-Bus session.
 
 ## Precise location (GeoClue)
 

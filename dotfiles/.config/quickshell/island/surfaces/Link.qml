@@ -1,626 +1,419 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Controls
 import "../Singletons"
 import "../components"
 
-/**
- * 報 INBOX surface: the notification center. Grouped per app with critical
- * entries pinned above the fold, an inline clear-all, and a silence empty
- * state; opening marks all notifications seen after a short beat so unread
- * embers register first. Exposes `desiredW` for the pill's morph and docks Ame
- * as a seam at the focused row.
- */
-PillSurface {
+Item {
     id: root
+    property real s: 1
+    property bool open: false
+    property var pinnedApps: []
+    enabled: open
+    signal requestClose()
 
-    mTop: 13
-    mLeft: 16
-    mRight: 16
-    mBottom: 13
-
-    readonly property real desiredW: 380 * s
-
-    /**
-     * Row-soul focus registry. Each hoverable row reports itself here; the bead
-     * docks as a glowing seam at the left edge of the focused row and hides
-     * when nothing is focused.
-     */
-    property Item focusRowItem: null
-
-    /**
-     * Sticky: once a row has been focused the seam stays parked on it when the
-     * pointer leaves, gliding to the next focused row instead of re-waking
-     * from the pill centre on every hover. Cleared only when the surface
-     * closes.
-     */
-    function reportRowHover(item, hovered) {
-        if (hovered)
-            focusRowItem = item;
-    }
-
-    readonly property bool rowFocused: focusRowItem !== null && active
-
-    readonly property point rowPoint: {
-        void root.width;
-        void root.height;
-        void mainCol.implicitHeight;
-        void root.focusRowItem;
-        if (!focusRowItem)
-            return Qt.point(4 * s, root.height / 2);
-        return focusRowItem.mapToItem(root, 4 * s, focusRowItem.height / 2);
-    }
-
-    ameForm: rowFocused ? "rowseam" : "off"
-    amePoint: rowPoint
-
-    implicitHeight: mainCol.implicitHeight
-
-    onActiveChanged: {
-        if (active) {
-            seenTimer.restart();
-        } else {
+    onOpenChanged: {
+        if (open) seenTimer.restart();
+        else {
             seenTimer.stop();
-            focusRowItem = null;
+            pinnedApps = [];
         }
     }
+    Timer { id: seenTimer; interval: 600; onTriggered: Notifs.markAllSeen() }
 
-    Timer {
-        id: seenTimer
-        interval: 600
-        repeat: false
-        onTriggered: Notifs.markAllSeen()
+    component IconButton: ToolButton {
+        id: button
+        required property string glyph
+        required property string label
+        implicitWidth: 32 * root.s
+        implicitHeight: 32 * root.s
+        padding: 8 * root.s
+        Accessible.name: label
+        ToolTip.visible: hovered
+        ToolTip.text: label
+        background: Rectangle {
+            color: button.hovered || button.activeFocus ? Theme.frameBg : "transparent"
+            border.width: button.activeFocus ? 1 : 0
+            border.color: Theme.vermLit
+        }
+        contentItem: GlyphIcon { name: button.glyph; color: Theme.iconDim }
     }
 
-    /**
-     * Ember mark: a small flame-glow dot over a soft halo, the unread marker
-     * shared by the header badge and unread notification titles.
-     */
-    component Ember: Item {
-        id: ember
-        property real size: 4 * root.s
-
-        width: size * 2.2
-        height: size * 2.2
-
-        Rectangle {
-            anchors.centerIn: parent
-            width: parent.width
-            height: parent.height
-            radius: width / 2
-            color: Theme.flameGlow
-            opacity: 0.22
-        }
-
-        Rectangle {
-            anchors.centerIn: parent
-            width: ember.size
-            height: ember.size
-            radius: width / 2
-            color: Theme.flameGlow
-        }
-    }
-
-    /**
-     * Single inbox entry: icon tile (the notification's image or app icon), the
-     * title with its age and ×N coalesce badge, and up to four wrapped lines of
-     * body text beneath it; the row grows to fit. The age cross-fades into a
-     * dismiss glyph on hover. Critical entries gain a vermilion left hairline.
-     */
-    component NotifRow: Rectangle {
-        id: nrow
-
-        required property var entry
-        property bool critical: false
-        readonly property var n: entry.n
-        readonly property string title: (n.summary || "").length > 0 ? n.summary : (n.body || "")
-        readonly property string detail: (n.summary || "").length > 0 ? (n.body || "") : ""
-
-        width: parent ? parent.width : 0
-        height: Math.max(nrowTile.height, nrowText.implicitHeight) + 18 * root.s
-        radius: 10 * root.s
-        color: nrowHover.hovered ? Theme.frameBg : Qt.alpha(Theme.cream, 0.03)
-
-        HoverHandler {
-            id: nrowHover
-            onHoveredChanged: root.reportRowHover(nrow, hovered)
-        }
-
-        MouseArea {
+    component AppIcon: Rectangle {
+        id: tile
+        required property var notification
+        width: 24 * root.s
+        height: width
+        color: "transparent"
+        Image {
+            id: appImage
+            property var failedFor: null
             anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: {
-                Notifs.activateEntry(nrow.entry);
-                root.requestClose();
+            anchors.margins: 5 * root.s
+            source: failedFor !== tile.notification && /^(\/|file:\/\/)/.test(tile.notification.appIcon || "")
+                ? tile.notification.appIcon : Notifs.appIconFor(tile.notification)
+            onStatusChanged: if (status === Image.Error) {
+                const notification = tile.notification;
+                Qt.callLater(() => appImage.failedFor = notification);
             }
+            sourceSize.width: 48
+            sourceSize.height: 48
+            fillMode: Image.PreserveAspectFit
+            visible: status === Image.Ready
         }
-
-        Rectangle {
-            visible: nrow.critical
-            anchors.left: parent.left
-            anchors.leftMargin: 1 * root.s
-            anchors.verticalCenter: parent.verticalCenter
-            width: 2 * root.s
-            height: parent.height - 14 * root.s
-            radius: 999
-            color: Theme.verm
+        GlyphIcon {
+            anchors.centerIn: parent
+            width: 16 * root.s
+            height: width
+            visible: !appImage.visible
+            name: "app-window"
+            color: Theme.vermLit
         }
+    }
 
-        Rectangle {
-            id: nrowTile
-            anchors.left: parent.left
-            anchors.leftMargin: 9 * root.s
-            anchors.top: parent.top
-            anchors.topMargin: 9 * root.s
-            width: 28 * root.s
-            height: 28 * root.s
-            radius: 8 * root.s
-            color: Theme.tileBg
+    component NotificationCard: Button {
+        id: card
+        required property var entry
+        required property string appName
+        required property int appCount
+        readonly property var n: entry.n
+        readonly property bool critical: n.urgency === 2
+        readonly property bool unread: entry.live && !Notifs.seenIds[n.id]
+        padding: 10 * root.s
+        implicitHeight: details.implicitHeight + topPadding + bottomPadding
+        hoverEnabled: true
+        Accessible.name: (n.summary || "") + ". " + (n.body || "")
+        onClicked: {
+            Notifs.activateEntry(entry);
+            root.requestClose();
+        }
+        background: Rectangle {
+            color: card.hovered ? Qt.alpha(Theme.cream, 0.075) : Theme.tileBg
             border.width: 1
-            border.color: Theme.border
-            clip: true
-
-            Image {
-                id: nrowImg
-                /** The notification whose own image failed to load; it shows its app icon instead. */
-                property var failedFor: null
-                readonly property bool fallback: failedFor === nrow.n
-                anchors.fill: parent
-                anchors.margins: nrow.n.image && !fallback ? 0 : 4 * root.s
-                source: fallback ? Notifs.appIconFor(nrow.n) : Notifs.iconFor(nrow.n)
-                // deferred: a missing local file errors inside the source update, and switching it there is a binding loop
-                onStatusChanged: if (status === Image.Error) { const n = nrow.n; Qt.callLater(() => nrowImg.failedFor = n); }
-                sourceSize.width: 64
-                sourceSize.height: 64
-                fillMode: Image.PreserveAspectCrop
-                smooth: true
-                visible: status === Image.Ready
-            }
-
-            Rectangle {
-                anchors.centerIn: parent
-                visible: !nrowImg.visible
-                width: 7 * root.s
-                height: 7 * root.s
-                radius: 2 * root.s
-                rotation: 45
-                color: nrow.critical ? Theme.vermLit : Theme.verm
-            }
+            border.color: card.activeFocus || card.critical ? Theme.vermLit : Theme.hairSoft
+            Behavior on color { ColorAnimation { duration: 120 } }
         }
-
-        Column {
-            id: nrowText
-            anchors.left: nrowTile.right
-            anchors.leftMargin: 10 * root.s
-            anchors.right: parent.right
-            anchors.rightMargin: 10 * root.s
-            anchors.top: parent.top
-            anchors.topMargin: 9 * root.s
-            spacing: 3 * root.s
-
+        contentItem: Column {
+            id: details
+            spacing: 4 * root.s
             Item {
                 width: parent.width
-                height: Math.max(nrowTitle.implicitHeight, nrowRight.implicitHeight)
-
-                Text {
-                    id: nrowTitle
+                height: 24 * root.s
+                ToolButton {
+                    id: appToggle
+                    objectName: "notificationAppIcon"
                     anchors.left: parent.left
-                    anchors.right: nrowRight.left
-                    anchors.rightMargin: 8 * root.s
                     anchors.verticalCenter: parent.verticalCenter
-                    text: nrow.title
+                    implicitWidth: 24 * root.s
+                    implicitHeight: 24 * root.s
+                    padding: 0
+                    Accessible.name: card.appName + ", " + card.appCount + " notifications. Toggle group."
+                    ToolTip.visible: hovered
+                    ToolTip.text: card.appName + " · " + card.appCount
+                    onClicked: root.pinnedApps = root.pinnedApps.includes(card.appName)
+                        ? root.pinnedApps.filter(app => app !== card.appName)
+                        : root.pinnedApps.concat([card.appName])
+                    background: Rectangle {
+                        color: "transparent"
+                        border.width: appToggle.activeFocus ? 1 : 0
+                        border.color: Theme.vermLit
+                    }
+                    contentItem: AppIcon { notification: card.n }
+                    TapHandler {
+                        acceptedButtons: Qt.RightButton
+                        onTapped: appMenu.popup()
+                    }
+                    Menu {
+                        id: appMenu
+                        MenuItem {
+                            text: "Clear notifications for this app"
+                            onTriggered: Notifs.dismissApp(card.appName)
+                        }
+                    }
+                }
+                Text {
+                    anchors.left: appToggle.right
+                    anchors.leftMargin: 8 * root.s
+                    anchors.right: dismiss.left
+                    anchors.rightMargin: 6 * root.s
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: (card.n.summary || card.n.appName || card.n.app || "Notification")
+                        + (card.entry.count > 1 ? "  ×" + card.entry.count : "")
                     color: Theme.cream
                     font.family: Theme.font
-                    font.pixelSize: 11.5 * root.s
+                    font.pixelSize: 12 * root.s
                     font.weight: Font.DemiBold
-                    elide: Text.ElideRight
-                    maximumLineCount: 1
                     textFormat: Text.PlainText
+                    elide: Text.ElideRight
                 }
-
-                Row {
-                    id: nrowRight
+                IconButton {
+                    id: dismiss
                     anchors.right: parent.right
                     anchors.verticalCenter: parent.verticalCenter
-                    spacing: 6 * root.s
-
-                    Text {
-                        visible: nrow.entry.count > 1
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: "×" + nrow.entry.count
-                        color: nrow.critical ? Theme.vermLit : Theme.vermDim
+                    implicitWidth: 26 * root.s
+                    implicitHeight: 26 * root.s
+                    padding: 6 * root.s
+                    glyph: "close"
+                    label: "Dismiss notification"
+                    onClicked: Notifs.dismissEntry(card.entry)
+                }
+            }
+            Row {
+                width: parent.width
+                spacing: 10 * root.s
+                visible: bodyText.text.length > 0 || preview.visible
+                Image {
+                    id: preview
+                    width: 32 * root.s
+                    height: width
+                    source: card.n.image || ""
+                    sourceSize.width: 88
+                    sourceSize.height: 88
+                    fillMode: Image.PreserveAspectFit
+                    visible: source.toString().length > 0 && status === Image.Ready
+                }
+                Text {
+                    id: bodyText
+                    width: parent.width - (preview.visible ? preview.width + parent.spacing : 0)
+                    text: card.n.body || ""
+                    textFormat: Text.PlainText
+                    color: Theme.subtle
+                    font.family: Theme.font
+                    font.pixelSize: 11 * root.s
+                    wrapMode: Text.Wrap
+                    maximumLineCount: 2
+                    elide: Text.ElideRight
+                    lineHeight: 1.15
+                }
+            }
+            Row {
+                spacing: 5 * root.s
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 5 * root.s
+                    height: width
+                    visible: card.unread
+                    color: Theme.vermLit
+                }
+                Text {
+                    text: (card.critical ? "Important · " : "") + Notifs.ageLabel(card.n)
+                    color: card.critical ? Theme.vermLit : Theme.faint
+                    font.family: Theme.font
+                    font.pixelSize: 9 * root.s
+                }
+            }
+            Flow {
+                width: parent.width
+                spacing: 6 * root.s
+                visible: actions.count > 0
+                Repeater {
+                    id: actions
+                    model: card.entry.live ? (card.n.actions || []).filter(a => a.identifier !== "default") : []
+                    delegate: Button {
+                        id: actionButton
+                        required property var modelData
+                        text: modelData.text
                         font.family: Theme.font
-                        font.pixelSize: 9 * root.s
-                        font.weight: Font.Bold
-                    }
-
-                    Item {
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: Math.max(nrowAge.implicitWidth, nrowX.implicitWidth)
-                        height: Math.max(nrowAge.implicitHeight, nrowX.implicitHeight)
-
-                        Text {
-                            id: nrowAge
-                            anchors.right: parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            opacity: nrowHover.hovered ? 0 : 1
-                            text: Notifs.ageLabel(nrow.n)
-                            color: Theme.faint
-                            font.family: Theme.font
-                            font.pixelSize: 9.5 * root.s
-                            Behavior on opacity { NumberAnimation { duration: Motion.fast } }
+                        font.pixelSize: 11 * root.s
+                        padding: 7 * root.s
+                        onClicked: modelData.invoke()
+                        background: Rectangle {
+                            color: Theme.frameBg
+                            border.width: 1
+                            border.color: actionButton.activeFocus ? Theme.vermLit : Theme.border
                         }
-
-                        GlyphIcon {
-                            id: nrowX
-                            anchors.right: parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: 11 * root.s
-                            height: 11 * root.s
-                            opacity: nrowHover.hovered ? 1 : 0
-                            name: "close"
-                            color: nrowXArea.containsMouse ? Theme.cream : Theme.dim
-                            stroke: 1.9
-                            Behavior on opacity { NumberAnimation { duration: Motion.fast } }
-
-                            MouseArea {
-                                id: nrowXArea
-                                anchors.fill: parent
-                                anchors.margins: -6 * root.s
-                                enabled: nrowHover.hovered
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: Notifs.dismissEntry(nrow.entry)
-                            }
+                        contentItem: Text {
+                            text: actionButton.text
+                            textFormat: Text.PlainText
+                            color: Theme.cream
+                            font: actionButton.font
                         }
                     }
                 }
-            }
-
-            Text {
-                width: parent.width
-                visible: nrow.detail.length > 0
-                text: nrow.detail
-                color: Theme.subtle
-                font.family: Theme.font
-                font.pixelSize: 10.5 * root.s
-                lineHeight: 1.1
-                wrapMode: Text.Wrap
-                maximumLineCount: 4
-                elide: Text.ElideRight
-                textFormat: Text.PlainText
             }
         }
     }
 
     Column {
-        id: mainCol
-        anchors.top: parent.top
+        id: header
+        width: parent.width
+        spacing: 14 * root.s
+        Item {
+            width: parent.width
+            height: 34 * root.s
+            Text {
+                anchors.left: parent.left
+                anchors.right: headerActions.left
+                anchors.rightMargin: 12 * root.s
+                anchors.verticalCenter: parent.verticalCenter
+                text: "Notifications"
+                color: Theme.cream
+                font.family: Theme.font
+                font.pixelSize: 22 * root.s
+                font.weight: Font.DemiBold
+                elide: Text.ElideRight
+            }
+            Row {
+                id: headerActions
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 2 * root.s
+                IconButton {
+                    glyph: Flags.dnd ? "moon" : "inbox"
+                    label: Flags.dnd ? "Turn off Do not disturb" : "Turn on Do not disturb"
+                    onClicked: Flags.dnd = !Flags.dnd
+                    background: Rectangle {
+                        color: Flags.dnd ? Qt.alpha(Theme.vermLit, 0.15) : "transparent"
+                    }
+                }
+                IconButton {
+                    enabled: Notifs.count > 0
+                    opacity: enabled ? 1 : 0.35
+                    glyph: "trash"
+                    label: "Clear all notifications"
+                    onClicked: Notifs.clearAll()
+                }
+                IconButton {
+                    glyph: "close"
+                    label: "Close notifications · Esc"
+                    onClicked: root.requestClose()
+                }
+            }
+        }
+        Rectangle { width: parent.width; height: 1; color: Theme.hairSoft }
+    }
+
+    Flickable {
+        id: list
+        objectName: "notificationList"
+        anchors.top: header.bottom
+        anchors.topMargin: 20 * root.s
         anchors.left: parent.left
         anchors.right: parent.right
-        spacing: 4 * root.s
-
-        Item {
-            width: parent.width
-            height: 24 * root.s
-
-            Row {
-                anchors.left: parent.left
-                anchors.verticalCenter: parent.verticalCenter
-                spacing: 8 * root.s
-
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: "INBOX"
-                    color: Theme.subtle
-                    font.family: Theme.font
-                    font.pixelSize: 10 * root.s
-                    font.weight: Font.DemiBold
-                    font.capitalization: Font.AllUppercase
-                    font.letterSpacing: 1.6 * root.s
-                }
-            }
-
-            Row {
-                x: parent.width - width
-                anchors.verticalCenter: parent.verticalCenter
-                spacing: 10 * root.s
-
-                Row {
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: 6 * root.s
-                    visible: Notifs.unread > 0
-
-                    Ember {
-                        id: headerEmber
-                        anchors.verticalCenter: parent.verticalCenter
-                        size: 6 * root.s
-
-                        SequentialAnimation on opacity {
-                            running: headerEmber.visible
-                            loops: Animation.Infinite
-                            NumberAnimation { from: 0.55; to: 1; duration: 1200; easing.type: Easing.InOutSine }
-                            NumberAnimation { from: 1; to: 0.55; duration: 1200; easing.type: Easing.InOutSine }
-                        }
-                    }
-
-                    Text {
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: Notifs.unread + " NEW"
-                        color: Theme.dim
-                        font.family: Theme.font
-                        font.pixelSize: 9.5 * root.s
-                        font.weight: Font.Bold
-                        font.letterSpacing: 1.4 * root.s
-                    }
-                }
-
-                Item {
-                    width: clearRow.implicitWidth
-                    height: clearRow.implicitHeight
-                    anchors.verticalCenter: parent.verticalCenter
-                    visible: Notifs.count > 0
-
-                    Row {
-                        id: clearRow
-                        spacing: 4 * root.s
-
-                        GlyphIcon {
-                            anchors.verticalCenter: parent.verticalCenter
-                            width: 11 * root.s
-                            height: 11 * root.s
-                            name: "trash"
-                            color: clearArea.containsMouse ? Theme.vermLit : Theme.vermDim
-                            stroke: 1.8
-                        }
-                        Text {
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: "CLEAR"
-                            color: clearArea.containsMouse ? Theme.vermLit : Theme.vermDim
-                            font.family: Theme.font
-                            font.pixelSize: 9 * root.s
-                            font.weight: Font.Bold
-                            font.letterSpacing: 1.4 * root.s
-                        }
-                    }
-
-                    MouseArea {
-                        id: clearArea
-                        anchors.fill: clearRow
-                        anchors.margins: -5 * root.s
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: Notifs.clearAll()
-                    }
-                }
-            }
-        }
-        Rectangle {
-            width: parent.width
-            height: 1
-            color: Theme.hair
-        }
-
-        Item {
-            visible: Notifs.count > 0
-            width: parent.width
-            height: notifFlick.height
-
-            Flickable {
-                id: notifFlick
-                width: parent.width
-                height: Math.min(notifCol.implicitHeight, 420 * root.s)
-                contentHeight: notifCol.implicitHeight
-                clip: true
-                boundsBehavior: Flickable.StopAtBounds
-                onContentHeightChanged: returnToBounds()
-
-                Column {
-                    id: notifCol
-                    width: notifFlick.width
-                    spacing: 6 * root.s
-
-                    Repeater {
-                        model: Notifs.groups
-
-                        Column {
-                            id: group
-                            required property var modelData
-                            readonly property bool expanded: Notifs.expandedApps[modelData.app] !== false
-                            width: notifCol.width
-                            spacing: 2 * root.s
-
-                            Repeater {
-                                model: group.modelData.criticals
-
-                                NotifRow {
-                                    required property var modelData
-                                    entry: modelData
-                                    critical: true
-                                }
-                            }
-
-                            Rectangle {
-                                id: groupHead
-                                width: parent.width
-                                height: 32 * root.s
-                                radius: 8 * root.s
-                                color: headHover.hovered ? Theme.frameBg : "transparent"
-
-                                HoverHandler {
-                                    id: headHover
-                                    onHoveredChanged: root.reportRowHover(groupHead, hovered)
-                                }
-
-                                MouseArea {
-                                    anchors.fill: parent
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: Notifs.toggleExpanded(group.modelData.app)
-                                }
-
-                                Rectangle {
-                                    id: headTile
-                                    anchors.left: parent.left
-                                    anchors.leftMargin: 6 * root.s
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    width: 20 * root.s
-                                    height: 20 * root.s
-                                    radius: 6 * root.s
-                                    color: Theme.tileBg
-                                    border.width: 1
-                                    border.color: Theme.border
-
-                                    Image {
-                                        id: headImg
-                                        /** The notification whose own image failed to load; it shows its app icon instead. */
-                                        property var failedFor: null
-                                        readonly property bool fallback: failedFor === group.modelData.newest
-                                        anchors.fill: parent
-                                        anchors.margins: group.modelData.newest.image && !fallback ? 0 : 3 * root.s
-                                        source: fallback ? Notifs.appIconFor(group.modelData.newest) : Notifs.iconFor(group.modelData.newest)
-                                        // deferred: a missing local file errors inside the source update, and switching it there is a binding loop
-                                        onStatusChanged: if (status === Image.Error) { const n = group.modelData.newest; Qt.callLater(() => headImg.failedFor = n); }
-                                        sourceSize.width: 40
-                                        sourceSize.height: 40
-                                        fillMode: Image.PreserveAspectCrop
-                                        smooth: true
-                                        visible: status === Image.Ready
-                                    }
-
-                                    Rectangle {
-                                        anchors.centerIn: parent
-                                        visible: !headImg.visible
-                                        width: 6 * root.s
-                                        height: 6 * root.s
-                                        radius: 2 * root.s
-                                        rotation: 45
-                                        color: Theme.verm
-                                    }
-                                }
-
-                                Text {
-                                    id: headName
-                                    anchors.left: headTile.right
-                                    anchors.leftMargin: 8 * root.s
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    width: Math.min(implicitWidth, 110 * root.s)
-                                    text: group.modelData.app
-                                    color: Theme.subtle
-                                    font.family: Theme.font
-                                    font.pixelSize: 9 * root.s
-                                    font.weight: Font.Bold
-                                    font.capitalization: Font.AllUppercase
-                                    font.letterSpacing: 1.2 * root.s
-                                    elide: Text.ElideRight
-                                }
-
-                                Text {
-                                    id: headCount
-                                    anchors.left: headName.right
-                                    anchors.leftMargin: 5 * root.s
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    text: "· " + group.modelData.count
-                                    color: Theme.faint
-                                    font.family: Theme.font
-                                    font.pixelSize: 9 * root.s
-                                }
-
-                                Text {
-                                    anchors.left: headCount.right
-                                    anchors.leftMargin: 8 * root.s
-                                    anchors.right: headX.left
-                                    anchors.rightMargin: 8 * root.s
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    text: group.modelData.preview.body.length > 0
-                                        ? group.modelData.preview.body
-                                        : group.modelData.preview.summary
-                                    color: Theme.dim
-                                    font.family: Theme.font
-                                    font.pixelSize: 10 * root.s
-                                    elide: Text.ElideRight
-                                    maximumLineCount: 1
-                                    textFormat: Text.PlainText
-                                }
-
-                                GlyphIcon {
-                                    id: headChev
-                                    anchors.right: parent.right
-                                    anchors.rightMargin: 8 * root.s
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    width: 11 * root.s
-                                    height: 11 * root.s
-                                    name: group.expanded ? "chevron-down" : "chevron-right"
-                                    color: Theme.faint
-                                    stroke: 2
-                                }
-
-                                GlyphIcon {
-                                    id: headX
-                                    anchors.right: headChev.left
-                                    anchors.rightMargin: 7 * root.s
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    width: 11 * root.s
-                                    height: 11 * root.s
-                                    opacity: headHover.hovered ? 1 : 0
-                                    name: "close"
-                                    color: headXArea.containsMouse ? Theme.cream : Theme.dim
-                                    stroke: 1.9
-                                    Behavior on opacity { NumberAnimation { duration: Motion.fast } }
-
-                                    MouseArea {
-                                        id: headXArea
-                                        anchors.fill: parent
-                                        anchors.margins: -6 * root.s
-                                        enabled: headHover.hovered
-                                        hoverEnabled: true
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: Notifs.dismissApp(group.modelData.app)
-                                    }
-                                }
-                            }
-
-                            Column {
-                                visible: group.expanded
-                                width: parent.width
-                                spacing: 2 * root.s
-
-                                Repeater {
-                                    model: group.expanded ? group.modelData.entries : []
-
-                                    NotifRow {
-                                        required property var modelData
-                                        entry: modelData
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            WheelScroller {
-                anchors.fill: parent
-                s: root.s
-                flick: notifFlick
-            }
-        }
+        anchors.bottom: parent.bottom
+        contentHeight: groups.implicitHeight
+        clip: true
+        boundsBehavior: Flickable.StopAtBounds
+        onContentHeightChanged: returnToBounds()
+        ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
 
         Column {
-            visible: Notifs.count === 0
-            width: parent.width
-            topPadding: 14 * root.s
-            bottomPadding: 14 * root.s
-            spacing: 4 * root.s
+            id: groups
+            width: list.width
+            spacing: 14 * root.s
+            Repeater {
+                model: Notifs.groups
+                delegate: Item {
+                    id: group
+                    required property var modelData
+                    objectName: "notificationGroup-" + modelData.app
+                    readonly property var entries: modelData.criticals.concat(modelData.entries)
+                    readonly property bool pinned: root.pinnedApps.includes(modelData.app)
+                    property bool peek: false
+                    readonly property bool expanded: pinned || peek
+                    readonly property int layers: Math.min(2, entries.length - 1)
+                    width: groups.width
+                    height: stack.height
 
-            Text {
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: "No notifications to display"
-                color: Theme.faint
-                font.family: Theme.font
-                font.pixelSize: 9 * root.s
-                font.weight: Font.Bold
-                font.letterSpacing: 0.8 * root.s
+                    Connections {
+                        target: root
+                        function onOpenChanged() {
+                            if (!root.open) group.peek = false;
+                        }
+                    }
+                    HoverHandler {
+                        id: groupHover
+                        onHoveredChanged: {
+                            if (hovered) { collapse.stop(); expand.restart(); }
+                            else { expand.stop(); collapse.restart(); }
+                        }
+                    }
+                    Timer { id: expand; interval: 100; onTriggered: group.peek = true }
+                    Timer { id: collapse; interval: 180; onTriggered: group.peek = false }
+
+                    Item {
+                        id: stack
+                        anchors.top: parent.top
+                        width: parent.width
+                        height: group.expanded ? cards.implicitHeight : firstCard.height + group.layers * 7 * root.s
+                        clip: true
+                        Behavior on height { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+
+                        Repeater {
+                            model: group.layers
+                            delegate: Rectangle {
+                                required property int index
+                                readonly property int depth: group.layers - index
+                                x: depth * 7 * root.s
+                                y: depth * 7 * root.s
+                                width: stack.width - 2 * x
+                                height: firstCard.height
+                                color: Qt.lighter(Theme.tileBg, 1 + depth * 0.14)
+                                border.width: 1
+                                border.color: Theme.hairSoft
+                                opacity: group.expanded ? 0 : 1
+                                Behavior on opacity { NumberAnimation { duration: 150 } }
+                            }
+                        }
+                        Column {
+                            id: cards
+                            width: parent.width
+                            spacing: 8 * root.s
+                            NotificationCard {
+                                id: firstCard
+                                width: parent.width
+                                entry: group.entries[0]
+                                appName: group.modelData.app
+                                appCount: group.modelData.count
+                            }
+                            Repeater {
+                                model: group.expanded ? group.entries.slice(1) : []
+                                delegate: NotificationCard {
+                                    required property var modelData
+                                    width: cards.width
+                                    entry: modelData
+                                    appName: group.modelData.app
+                                    appCount: group.modelData.count
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
+        WheelScroller { anchors.fill: parent; s: root.s; flick: list }
     }
+
+    Column {
+        anchors.centerIn: list
+        width: parent.width
+        spacing: 15 * root.s
+        visible: Notifs.count === 0
+        GlyphIcon {
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: 38 * root.s
+            height: width
+            name: "inbox"
+            color: Theme.faint
+        }
+        Text {
+            width: parent.width
+            text: "A little peace and quiet"
+            horizontalAlignment: Text.AlignHCenter
+            color: Theme.cream
+            font.family: Theme.font
+            font.pixelSize: 15 * root.s
+            font.weight: Font.DemiBold
+        }
+        Text {
+            width: parent.width
+            text: "New notifications will be collected here."
+            horizontalAlignment: Text.AlignHCenter
+            color: Theme.dim
+            font.family: Theme.font
+            font.pixelSize: 11 * root.s
+        }
+    }
+
 }
