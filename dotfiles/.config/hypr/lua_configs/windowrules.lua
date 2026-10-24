@@ -12,6 +12,12 @@ hl.window_rule({ match = { title = "(?i).*tradingview.*" }, workspace = 4 })
 
 -- Floating rules with size/center
 hl.window_rule({
+	match = { class = "(?i)^((.*[.])?(brave|helium|google-chrome|chrome|chromium|firefox|microsoft-edge|msedge|vivaldi|opera).*|crx_[a-p]{32})$" },
+	float = true,
+	center = true,
+	size = "900 600",
+})
+hl.window_rule({
 	match = { initial_title = "^_crx_[a-p]{32}$" },
 	float = true,
 	center = true,
