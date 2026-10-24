@@ -558,9 +558,9 @@ Scope {
                     barWindow: overlay
                     surface: overlay.surface
                     forcePinned: root.peekMon === overlay.modelData.name
-                    osdActive: osdPopup.active
+                    osdActive: osdPopup.active && !osdPopup.workspace
 
-                    opacity: (overlay.monFullscreen && !pill.transientLive) ? 0 : (osdPopup.active ? 0 : 1)
+                    opacity: (overlay.monFullscreen && !pill.transientLive) ? 0 : (pill.osdActive ? 0 : 1)
                     Behavior on opacity {
                         NumberAnimation {
                             duration: Motion.morph
@@ -585,13 +585,12 @@ Scope {
 
                 OsdPopup {
                     id: osdPopup
-                    anchors.top: parent.top
-                    anchors.topMargin: overlay.dropFor(osdPopup.height)
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    x: workspace ? 0 : (parent.width - width) / 2
+                    y: workspace ? (parent.height - height) / 2 : overlay.dropFor(height)
                     s: overlay.s
                     screenName: overlay.modelData.name
                     expanded: pill.expanded
-                    topFlat: anchors.topMargin > 0 ? 0 : 1
+                    topFlat: workspace || y > 0 ? 0 : 1
                     suppressed: overlay.surfaceOpen || pill.held || (pill.toastActive && Notifs.toastCritical)
                 }
             }

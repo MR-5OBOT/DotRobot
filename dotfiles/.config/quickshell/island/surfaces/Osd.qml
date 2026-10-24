@@ -50,14 +50,15 @@ Item {
     readonly property bool micMuted: source && source.audio ? source.audio.muted : false
     readonly property real micVolume: source && source.audio ? Math.max(0, Math.min(1, source.audio.volume)) : 0
 
-    readonly property real desiredW: kind === "workspace" ? Math.max(120 * s, wsIndicator.implicitWidth + 40 * s)
+    readonly property real desiredW: kind === "workspace" ? 44 * s
         : (kind === "track" ? 344 * s : 248 * s)
-    readonly property real desiredH: kind === "track" ? 64 * s : 44 * s
+    readonly property real desiredH: kind === "workspace" ? Math.max(120 * s, wsIndicator.implicitWidth + 40 * s)
+        : (kind === "track" ? 64 * s : 44 * s)
 
     /**
      * Active workspace name on this monitor. Any switch (Super+arrow,
      * Super+wheel, clicking a dot) changes it, so flashing the workspace OSD
-     * here briefly morphs the pill open to show where you landed. The arm timer
+     * here briefly shows the dots along the left edge. The arm timer
      * swallows the initial populate, so login doesn't flash. Skipped while the
      * pill is expanded: the hover/surface pill already shows the live dots with
      * the active one marked, so the OSD would only be a redundant morph.
@@ -533,6 +534,7 @@ Item {
             screenName: root.screenName
             s: root.s
             gap: 8 * root.s
+            rotation: 90
             enabled: false
         }
     }

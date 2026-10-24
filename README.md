@@ -48,7 +48,10 @@ secondary screens. Hold Super and use Tab/Shift+Tab or arrow keys to
 cycle through the occupied workspaces. Release Super to switch.
 Enter or a click also switches; Escape or a click outside cancels.
 Workspace 0 is named `0`; Super+0 still selects workspace 10.
+Switching with Super+1–9 or Super+0 briefly shows a vertical strip of workspace
+dots at the left edge of that monitor, with a pill marking the active workspace.
 Run its logic checks with `node tests/workspaces.test.cjs`.
+Run the workspace popup checks in a Wayland session with `bash tests/workspace-osd.sh`.
 
 The [Obsidian GRUB theme](assets/grub/obsidian) uses the default wallpaper with
 a centered translucent frame. Preview it with `bash scripts/preview-grub-theme.sh`;
