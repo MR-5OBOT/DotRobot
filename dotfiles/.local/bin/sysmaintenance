@@ -41,6 +41,23 @@ fi
 
 echo ""
 echo "----------------------------------------------------"
+echo "EMPTYING TRASH"
+echo "----------------------------------------------------"
+if [ -n "$(gio trash --list)" ]; then
+    echo "Trash size: $(du -sh ~/.local/share/Trash/files 2>/dev/null | cut -f1)"
+    if read -rp "Permanently delete everything in trash? [y/N] " answer \
+        && [[ "$answer" =~ ^[Yy]([Ee][Ss])?$ ]]; then
+        gio trash --empty
+        echo "Trash emptied."
+    else
+        echo "Skipped emptying trash."
+    fi
+else
+    echo "Trash is already empty."
+fi
+
+echo ""
+echo "----------------------------------------------------"
 echo "CLEARING SYSTEM LOGS"
 echo "----------------------------------------------------"
 sudo journalctl --vacuum-time=7d >/dev/null
