@@ -30,6 +30,25 @@ hl.window_rule({
 })
 hl.window_rule({ match = { class = "nwg-look" }, float = true, center = true, size = "500 400", pin = true })
 
+-- Kdenlive popups & dialogs: ensure good size and centered
+hl.window_rule({
+	match = { class = "(?i)^(org.kde.kdenlive|kdenlive)$", float = true },
+	center = true,
+	min_size = "850 550",
+})
+hl.window_rule({
+	match = { class = "(?i)^(org.kde.kdenlive|kdenlive)$", title = "(?i).*Title Clip.*" },
+	float = true,
+	center = true,
+	size = "1100 660",
+})
+hl.window_rule({
+	match = { class = "(?i)^(org.kde.kdenlive|kdenlive)$", title = "(?i).*(Render|Project Settings|Configure).*" },
+	float = true,
+	center = true,
+	size = "1000 640",
+})
+
 local float_classes = {
 	"Tk",
 	"pavucontrol",
