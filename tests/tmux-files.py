@@ -278,6 +278,17 @@ class TmuxTests(unittest.TestCase):
         self.keys("\x1b")
         self.wait(lambda: not self.state())
 
+    def test_reload_and_regular_copy_mode_keep_original_bindings(self):
+        before = json.loads(self.tmux("show-options", "-gqv", "@file-nav-bindings"))
+        subprocess.run(["python3", str(SCRIPT), "install"], env=self.env, check=True, capture_output=True)
+        self.assertEqual(json.loads(self.tmux("show-options", "-gqv", "@file-nav-bindings")), before)
+        self.tmux("copy-mode", "-t", "%0")
+        y = int(self.tmux("display-message", "-p", "-t", "%0", "#{copy_cursor_y}"))
+        self.keys("k")
+        self.wait(lambda: int(self.tmux("display-message", "-p", "-t", "%0", "#{copy_cursor_y}")) == y - 1)
+        self.keys("q")
+        self.wait(lambda: self.tmux("display-message", "-p", "-t", "%0", "#{pane_in_mode}") == "0")
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
