@@ -53,5 +53,5 @@ Check with `/usr/lib/geoclue-2.0/demos/where-am-i -t 30`; an accuracy of a few d
 
 ## State and cache
 
-- state: `~/.local/state/island` (flags, calendar events and reminders, spaces) and `~/.local/state/island-wallpaper*`
+- state: `~/.local/state/island` (flags, calendar events and reminders) and `~/.local/state/island-wallpaper*`
 - cache: `~/.cache/island` (palette, thumbnails, weather)
