@@ -49,7 +49,7 @@ check_installed() {
     [[ -d "${dir}/${name}" ]] && return 0
   done
 
-  warn "${name} is not in ~/.${kind}, ~/.local/share/${kind} or /usr/share/${kind}; run scripts/install-themes.sh"
+  warn "${name} is not in ~/.${kind}, ~/.local/share/${kind} or /usr/share/${kind}; run scripts/link-dotfiles.sh"
 }
 
 main() {
