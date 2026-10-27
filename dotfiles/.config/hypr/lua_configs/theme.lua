@@ -55,6 +55,6 @@ hl.config({
         }
     },
     misc = {
-        font_family = "NovaMono"
+        font_family = "IosevkaTerm Nerd Font"
     }
 })
