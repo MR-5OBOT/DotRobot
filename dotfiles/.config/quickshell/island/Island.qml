@@ -45,8 +45,8 @@ Scope {
      * notification server, so they arrive here as toasts.
      */
     function refresh() {
-        Hyprland.refreshMonitors();
-        Hyprland.refreshWorkspaces();
+        // Monitors and workspaces come from Monitors' shared hyprctl snapshot;
+        // only the toplevel model (fullscreen detection) is read from Quickshell.
         Hyprland.refreshToplevels();
     }
 
@@ -85,8 +85,8 @@ Scope {
     /**
      * Only these raw events can change what the pill renders (per-monitor
      * active workspace, minimized toplevels, monitor hotplug). Everything
-     * else (window drags, resizes, title spam) must not trigger the triple
-     * model refresh, which costs three Hyprland IPC round-trips.
+     * else (window drags, resizes, title spam) must not trigger the toplevel
+     * refresh, which costs a Hyprland IPC round-trip.
      */
     readonly property var refreshEvents: ({
         workspace: true, workspacev2: true,

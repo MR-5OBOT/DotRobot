@@ -19,9 +19,30 @@ Singleton {
     id: root
 
     property var byMonitor: ({})
+    /** Raw `hyprctl workspacerules -j`, resolved against Monitors' shared monitor list. */
+    property var rules: []
 
     function refresh() {
         proc.running = true;
+    }
+
+    /** Rebuild the map; reassigned only when it really changed, so the dots don't rebuild for nothing. */
+    function resolve() {
+        var map = {};
+        var mons = Monitors.list;
+        for (var i = 0; i < root.rules.length; i++) {
+            var ws = parseInt(root.rules[i].workspaceString);
+            var mon = root.rules[i].monitor ? root.connectorFor(root.rules[i].monitor, mons) : "";
+            if (!mon || isNaN(ws))
+                continue;
+            if (!map[mon])
+                map[mon] = [];
+            map[mon].push(ws);
+        }
+        for (var k in map)
+            map[k].sort(function (a, b) { return a - b; });
+        if (JSON.stringify(map) !== JSON.stringify(root.byMonitor))
+            root.byMonitor = map;
     }
 
     /**
@@ -44,31 +65,24 @@ Singleton {
 
     Process {
         id: proc
-        command: ["sh", "-c", "hyprctl workspacerules -j; printf '@@@'; hyprctl monitors -j"]
+        command: ["hyprctl", "workspacerules", "-j"]
         stdout: StdioCollector {
             onStreamFinished: {
-                var map = {};
                 try {
-                    var parts = this.text.split("@@@");
-                    var rules = JSON.parse(parts[0]);
-                    var mons = JSON.parse(parts[1] || "[]");
-                    for (var i = 0; i < rules.length; i++) {
-                        var ws = parseInt(rules[i].workspaceString);
-                        var mon = rules[i].monitor ? root.connectorFor(rules[i].monitor, mons) : "";
-                        if (!mon || isNaN(ws))
-                            continue;
-                        if (!map[mon])
-                            map[mon] = [];
-                        map[mon].push(ws);
-                    }
+                    var rules = JSON.parse(this.text);
+                    root.rules = Array.isArray(rules) ? rules : [];
                 } catch (e) {
                     return;
                 }
-                for (var k in map)
-                    map[k].sort(function (a, b) { return a - b; });
-                root.byMonitor = map;
+                root.resolve();
             }
         }
+    }
+
+    // A desc: rule only resolves while its monitor is in the shared list.
+    Connections {
+        target: Monitors
+        function onUpdated() { root.resolve() }
     }
 
     Connections {
