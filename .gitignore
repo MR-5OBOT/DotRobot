@@ -13,3 +13,8 @@ dotfiles/.config/superfile/theme/*
 
 # External reference clones (quickshell migration)
 quickshell-refs/
+
+# Python bytecode
+__pycache__/
+*.pyc
+
