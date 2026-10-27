@@ -70,7 +70,7 @@ PanelWindow {
         topRightRadius: 0
         bottomLeftRadius: Theme.notchRadius
         bottomRightRadius: Theme.notchRadius
-        color: "#000000"
+        color: Theme.notchBg
 
         opacity: win.open ? 1 : 0
         Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
@@ -133,7 +133,7 @@ PanelWindow {
                             Layout.preferredWidth: 28
                             Layout.preferredHeight: 28
                             radius: 14
-                            color: closeMa.containsMouse ? "#1a1a1a" : "transparent"
+                            color: closeMa.containsMouse ? Theme.hover : "transparent"
                             Behavior on color { ColorAnimation { duration: 150 } }
 
                             Icon {
@@ -162,7 +162,7 @@ PanelWindow {
                             Layout.rightMargin: 6
                             Layout.preferredHeight: 34
                             radius: 8
-                            color: rowMa.containsMouse ? "#0c0c0c" : "transparent"
+                            color: rowMa.containsMouse ? Theme.well : "transparent"
 
                             MouseArea { id: rowMa; anchors.fill: parent; hoverEnabled: true }
 
@@ -184,16 +184,16 @@ PanelWindow {
                                         width: sep ? label.implicitWidth : Math.max(24, label.implicitWidth + 14)
                                         height: 22
                                         radius: 5
-                                        color: sep ? "transparent" : "#0a0a0a"
+                                        color: sep ? "transparent" : Theme.well
                                         border.width: sep ? 0 : 1
-                                        border.color: "#262626"
+                                        border.color: Theme.ghost
 
                                         Rectangle {  // keycap lip
                                             visible: !cap.sep
                                             anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: 1 }
                                             height: 2
                                             radius: 4
-                                            color: "#161616"
+                                            color: Theme.surface
                                         }
 
                                         Text {
@@ -215,7 +215,7 @@ PanelWindow {
                                 text: row.modelData[1]
                                 font.family: Theme.font
                                 font.pixelSize: 12
-                                color: rowMa.containsMouse ? Theme.text : "#b4b4b4"
+                                color: rowMa.containsMouse ? Theme.text : Theme.subtle
                                 elide: Text.ElideRight
                             }
                         }

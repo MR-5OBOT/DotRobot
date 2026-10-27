@@ -20,13 +20,6 @@ PanelWindow {
     property int sel: 0
     property var items: []       // [{ id, raw, image, label, size }]
 
-    // island palette: pure black, neutral greys, purple accent
-    readonly property color clipBg: "#000000"
-    readonly property color clipSurface: "#141414"
-    readonly property color clipBorder: "#2b2b2b"
-    readonly property color clipText: "#ececec"
-    readonly property color clipDim: "#8c8c8c"
-    readonly property color clipAccent: "#7981ec"
     readonly property var selected: matches[sel] || null
     // one fixed dir: a per-PID name left every past session's thumbnails in RAM (XDG_RUNTIME_DIR is tmpfs)
     readonly property string cacheDir: (Quickshell.env("XDG_RUNTIME_DIR") || Quickshell.cacheDir) + "/qs-cliphist"
@@ -141,7 +134,7 @@ PanelWindow {
         anchors.topMargin: win.open ? 0 : -height
         width: Math.min(940, win.width - 32)
         height: col.implicitHeight + 2 + Theme.notchEar   // bottom padding clears the rounded corners
-        color: win.clipBg
+        color: Theme.notchBg
 
         opacity: win.open ? 1 : 0
         Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
@@ -166,7 +159,7 @@ PanelWindow {
                 Layout.rightMargin: 12
                 spacing: 10
 
-                Icon { text: "content_paste"; size: 17; color: win.clipDim }
+                Icon { text: "content_paste"; size: 17; color: Theme.dim }
 
                 TextInput {
                     id: input
@@ -174,7 +167,7 @@ PanelWindow {
                     focus: true
                     font.family: Theme.font
                     font.pixelSize: 14
-                    color: win.clipText
+                    color: Theme.text
                     clip: true
 
                     Text {  // placeholder
@@ -183,7 +176,7 @@ PanelWindow {
                         text: "Search clipboard"
                         font.family: Theme.font
                         font.pixelSize: 14
-                        color: win.clipDim
+                        color: Theme.dim
                     }
                     onTextChanged: { win.query = text; win.sel = 0; }
                     Keys.onEscapePressed: win.open = false
@@ -200,13 +193,13 @@ PanelWindow {
                     text: sweepMA.containsMouse ? "hold to clear all" : win.matches.length + " / " + win.items.length
                     font.family: Theme.font
                     font.pixelSize: 11
-                    color: win.clipDim
+                    color: Theme.dim
                 }
 
                 Icon {  // wipe all history: hold to confirm, the island's destructive-gesture rule
                     text: "delete_sweep"
                     size: 18
-                    color: sweepMA.containsMouse || sweepHeat.holding ? win.clipAccent : win.clipDim
+                    color: sweepMA.containsMouse || sweepHeat.holding ? Theme.notchAccent : Theme.dim
                     Behavior on color { ColorAnimation { duration: 120 } }
 
                     Rectangle {  // hold progress
@@ -216,7 +209,7 @@ PanelWindow {
                         width: parent.width * sweepHeat.hold
                         height: 2
                         radius: 1
-                        color: win.clipAccent
+                        color: Theme.notchAccent
                     }
 
                     Island.HeatHold {
@@ -240,7 +233,7 @@ PanelWindow {
             Rectangle {  // separator
                 Layout.fillWidth: true
                 Layout.preferredHeight: 1
-                color: win.clipBorder
+                color: Theme.border
             }
 
             RowLayout {
@@ -264,7 +257,7 @@ PanelWindow {
                         text: win.query.trim() ? "No matches" : "Clipboard is empty"
                         font.family: Theme.font
                         font.pixelSize: 13
-                        color: win.clipDim
+                        color: Theme.dim
                     }
 
                     delegate: Rectangle {
@@ -278,13 +271,13 @@ PanelWindow {
 
                         width: list.width
                         height: 46
-                        color: current || rowHover.hovered ? win.clipSurface : "transparent"
+                        color: current || rowHover.hovered ? Theme.surface : "transparent"
 
                         Rectangle {
                             width: 3
                             height: parent.height
                             visible: row.current
-                            color: win.clipAccent
+                            color: Theme.notchAccent
                         }
 
                         Process {
@@ -305,7 +298,7 @@ PanelWindow {
                                 visible: row.modelData.image
                                 implicitWidth: 46
                                 implicitHeight: 30
-                                color: win.clipSurface
+                                color: Theme.surface
                                 clip: true
 
                                 readonly property string decodePath: win.cacheDir + "/" + row.modelData.id
@@ -336,20 +329,20 @@ PanelWindow {
                                 font.family: Theme.font
                                 font.pixelSize: 13
                                 font.bold: row.current
-                                color: row.current ? "#ffffff" : win.clipText
+                                color: row.current ? Theme.bright : Theme.text
                             }
                             Text {  // size, images only
                                 visible: row.modelData.size.length > 0
                                 text: row.modelData.size
                                 font.family: Theme.font
                                 font.pixelSize: 11
-                                color: row.current ? "#ffffff" : win.clipDim
+                                color: row.current ? Theme.bright : Theme.dim
                             }
                             Icon {  // enter hint on the selected row
                                 visible: row.current
                                 text: "keyboard_return"
                                 size: 15
-                                color: "#ffffff"
+                                color: Theme.bright
                             }
                         }
 
@@ -366,7 +359,7 @@ PanelWindow {
                 Rectangle {
                     Layout.fillHeight: true
                     Layout.preferredWidth: 1
-                    color: win.clipBorder
+                    color: Theme.border
                 }
 
                 Item {
@@ -405,7 +398,7 @@ PanelWindow {
                             wrapMode: Text.Wrap
                             font.family: Theme.font
                             font.pixelSize: 14
-                            color: win.clipText
+                            color: Theme.text
                             onTextChanged: textScroll.contentY = 0
                         }
                     }
@@ -418,7 +411,7 @@ PanelWindow {
                                 ? "Preview unavailable" : "Loading image…"
                         font.family: Theme.font
                         font.pixelSize: 13
-                        color: win.clipDim
+                        color: Theme.dim
                     }
                 }
             }
