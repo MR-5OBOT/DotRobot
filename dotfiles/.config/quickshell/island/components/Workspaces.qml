@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Layouts
-import Quickshell.Io
 import Quickshell.Hyprland
 import "../Singletons"
 
@@ -19,13 +18,13 @@ import "../Singletons"
  * assigned dot while a workspace outside the rules (r+1 past the last ruled
  * one) still appears instead of vanishing from the strip.
  *
- * The workspace list and active workspace are read straight from hyprctl
- * (monitors -j / workspaces -j) rather than the Quickshell Hyprland models:
- * on a fresh launch `Hyprland.monitors.values` stays empty, workspace entries
- * carry a null monitor, and `focusedWorkspace` is null — so the dots would
- * only appear after the first switch re-populates the models. A raw hyprctl
- * fetch is deterministic from the first frame and matches the pattern
- * [[Workspacerules]] already uses for the rule map.
+ * The workspace list and active workspace come from the shared hyprctl
+ * snapshot in [[Monitors]] (monitors -j / workspaces -j) rather than the
+ * Quickshell Hyprland models: on a fresh launch `Hyprland.monitors.values`
+ * stays empty, workspace entries carry a null monitor, and `focusedWorkspace`
+ * is null — so the dots would only appear after the first switch re-populates
+ * the models. Every copy of the dots (hover pill, Home, OSD) reads that one
+ * snapshot instead of running its own hyprctl.
  */
 Item {
     id: workspaces
@@ -55,8 +54,26 @@ Item {
     /** Workspace id -> true when it holds at least one window. */
     property var occupied: ({})
 
-    function refreshData() {
-        proc.running = true;
+    /** Pull this monitor's active workspace, workspace list and occupancy from the shared snapshot. */
+    function sync() {
+        var act = "";
+        var mons = Monitors.list;
+        for (var m = 0; m < mons.length; m++) {
+            if (mons[m] && mons[m].name === workspaces.screenName && mons[m].activeWorkspace)
+                act = String(mons[m].activeWorkspace.name);
+        }
+        var list = [];
+        var occ = ({});
+        var arr = Monitors.workspaces;
+        for (var w = 0; w < arr.length; w++) {
+            list.push({ id: arr[w].id, monitor: arr[w].monitor || "" });
+            if (arr[w].windows > 0)
+                occ[arr[w].id] = true;
+        }
+        workspaces.occupied = occ;
+        workspaces.activeWs = act;
+        workspaces.wsList = list;
+        workspaces.rebuild();
     }
 
     function rebuild() {
@@ -122,81 +139,17 @@ Item {
         return Qt.point(slotCenterX(Math.max(0, activeIndex)), height / 2);
     }
 
-    property int bootTries: 0
-
-    /**
-     * The first hyprctl fetch runs on load, but a slow compositor reply could
-     * still beat us to the first frame. Poll briefly until a snapshot lands
-     * (or give up after the window), then rely on events from there on.
-     */
-    Timer {
-        id: bootPoll
-        interval: 250
-        repeat: true
-        running: true
-        onTriggered: {
-            workspaces.refreshData();
-            workspaces.bootTries += 1;
-            if (workspaces.wsList.length > 0 || workspaces.bootTries >= 8)
-                bootPoll.running = false;
-        }
-    }
-
-    Component.onCompleted: refreshData()
-    onScreenNameChanged: refreshData()
+    Component.onCompleted: sync()
+    onScreenNameChanged: sync()
 
     Connections {
-        target: Hyprland
-        function onRawEvent(event) {
-            var n = event.name;
-            if (n === "workspace" || n === "workspacev2"
-                || n === "createworkspace" || n === "destroyworkspace"
-                || n === "moveworkspace" || n === "renameworkspace"
-                || n === "focusedmon" || n === "focusedmonv2"
-                || n === "monitoradded" || n === "monitorremoved"
-                || n === "openwindow" || n === "closewindow" || n === "movewindow")
-                workspaces.refreshData();
-        }
+        target: Monitors
+        function onUpdated() { workspaces.sync() }
     }
 
     Connections {
         target: Workspacerules
         function onByMonitorChanged() { workspaces.rebuild() }
-    }
-
-    Process {
-        id: proc
-        command: ["sh", "-c", "hyprctl monitors -j; printf '@@@'; hyprctl workspaces -j"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var text = this.text;
-                var sep = text.indexOf("@@@");
-                var monJson = sep >= 0 ? text.slice(0, sep) : "[]";
-                var wsJson = sep >= 0 ? text.slice(sep + 3) : text;
-                var act = "";
-                try {
-                    var mons = JSON.parse(monJson);
-                    for (var m = 0; m < mons.length; m++) {
-                        if (mons[m] && mons[m].name === workspaces.screenName && mons[m].activeWorkspace)
-                            act = String(mons[m].activeWorkspace.name);
-                    }
-                } catch (e) { }
-                var list = [];
-                var occ = ({});
-                try {
-                    var arr = JSON.parse(wsJson);
-                    for (var w = 0; w < arr.length; w++) {
-                        list.push({ id: arr[w].id, monitor: arr[w].monitor || "" });
-                        if (arr[w].windows > 0)
-                            occ[arr[w].id] = true;
-                    }
-                } catch (e) { }
-                workspaces.occupied = occ;
-                workspaces.activeWs = act;
-                workspaces.wsList = list;
-                workspaces.rebuild();
-            }
-        }
     }
 
     implicitWidth: row.implicitWidth
