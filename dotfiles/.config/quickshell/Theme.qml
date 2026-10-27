@@ -1,21 +1,27 @@
 pragma Singleton
 import QtQuick
+import "island/Singletons" as Island
 
-// Dark theme, dark muted pink accent, 4px rounded corners. Defined once.
+// Colours for the top-edge notch widgets (launcher, clipboard, calculator, ...),
+// taken from the island's Theme so they follow its Light / Dark / Dynamic palette
+// and its wallpaper accent. Shapes and fonts are the widgets' own.
 QtObject {
-    readonly property color bg: "#101010"       // panel + popup background
-    readonly property color surface: "#181818"   // raised rows inside popups
-    readonly property color border: "#2a2a2a"    // hairline separators
-    readonly property color text: "#e8e8e8"
-    readonly property color dim: "#7a7a7a"
-    readonly property color pink: "#862F55"       // accent
+    readonly property color notchBg: Island.Theme.cardTop      // the notch card itself
+    readonly property color surface: Island.Theme.tileBg       // raised / selected rows
+    readonly property color border: Island.Theme.border        // hairline separators
+    readonly property color text: Island.Theme.cream
+    readonly property color bright: Island.Theme.bright        // emphasised text (selected row, hover)
+    readonly property color subtle: Island.Theme.subtle
+    readonly property color dim: Island.Theme.dim
+    readonly property color faint: Island.Theme.faint
+    readonly property color hover: Island.Theme.hairSoft       // hovered buttons and rows
+    readonly property color well: Island.Theme.frameBg         // recessed fills (keycaps)
+    readonly property color ghost: Island.Theme.ghost          // solid placeholder tiles
+    readonly property color notchAccent: Island.Theme.vermLit  // the island's accent
 
     readonly property int radius: 4               // small rounded corners
-    readonly property color notchBg: "#000000"    // top-edge notch cards, styled like the island
     readonly property int notchRadius: 18         // notch cards' bottom corners
-    readonly property int notchEar: 12            // concave shoulders flaring a notch into the screen edge
-    readonly property color notchAccent: "#7981ec" // the island's accent, for highlights in notch cards
-    readonly property int gap: 8
+    readonly property int notchEar: 12            // concave shoulders (island/components/NotchEars default)
     readonly property string font: "IosevkaTerm Nerd Font Mono"
     readonly property string iconFont: "Material Symbols Sharp"  // one cohesive family, 0-radius
 }

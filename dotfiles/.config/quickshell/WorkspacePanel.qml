@@ -234,8 +234,8 @@ PanelWindow {
                                     width: client.size[0] * preview.factor
                                     height: client.size[1] * preview.factor
                                     z: client.floating ? 1 : 0
-                                    color: "#242424"
-                                    border { width: 1; color: "#555555" }
+                                    color: Theme.ghost
+                                    border { width: 1; color: Theme.faint }
                                     clip: true
 
                                     Text {

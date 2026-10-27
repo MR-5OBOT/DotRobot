@@ -187,7 +187,7 @@ PanelWindow {
                             font.family: Theme.font
                             font.pixelSize: 13
                             font.bold: row.current
-                            color: row.current ? "#ffffff" : Theme.text
+                            color: row.current ? Theme.bright : Theme.text
                         }
                     }
 

@@ -150,7 +150,7 @@ PanelWindow {
                     Icon {
                         anchors.centerIn: parent
                         size: 16
-                        color: closeHover.hovered ? "#ffffff" : Theme.dim
+                        color: closeHover.hovered ? Theme.bright : Theme.dim
                         text: "close"
                     }
                     HoverHandler { id: closeHover }
