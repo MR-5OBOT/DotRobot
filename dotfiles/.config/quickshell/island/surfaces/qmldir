@@ -4,7 +4,6 @@ DisplaySurface DisplaySurface.qml
 Home Home.qml
 Link Link.qml
 Media Media.qml
-MinimizedTray MinimizedTray.qml
 Mixer Mixer.qml
 Osd Osd.qml
 OsdPopup OsdPopup.qml
