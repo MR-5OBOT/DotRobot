@@ -20,7 +20,6 @@ Singleton {
     property alias paletteMode: adapter.paletteMode
     property alias wallpaperDir: adapter.wallpaperDir
     property alias wallpaperFit: adapter.wallpaperFit
-    property alias randomScope: adapter.randomScope
     property alias uiScale: adapter.uiScale
 
     /**
@@ -75,12 +74,10 @@ Singleton {
             property bool time12h: false
             property bool clockSeconds: false
             property string paletteMode: "static"
-            /** Explicit wallpaper folder override. Empty means autodetect: the dir wallpaper.sh last resolved (island-wallpaper-dir state file), then ~/Pictures/wallpapers. Lives in user state so an in-app update never clobbers a custom folder. */
+            /** Explicit wallpaper folder override. Empty falls back through Config.wallpaperDir (widget settings, $WALLPAPER_DIR, ~/Pictures/wallpapers). Lives in user state so an in-app update never clobbers a custom folder. */
             property string wallpaperDir: ""
-            /** Still/video wallpaper scaling: awww --resize "no" (center), "crop" (cover), "fit" (contain) or "stretch", driving the strip's Cover/Contain/Stretch/Center control. */
+            /** Still/video wallpaper scaling read by wallpaper.sh: awww --resize "no" (center), "crop" (cover), "fit" (contain) or "stretch". */
             property string wallpaperFit: "crop"
-            /** Super+B random target: "all" repaints every monitor, "cursor" only the one under the pointer. */
-            property string randomScope: "all"
             property real uiScale: root.autoScale
             property bool reduceMotion: false
             property int manualHue: 30

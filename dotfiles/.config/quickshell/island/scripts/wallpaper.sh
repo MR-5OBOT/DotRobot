@@ -1,22 +1,13 @@
 #!/usr/bin/env bash
+# wallpaper.sh set <file> [output|all] — paint a wallpaper (stills through awww,
+# videos through mpvpaper) and regenerate the island palette from it.
 set -euo pipefail
 
 flags_file="${XDG_STATE_HOME:-$HOME/.local/state}/island/flags.json"
-WPDIR=$(jq -r '.wallpaperDir // ""' "$flags_file" 2>/dev/null || echo "")
-widgets_settings="${QS_SETTINGS:-${XDG_CONFIG_HOME:-$HOME/.config}/mr5obot/settings.json}"
-[ -n "$WPDIR" ] || WPDIR=$(jq -r '.wallpaperDir // .wallpaper_dir // ""' "$widgets_settings" 2>/dev/null || echo "")
-[ -n "$WPDIR" ] || WPDIR="${WALLPAPER_DIR:-$HOME/Pictures/wallpapers}"
 FIT=$(jq -r '.wallpaperFit // "crop"' "$flags_file" 2>/dev/null || echo crop)
 case "$FIT" in no|crop|fit|stretch) ;; *) FIT=crop ;; esac
-RESOLVED="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-dir"
-mkdir -p "$(dirname "$RESOLVED")"
-printf '%s\n' "$WPDIR" > "$RESOLVED"
-# No-op mode for the QML side: re-resolve the folder and exit before touching any daemon state.
-[ "${1:-}" = "resolve" ] && exit 0
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper"
 MAP="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-map"
-HISTORY="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-history"
-BAG="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-bag"
 STILL="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-still.png"
 FIT_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-fit"
 WLOG="${XDG_STATE_HOME:-$HOME/.local/state}/island/wallcolors.log"
@@ -81,64 +72,12 @@ ensure_daemon() {
     return 1
 }
 
-list_pics() {
-    # -H: follow the folder itself when it is a symlink (~/Pictures/wallpapers is one)
-    find -H "$WPDIR" -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.gif' -o -iname '*.webp' -o -iname '*.bmp' -o -iname '*.mp4' -o -iname '*.webm' -o -iname '*.mkv' -o -iname '*.mov' \)
-}
-
-refill_bag() {
-    local current="" shuffled
-    [ -r "$STATE" ] && current=$(cat "$STATE")
-    shuffled=$(list_pics | shuf)
-    [ -n "$shuffled" ] || return 0
-    if [ "$(printf '%s\n' "$shuffled" | head -n1)" = "$current" ] && [ "$(printf '%s\n' "$shuffled" | wc -l)" -gt 1 ]; then
-        shuffled=$(printf '%s\n' "$shuffled" | tail -n +2; printf '%s\n' "$current")
-    fi
-    mkdir -p "$(dirname "$BAG")"
-    printf '%s\n' "$shuffled" > "$BAG"
-}
-
-pop_bag() {
-    local line refilled=false
-    mkdir -p "$(dirname "$BAG")"
-    (
-        flock 9
-        while :; do
-            if [ ! -s "$BAG" ]; then
-                [ "$refilled" = true ] && exit 1
-                refill_bag
-                refilled=true
-                [ -s "$BAG" ] || exit 1
-            fi
-            line=$(head -n1 "$BAG")
-            tail -n +2 "$BAG" > "$BAG.tmp" && mv "$BAG.tmp" "$BAG"
-            if [ -f "$line" ]; then
-                printf '%s\n' "$line"
-                exit 0
-            fi
-        done
-    ) 9>"$BAG.lock"
-}
-
 outputs() {
     hyprctl monitors -j 2>/dev/null | jq -r '.[].name'
 }
 
 focused_output() {
     hyprctl monitors -j 2>/dev/null | jq -r '[.[] | select(.focused)] | first.name // empty'
-}
-
-cursor_output() {
-    local pos cx cy hit
-    pos=$(hyprctl cursorpos 2>/dev/null) || { focused_output; return; }
-    cx=${pos%%,*}
-    cy=${pos##*, }
-    hit=$(hyprctl monitors -j 2>/dev/null | jq -r --argjson cx "$cx" --argjson cy "$cy" \
-        'map(select(
-            $cx >= .x and $cx < .x + ((if (.transform % 2) == 1 then .height else .width end) / .scale) and
-            $cy >= .y and $cy < .y + ((if (.transform % 2) == 1 then .width else .height end) / .scale)
-        )) | first.name // empty')
-    [ -n "$hit" ] && printf '%s\n' "$hit" || focused_output
 }
 
 map_get() {
@@ -253,7 +192,7 @@ sync_videos() {
 
 # The palette follows the focused monitor: whatever hangs there drives wallcolors,
 # the global state file and the global still, so the Settings dynamic re-run
-# and the strip's current marker stay coherent with what the user looks at.
+# and the picker's current marker stay coherent with what the user looks at.
 palette_update() {
     local pmode focused pic show mh md ms
     focused=$(focused_output)
@@ -279,96 +218,13 @@ palette_update() {
     fi
 }
 
-map_has_video() {
-    local o pic
-    for o in $(outputs); do
-        pic=$(map_get "$o")
-        if [ -n "$pic" ] && [ -f "$pic" ] && is_video "$pic"; then
-            return 0
-        fi
-    done
-    return 1
-}
+[ "${1:-}" = "set" ] || { echo "usage: wallpaper.sh set <file> [output|all]" >&2; exit 2; }
+pic="${2:-}"
+[ -f "$pic" ] || exit 1
+target="${3:-}"
+[ "$target" = "all" ] && target=""
 
-# Refit without re-animating: unlike apply_visual's wave, a fit-mode change
-# re-images the current stills with --transition-type none so toggling the
-# strip's fit control rescales the screen in place. Videos briefly show their
-# first frame again, then sync_videos restarts them under the new mpv scaling.
-silent_reapply() {
-    local o pic st
-    for o in $(outputs); do
-        pic=$(map_get "$o")
-        [ -n "$pic" ] && [ -f "$pic" ] || pic=$(cat "$STATE" 2>/dev/null || true)
-        [ -n "$pic" ] && [ -f "$pic" ] || continue
-        if is_video "$pic"; then
-            st="$STILL"
-            [ -n "$o" ] && st="${STILL%.png}-$o.png"
-            make_still "$pic" "$st" && pic="$st"
-        fi
-        awww img --outputs "$o" --resize "$FIT" --transition-type none "$pic" >/dev/null 2>&1 || true
-    done
-}
-
-restore_all() {
-    local o pic any=false
-    for o in $(outputs); do
-        pic=$(map_get "$o")
-        [ -n "$pic" ] && [ -f "$pic" ] || pic=$(cat "$STATE" 2>/dev/null || true)
-        [ -n "$pic" ] && [ -f "$pic" ] || pic=$(pop_bag) || continue
-        map_put "$o" "$pic"
-        apply_visual "$pic" "$o"
-        any=true
-    done
-    [ "$any" = true ] || exit 0
-    sync_videos
-    palette_update
-    exit 0
-}
-
-daemon_was_running=true
-awww query >/dev/null 2>&1 || daemon_was_running=false
 ensure_daemon || exit 0
-
-cmd="${1:-}"
-target=""
-
-if [ "$cmd" = "init" ]; then
-    if [ ! -s "$MAP" ] && [ -s "$STATE" ]; then
-        pic=$(cat "$STATE")
-        [ -f "$pic" ] && map_put_all "$pic"
-    fi
-    if [ "$daemon_was_running" = true ]; then
-        if map_has_video && ! mpv_running; then
-            sync_videos
-        fi
-        exit 0
-    fi
-    restore_all
-elif [ "$cmd" = "set" ]; then
-    pic="${2:-}"
-    [ -f "$pic" ] || exit 1
-    target="${3:-}"
-    [ "$target" = "all" ] && target=""
-elif [ "$cmd" = "fit" ]; then
-    mode="${2:-crop}"
-    case "$mode" in no|crop|fit|stretch) ;; *) mode=crop ;; esac
-    if command -v jq >/dev/null 2>&1; then
-        jq --arg v "$mode" '.wallpaperFit = $v' "$flags_file" > "$flags_file.tmp" 2>/dev/null \
-            && mv "$flags_file.tmp" "$flags_file" || true
-    fi
-    FIT="$mode"
-    silent_reapply
-    sync_videos
-    exit 0
-else
-    scope=$(jq -r '.randomScope // "all"' "$flags_file" 2>/dev/null || echo all)
-    if [ "$scope" = "cursor" ]; then
-        target=$(cursor_output)
-    fi
-    pic=$(pop_bag) || exit 0
-fi
-
-[ -n "$pic" ] || exit 0
 
 if [ -n "$target" ]; then
     map_put "$target" "$pic"
@@ -379,5 +235,3 @@ fi
 apply_visual "$pic" "$target"
 sync_videos
 palette_update
-{ printf '%s\n' "$pic"; awk -v p="$pic" '$0 != p && n++ < 99' "$HISTORY" 2>/dev/null || true; } > "$HISTORY.tmp"
-mv "$HISTORY.tmp" "$HISTORY"
