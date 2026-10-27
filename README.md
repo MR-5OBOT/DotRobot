@@ -53,6 +53,22 @@ dots at the left edge of that monitor, with a pill marking the active workspace.
 Run its logic checks with `node tests/workspaces.test.cjs`.
 Run the workspace popup checks in a Wayland session with `bash tests/workspace-osd.sh`.
 
+After `l` or `ls`, press tmux's `prefix+q` (`Ctrl+Space`, then `q`) to navigate
+the printed listing without replacing its layout. Use `j/k` for rows, `h/l`
+for neighboring entries, `g/G` for first/last, and `Enter` to open a file with
+its default application or `cd` into a folder and print its contents. Use
+`c` to copy, `m` to move, `r` to rename, and `d` to move to Trash after
+confirmation. The destination/name prompt uses the tmux status line; type
+paths literally, without shell quotes. `q` or `Esc` exits; `?` shows help.
+Copy/move/rename refuse to overwrite existing destinations. The historical
+listing stays printed after edits, so exit and rerun `l`/`ls` to refresh it.
+Normal single-directory GNU `ls` and `eza` listings are supported; recursive
+trees, truncated names, and control characters in names are not. With an
+unrecognized prompt, only the current directory is assumed; run a fresh
+listing there before navigating. Folder `cd` requires an idle Bash, Zsh, or
+POSIX shell on Linux. Run the checks (including isolated tmux sessions) with
+`TMUX_FILES_INTEGRATION=1 python3 tests/tmux-files.py`.
+
 The [Obsidian GRUB theme](assets/grub/obsidian) uses the default wallpaper with
 a centered translucent frame. Preview it with `bash scripts/preview-grub-theme.sh`;
 apply it with `sudo bash scripts/setup-grub-theme.sh` on the UKI/Windows setup.
