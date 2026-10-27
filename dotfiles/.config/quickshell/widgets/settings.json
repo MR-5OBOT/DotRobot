@@ -1,13 +1,7 @@
 {
-  "general": {
-    "weatherUnit": "metric"
-  },
   "theme": {
     "borderRadius": 8,
     "fontFamily": "Adwaita Mono"
-  },
-  "network": {
-    "screenFraction": 0.62
   },
   "wallpaperDir": ""
 }

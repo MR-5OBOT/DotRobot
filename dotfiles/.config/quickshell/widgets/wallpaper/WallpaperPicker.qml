@@ -17,7 +17,7 @@ Item {
     focus: true
 
     function s(val) {
-        return Scaler.s(val);
+        return val;   // DotRobot: no per-monitor UI scale, so Scaler is gone
     }
 
     readonly property string scriptDir: Quickshell.shellDir + "/widgets/scripts/wallpaper"   // DotRobot: vendored scripts

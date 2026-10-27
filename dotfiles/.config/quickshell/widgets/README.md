@@ -11,6 +11,8 @@ Only what that popup references is kept (the side bar is gone). Changed from ups
 - `singletons/theme/ThemeBackend.qml` — reads island's shared palette instead
   of extracting the wallpaper a second time.
 - `singletons/audio/Sounds.qml` — no-op stub; the sound assets aren't vendored.
+- `Scaler`, `I18n`, `LoaderIcon` and the language assets were dropped: nothing
+  used them here; the picker's `s()` returns its input.
 - `singletons/system/Config.qml` — reads `~/.config/mr5obot/settings.json`,
   creating it from the bundled defaults when missing.
 - `wallpaper/WallpaperPicker.qml` — scripts resolve inside `widgets/scripts`,
@@ -21,5 +23,3 @@ Only what that popup references is kept (the side bar is gone). Changed from ups
   `../WallpaperPanel.qml`; awww paints the wallpaper.
 - `scripts/` — monitors_detect.sh and the local wallpaper indexer.
 - `qmldir`, `wallpaper/qmldir` — trimmed to the vendored files.
-- `assets/languages/en.json` — vendored so `I18n` can resolve keys;
-  `singletons/system/I18n.qml` reads this folder instead of `$SERPANTINUM_DIR`.
