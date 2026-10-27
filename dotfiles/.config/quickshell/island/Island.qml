@@ -182,23 +182,10 @@ Scope {
         function home(mon: string): void { root.toggleSurface(mon, "home"); }
         function mixer(mon: string): void { root.toggleSurface(mon, "mixer"); }
         function calendar(mon: string): void { root.toggleSurface(mon, "calendar"); }
-        function launcher(mon: string): void {
-            Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
-                "qs", "ipc", "call", "launcher", "toggle"]);
-        }
         function power(mon: string): void { root.toggleSurface(mon, "power"); }
         function link(mon: string): void { root.toggleSurface(mon, "link"); }
         function battery(mon: string): void { root.toggleSurface(mon, "battery"); }
         function sysmon(mon: string): void { root.toggleSurface(mon, "sysmon"); }
-        function system(mon: string): void { root.toggleSurface(mon, "sysmon"); }
-        function clipboard(mon: string): void {
-            Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
-                "qs", "ipc", "call", "clipboard", "toggle"]);
-        }
-        function wallpaper(mon: string): void {
-            Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
-                "qs", "ipc", "call", "wallpicker", "toggle"]);
-        }
         function peek(mon: string): void { root.peek(mon); }
         function hide(): void { root.close(); }
 
