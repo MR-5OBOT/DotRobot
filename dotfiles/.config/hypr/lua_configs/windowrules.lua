@@ -93,7 +93,7 @@ hl.window_rule({
 	size = "900 560",
 })
 hl.window_rule({
-	match = { title = "^(Open.*Files?|Open [F|f]older.*|Save.*Files?|Save.*As|Save|All Files)$" },
+	match = { title = "^(Open.*Files?|Open [Ff]older.*|Save.*Files?|Save.*As|Save|All Files)$" },
 	float = true,
 	center = true,
 	size = "900 560",
