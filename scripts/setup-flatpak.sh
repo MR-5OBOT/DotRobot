@@ -3,8 +3,6 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
-PROFILE_DROP_IN="${HOME}/.config/environment.d/flatpak-xdg.conf"
-
 install_flatpak() {
   if command -v flatpak >/dev/null 2>&1; then
     log "flatpak is already installed"
@@ -24,28 +22,10 @@ add_flathub() {
   flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 }
 
-configure_xdg_data_dirs() {
-  local flatpak_system="/var/lib/flatpak/exports/share"
-  local flatpak_user="${HOME}/.local/share/flatpak/exports/share"
-
-  # systemd user environment drop-in (picked up after re-login)
-  mkdir -p "$(dirname "${PROFILE_DROP_IN}")"
-  if [[ -f "${PROFILE_DROP_IN}" ]]; then
-    log "XDG_DATA_DIRS drop-in already exists at ${PROFILE_DROP_IN}"
-  else
-    cat > "${PROFILE_DROP_IN}" <<EOF
-XDG_DATA_DIRS=${flatpak_system}:${flatpak_user}:\${XDG_DATA_DIRS:-/usr/local/share:/usr/share}
-EOF
-    log "Wrote ${PROFILE_DROP_IN}"
-  fi
-
-}
-
 main() {
   install_flatpak
   add_flathub
-  configure_xdg_data_dirs
-  log "Flatpak setup complete — re-login to expose Flatpak app launchers"
+  log "Flatpak setup complete — re-login to expose Flatpak app launchers (flatpak's systemd env generator adds them to XDG_DATA_DIRS)"
 }
 
 if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
