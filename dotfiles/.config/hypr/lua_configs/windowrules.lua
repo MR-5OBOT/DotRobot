@@ -18,8 +18,6 @@ hl.window_rule({
 	size = "480 600",
 })
 hl.window_rule({ match = { class = "kitty" }, float = true, center = true, size = "620 360" })
-hl.window_rule({ match = { title = "^(Calculator)$" }, float = true, center = true, size = "280 340" })
-hl.window_rule({ match = { title = "^(Calendar)$" }, float = true, center = true })
 hl.window_rule({ match = { class = "^([Tt]hunar)$" }, float = true, center = true, size = "700 600" })
 hl.window_rule({
 	match = { class = "hyprland-share-picker" },
@@ -55,20 +53,7 @@ local float_classes = {
 	"nm-connection-editor",
 	"blueman-manager",
 	"file-roller",
-	"org.kde.polkit-kde-authentication-agent-1",
-	"vlc",
-	"kvantummanager",
 	"qt5ct",
-	"Picture-in-Picture",
-	"Viewnior",
-	"file_progress",
-	"confirm",
-	"dialog",
-	"download",
-	"notification",
-	"error",
-	"Confirm to replace files",
-	"File Operation Progress",
 }
 for _, cls in ipairs(float_classes) do
 	hl.window_rule({ match = { class = "^(" .. cls .. ")$" }, float = true })
@@ -97,16 +82,6 @@ hl.window_rule({
 	float = true,
 	center = true,
 	size = "900 560",
-})
-
--- XWayland video bridge
-hl.window_rule({
-	match = { class = "^(xwaylandvideobridge)$" },
-	opacity = "0.0 override",
-	no_anim = true,
-	no_initial_focus = true,
-	max_size = "1 1",
-	no_blur = true,
 })
 
 -- Shadows on floating windows only: decoration.shadow is on, this strips it from

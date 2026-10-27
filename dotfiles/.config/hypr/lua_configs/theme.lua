@@ -5,10 +5,6 @@ hl.config({
         gaps_in = 3,
         gaps_out = 5,
         border_size = 0,
-        col = {
-            active_border = 0xff5c1e38,
-            inactive_border = 0xff200a13
-        },
         resize_on_border = false,
         hover_icon_on_border = true,
         snap = {
@@ -20,16 +16,6 @@ hl.config({
         rounding = 0,
         blur = {
             enabled = false,
-            xray = true,
-            special = false,
-            new_optimizations = true,
-            size = 14,
-            passes = 4,
-            brightness = 1,
-            noise = 0.01,
-            contrast = 1,
-            popups = true,
-            popups_ignorealpha = 0.6
         },
         shadow = {
             enabled = true,
