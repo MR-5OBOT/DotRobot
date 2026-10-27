@@ -66,11 +66,10 @@ show_status() {
 }
 
 switch_to_iwd() {
-  require_root
   log "Switching Wi-Fi backend from wpa_supplicant to iwd..."
 
-  # Ensure iwd is installed
-  if ! command -v iwd &>/dev/null; then
+  # Ensure iwd is installed (its daemon is /usr/lib/iwd/iwd, not on PATH)
+  if ! pacman -Qq iwd &>/dev/null; then
     log "iwd not found. Installing via pacman..."
     pacman -S --noconfirm --needed iwd
   fi
@@ -101,7 +100,6 @@ EOF
 }
 
 revert_to_wpa_supplicant() {
-  require_root
   log "Reverting Wi-Fi backend from iwd to wpa_supplicant..."
 
   # 1. Remove drop-in config
@@ -132,9 +130,12 @@ main() {
 
   case "$action" in
     iwd|--iwd)
+      # Re-exec with the original arguments; called inside a function, "$@" was empty
+      require_root "$@"
       switch_to_iwd
       ;;
     revert|wpa|wpa_supplicant|--wpa|--revert)
+      require_root "$@"
       revert_to_wpa_supplicant
       ;;
     status|--status|-s)
