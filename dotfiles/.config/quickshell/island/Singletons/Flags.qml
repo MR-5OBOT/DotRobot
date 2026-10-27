@@ -5,10 +5,9 @@ import Quickshell.Io
 
 /**
  * Shared session flags persisted to a small JSON file and watched for external
- * change, so every Pill daemon (pill, lock) reads and writes the same
- * Do-Not-Disturb and Keep-Awake state live without a second notification server
- * or idle inhibitor. Toggling in one surface updates the others on the next file
- * event, and the state survives a daemon restart.
+ * change, so every surface (and wallpaper.sh) reads and writes the same
+ * Do-Not-Disturb, Keep-Awake and appearance state. Toggling in one surface
+ * updates the others on the next file event, and the state survives a restart.
  */
 Singleton {
     id: root

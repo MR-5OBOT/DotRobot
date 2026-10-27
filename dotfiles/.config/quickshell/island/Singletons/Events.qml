@@ -30,8 +30,7 @@ import Quickshell.Io
  * singleton — a bad read just leaves the last good `events` in place.
  *
  * Ids come from a monotonic counter seeded past the highest id already on disk,
- * never Date.now() or Math.random() (both throw in this engine), so every add is
- * uniquely addressable for remove() even within the same minute.
+ * so every add is uniquely addressable for remove() even within the same minute.
  */
 Singleton {
     id: root
@@ -42,7 +41,7 @@ Singleton {
     property int nextId: 1
 
     /**
-     * Birthday-looking titles across the languages Erik's contacts use, so a new
+     * Birthday-looking titles in common languages, so a new
      * entry can suggest yearly and old ones get classified on load. Plain substring
      * alternation, case-insensitive; accented forms are caught by a safe stem.
      */
