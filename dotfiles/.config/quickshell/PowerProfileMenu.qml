@@ -5,6 +5,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import "widgets"
+import "island/Singletons" as Island
 import "island/components" as IslandUi
 
 // Power-profile picker: `qs ipc call powerprofile cycle` (SUPER+SHIFT+P via
@@ -15,7 +16,6 @@ import "island/components" as IslandUi
 PanelWindow {
     id: win
 
-    readonly property var order: ["power-saver", "balanced", "performance"]
     readonly property var meta: ({
         "power-saver": { icon: "eco", label: "Power saver" },
         "balanced": { icon: "balance", label: "Balanced" },
@@ -24,20 +24,15 @@ PanelWindow {
 
     property bool open: false
     readonly property real drop: open ? card.height : 0  // island drops toasts below the card
-    property var profiles: []      // ids this machine offers, in `order`
-    property string active: ""
-    property string degraded: ""   // why ppd holds performance back, "" if it doesn't
+    readonly property var profiles: Island.Battery.profiles     // ids this machine offers, saver -> performance
+    readonly property string active: Island.Battery.profile
+    readonly property string degraded: Island.Battery.degraded  // why ppd holds performance back, "" if it doesn't
     property int sel: -1
-    property int queued: 0         // cycle presses that landed while the list was loading
 
     function cycle() {
         if (!open) {
-            sel = -1;
-            queued = 0;   // the first press only opens; it must not move off the active profile
+            sel = Math.max(0, profiles.indexOf(active));   // the first press only opens, on the active profile
             open = true;
-            reader.running = true;
-        } else if (reader.running) {
-            queued++;
         } else if (profiles.length > 0) {
             sel = (sel + 1) % profiles.length;
         }
@@ -52,49 +47,13 @@ PanelWindow {
     function apply() {
         const p = profiles[sel];
         if (p && p !== active)
-            Quickshell.execDetached(["powerprofilesctl", "set", p]);
+            Island.Battery.setProfile(p);
         open = false;
     }
-
-    Component.onCompleted: reader.running = true   // warm the list so the first open has rows
 
     IpcHandler {
         target: "powerprofile"
         function cycle(): void { win.cycle(); }
-    }
-
-    // `powerprofilesctl list`: a "* name:" header per profile (* = active)
-    // followed by indented details; performance's include "Degraded: yes (why)".
-    Process {
-        id: reader
-        command: ["powerprofilesctl", "list"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const seen = [];
-                let act = "", deg = "", cur = "";
-                for (const line of text.split("\n")) {
-                    const h = line.match(/^([* ]) ([a-z-]+):$/);
-                    if (h) {
-                        cur = h[2];
-                        seen.push(cur);
-                        if (h[1] === "*")
-                            act = cur;
-                        continue;
-                    }
-                    const d = line.match(/^\s+Degraded:\s+yes \((.*)\)/);
-                    if (d && cur === "performance")
-                        deg = d[1];
-                }
-                win.profiles = win.order.filter(p => seen.includes(p));
-                win.active = act;
-                win.degraded = deg;
-                if (!win.open || win.profiles.length === 0)
-                    return;
-                const i = Math.max(0, win.profiles.indexOf(act));
-                win.sel = (i + win.queued) % win.profiles.length;
-                win.queued = 0;
-            }
-        }
     }
 
     visible: open || card.opacity > 0.01
@@ -198,18 +157,6 @@ PanelWindow {
                     onHoveredChanged: if (hovered) win.sel = row.index
                     onClicked: { win.sel = row.index; win.apply(); }
                 }
-            }
-
-            Text {  // ppd missing or not answering
-                visible: win.profiles.length === 0 && !reader.running
-                Layout.fillWidth: true
-                Layout.preferredHeight: 38
-                Layout.leftMargin: 12
-                verticalAlignment: Text.AlignVCenter
-                text: "power-profiles-daemon not running"
-                font.family: ThemeBackend.fontFamily
-                font.pixelSize: 11
-                color: ThemeBackend.overlay1
             }
         }
     }

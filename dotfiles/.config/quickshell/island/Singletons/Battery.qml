@@ -46,6 +46,24 @@ Singleton {
         : (full ? "On AC · Full"
         : (discharging ? "Discharging" : "On AC"))
 
+    /**
+     * power-profiles-daemon state through Quickshell's PowerProfiles, named the
+     * way ppd names them ("power-saver", "balanced", "performance") for the
+     * battery surface and the power-profile menu.
+     */
+    readonly property string profile: PowerProfiles.profile === PowerProfile.PowerSaver ? "power-saver"
+        : (PowerProfiles.profile === PowerProfile.Performance ? "performance" : "balanced")
+    readonly property var profiles: PowerProfiles.hasPerformanceProfile
+        ? ["power-saver", "balanced", "performance"] : ["power-saver", "balanced"]
+    /** Why ppd holds performance back, "" when it doesn't. */
+    readonly property string degraded: PowerProfiles.degradationReason === PerformanceDegradationReason.LapDetected ? "lap-detected"
+        : (PowerProfiles.degradationReason === PerformanceDegradationReason.HighTemperature ? "high-operating-temperature" : "")
+
+    function setProfile(id) {
+        PowerProfiles.profile = id === "power-saver" ? PowerProfile.PowerSaver
+            : (id === "performance" ? PowerProfile.Performance : PowerProfile.Balanced);
+    }
+
     property real _energyFullDesign: -1
     /** Charge cycles from sysfs; -1 when the battery doesn't report them. */
     property int cycles: -1
