@@ -9,4 +9,8 @@ hl.config({
 		disable_splash_rendering = true,
 		background_color = 0xff101010,
 	},
+	-- Environment variables live in ~/.config/uwsm/env (uwsm loads them before Hyprland).
+	xwayland = {
+		force_zero_scaling = true,
+	},
 })
