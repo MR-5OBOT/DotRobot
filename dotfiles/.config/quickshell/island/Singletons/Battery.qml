@@ -46,8 +46,9 @@ Singleton {
         : (full ? "On AC · Full"
         : (discharging ? "Discharging" : "On AC"))
 
-    property string batteryDir: ""
     property real _energyFullDesign: -1
+    /** Charge cycles from sysfs; -1 when the battery doesn't report them. */
+    property int cycles: -1
 
     function fmt(sec) {
         var s = Math.max(0, Math.round(sec));
@@ -58,35 +59,28 @@ Singleton {
         return m + "m";
     }
 
-    Component.onCompleted: findProc.running = true
-
-    /** Resolve which sysfs node is the battery, then read its health fields. */
+    /**
+     * Read the battery's health fields once. Batteries report energy_* (uWh) or
+     * charge_* (uAh, the Dell); charge is scaled by the design voltage to Wh.
+     */
     Process {
-        id: findProc
+        running: true
         command: ["sh", "-c",
-            "for d in /sys/class/power_supply/BAT* /sys/class/power_supply/battery; do "
-            + "[ -d \"$d\" ] && printf '%s\\n' \"$d\" && break; done"]
+            "for d in /sys/class/power_supply/BAT* /sys/class/power_supply/battery; do [ -d \"$d\" ] && break; done; "
+            + "for f in energy_full_design charge_full_design voltage_min_design cycle_count; do "
+            + "printf '%s=%s\\n' \"$f\" \"$(cat \"$d/$f\" 2>/dev/null)\"; done"]
         stdout: StdioCollector {
             onStreamFinished: {
-                var dir = this.text.split("\n")[0].trim();
-                if (!dir.length)
-                    return;
-                root.batteryDir = dir;
-                sysfsReads.running = true;
-            }
-        }
-    }
-
-    Process {
-        id: sysfsReads
-        command: ["sh", "-c",
-            "v=$(cat \"" + root.batteryDir + "/energy_full_design\" 2>/dev/null)"
-            + " && printf 'energy_full_design=%s\\n' \"$v\""]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var val = this.text.replace(/^.*=(.*)\s*$/, "$1").trim();
-                var n = parseFloat(val);
-                root._energyFullDesign = isNaN(n) ? -1 : n / 1e6;
+                var v = {};
+                this.text.split("\n").forEach(function(l) {
+                    var i = l.indexOf("=");
+                    if (i > 0)
+                        v[l.slice(0, i)] = parseFloat(l.slice(i + 1));
+                });
+                root._energyFullDesign = v.energy_full_design > 0 ? v.energy_full_design / 1e6
+                    : (v.charge_full_design > 0 && v.voltage_min_design > 0
+                        ? v.charge_full_design * v.voltage_min_design / 1e12 : -1);
+                root.cycles = v.cycle_count > 0 ? v.cycle_count : -1;
             }
         }
     }
