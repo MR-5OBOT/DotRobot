@@ -1,7 +1,7 @@
 add_newline = false
 
 format = '''
-[$directory](bright-white) [$git_branch](gray) [$python](medium-gray bold) [$cmd_duration](dim-gray)
+[$directory](bright-white) [$git_branch](245) [$python](248 bold) [$cmd_duration](241)
 $character
 '''
 
@@ -10,14 +10,14 @@ success_symbol = '[➜](bold bright-white)'
 error_symbol = '[➜](bold red)'  # Red kept only here for instant error spotting — removable if you want pure mono
 
 [python]
-format = '[λ $virtualenv ](medium-gray bold)'
-style = 'medium-gray bold'
+format = '[λ $virtualenv ](248 bold)'
+style = '248 bold'
 detect_extensions = ['py']
 detect_folders = ['env', 'venv', '.venv']
 
 [cmd_duration]
 min_time = 500
-format = '[⏱ $duration](dim-gray)'
+format = '[⏱ $duration](241)'
 
 [directory]
 style = 'bright-white bold'
@@ -25,11 +25,11 @@ truncation_length = 4  # Optional: shortens deep paths for cleanliness
 truncation_symbol = '…/'
 
 [git_branch]
-style = 'gray'
+style = '245'
 
 # Optional subtle git status if you ever want a tiny bit more info without clutter
 [git_status]
-style = 'dim-gray'
+style = '241'
 staged = '+'
 modified = '~'
 deleted = '×'
