@@ -3,53 +3,16 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
-link_config_tree() {
-  local item
-  for item in "${DOTFILES_DIR}/.config"/*; do
+# Link each entry of $1 into $2 one by one, so $2 stays a real directory that
+# tool installers (uv, claude, ...) can also drop their own files into.
+link_children() {
+  local src="$1" dest="$2" item
+
+  [[ -d "${src}" ]] || return 0
+  mkdir -p "${dest}"
+  for item in "${src}"/*; do
     [[ -e "${item}" ]] || continue
-    symlink_path "${item}" "${HOME}/.config/$(basename "${item}")"
-  done
-}
-
-link_local_bin() {
-  local item
-
-  # Link scripts one by one so tool installers (uv, claude) can drop their
-  # own shims into ~/.local/bin without writing into the repo.
-  if [[ -L "${HOME}/.local/bin" ]]; then
-    rm "${HOME}/.local/bin"
-    log "Removed legacy ~/.local/bin directory symlink"
-  fi
-  mkdir -p "${HOME}/.local/bin"
-  for item in "${DOTFILES_DIR}/.local/bin"/*; do
-    [[ -e "${item}" ]] || continue
-    symlink_path "${item}" "${HOME}/.local/bin/$(basename "${item}")"
-  done
-}
-
-link_local_share_applications() {
-  local applications_dir="${DOTFILES_DIR}/.local/share/applications"
-  local item
-
-  [[ -d "${applications_dir}" ]] || return 0
-
-  mkdir -p "${HOME}/.local/share/applications"
-  for item in "${applications_dir}"/*; do
-    [[ -e "${item}" ]] || continue
-    symlink_path "${item}" "${HOME}/.local/share/applications/$(basename "${item}")"
-  done
-}
-
-link_local_share_themes() {
-  local themes_dir="${DOTFILES_DIR}/.local/share/themes"
-  local item
-
-  [[ -d "${themes_dir}" ]] || return 0
-
-  mkdir -p "${HOME}/.local/share/themes"
-  for item in "${themes_dir}"/*; do
-    [[ -e "${item}" ]] || continue
-    symlink_path "${item}" "${HOME}/.local/share/themes/$(basename "${item}")"
+    symlink_path "${item}" "${dest}/$(basename "${item}")"
   done
 }
 
@@ -57,10 +20,15 @@ main() {
   local icons_dir="${XDG_DATA_HOME:-${HOME}/.local/share}/icons"
 
   symlink_path "${DOTFILES_DIR}/.gitconfig" "${HOME}/.gitconfig"
-  link_config_tree
-  link_local_bin
-  link_local_share_applications
-  link_local_share_themes
+  link_children "${DOTFILES_DIR}/.config" "${HOME}/.config"
+  # ~/.local/bin used to be one symlink into the repo; it is a real directory now.
+  if [[ -L "${HOME}/.local/bin" ]]; then
+    rm "${HOME}/.local/bin"
+    log "Removed legacy ~/.local/bin directory symlink"
+  fi
+  link_children "${DOTFILES_DIR}/.local/bin" "${HOME}/.local/bin"
+  link_children "${DOTFILES_DIR}/.local/share/applications" "${HOME}/.local/share/applications"
+  link_children "${DOTFILES_DIR}/.local/share/themes" "${HOME}/.local/share/themes"
 
   mkdir -p "${icons_dir}"
   fetch_release_asset SylEleuth/gruvbox-plus-icon-pack v6.2.0 \
