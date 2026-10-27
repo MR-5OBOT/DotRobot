@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
 """
-Generate the rice colour set from a wallpaper and fan it out to the consumers.
+Generate the island accent from a wallpaper (or a manual hue) for Quickshell.
 One histogram pass yields both the area-dominant chromatic hue (binned by hue
 family so a small vivid accent never hijacks the theme) and the mean lightness.
-The mean lightness drives the pill's whole tone: a bright wallpaper makes a light
-pill with dark text, a dark or OLED-black one makes a near-black pill with cream
-text, so the surfaces and the text flip together for contrast across the full
-range. The dominant hue tints every tier in HSL. An achromatic wallpaper drops to
-a neutral grey ramp.
-
-The JSON carries surfaces, accent, and contrast-matched text for Quickshell.
+The mean lightness picks the accent's light/dark ramp so it contrasts the pill;
+the dominant hue tints it in HSL. An achromatic wallpaper drops to a neutral
+accent. Surfaces and text stay fixed in Theme.qml; only the accent breathes.
 """
 import colorsys
 import json
@@ -20,16 +16,6 @@ import sys
 from pathlib import Path
 
 CACHE = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache") / "island"
-
-SURF_NAMES = ["surface", "surface_container_low", "surface_container",
-              "surface_container_high", "surface_container_highest", "outline_variant"]
-DARK_STEPS = [0.0, 0.022, 0.038, 0.065, 0.100, 0.225]
-LIGHT_STEPS = [0.0, -0.045, -0.075, -0.115, -0.160, -0.340]
-TEXT_KEYS = ["cream", "bright", "subtle", "dim", "faint", "icon_dim", "tick_rest"]
-DARK_TEXT = [(0.90, 0.05), (0.97, 0.03), (0.73, 0.07), (0.54, 0.06),
-             (0.44, 0.05), (0.81, 0.07), (0.75, 0.08)]
-LIGHT_TEXT = [(0.20, 0.18), (0.10, 0.20), (0.36, 0.14), (0.48, 0.10),
-              (0.56, 0.08), (0.28, 0.12), (0.34, 0.12)]
 
 
 def analyze(wallpaper):
@@ -67,11 +53,6 @@ def tint(hue, sat, light):
     return "#%02x%02x%02x" % (round(r * 255), round(g * 255), round(b * 255))
 
 
-def lerp(x, x0, x1, y0, y1):
-    t = max(0.0, min(1.0, (x - x0) / (x1 - x0)))
-    return y0 + t * (y1 - y0)
-
-
 def main():
     if len(sys.argv) < 2:
         return 1
@@ -93,23 +74,15 @@ def main():
     CACHE.mkdir(parents=True, exist_ok=True)
 
     light = mean_l >= 0.40
-    surf_sat = min(sat, 0.26) if light else min(max(sat, 0.30 if chromatic else 0.0), 0.45)
     acc_sat = (min(sat + 0.18, 0.85) if light else min(max(sat, 0.30) + 0.12, 0.82)) if chromatic else 0.05
-    if light:
-        base = lerp(mean_l, 0.40, 0.66, 0.80, 0.93)
-        steps, text, acc_l, deep_l, glow_l = LIGHT_STEPS, LIGHT_TEXT, 0.42, 0.30, 0.55
-    else:
-        base = lerp(mean_l, 0.0, 0.40, 0.045, 0.20)
-        steps, text, acc_l, deep_l, glow_l = DARK_STEPS, DARK_TEXT, 0.70, 0.34, 0.86
+    acc_l, deep_l, glow_l = (0.42, 0.30, 0.55) if light else (0.70, 0.34, 0.86)
 
-    pill = {name: tint(hue, surf_sat, base + step) for name, step in zip(SURF_NAMES, steps)}
-    pill["primary"] = tint(hue, acc_sat, acc_l)
-    pill["primary_container"] = tint(hue, min(acc_sat + 0.08, 0.9), deep_l)
-    pill["on_primary_container"] = tint(hue, min(acc_sat, 0.45), glow_l)
-    pill["outline"] = tint(hue, surf_sat, base + (-0.35 if light else 0.35))
-    for key, (lit, st) in zip(TEXT_KEYS, text):
-        pill[key] = tint(hue, st, lit)
-    (CACHE / "colors.json").write_text(json.dumps(pill, indent=2) + "\n")
+    accent = {
+        "primary": tint(hue, acc_sat, acc_l),
+        "primary_container": tint(hue, min(acc_sat + 0.08, 0.9), deep_l),
+        "on_primary_container": tint(hue, min(acc_sat, 0.45), glow_l),
+    }
+    (CACHE / "colors.json").write_text(json.dumps(accent, indent=2) + "\n")
 
     return 0
 
