@@ -16,7 +16,7 @@ Singleton {
 
     /**
      * Back-navigation state, shared so every PillSurface can render one chevron
-     * without the pill threading a signal through all nineteen Loaders. `back`
+     * without the pill threading a signal through every Loader. `back`
      * is the surface to return to, set only when one surface was opened from
      * inside another; a surface opened by keybind or IPC clears it, so the
      * chevron appears exactly when there is somewhere to go back to.

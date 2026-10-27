@@ -5,7 +5,6 @@ import Quickshell
 import "island" as IslandShell
 
 // The whole desktop shell in one qs process. Run with:  qs
-// The old side bar and its widgets are archived in old-config.back.tar.gz.
 ShellRoot {
     settings.watchFiles: true
 

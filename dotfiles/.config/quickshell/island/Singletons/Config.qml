@@ -7,9 +7,7 @@ import "../../widgets" as Widgets
  * Path authority for the pill, kept as one self-locating source of truth. The
  * app root is this file's own directory tree (the quickshell project folder),
  * so nothing depends on where the shell was launched from or on exported
- * ISLAND_* environment variables. Hyprland-compat outputs (generated modules/*,
- * hypridle.conf and scripts/) all resolve under the same
- * project folder.
+ * ISLAND_* environment variables.
  */
 Singleton {
     id: root
