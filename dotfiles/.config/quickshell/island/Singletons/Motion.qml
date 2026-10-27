@@ -21,7 +21,4 @@ Singleton {
     readonly property var morphCurve: [0.16, 1, 0.3, 1, 1, 1]
     readonly property real rSmall: 7
     readonly property real rTile:  13
-
-    /** Looping scan/pairing breath pulse. */
-    readonly property int pulse: Math.round(420 * mult)
 }
