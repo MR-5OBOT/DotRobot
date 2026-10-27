@@ -1,4 +1,5 @@
 local SCRIPTS = os.getenv("HOME") .. "/.config/hypr/scripts"
+local QS = require("lua_configs.qs")
 
 hl.on("hyprland.start", function()
 	-- Critical Services (Hyprland and uwsm already export the session env to systemd/dbus)
@@ -6,9 +7,8 @@ hl.on("hyprland.start", function()
 
 	-- Daemons
 	hl.exec_cmd("awww-daemon") -- paints the wallpaper; qs only picks it
-	-- one quickshell: the island bar (owns notifications) + launcher, clipboard, wifi/bt, menus.
-	-- MALLOC_CONF lets jemalloc hand freed memory back instead of holding the session peak.
-	hl.exec_cmd("env MALLOC_CONF=background_thread:true,dirty_decay_ms:100,muzzy_decay_ms:100 qs")
+	-- one quickshell: the island bar (owns notifications) + launcher, clipboard, menus.
+	hl.exec_cmd(QS)
 	hl.exec_cmd(SCRIPTS .. "/autostart/cliphist.sh")
 	hl.exec_cmd(SCRIPTS .. "/autostart/battery-notify.sh") -- low-batt nag; the island draws it as a toast
 	hl.exec_cmd("devify")

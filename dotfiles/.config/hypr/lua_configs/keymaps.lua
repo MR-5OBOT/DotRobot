@@ -5,6 +5,7 @@ local SCRIPTS = os.getenv("HOME") .. "/.config/hypr/scripts"
 local SCRIPT = SCRIPTS .. "/controls"
 local RISHOT = os.getenv("HOME") .. "/.config/quickshell/rishot/bin/rishot"
 local POWERPROFILE = os.getenv("HOME") .. "/.local/bin/powerprofile"
+local QS = require("lua_configs.qs")
 -- the island bar lives inside the main quickshell config (quickshell/island/)
 local ISLAND = "qs ipc call island"
 
@@ -20,10 +21,7 @@ hl.bind("ALT + L", hl.dsp.exec_cmd(LOCK))
 -- Application Launchers
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd("[float]kitty"))
 hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("qs ipc call launcher toggle"))
-hl.bind(
-	mainMod .. " + SHIFT + N",
-	hl.dsp.exec_cmd("pkill -x qs; env MALLOC_CONF=background_thread:true,dirty_decay_ms:100,muzzy_decay_ms:100 qs")
-) -- restart quickshell (island included)
+hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("pkill -x qs; " .. QS)) -- restart quickshell (island included)
 hl.bind(mainMod .. " + X", hl.dsp.exec_cmd(ISLAND .. ' power ""'))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("qs ipc call wallpicker toggle"))
 hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("qs ipc call workspaces toggle"))
