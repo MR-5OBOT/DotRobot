@@ -11,7 +11,6 @@ import subprocess
 import sys
 import unicodedata
 
-
 SCRIPT = os.path.abspath(__file__)
 STATE = "@file-nav"
 COMMAND = re.compile(r"[$#%>❯➜➤→λ]\s+((?:command\s+)?(?:l|ll|la|ls|eza|exa)(?:\s+.*)?)$")
@@ -21,14 +20,21 @@ HELP = "files: j/k up/down · h/l columns · Enter open/cd · c copy · m move �
 
 def tmux(*args):
     return subprocess.run(
-        ["tmux", *map(str, args)], check=True, capture_output=True, text=True,
+        ["tmux", *map(str, args)],
+        check=True,
+        capture_output=True,
+        text=True,
         errors="surrogateescape",
     ).stdout.rstrip("\n")
 
 
 def quote(value):
     # Quote tmux configuration, whose parser also expands dollar variables.
-    return '"' + value.replace("\\", "\\\\").replace('"', '\\"').replace("$", "\\$").replace("\n", "\\n") + '"'
+    return (
+        '"'
+        + value.replace("\\", "\\\\").replace('"', '\\"').replace("$", "\\$").replace("\n", "\\n")
+        + '"'
+    )
 
 
 def label(value):
@@ -36,7 +42,10 @@ def label(value):
 
 
 def width(text):
-    return sum(0 if unicodedata.combining(c) else 2 if unicodedata.east_asian_width(c) in "WF" else 1 for c in text)
+    return sum(
+        0 if unicodedata.combining(c) else 2 if unicodedata.east_asian_width(c) in "WF" else 1
+        for c in text
+    )
 
 
 def glyphs(text):
@@ -68,8 +77,12 @@ def listing(lines, cwd):
             if not literal and word == "--":
                 literal = True
             elif not literal and word.startswith("-"):
-                if word in {"--recursive", "--recurse", "--tree", "--directory"} or (not word.startswith("--") and any(c in word for c in "RTd")):
-                    raise ValueError("Recursive/tree listings are ambiguous; use l or ls for one directory.")
+                if word in {"--recursive", "--recurse", "--tree", "--directory"} or (
+                    not word.startswith("--") and any(c in word for c in "RTd")
+                ):
+                    raise ValueError(
+                        "Recursive/tree listings are ambiguous; use l or ls for one directory."
+                    )
                 flags.append(word)
                 if word in value_options:
                     index += 1
@@ -79,7 +92,9 @@ def listing(lines, cwd):
             index += 1
         if len(operands) > 1 or any(c in "".join(operands) for c in "$*?`"):
             raise ValueError("Use one literal directory path per listing.")
-        base = os.path.abspath(os.path.join(cwd, os.path.expanduser(operands[0] if operands else ".")))
+        base = os.path.abspath(
+            os.path.join(cwd, os.path.expanduser(operands[0] if operands else "."))
+        )
         if not os.path.isdir(base):
             raise ValueError("This listing does not identify a directory to navigate.")
         return row + 1, base, [words[0], *flags]
@@ -93,7 +108,11 @@ def entries_for(lines, base, start=0):
         for item in directory:
             if not all(c.isprintable() for c in item.name):
                 continue
-            spellings = {item.name, shlex.quote(item.name), json.dumps(item.name, ensure_ascii=False)}
+            spellings = {
+                item.name,
+                shlex.quote(item.name),
+                json.dumps(item.name, ensure_ascii=False),
+            }
             for spelling in spellings:
                 variants.append((spelling, item.path, item.is_symlink()))
     rows = []
@@ -113,7 +132,9 @@ def entries_for(lines, base, start=0):
                     continue
                 tail = line[right:]
                 if long:
-                    if tail not in {"", "/", "@", "*", "|", "="} and not (is_link and tail.startswith(" -> ")):
+                    if tail not in {"", "/", "@", "*", "|", "="} and not (
+                        is_link and tail.startswith(" -> ")
+                    ):
                         continue
                 elif tail and not tail[0].isspace() and tail[0] not in "/@*|=":
                     continue
@@ -129,13 +150,24 @@ def entries_for(lines, base, start=0):
             chosen.append((left, right, path))
         for left, right, path in sorted(chosen):
             try:
-                rows.append(dict(row=row, column=width(line[:left]), offset=glyphs(line[:left]), length=glyphs(line[left:right]), path=path, identity=identity(path)))
+                rows.append(
+                    dict(
+                        row=row,
+                        column=width(line[:left]),
+                        offset=glyphs(line[:left]),
+                        length=glyphs(line[left:right]),
+                        path=path,
+                        identity=identity(path),
+                    )
+                )
             except FileNotFoundError:
                 pass
     if not rows:
         raise ValueError("No verified files in the printed listing. Run l or ls first.")
     # Only the last contiguous listing, never unrelated matches in older output.
-    split = max((i for i in range(1, len(rows)) if rows[i]["row"] > rows[i - 1]["row"] + 1), default=0)
+    split = max(
+        (i for i in range(1, len(rows)) if rows[i]["row"] > rows[i - 1]["row"] + 1), default=0
+    )
     return rows[split:]
 
 
@@ -150,14 +182,21 @@ def perform(action, entry, destination=None):
             raise ValueError("A destination is required.")
         if action == "rename" and (destination in {".", ".."} or "/" in destination):
             raise ValueError("Rename takes a name; use m to move to another directory.")
-        destination = os.path.abspath(os.path.join(os.path.dirname(source), os.path.expanduser(destination)))
+        destination = os.path.abspath(
+            os.path.join(os.path.dirname(source), os.path.expanduser(destination))
+        )
         if action != "rename" and os.path.isdir(destination):
             destination = os.path.join(destination, os.path.basename(source))
         if os.path.lexists(destination):
             raise FileExistsError("Destination exists; nothing was overwritten.")
         if not os.path.isdir(os.path.dirname(destination)):
             raise ValueError("The destination's parent directory does not exist.")
-        if os.path.isdir(source) and not os.path.islink(source) and os.path.commonpath([os.path.realpath(source), os.path.realpath(destination)]) == os.path.realpath(source):
+        if (
+            os.path.isdir(source)
+            and not os.path.islink(source)
+            and os.path.commonpath([os.path.realpath(source), os.path.realpath(destination)])
+            == os.path.realpath(source)
+        ):
             raise ValueError("Cannot copy or move a directory inside itself.")
         command = ["cp", "-aT"] if action == "copy" else ["mv", "-T"]
         command += ["--update=none-fail", "--", source, destination]
@@ -195,12 +234,16 @@ class Navigator:
             self.quit()
             return
         entry = state["entries"][state["index"]]
-        position = tmux("display-message", "-p", "-t", self.pane, "#{copy_cursor_y} #{scroll_position}")
+        position = tmux(
+            "display-message", "-p", "-t", self.pane, "#{copy_cursor_y} #{scroll_position}"
+        )
         y, scroll = map(int, position.split())
         delta = entry["row"] - (state["history"] + y - scroll)
         commands = [self.copy_command("clear-selection")]
         if delta:
-            commands.append(self.copy_command("-N", abs(delta), "cursor-down" if delta > 0 else "cursor-up"))
+            commands.append(
+                self.copy_command("-N", abs(delta), "cursor-down" if delta > 0 else "cursor-up")
+            )
         commands.append(self.copy_command("start-of-line"))
         if entry["offset"]:
             commands.append(self.copy_command("-N", entry["offset"], "cursor-right"))
@@ -216,17 +259,36 @@ class Navigator:
         self.save(state)
 
     def start(self):
-        if self.option(STATE) and tmux("display-message", "-p", "-t", self.pane, "#{pane_in_mode}") == "1":
+        if (
+            self.option(STATE)
+            and tmux("display-message", "-p", "-t", self.pane, "#{pane_in_mode}") == "1"
+        ):
             self.quit()
             return
-        values = tmux("display-message", "-p", "-t", self.pane, "#{pane_current_path}\n#{history_size}\n#{cursor_y}\n#{pane_width}").splitlines()
-        cwd, history, cursor, columns = values[0], *map(int, values[1:])
+        values = tmux(
+            "display-message",
+            "-p",
+            "-t",
+            self.pane,
+            "#{pane_current_path}\n#{history_size}\n#{cursor_y}\n#{pane_width}\n#{pane_height}",
+        ).splitlines()
+        cwd, history, cursor, columns, height = values[0], *map(int, values[1:])
         lines = tmux("capture-pane", "-p", "-t", self.pane, "-S", "-", "-E", "-").splitlines()
-        lines = lines[:history + cursor]
+        lines = lines[: history + cursor]
         start, base, listing_command = listing(lines, cwd)
         entries = entries_for(lines, base, start)
-        index = next((i for i, entry in enumerate(entries) if entry["row"] >= history), len(entries) - 1)
-        state = dict(entries=entries, index=index, history=history, columns=columns, base=base, command=listing_command)
+        index = next(
+            (i for i, entry in enumerate(entries) if entry["row"] >= history), len(entries) - 1
+        )
+        state = dict(
+            entries=entries,
+            index=index,
+            history=history,
+            columns=columns,
+            height=height,
+            base=base,
+            command=listing_command,
+        )
         tmux("copy-mode", "-H", "-t", self.pane)
         self.focus(state)
         self.message(HELP)
@@ -242,13 +304,27 @@ class Navigator:
             raise ValueError("The selected entry changed. Run a fresh listing.")
         self.option("@file-nav-pending", json.dumps(dict(action=action, entry=entry)))
         if action == "trash":
-            tmux("confirm-before", "-b", "-t", self.client, "-p", label(f"Move {os.path.basename(entry['path'])} to Trash? (y/n)"), "run-shell " + quote(self.command("apply")))
+            tmux(
+                "confirm-before",
+                "-b",
+                "-t",
+                self.client,
+                "-p",
+                label(f"Move {entry['path']} to Trash? (y/n)"),
+                "run-shell " + quote(self.command("apply")),
+            )
         else:
             prompt = f"{action.capitalize()} {os.path.basename(entry['path'])} {'to name' if action == 'rename' else 'to path'}:"
             initial = os.path.basename(entry["path"]) if action == "rename" else state["base"] + "/"
             # Parsed braces substitute prompt input as data, never as shell/config code.
             config = f"command-prompt -b -l -t {quote(self.client)} -p {quote(label(prompt))} -I {quote(initial)} {{ set-option -p -t {self.pane} @file-nav-input \"%1\" ; run-shell {quote(self.command('apply'))} }}"
-            subprocess.run(["tmux", "source-file", "-"], input=config, text=True, check=True, capture_output=True)
+            subprocess.run(
+                ["tmux", "source-file", "-"],
+                input=config,
+                text=True,
+                check=True,
+                capture_output=True,
+            )
 
     def apply(self, state):
         pending = json.loads(self.option("@file-nav-pending"))
@@ -260,19 +336,31 @@ class Navigator:
             state["index"] = min(state["index"], len(state["entries"]) - 1)
         self.option("@file-nav-pending", "")
         self.focus(state)
-        self.message(f"{'Trashed' if action == 'trash' else action.capitalize() + ' complete'}: {result or entry['path']} · printed listing kept; rerun l/ls to refresh")
+        self.message(
+            f"{'Trashed' if action == 'trash' else action.capitalize() + ' complete'}: {result or entry['path']} · printed listing kept; rerun l/ls to refresh"
+        )
 
     def open(self, state):
         entry = state["entries"][state["index"]]
         if identity(entry["path"]) != entry["identity"]:
             raise ValueError("The selected entry changed. Run a fresh listing.")
         if not os.path.isdir(entry["path"]):
-            subprocess.Popen(["xdg-open", entry["path"]], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+            subprocess.Popen(
+                ["xdg-open", entry["path"]],
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                start_new_session=True,
+            )
             self.message(f"Opened {entry['path']}")
             return
-        shell, pid = tmux("display-message", "-p", "-t", self.pane, "#{pane_current_command} #{pane_pid}").split()
+        shell, pid = tmux(
+            "display-message", "-p", "-t", self.pane, "#{pane_current_command} #{pane_pid}"
+        ).split()
         if shell not in {"bash", "zsh", "sh", "dash", "ksh", "mksh", "ash"}:
-            raise ValueError("Directory cd supports Bash/Zsh/POSIX shells; file actions still work here.")
+            raise ValueError(
+                "Directory cd supports Bash/Zsh/POSIX shells; file actions still work here."
+            )
         process = Path(f"/proc/{pid}/stat").read_text().rsplit(") ", 1)[1].split()
         if process[2] != process[5]:
             raise ValueError("Return to an idle shell prompt before entering a directory.")
@@ -293,16 +381,30 @@ class Navigator:
         if not raw:
             return
         state = json.loads(raw)
-        if tmux("display-message", "-p", "-t", self.pane, "#{pane_width}") != str(state["columns"]):
+        if (
+            tmux("display-message", "-p", "-t", self.pane, "#{pane_width} #{pane_height}")
+            != f"{state['columns']} {state['height']}"
+        ):
             self.quit()
             raise ValueError("Terminal resized; run a fresh listing and press prefix+q again.")
         entries, index = state["entries"], state["index"]
         if action in {"down", "up"}:
             row = entries[index]["row"]
-            candidates = [i for i, item in enumerate(entries) if (item["row"] > row if action == "down" else item["row"] < row)]
+            candidates = [
+                i
+                for i, item in enumerate(entries)
+                if (item["row"] > row if action == "down" else item["row"] < row)
+            ]
             if candidates:
-                next_row = min(entries[i]["row"] for i in candidates) if action == "down" else max(entries[i]["row"] for i in candidates)
-                state["index"] = min((i for i in candidates if entries[i]["row"] == next_row), key=lambda i: abs(entries[i]["column"] - entries[index]["column"]))
+                next_row = (
+                    min(entries[i]["row"] for i in candidates)
+                    if action == "down"
+                    else max(entries[i]["row"] for i in candidates)
+                )
+                state["index"] = min(
+                    (i for i in candidates if entries[i]["row"] == next_row),
+                    key=lambda i: abs(entries[i]["column"] - entries[index]["column"]),
+                )
         elif action in {"left", "right"}:
             neighbor = index + (1 if action == "right" else -1)
             if 0 <= neighbor < len(entries):
@@ -324,7 +426,27 @@ class Navigator:
 
 
 def install():
-    bindings = {"j": "down", "Down": "down", "k": "up", "Up": "up", "h": "left", "Left": "left", "l": "right", "Right": "right", "g": "first", "G": "last", "Enter": "open", "c": "copy", "m": "move", "r": "rename", "d": "trash", "q": "quit", "Escape": "quit", "C-c": "quit", "?": "help"}
+    bindings = {
+        "j": "down",
+        "Down": "down",
+        "k": "up",
+        "Up": "up",
+        "h": "left",
+        "Left": "left",
+        "l": "right",
+        "Right": "right",
+        "g": "first",
+        "G": "last",
+        "Enter": "open",
+        "c": "copy",
+        "m": "move",
+        "r": "rename",
+        "d": "trash",
+        "q": "quit",
+        "Escape": "quit",
+        "C-c": "quit",
+        "?": "help",
+    }
     originals = json.loads(tmux("show-options", "-gqv", "@file-nav-bindings") or "{}")
     current = {}
     for table in ["copy-mode-vi", "copy-mode"]:
@@ -332,7 +454,14 @@ def install():
             match = re.match(r"bind-key\s+(?:-r\s+)?-T\s+\S+\s+(\S+)\s+(.*)", line)
             if match:
                 current[table + "/" + match[1]] = match[2]
-    for table, key, action in [("prefix", "q", "start"), *((table, key, action) for table in ["copy-mode-vi", "copy-mode"] for key, action in bindings.items())]:
+    for table, key, action in [
+        ("prefix", "q", "start"),
+        *(
+            (table, key, action)
+            for table in ["copy-mode-vi", "copy-mode"]
+            for key, action in bindings.items()
+        ),
+    ]:
         command = shlex.join([sys.executable, SCRIPT, action]) + " #{pane_id} #{q:client_name}"
         if table == "prefix":
             tmux("bind-key", "-T", table, key, "run-shell", command)
@@ -341,8 +470,25 @@ def install():
         previous = current.get(name, "")
         if "@file-nav" not in previous:
             originals[name] = previous
-        tmux("bind-key", "-T", table, key, "if-shell", "-F", "#{@file-nav}", "run-shell " + quote(command), originals.get(name, ""))
+        tmux(
+            "bind-key",
+            "-T",
+            table,
+            key,
+            "if-shell",
+            "-F",
+            "#{@file-nav}",
+            "run-shell " + quote(command),
+            originals.get(name, ""),
+        )
     tmux("set-option", "-g", "@file-nav-bindings", json.dumps(originals))
+    # A separate hook index preserves plugin hooks and stays idempotent on reload.
+    tmux(
+        "set-hook",
+        "-g",
+        "pane-mode-changed[731]",
+        'if-shell -F "#{==:#{pane_in_mode},0}" { set-option -p @file-nav "" ; set-option -p @file-nav-pending "" }',
+    )
 
 
 def main():
