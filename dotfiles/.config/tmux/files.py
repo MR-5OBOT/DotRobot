@@ -39,6 +39,10 @@ def width(text):
     return sum(0 if unicodedata.combining(c) else 2 if unicodedata.east_asian_width(c) in "WF" else 1 for c in text)
 
 
+def glyphs(text):
+    return sum(unicodedata.category(c) not in {"Mn", "Me", "Cf"} for c in text)
+
+
 def identity(path):
     info = os.lstat(path)
     return [info.st_dev, info.st_ino, stat.S_IFMT(info.st_mode)]
@@ -125,7 +129,7 @@ def entries_for(lines, base, start=0):
             chosen.append((left, right, path))
         for left, right, path in sorted(chosen):
             try:
-                rows.append(dict(row=row, column=width(line[:left]), length=width(line[left:right]), path=path, identity=identity(path)))
+                rows.append(dict(row=row, column=width(line[:left]), offset=glyphs(line[:left]), length=glyphs(line[left:right]), path=path, identity=identity(path)))
             except FileNotFoundError:
                 pass
     if not rows:
@@ -198,8 +202,8 @@ class Navigator:
         if delta:
             commands.append(self.copy_command("-N", abs(delta), "cursor-down" if delta > 0 else "cursor-up"))
         commands.append(self.copy_command("start-of-line"))
-        if entry["column"]:
-            commands.append(self.copy_command("-N", entry["column"], "cursor-right"))
+        if entry["offset"]:
+            commands.append(self.copy_command("-N", entry["offset"], "cursor-right"))
         commands.append(self.copy_command("begin-selection"))
         if entry["length"] > 1:
             commands.append(self.copy_command("-N", entry["length"] - 1, "cursor-right"))
