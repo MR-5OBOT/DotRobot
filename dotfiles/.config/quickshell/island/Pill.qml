@@ -41,21 +41,14 @@ Item {
 
     /**
      * Idle (ms) before a closed surface is unloaded, keyed by surface name,
-     * scaled from the Flags.unloadSec base (`unloadS` here). The two heaviest
-     * surfaces (wallpaper, mixer) keep the shortest tail; everything else gets
-     * one 60s reset for quick re-toggles before it is reclaimed, so a session
-     * that touched every surface returns near boot RSS within a couple of
-     * minutes. Unlisted names fall through to that same short default.
+     * scaled from the Flags.unloadSec base (`unloadS` here). The heaviest
+     * surface (mixer) keeps the shortest tail; everything else gets one 60s
+     * reset for quick re-toggles before it is reclaimed, so a session that
+     * touched every surface returns near boot RSS within a couple of minutes.
      */
     readonly property real unloadS: (Flags.memorySaver ? Math.max(10, Flags.unloadSec) : 1e12)
     readonly property var unloadIdleMs: ({
-        // heaviest, evict first
-        wallpaper:   unloadS * 1000,
         mixer:       unloadS * 1000,
-        // thirsty frequent fliers: one generous reset, then reclaim
-        clipboard:   unloadS * 2 * 1000,
-        calendar:    unloadS * 2 * 1000,
-        // everything else: a single 60s reset for quick re-toggles, then reclaim
         default:     unloadS * 2 * 1000
     })
 
@@ -204,10 +197,6 @@ Item {
                 var sw = (o && o.specialWorkspace) ? o.specialWorkspace.name : "";
                 if (sw && sw.indexOf("special:") === 0) {
                     var id = sw.slice("special:".length);
-                    var sl = Spaces.list;
-                    for (var j = 0; j < sl.length; j++)
-                        if (sl[j] && sl[j].id === id)
-                            return sl[j].name;
                     if (id === "minimized") return "Minimized";
                     if (id === "private") return "Private";
                     if (id === "stash") return "Stash";
@@ -429,11 +418,10 @@ Item {
     readonly property string mode: dragActive ? "dragOver"
         : (surfaceOpen && surfaces[surface] !== undefined ? surface
         : (hidden && surfaces[retractSurface] !== undefined ? retractSurface
-        : (toastActive && Notifs.toastCritical && !held ? "toast"
         : (toastActive && !held ? "toast"
         // Auto-hide only ever shows the pill while revealed, so it rests as the hover
         // card: reveal and retract slide that card in and out, never the old rest face.
-        : ((expanded || Flags.autoHide) ? "hover" : "rest")))))
+        : ((expanded || Flags.autoHide) ? "hover" : "rest"))))
 
     /**
      * Wallpaper drop state: hover -> saving -> done, or bad/fail for rejected drops.
@@ -1104,10 +1092,6 @@ Item {
         }
     }
 
-    KbLayout {
-        id: kbLayout
-    }
-
     Item {
         id: hover
         anchors.fill: parent
@@ -1186,19 +1170,9 @@ Item {
      */
 
     /**
-     * Breadcrumb back to whichever surface opened this one: no icon, the word
-     * itself is the control. Drawn by the pill rather than PillSurface so a
-     * clipping surface (sysmon's gauges) cannot cut it off, and set in the same
-     * type as every surface's own header eyebrow so it reads as part of it.
+     * Back button to whichever surface opened this one. Drawn by the pill rather
+     * than PillSurface so a clipping surface (sysmon's gauges) cannot cut it off;
      * Surfaces.pad widens the panel by exactly this much, so nothing overlaps.
-     */
-    /**
-     * Breadcrumb back to whichever surface opened this one: no icon, the word
-     * itself is the control. A single Text, not a Row — children with
-     * anchors.fill inside a Row are illegal and stop it laying out at all.
-     * Drawn by the pill so a clipping surface cannot cut it off, set in the
-     * same eyebrow type every surface header uses, and Surfaces.pad widens the
-     * panel by exactly this much so nothing overlaps.
      */
     Item {
         id: backBtn
