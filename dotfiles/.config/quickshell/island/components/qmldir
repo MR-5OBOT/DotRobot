@@ -13,6 +13,5 @@ Tooltip Tooltip.qml
 Tray Tray.qml
 VFader VFader.qml
 WheelScroller WheelScroller.qml
-WifiGlyph WifiGlyph.qml
 Workspaces Workspaces.qml
 NotchEars NotchEars.qml
