@@ -118,3 +118,5 @@ inactiveBackground=29,30,33
 inactiveBlend=75,71,67
 inactiveForeground=128,127,125
 
+[sdl]
+window_background=42,42,42
