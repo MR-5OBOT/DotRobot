@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
-import Quickshell.Io
 import "../Singletons"
 import "../components"
 
@@ -42,20 +41,9 @@ PillSurface {
     ameForm: "seam"
     amePoint: chargeHead
 
-    /** Active power-profiles-daemon profile, "" when ppd is missing; re-read on every open. */
-    property string profile: ""
+    /** Active power-profiles-daemon profile, live from Battery. */
+    readonly property string profile: Battery.profile
     readonly property var profileLabels: ({ "power-saver": "Power saver", "balanced": "Balanced", "performance": "Performance" })
-
-    onOpenChanged: if (open) profileProc.running = true
-    Component.onCompleted: profileProc.running = true
-
-    Process {
-        id: profileProc
-        command: ["powerprofilesctl", "get"]
-        stdout: StdioCollector {
-            onStreamFinished: root.profile = this.text.trim()
-        }
-    }
 
     Column {
         id: content
