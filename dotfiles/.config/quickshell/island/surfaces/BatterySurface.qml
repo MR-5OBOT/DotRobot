@@ -206,6 +206,12 @@ PillSurface {
                 label: "Capacity"
                 value: Battery.capacityWh.toFixed(1) + " Wh"
             }
+
+            StatRow {
+                visible: Battery.cycles > 0
+                label: "Cycles"
+                value: String(Battery.cycles)
+            }
         }
 
         Item {
