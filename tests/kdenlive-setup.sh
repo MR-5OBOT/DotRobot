@@ -7,6 +7,12 @@ trap 'rm -rf "$temp_dir"' EXIT
 export HOME="$temp_dir/home with spaces"
 export XDG_CONFIG_HOME="$HOME/config" XDG_DATA_HOME="$HOME/data"
 mkdir -p "$XDG_CONFIG_HOME"
+# The setup refuses to run while Kdenlive is open; stub pgrep so a Kdenlive
+# running on this machine can't fail the test.
+mkdir -p "$temp_dir/bin"
+printf '#!/bin/sh\nexit 1\n' > "$temp_dir/bin/pgrep"
+chmod +x "$temp_dir/bin/pgrep"
+export PATH="$temp_dir/bin:$PATH"
 kwriteconfig6 --file "$XDG_CONFIG_HOME/kdenliverc" --group misc --key existing preserved
 
 setup="$repo/assets/presets/kdenlive-config/kdenlive-setup.sh"
