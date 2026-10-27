@@ -35,6 +35,7 @@ jq
 kdialog
 keyd
 kitty
+krita
 tecla
 wev
 libnotify
@@ -52,6 +53,7 @@ pipewire-jack
 pipewire-pulse
 power-profiles-daemon
 qalculate-gtk
+qbittorrent
 qt5-wayland
 qt5ct
 qt6-wayland
@@ -64,6 +66,7 @@ sound-theme-freedesktop
 speedtest-cli
 superfile
 swaybg
+synfigstudio
 telegram-desktop
 thermald
 thunar
@@ -82,6 +85,7 @@ vpl-gpu-rt
 webp-pixbuf-loader
 wezterm
 wine
+wiremix
 wireplumber
 wl-clip-persist
 wl-clipboard
