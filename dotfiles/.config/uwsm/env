@@ -1,5 +1,7 @@
-# uwsm environment — toolkit / theming / cursor vars
-# Mirrors hypr/lua_configs/env.lua so apps launched as systemd units inherit them.
+# uwsm environment — toolkit / theming / cursor vars. The one place session env
+# lives: uwsm loads it before Hyprland starts, so Hyprland, everything it
+# launches and systemd user units all inherit it. Takes effect at next login.
+# Hyprland-only vars (HYPR*, AQ_*) would go in env-hyprland beside this file.
 # XDG_CURRENT_DESKTOP / XDG_SESSION_TYPE / XDG_SESSION_DESKTOP are set by uwsm itself — omitted on purpose.
 
 # Wayland backends / toolkit hints
@@ -10,8 +12,10 @@ export MOZ_ENABLE_WAYLAND="1"
 export ELECTRON_OZONE_PLATFORM_HINT="wayland"
 export OZONE_PLATFORM="wayland"
 
-# Qt theming
+# Qt theming: widgets via qt6ct (Qt6) / qt5ct (Qt5), palette colors/paradise.conf.
+# QML apps (e.g. hyprpolkitagent) use the Fusion QML style, which follows that palette.
 export QT_QPA_PLATFORMTHEME="qt6ct"
+export QT_QUICK_CONTROLS_STYLE="Fusion"
 export QT_WAYLAND_DISABLE_WINDOWDECORATION="1"
 export QT_AUTO_SCREEN_SCALE_FACTOR="1"
 

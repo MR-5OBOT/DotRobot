@@ -2,7 +2,6 @@
 -- Modularized configuration loading
 
 require("lua_configs.monitors")
-require("lua_configs.env")
 require("lua_configs.input")
 require("lua_configs.theme")
 require("lua_configs.animations")

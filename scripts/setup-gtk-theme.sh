@@ -7,7 +7,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 # serves the org.gnome.desktop.interface dconf keys. Those override
 # ~/.config/gtk-3.0/settings.ini entirely: with dconf unset the portal answers
 # with the schema default (Adwaita) and settings.ini is never consulted.
-# GTK_THEME and XCURSOR_THEME in hypr/lua_configs/env.lua force the theme and
+# GTK_THEME and XCURSOR_THEME in ~/.config/uwsm/env force the theme and
 # cursor past that, but no such variable exists for the icon theme -- so the
 # icon theme only applies once these keys are in dconf. Seed them from
 # settings.ini so a fresh install matches without running nwg-look by hand.
