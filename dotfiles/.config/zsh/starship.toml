@@ -26,10 +26,3 @@ truncation_symbol = '…/'
 
 [git_branch]
 style = '245'
-
-# Optional subtle git status if you ever want a tiny bit more info without clutter
-[git_status]
-style = '241'
-staged = '+'
-modified = '~'
-deleted = '×'

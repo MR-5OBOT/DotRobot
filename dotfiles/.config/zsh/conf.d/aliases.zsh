@@ -28,4 +28,4 @@ alias szshrc="source ${ZDOTDIR:-$HOME/.config/zsh}/.zshrc"
 alias hypr-start="uwsm start -e -D Hyprland hyprland.desktop"  # uwsm/systemd-managed session from TTY
 alias quick-wifi-scan='sudo nmcli dev wifi rescan && nmcli dev wifi list'
 
-alias ventoy="pkexec env DISPLAY=\$DISPLAY WAYLAND_DISPLAY=\$WAYLAND_DISPLAY XDG_RUNTIME_DIR=\$XDG_RUNTIME_DIR /opt/ventoy/tool/x86_64/Ventoy2Disk.gtk3"
+alias ventoy="ventoy-launch"   # ~/.local/bin/ventoy-launch

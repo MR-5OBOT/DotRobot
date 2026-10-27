@@ -1,15 +1,6 @@
 #!/bin/sh
 set -eu
 
-# Clean up any legacy per-window floating sessions
-prune_legacy_sessions() {
-  sessions=$(tmux list-sessions -F '#{session_name}' 2>/dev/null | grep '^floating-' || true)
-  [ -z "$sessions" ] && return 0
-  for s in $sessions; do
-    tmux kill-session -t "=$s" 2>/dev/null || :
-  done
-}
-
 action="${1:-toggle}"
 
 if [ "$action" = attach ]; then
@@ -64,8 +55,6 @@ if [ "$action" = close ]; then
 fi
 
 # Toggling float window (Single Shared Scratchpad):
-prune_legacy_sessions
-
 # Check if float is currently visible in this window
 current_view=$(tmux list-panes -t "$pane" -f '#{@float-session}' -F '#{pane_id}' 2>/dev/null || true)
 

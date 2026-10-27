@@ -57,7 +57,6 @@ main() {
   local icons_dir="${XDG_DATA_HOME:-${HOME}/.local/share}/icons"
 
   symlink_path "${DOTFILES_DIR}/.gitconfig" "${HOME}/.gitconfig"
-  symlink_path "${DOTFILES_DIR}/.visidatarc" "${HOME}/.visidatarc"
   link_config_tree
   link_local_bin
   link_local_share_applications
