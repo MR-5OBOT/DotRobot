@@ -364,7 +364,6 @@ SettingsSurface {
                     Keys.onPressed: (e) => {
                         if (e.key === Qt.Key_Return || e.key === Qt.Key_Enter) {
                             Flags.wallpaperDir = text.trim();
-                            Walls.refresh();
                             wpDirRow.editing = false;
                             focus = false;
                             e.accepted = true;

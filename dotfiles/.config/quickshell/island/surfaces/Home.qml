@@ -56,11 +56,7 @@ PillSurface {
     property string kernel: ""
     property string uptime: ""
 
-    /**
-     * Walls.current only fills in after Walls.warm() runs and nothing here asks
-     * for it, so the hero was binding to an empty string and showed plain black.
-     * The wallpaper backend persists the current path to island-wallpaper.
-     */
+    /** The hero shows the wallpaper the backend persists to island-wallpaper. */
     property string wallPath: ""
 
     FileView {

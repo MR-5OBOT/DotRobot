@@ -38,7 +38,7 @@ Preset references: [Orange's setup guide](https://www.orange.ma/Assistance/Mobil
 the installed `mobile-broadband-provider-info` database for IAM plans, and
 the [ASUS router carrier database](https://github.com/RMerl/asuswrt-merlin.ng/blob/main/release/src/router/rom/spn_asus.dat) for inwi.
 
-The wallpaper picker, Island strip, random keybind, and dynamic palette use
+The wallpaper picker and the dynamic palette use
 `dotfiles/.config/quickshell/island/scripts/wallpaper.sh`. It supports stills
 through `awww` and videos through `mpvpaper`.
 
