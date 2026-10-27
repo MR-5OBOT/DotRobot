@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
+import "island/components" as IslandUi
 
 // Keymap cheat sheet: `qs ipc call keymaps toggle` (SUPER + /). A pure-black
 // top-edge notch; closes on Esc, the × button, or a click anywhere outside it.
@@ -77,7 +78,7 @@ PanelWindow {
 
         MouseArea { anchors.fill: parent; acceptedButtons: Qt.AllButtons }  // swallow clicks on the card
 
-        NotchEars {
+        IslandUi.NotchEars {
             anchors.top: parent.top
             width: parent.width
             color: card.color

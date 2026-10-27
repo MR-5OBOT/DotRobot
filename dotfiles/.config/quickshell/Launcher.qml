@@ -5,6 +5,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Widgets
 import Quickshell.Hyprland
+import "island/components" as IslandUi
 
 // Spotlight-style launcher: starts as a bare input row near the top; typing
 // lists matches (6 visible, scrollable). Toggle: qs ipc call launcher toggle
@@ -100,7 +101,7 @@ PanelWindow {
 
         MouseArea { anchors.fill: parent }  // swallow clicks on the card itself
 
-        NotchEars {
+        IslandUi.NotchEars {
             anchors.top: parent.top
             width: parent.width
         }

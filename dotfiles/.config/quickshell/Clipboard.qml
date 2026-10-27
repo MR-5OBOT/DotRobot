@@ -149,7 +149,7 @@ PanelWindow {
 
         MouseArea { anchors.fill: parent }  // swallow clicks on the card
 
-        NotchEars {
+        Island.NotchEars {
             anchors.top: parent.top
             width: parent.width
         }
