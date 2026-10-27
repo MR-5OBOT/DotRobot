@@ -11,7 +11,6 @@ PanelWindow {
 
     property bool open: false
     readonly property real s: Island.Flags.uiScale
-    signal opened()
 
     function toggle(monitor) {
         const target = Quickshell.screens.find(s => s.name === monitor) || Island.Monitors.focusedScreen;
@@ -33,7 +32,6 @@ PanelWindow {
     WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     onOpenChanged: if (open) {
-        opened();
         content.forceActiveFocus();
     }
 
