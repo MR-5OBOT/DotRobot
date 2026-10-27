@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
+import "island/components" as IslandUi
 
 // Simple calculator with two modes:
 //   pad   — classic keypad + display (Super+equal / XF86Calculator)
@@ -103,7 +104,7 @@ PanelWindow {
 
         MouseArea { anchors.fill: parent }  // swallow clicks on the card
 
-        NotchEars {
+        IslandUi.NotchEars {
             anchors.top: parent.top
             width: parent.width
         }

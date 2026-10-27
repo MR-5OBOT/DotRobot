@@ -5,6 +5,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import "widgets"
+import "island/components" as IslandUi
 
 // Power-profile picker: `qs ipc call powerprofile cycle` (SUPER+SHIFT+P via
 // `powerprofile menu`) opens the card on the active profile, and each further
@@ -132,7 +133,7 @@ PanelWindow {
 
         MouseArea { anchors.fill: parent }  // swallow clicks on the card
 
-        NotchEars {
+        IslandUi.NotchEars {
             anchors.top: parent.top
             width: parent.width
         }

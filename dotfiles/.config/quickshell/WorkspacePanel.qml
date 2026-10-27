@@ -9,6 +9,7 @@ import Quickshell.Hyprland
 import "widgets" as Widgets
 import "island/Singletons" as Island
 import "lib/workspaces.js" as Workspaces
+import "island/components" as IslandUi
 
 // Occupied workspaces across all monitors. Toggle: qs ipc call workspaces toggle.
 PanelWindow {
@@ -147,7 +148,7 @@ PanelWindow {
             Behavior on anchors.topMargin { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
 
             MouseArea { anchors.fill: parent }
-            NotchEars { width: parent.width }
+            IslandUi.NotchEars { width: parent.width }
 
             RowLayout {
                 anchors { left: parent.left; right: parent.right; top: parent.top; margins: 20 }

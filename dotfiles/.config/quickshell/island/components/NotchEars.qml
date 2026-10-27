@@ -7,13 +7,15 @@ import QtQuick.Shapes
  * Anchor it to the panel's top edge with the panel's width: each ear of radius
  * `r` hangs just outside the left and right sides, filled with `color`. Each ear
  * reaches `overlap` px into the panel so the two anti-aliased edges never leave
- * a hairline seam between them.
+ * a hairline seam between them. Shared by the pill and the top-level notch
+ * widgets; the defaults are the widgets' (Theme.notchEar, Theme.notchBg), the
+ * pill passes its own scaled radius and colour.
  */
 Item {
     id: root
 
-    property real r: 14
-    property color color: "black"
+    property real r: 12
+    property color color: "#000000"
     property real overlap: 1
 
     height: r
