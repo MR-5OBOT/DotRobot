@@ -15,7 +15,7 @@ Singleton {
 
     readonly property string primary: adapter.primary
     readonly property string primaryContainer: adapter.primary_container
-    readonly property string onPrimaryContainer: adapter.on_primary_container
+    readonly property string primaryGlow: adapter.primary_glow
 
     FileView {
         id: file
@@ -30,7 +30,7 @@ Singleton {
             id: adapter
             property string primary: "#f5bd6f"
             property string primary_container: "#633f00"
-            property string on_primary_container: "#ffddb3"
+            property string primary_glow: "#ffddb3"
         }
     }
 }

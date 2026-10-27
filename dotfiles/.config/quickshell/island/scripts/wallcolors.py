@@ -80,7 +80,7 @@ def main():
     accent = {
         "primary": tint(hue, acc_sat, acc_l),
         "primary_container": tint(hue, min(acc_sat + 0.08, 0.9), deep_l),
-        "on_primary_container": tint(hue, min(acc_sat, 0.45), glow_l),
+        "primary_glow": tint(hue, min(acc_sat, 0.45), glow_l),
     }
     (CACHE / "colors.json").write_text(json.dumps(accent, indent=2) + "\n")
 
