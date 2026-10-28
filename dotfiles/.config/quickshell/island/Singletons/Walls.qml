@@ -19,6 +19,7 @@ Singleton {
     readonly property string setScript: Config.islandPath("scripts", "wallpaper.sh")
 
     property var queuedApplies: []
+    property string activePath: ""
 
     function apply(path, output) {
         var out = output === undefined ? "" : output;
@@ -30,15 +31,59 @@ Singleton {
     }
 
     function run(path, out) {
+        root.activePath = path;
         applyProc.command = out.length > 0
             ? ["bash", root.setScript, "set", path, out]
             : ["bash", root.setScript, "set", path];
         applyProc.running = true;
     }
 
+    /** [output, path] pairs from wallpaper.sh's map, re-read whenever a set rewrites it. */
+    property var shown: []
+
+    FileView {
+        path: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/island-wallpaper-map"
+        watchChanges: true
+        printErrors: false
+        onLoaded: root.shown = text().split("\n").filter(l => l.indexOf("\t") > 0).map(l => l.split("\t"))
+        onFileChanged: reload()
+    }
+
+    /**
+     * awww decodes a still once at set time, so a file overwritten in place (an
+     * editor exporting over the same name) kept its old pixels on screen. Every
+     * shown still is watched and re-applied to the outputs showing it; one save
+     * fires several change events (truncate, write), so they settle first.
+     * Videos are skipped: wallpaper.sh never restarts mpvpaper on the same path.
+     */
+    Instantiator {
+        model: [...new Set(root.shown.map(e => e[1]))].filter(p => !/\.(mp4|webm|mkv|mov)$/i.test(p))
+        delegate: FileView {
+            required property string modelData
+            path: modelData
+            preload: false
+            watchChanges: true
+            printErrors: false
+            onFileChanged: settle.restart()
+            property Timer settle: Timer { interval: 500; onTriggered: root.reapply(modelData) }
+        }
+    }
+
+    function reapply(path) {
+        var outs = root.shown.filter(e => e[1] === path).map(e => e[0]);
+        if (outs.length === root.shown.length)
+            apply(path);
+        else
+            outs.forEach(o => apply(path, o));
+    }
+
     Process {
         id: applyProc
-        onExited: {
+        onExited: function(code) {
+            if (code === 69) {
+                root.queuedApplies = root.queuedApplies.filter(function(item) { return item.path !== root.activePath; });
+                Quickshell.execDetached(["notify-send", "-a", "Wallpaper", "Video wallpaper unavailable", "Video playback is not installed."]);
+            }
             if (root.queuedApplies.length) {
                 var next = root.queuedApplies[0];
                 root.queuedApplies = root.queuedApplies.slice(1);

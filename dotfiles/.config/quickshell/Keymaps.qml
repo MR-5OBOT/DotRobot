@@ -15,6 +15,43 @@ PanelWindow {
 
     readonly property var groups: [
         {
+            title: "HYPRLAND",
+            note: "Super = Win key · scroll for more",
+            binds: [
+                ["Super + Return", "Terminal"],
+                ["Super + Space / Q", "App launcher / close window"],
+                ["Super + X / W / D", "Power / wallpapers / workspaces"],
+                ["Super + V / N / T", "Clipboard / notifications / calendar"],
+                ["Super + I / = / /", "Network / calculator / this sheet"],
+                ["Super + Shift + N", "Restart Quickshell"],
+                ["Super + Shift + C / P", "Pick colour / power profile"],
+                ["Super + Shift + F", "Toggle fullscreen"],
+                ["Super + C", "Center window"],
+                ["Alt + Space / L", "Toggle floating / lock"],
+                ["Print / Shift + Print", "Screenshot region / monitor"],
+                ["Super + H J K L", "Focus left / down / up / right"],
+                ["Super + Alt + H J K L", "Move window"],
+                ["Super + Ctrl + H J K L", "Resize window"],
+                ["Super + 1 … 0", "Switch workspace 1 … 10"],
+                ["Super + Shift + 1 … 0", "Move window to workspace"],
+                ["Super + O / Shift + O", "Focus / move window to next monitor"],
+                ["Super + mouse drag", "Left: move · right: resize"],
+                ["Mouse side buttons", "Mic mute / screenshot"],
+                ["Media keys", "Volume, mic and brightness"]
+            ]
+        },
+        {
+            title: "KEYD",
+            note: "Hold Caps Lock · applies to configured keyboards",
+            binds: [
+                ["Caps + H J K L", "Left / down / up / right"],
+                ["Caps + - / =", "Volume down / up"],
+                ["Caps + Space", "Toggle microphone mute"],
+                ["Caps Lock", "Tap for normal Caps Lock"],
+                ["Backspace + Esc + Enter", "Stop keyd in an emergency"]
+            ]
+        },
+        {
             title: "ZIYOULANG T60",
             note: "Fn layer · on-board, works on any OS",
             binds: [
@@ -65,7 +102,7 @@ PanelWindow {
         anchors.top: parent.top
         anchors.topMargin: win.open ? 0 : -height   // hangs flush from the top edge and slides out of it
         width: 480
-        height: col.implicitHeight + 28
+        height: Math.min(col.implicitHeight + 28, (win.screen ? win.screen.height : 800) - 20)
         topLeftRadius: 0
         topRightRadius: 0
         bottomLeftRadius: Theme.notchRadius
@@ -89,9 +126,16 @@ PanelWindow {
             Keys.onEscapePressed: win.open = false
         }
 
+        Flickable {
+            anchors.fill: parent
+            anchors.margins: 12
+            clip: true
+            contentHeight: col.implicitHeight
+            boundsBehavior: Flickable.StopAtBounds
+
         ColumnLayout {
             id: col
-            anchors { top: parent.top; left: parent.left; right: parent.right; topMargin: 12; leftMargin: 18; rightMargin: 12 }
+            width: parent.width
             spacing: 0
 
             Repeater {
@@ -169,7 +213,7 @@ PanelWindow {
                             Row {
                                 id: caps
                                 anchors.verticalCenter: parent.verticalCenter
-                                width: 150
+                                width: Math.max(150, childrenRect.width)
                                 spacing: 5
 
                                 Repeater {
@@ -222,6 +266,7 @@ PanelWindow {
                     }
                 }
             }
+        }
         }
     }
 }

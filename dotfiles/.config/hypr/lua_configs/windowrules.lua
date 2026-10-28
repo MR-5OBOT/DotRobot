@@ -18,7 +18,7 @@ hl.window_rule({
 	size = "480 600",
 })
 hl.window_rule({ match = { class = "kitty" }, float = true, center = true, size = "620 360" })
-hl.window_rule({ match = { class = "^([Tt]hunar)$" }, float = true, center = true, size = "700 600" })
+hl.window_rule({ match = { class = "^(nemo)$" }, float = true, center = true, size = "700 600" })
 hl.window_rule({
 	match = { class = "hyprland-share-picker" },
 	float = true,
@@ -62,7 +62,7 @@ end
 local float_titles = {
 	"Media viewer",
 	"Volume Control",
-	"File Operation Progress",
+	"File Operations",
 }
 for _, t in ipairs(float_titles) do
 	hl.window_rule({ match = { title = "^(" .. t .. ")$" }, float = true })

@@ -7,7 +7,7 @@
 # Wayland backends / toolkit hints
 export GDK_BACKEND="wayland,x11,*"
 export QT_QPA_PLATFORM="wayland;xcb"
-export SDL_VIDEODRIVER="wayland"
+# Let SDL choose its backend; older SDL releases cannot parse driver lists.
 export MOZ_ENABLE_WAYLAND="1"
 export ELECTRON_OZONE_PLATFORM_HINT="wayland"
 export OZONE_PLATFORM="wayland"

@@ -40,7 +40,8 @@ the [ASUS router carrier database](https://github.com/RMerl/asuswrt-merlin.ng/bl
 
 The wallpaper picker and the dynamic palette use
 `dotfiles/.config/quickshell/island/scripts/wallpaper.sh`. It supports stills
-through `awww` and videos through `mpvpaper`.
+through `awww`; video wallpapers require the optional `mpvpaper` package, which
+the installer does not install.
 
 `Super+D` opens the Quickshell workspace overview on the focused monitor,
 with previews of occupied workspaces across all monitors, including 11+ on

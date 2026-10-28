@@ -86,10 +86,8 @@ Item {
         Behavior on opacity { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
 
         /**
-         * The frozen screen image every effect and the export sample from. On
-         * wlroots a ScreencopyView grabs this output directly. KWin speaks no
-         * screencopy protocol, so there the shell hands us a full-desktop PNG
-         * from spectacle and frozenPng shows this output's slice of it (the
+         * The frozen screen image every effect and the export sample from. A ScreencopyView grabs this output directly. The fallback uses a full-desktop PNG
+         * from grim and frozenPng shows this output's slice of it (the
          * sourceClipRect in device pixels is the logical geometry times the
          * capture scale). Only one is live per session; both fill the overlay,
          * so blur, pixelate, zoom, loupe and export sample the same coordinates.

@@ -274,8 +274,7 @@ PillSurface {
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
                     root.requestClose();
-                    Quickshell.execDetached(["env", "-u", "QS_CONFIG_PATH", "-u", "QS_CONFIG_NAME", "-u", "QS_MANIFEST",
-                        "qs", "ipc", "call", "powerprofile", "cycle"]);
+                    Surfaces.host.requestPowerProfile();
                 }
             }
         }

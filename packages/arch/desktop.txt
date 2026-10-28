@@ -63,9 +63,7 @@ rnote
 scrcpy
 slurp
 sound-theme-freedesktop
-speedtest-cli
 superfile
-swaybg
 synfigstudio
 telegram-desktop
 thermald
@@ -83,11 +81,9 @@ uwsm
 visidata
 vpl-gpu-rt
 webp-pixbuf-loader
-wezterm
 wine
 wiremix
 wireplumber
-wl-clip-persist
 wl-clipboard
 xdg-desktop-portal-gtk
 xdg-desktop-portal-hyprland

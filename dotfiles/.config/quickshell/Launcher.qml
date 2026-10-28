@@ -47,7 +47,7 @@ PanelWindow {
     function launch() {
         const app = matches[sel];
         if (app) {
-            app.execute();
+            Quickshell.execDetached(["uwsm", "app", "--", app.id + ".desktop"]);
             BarState.launcherOpen = false;
         }
     }

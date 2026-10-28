@@ -135,50 +135,8 @@ ShellRoot {
     readonly property string uploadEndpoint: Quickshell.env("RISHOT_UPLOAD")
         || "https://litterbox.catbox.moe/resources/internals/api.php"
 
-    /**
-     * KWin runs none of the screencopy protocols, so spotting a Plasma session lets
-     * rishot pick the spectacle backend up front instead of waiting for screencopy
-     * to time out. A lone XDG_CURRENT_DESKTOP check missed sessions whose shell is
-     * launched with a stripped or renamed environment (atomic spins like Bazzite, a
-     * systemd user unit, a distrobox whose caller had no session env), so this reads
-     * every marker Plasma leaves: the desktop trio plus the KDE_* variables
-     * startplasma exports.
-     */
-    readonly property bool envKde: {
-        function tag(v) { return (Quickshell.env(v) || "").toLowerCase(); }
-        var d = tag("XDG_CURRENT_DESKTOP") + ":" + tag("XDG_SESSION_DESKTOP") + ":" + tag("DESKTOP_SESSION");
-        return d.indexOf("kde") >= 0 || d.indexOf("plasma") >= 0
-            || (Quickshell.env("KDE_FULL_SESSION") || "") !== ""
-            || (Quickshell.env("KDE_SESSION_VERSION") || "") !== "";
-    }
-
-    /**
-     * Set by kwinProbe once the session bus confirms org.kde.KWin owns a name. The
-     * bus is shared into containers and survives a stripped environment, so this is
-     * the reliable KWin signal that env vars cannot give; onKde reads both.
-     */
-    property bool dbusKwin: false
-    readonly property bool onKde: envKde || dbusKwin
-
-    /**
-     * Capture backend. "screencopy" uses ScreencopyView, "image" shows a PNG that
-     * an external tool grabbed. KWin speaks none of the screencopy protocols
-     * ScreencopyView needs, so a detected Plasma session starts on "image"
-     * (spectacle, see grabProc). Everywhere else starts on "screencopy" and falls
-     * back to "image" when no frame ever arrives, which covers compositors whose
-     * screencopy hands back an empty surface and any KWin session that detection
-     * missed up front. kwinProbe can also flip it to "image" mid-startup the moment
-     * the bus confirms KWin. RISHOT_CAPTURE forces a backend; the value is mutable
-     * so both fallbacks can switch it at runtime. captureScale is the grabbed PNG's
-     * scale, ceil of the largest output ratio, used to crop each output out of the
-     * full-desktop shot.
-     */
-    property string captureBackend: {
-        var ov = Quickshell.env("RISHOT_CAPTURE");
-        if (ov === "image" || ov === "spectacle") return "image";
-        if (ov === "screencopy") return "screencopy";
-        return onKde ? "image" : "screencopy";
-    }
+    // Hyprland uses screencopy; grim is the fallback if no frame arrives.
+    property string captureBackend: Quickshell.env("RISHOT_CAPTURE") === "image" ? "image" : "screencopy"
     property bool fellBack: false
     readonly property real captureScale: {
         var s = Quickshell.screens, m = 1;
@@ -668,67 +626,20 @@ ShellRoot {
         onWindowsReady: (rects) => root.windowRects = rects
     }
 
-    /**
-     * Whole-desktop grab for the "image" backend. KWin authorises spectacle for its
-     * screenshot interface while wlroots needs grim, and a session can be misread
-     * (atomic spins launch the shell with a stripped environment), so this tries
-     * both tools and lets only the order follow onKde. Background and no-notify keep
-     * spectacle quiet and both leave the cursor out. The overlays stay unmapped
-     * until frozenSource is set, so neither tool catches rishot's own surface. Exit
-     * 127 means neither grab tool is installed.
-     */
     Process {
         id: grabProc
         function start() {
-            var inner =
-                "have() { command -v \"$1\" >/dev/null 2>&1; }; "
-                + "have spectacle || have grim || exit 127; "
-                + "shot_spectacle() { have spectacle && spectacle -bnf -o \"$1\" && [ -s \"$1\" ]; }; "
-                + "shot_grim() { have grim && grim \"$1\" && [ -s \"$1\" ]; }; "
-                + "if [ \"$2\" = kde ]; then shot_spectacle \"$1\" || shot_grim \"$1\"; "
-                + "else shot_grim \"$1\" || shot_spectacle \"$1\"; fi";
-            command = ["sh", "-c", inner, "_", root.frozenPng, root.onKde ? "kde" : "other"];
+            command = ["sh", "-c", "command -v grim >/dev/null 2>&1 || exit 127; grim \"$1\" && [ -s \"$1\" ]", "_", root.frozenPng];
             running = true;
         }
         onExited: (code) => {
             if (code === 0) {
                 root.captureBackend = "image";
                 root.frozenSource = "file://" + root.frozenPng;
-                return;
-            }
-            if (code === 127)
-                root.finish("rishot could not capture the screen",
-                    "no screen-grab tool available; re-run the rishot installer to set it up", true, "");
-            else
+            } else if (code === 127) {
+                root.finish("rishot could not capture the screen", "grim is not installed", true, "");
+            } else {
                 root.finish("Capture failed", "screen grab exited " + code, true, "");
-        }
-    }
-
-    /**
-     * Reliable KWin check the environment cannot give. The session bus is shared into
-     * containers and survives a stripped login, so asking it whether org.kde.KWin owns
-     * a name finds KWin wherever rishot runs. It fires only when the env hint missed
-     * KDE; a positive reply switches to the spectacle grab at once instead of waiting
-     * out the screencopy timeout. dbus-send ships with the bus every GUI session needs,
-     * so a missing tool just leaves the timeout fallback in charge.
-     */
-    Process {
-        id: kwinProbe
-        stdout: StdioCollector { id: kwinOut }
-        command: ["dbus-send", "--session", "--print-reply", "--type=method_call",
-            "--dest=org.freedesktop.DBus", "/org/freedesktop/DBus",
-            "org.freedesktop.DBus.NameHasOwner", "string:org.kde.KWin"]
-        onExited: (code) => {
-            if (code !== 0 || kwinOut.text.indexOf("true") < 0) return;
-            /** Snapshot before the dbusKwin write: setting it re-evaluates the
-             *  captureBackend binding to "image" at once, so reading the guard
-             *  afterwards would always miss and the grab would never start. */
-            var needGrab = root.captureBackend === "screencopy" && root.frozenSource === "" && !root.fellBack;
-            root.dbusKwin = true;
-            if (needGrab) {
-                root.fellBack = true;
-                root.captureBackend = "image";
-                grabProc.start();
             }
         }
     }
@@ -736,7 +647,6 @@ ShellRoot {
     Component.onCompleted: {
         windowProvider.refresh();
         if (root.captureBackend === "image") grabProc.start();
-        else kwinProbe.running = true;
     }
 
     Process {

@@ -1,6 +1,5 @@
 devify
 helium-browser-bin
-mpvpaper
 open-tv-bin
 ventoy-bin
 vesktop-git
