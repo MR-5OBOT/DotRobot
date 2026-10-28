@@ -16,6 +16,7 @@ ShellRoot {
     IslandShell.Island {
         id: island
         onRequestNotifications: monitor => notifications.toggle(monitor)
+        onRequestPowerProfile: powerProfile.cycle()
         widgetDrops: {
             const drops = {};
             for (const widget of [launcher, clipboard, calc, powerProfile, keymaps]) {

@@ -98,8 +98,18 @@ Singleton {
             tempNow: root.tempNow,
             codeNow: root.codeNow,
             isDay: root.isDay,
+            daily: root.daily,
             ts: Date.now()
         }));
+    }
+
+    function pruneDaily() {
+        var today = Qt.formatDate(new Date(), "yyyy-MM-dd");
+        var days = root.daily.filter(function(day) {
+            return typeof day.date === "string" && day.date >= today;
+        });
+        if (days.length !== root.daily.length)
+            root.daily = days;
     }
 
     /**
@@ -113,6 +123,16 @@ Singleton {
                 root.tempNow = c.tempNow || 0;
                 root.codeNow = c.codeNow;
                 root.isDay = c.isDay !== false;
+                root.daily = Array.isArray(c.daily) ? c.daily.map(function(day, index) {
+                    if (typeof day.date === "string")
+                        return day;
+                    var date = new Date(c.ts);
+                    if (isNaN(date.getTime()))
+                        return day;
+                    date.setDate(date.getDate() + index);
+                    return Object.assign({}, day, { date: Qt.formatDate(date, "yyyy-MM-dd") });
+                }) : [];
+                root.pruneDaily();
                 root.ready = true;
             }
         } catch (e) {}
@@ -171,8 +191,27 @@ Singleton {
 
     /** Resolve coordinates through GeoClue (IP lookup as the fallback). */
     function locate() {
-        if (root.needed && !geoclueProc.running)
-            geoclueProc.running = true;
+        if (root.needed && !geoclueProc.running && !locationDelay.running) {
+            agentProc.running = true;
+            locationDelay.start();
+        }
+    }
+
+    Process {
+        id: agentProc
+        // Linux PR_SET_PDEATHSIG stops our agent even if Quickshell crashes.
+        command: ["sh", "-c", "a=/usr/lib/geoclue-2.0/demos/agent; [ -x \"$a\" ] && ! pgrep -f \"^$a\" >/dev/null || exit 0; "
+            + "exec python3 -c 'import ctypes, os, signal, sys\n"
+            + "parent = os.getppid()\n"
+            + "if parent <= 1 or ctypes.CDLL(None).prctl(1, signal.SIGTERM) != 0 or os.getppid() != parent:\n"
+            + "    sys.exit(1)\n"
+            + "os.execv(sys.argv[1], sys.argv[1:])' \"$a\" >/dev/null 2>&1"]
+    }
+
+    Timer {
+        id: locationDelay
+        interval: 1000
+        onTriggered: geoclueProc.running = true
     }
 
     /**
@@ -186,13 +225,13 @@ Singleton {
     Process {
         id: geoclueProc
         command: ["sh", "-c",
-            "w=/usr/lib/geoclue-2.0/demos/where-am-i; a=/usr/lib/geoclue-2.0/demos/agent; " +
+            "w=/usr/lib/geoclue-2.0/demos/where-am-i; " +
             "[ -x \"$w\" ] || exit 0; " +
-            "pgrep -f \"^$a\" >/dev/null || { setsid -f \"$a\" >/dev/null 2>&1 < /dev/null; sleep 1; }; " +
             "timeout 40 \"$w\" -t 30 -a 8 2>/dev/null | awk -F': *' '" +
             "/^Latitude/ { lat = $2 + 0 } /^Longitude/ { lon = $2 + 0 } " +
             "/^Accuracy/ { acc = $2 + 0; if (best == \"\" || acc < best) { best = acc; blat = lat; blon = lon } } " +
             "END { if (best != \"\") printf \"%.6f %.6f %d\\n\", blat, blon, best }'"]
+        onExited: agentProc.running = false
         stdout: StdioCollector {
             onStreamFinished: {
                 var f = this.text.trim().split(/\s+/);
@@ -287,6 +326,7 @@ Singleton {
                         for (var j = 0; j < m; j++) {
                             days.push({
                                 // "T00:00" reads the date as local midnight; a bare "YYYY-MM-DD" is UTC and lands a day early west of it
+                                date: dd.time[j],
                                 day: dn[new Date(dd.time[j] + "T00:00").getDay()],
                                 code: dd.weather_code[j],
                                 temp: Math.round(dd.temperature_2m_max[j])
@@ -302,6 +342,13 @@ Singleton {
                 } catch (e) {}
             }
         }
+    }
+
+    Timer {
+        interval: 60000
+        running: root.daily.length > 0
+        repeat: true
+        onTriggered: root.pruneDaily()
     }
 
     Timer {

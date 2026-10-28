@@ -19,7 +19,7 @@ local LOCK = os.getenv("HOME") .. "/.config/quickshell/island/scripts/lock.sh"
 hl.bind("ALT + L", hl.dsp.exec_cmd(LOCK))
 
 -- Application Launchers
-hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd("[float]kitty"))
+hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd("uwsm app -- kitty"))
 hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("qs ipc call launcher toggle"))
 hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("pkill -x qs; " .. QS)) -- restart quickshell (island included)
 hl.bind(mainMod .. " + X", hl.dsp.exec_cmd(ISLAND .. ' power ""'))
@@ -28,7 +28,7 @@ hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("qs ipc call workspaces toggle"))
 hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("qs ipc call clipboard toggle"))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("qs ipc call notifications toggle"))
 hl.bind(mainMod .. " + T", hl.dsp.exec_cmd(ISLAND .. ' calendar ""'))
-hl.bind(mainMod .. " + I", hl.dsp.exec_cmd("nm-connection-editor")) -- Wi-Fi lives in nm-applet's tray icon
+hl.bind(mainMod .. " + I", hl.dsp.exec_cmd("uwsm app -- nm-connection-editor")) -- Wi-Fi lives in nm-applet's tray icon
 hl.bind(mainMod .. " + equal", hl.dsp.exec_cmd("qs ipc call calc toggle"))
 hl.bind(mainMod .. " + slash", hl.dsp.exec_cmd("qs ipc call keymaps toggle")) -- keymap cheat sheet
 hl.bind("XF86Calculator", hl.dsp.exec_cmd("qs ipc call calc toggle"))

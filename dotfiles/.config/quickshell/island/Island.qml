@@ -31,6 +31,7 @@ Scope {
     property string openSurface: ""
     property string peekMon: ""
     signal requestNotifications(string monitor)
+    signal requestPowerProfile()
 
     /** Bottom edge of an open widget notch, keyed by its monitor. Set by shell.qml. */
     property var widgetDrops: ({})
@@ -53,6 +54,7 @@ Scope {
     Component.onCompleted: {
         refresh();
         void Events.events;   // singletons load lazily; calendar reminders must run with the calendar closed
+        void Walls.shown;     // same for the wallpaper file watcher
         Surfaces.host = root;
     }
 

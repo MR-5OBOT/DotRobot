@@ -218,9 +218,25 @@ palette_update() {
     fi
 }
 
+if [ "${1:-}" = "restore" ]; then
+    [ -s "$MAP" ] || exit 0
+    for _ in {1..20}; do
+        if [ -n "$(outputs || true)" ]; then
+            sync_videos
+            exit 0
+        fi
+        sleep 0.25
+    done
+    exit 1
+fi
+
 [ "${1:-}" = "set" ] || { echo "usage: wallpaper.sh set <file> [output|all]" >&2; exit 2; }
 pic="${2:-}"
 [ -f "$pic" ] || exit 1
+if is_video "$pic" && ! command -v mpvpaper >/dev/null 2>&1; then
+    printf 'Video wallpapers are unavailable: mpvpaper is not installed.\n' >&2
+    exit 69
+fi
 target="${3:-}"
 [ "$target" = "all" ] && target=""
 

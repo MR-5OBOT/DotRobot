@@ -40,10 +40,10 @@ PillSurface {
 
     /**
      * Uptime is read directly rather than by holding Sysmon open: that flag arms
-     * two 1s pollers that spawn a shell per tick for cpu/mem/net, and
+     * two 2s pollers that spawn a shell per tick for cpu/mem/net, and
      * this card only shows uptime, which moves once a minute. Since a click on
      * the notch now opens this surface, pinning those pollers would have cost a
-     * shell spawn every second for the whole time the panel is up.
+     * shell spawn every two seconds for the whole time the panel is up.
      */
     onActiveChanged: if (root.active) root.readIdentity()
 
@@ -264,7 +264,7 @@ PillSurface {
                 RailBtn { glyph: "mixer";     tip: "Mixer";     onActivated: root.requestSurface("mixer") }
                 RailBtn { glyph: "calendar";  tip: "Calendar";  onActivated: root.requestSurface("calendar") }
                 RailBtn { glyph: "inbox";     tip: "Notifications"; onActivated: root.requestSurface("link") }
-                RailBtn { glyph: "bluetooth"; tip: "Bluetooth"; onActivated: { root.requestClose(); Quickshell.execDetached(["blueman-manager"]); } }
+                RailBtn { glyph: "bluetooth"; tip: "Bluetooth"; onActivated: { root.requestClose(); Quickshell.execDetached(["uwsm", "app", "--", "blueman-manager"]); } }
                 RailBtn {
                     glyph: "battery"
                     battery: true

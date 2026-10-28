@@ -6,10 +6,10 @@ if (( EUID != 0 )); then
   exit 1
 fi
 source_dir=$(cd -- "$(dirname -- "$0")/../assets/grub/obsidian" && pwd)
-[[ -s /boot/EFI/Linux/arch-linux.efi ]]
-[[ -x /etc/grub.d/15_uki ]]
-[[ -s "$source_dir/theme.txt" && -s "$source_dir/mono.pf2" && -s "$source_dir/title.pf2" ]]
-[[ -s "$source_dir/background.png" && -s "$source_dir/frame.png" ]]
+for file in /boot/EFI/Linux/arch-linux.efi "$source_dir/theme.txt" "$source_dir/mono.pf2" "$source_dir/title.pf2" "$source_dir/background.png" "$source_dir/frame.png"; do
+  [[ -s "$file" ]] || { printf "Missing or empty required file: %s\n" "$file" >&2; exit 1; }
+done
+[[ -x /etc/grub.d/15_uki ]] || { printf "Missing or non-executable: /etc/grub.d/15_uki\n" >&2; exit 1; }
 
 backup=$(mktemp -d /root/grub-obsidian-backup.XXXXXXXX)
 cp -p /etc/default/grub /etc/grub.d/00_header /etc/grub.d/10_linux /boot/grub/grub.cfg "$backup/"
@@ -49,9 +49,9 @@ printf '\nGRUB_THEME=/boot/grub/themes/obsidian/theme.txt\nGRUB_DISABLE_BOOTNEXT
 
 grub-mkconfig -o "$candidate"
 grub-script-check "$candidate"
-grep -Eq '^[[:space:]]*uki([[:space:]]|$)' "$candidate"
-grep -Fq 'Windows Boot Manager' "$candidate"
-grep -Fq '/grub/themes/obsidian/theme.txt' "$candidate"
+grep -Eq '^[[:space:]]*uki([[:space:]]|$)' "$candidate" || { printf 'Generated menu has no UKI entry.\n' >&2; false; }
+grep -Fq 'Windows Boot Manager' "$candidate" || { printf 'Generated menu has no Windows Boot Manager entry.\n' >&2; false; }
+grep -Fq '/grub/themes/obsidian/theme.txt' "$candidate" || { printf 'Generated menu does not reference the Obsidian theme.\n' >&2; false; }
 if grep -Eq 'gnulinux-simple-|gnulinux-advanced-|efi-bootnext-|/themes/minegrub/' "$candidate"; then
   printf 'Unexpected entries or old theme references; keeping the existing menu.\n' >&2
   false
