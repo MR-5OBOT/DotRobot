@@ -21,8 +21,8 @@ hl.curve("almostLinear",    { type = "bezier", points = { {0.5, 0.5},   {0.75, 1
 hl.curve("quick",           { type = "bezier", points = { {0.15, 0},    {0.1, 1}     } })
 
 -- Spring curves (0.57+)
--- snap:   tiny overshoot, lands almost instantly — for opening/focus changes
--- swift:  critically damped, no bounce — for moves, where lag is felt
+-- snap:   tiny overshoot, lands almost instantly — for scratchpad drops
+-- swift:  critically damped, no bounce — for moves and window open/close
 -- settle: soft landing — for closes, so nothing snaps out of existence
 hl.curve("snap",   { type = "spring", mass = 0.6, stiffness = 480, damping = 30 })
 hl.curve("swift",  { type = "spring", mass = 1.0, stiffness = 260, damping = 30 })
@@ -32,8 +32,11 @@ hl.curve("settle", { type = "spring", mass = 1.0, stiffness = 190, damping = 26 
 hl.animation({ leaf = "global",        enabled = true,  speed = 8,    bezier = "default"      })
 hl.animation({ leaf = "border",        enabled = true,  speed = 5,    bezier = "easeOutQuint" })
 hl.animation({ leaf = "windows",       enabled = true,  speed = 6,    spring = "snap"         })
-hl.animation({ leaf = "windowsIn",     enabled = true,  speed = 5.5,  spring = "snap",   style = "popin 90%" })
-hl.animation({ leaf = "windowsOut",    enabled = true,  speed = 4.5,  spring = "settle", style = "popin 90%" })
+-- Windows rise/fade in instead of scaling. Workspaces move horizontally, windows
+-- vertically, so the two motions never read as the same gesture. No overshoot:
+-- `swift` is critically damped, and nothing scales, so text never blurs mid-open.
+hl.animation({ leaf = "windowsIn",     enabled = true,  speed = 6.5,  spring = "swift",  style = "slidefadevert" })
+hl.animation({ leaf = "windowsOut",    enabled = true,  speed = 6,    spring = "swift",  style = "slidefadevert" })
 hl.animation({ leaf = "windowsMove",   enabled = true,  speed = 9,    spring = "swift"        })
 hl.animation({ leaf = "fadeIn",        enabled = true,  speed = 5,    bezier = "almostLinear" })
 hl.animation({ leaf = "fadeOut",       enabled = true,  speed = 4.5,  bezier = "almostLinear" })
