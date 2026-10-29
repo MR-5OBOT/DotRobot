@@ -12,7 +12,7 @@ export MOZ_ENABLE_WAYLAND="1"
 export ELECTRON_OZONE_PLATFORM_HINT="wayland"
 export OZONE_PLATFORM="wayland"
 
-# Qt theming: widgets via qt6ct (Qt6) / qt5ct (Qt5), palette colors/paradise.conf.
+# Qt theming: widgets via qt6ct (Qt6) / qt5ct (Qt5), palette colors/mr5obot-scheme.conf.
 # QML apps (e.g. hyprpolkitagent) use the Fusion QML style, which follows that palette.
 export QT_QPA_PLATFORMTHEME="qt6ct"
 export QT_QUICK_CONTROLS_STYLE="Fusion"
@@ -25,4 +25,4 @@ export XCURSOR_SIZE="26"
 
 # GTK theme name (dark mode for libadwaita/GTK comes from the xdg-desktop-portal
 # + gsettings color-scheme, which now works once uwsm starts graphical-session.target)
-export GTK_THEME="paradise"
+export GTK_THEME="mr5obot-scheme"

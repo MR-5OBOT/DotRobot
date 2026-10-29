@@ -1,3 +1,7 @@
+@define-color theme_bg_color #101010;
+@define-color theme_fg_color #E8E3E3;
+@define-color theme_base_color #101010;
+@define-color theme_text_color #E8E3E3;
 @define-color borders #121212;
 @define-color theme_selected_bg_color #702645;
 @define-color theme_selected_fg_color #E8E3E3;

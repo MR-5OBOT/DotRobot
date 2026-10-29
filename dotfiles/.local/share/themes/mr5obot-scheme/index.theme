@@ -1,12 +1,12 @@
 [Desktop Entry]
 Type=X-GNOME-Metatheme
-Name=paradise
-Comment=the paradise theme
+Name=mr5obot-scheme
+Comment=the mr5obot-scheme theme
 Encoding=UTF-8
 
 [X-GNOME-Metatheme]
-GtkTheme=paradise
-MetacityTheme=paradise
+GtkTheme=mr5obot-scheme
+MetacityTheme=mr5obot-scheme
 IconTheme=gnome
 CursorTheme=DMZ-Black
 ButtonLayout=menu:minimize,maximize,close

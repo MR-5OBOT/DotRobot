@@ -29,6 +29,7 @@ main() {
   link_children "${DOTFILES_DIR}/.local/bin" "${HOME}/.local/bin"
   link_children "${DOTFILES_DIR}/.local/share/applications" "${HOME}/.local/share/applications"
   link_children "${DOTFILES_DIR}/.local/share/themes" "${HOME}/.local/share/themes"
+  link_children "${DOTFILES_DIR}/.local/share/color-schemes" "${HOME}/.local/share/color-schemes"
 
   mkdir -p "${icons_dir}"
   fetch_release_asset SylEleuth/gruvbox-plus-icon-pack v6.2.0 \
