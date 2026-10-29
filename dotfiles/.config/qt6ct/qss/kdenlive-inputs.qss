@@ -1,0 +1,4 @@
+/* Kdenlive's effect fields: override only the fill, preserving native drawing. */
+QSpinBox#dragBox, QDoubleSpinBox#dragBox {
+    background-color: #141414;
+}

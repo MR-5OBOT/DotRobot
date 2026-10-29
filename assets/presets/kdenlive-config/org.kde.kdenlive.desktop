@@ -3,7 +3,7 @@ Name=Kdenlive
 GenericName=Video Editor
 Comment=Nonlinear video editor by KDE
 Type=Application
-Exec=env QT_QUICK_CONTROLS_STYLE=org.kde.desktop kdenlive %F
+Exec=kdenlive-themed %F
 Icon=kdenlive
 StartupWMClass=kdenlive
 X-DocPath=kdenlive/index.html
