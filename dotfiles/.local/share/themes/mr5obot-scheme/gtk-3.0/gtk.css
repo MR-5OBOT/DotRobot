@@ -3,9 +3,9 @@
 @define-color theme_base_color #101010;
 @define-color theme_text_color #E8E3E3;
 @define-color borders #121212;
-@define-color theme_selected_bg_color #702645;
+@define-color theme_selected_bg_color #5e203b;
 @define-color theme_selected_fg_color #E8E3E3;
-@define-color selected_bg_color #702645;
+@define-color selected_bg_color #5e203b;
 @define-color selected_fg_color #E8E3E3;
 window.background.chromium {
   background: #1d1d1d;
@@ -86,7 +86,7 @@ window.nautilus-window .nautilus-canvas-item {
   border-radius: 0.2em;
 }
 window.nautilus-window .nautilus-canvas-item:selected, window.nautilus-window .nautilus-canvas-item:active {
-  background: rgba(112, 38, 69, 0.6);
+  background: rgba(94, 32, 59, 0.6);
 }
 window.nautilus-window .floating-bar {
   background: #121212;
@@ -145,10 +145,10 @@ window.nautilus-window .operations-list row {
   margin: -0.1em;
 }
 .nemo-window .nemo-window-pane :selected {
-  background: rgba(112, 38, 69, 0.6);
+  background: rgba(94, 32, 59, 0.6);
 }
 .nemo-window .nemo-window-pane :active {
-  background: rgba(112, 38, 69, 0.6);
+  background: rgba(94, 32, 59, 0.6);
 }
 
 actionbar {
@@ -170,7 +170,7 @@ button:disabled {
   opacity: 0.55;
 }
 button:checked, button.suggested-action {
-  background: rgba(112, 38, 69, 0.6);
+  background: rgba(94, 32, 59, 0.6);
   color: rgba(232, 227, 227, 0.87);
 }
 button:checked:hover:not(:active), button.suggested-action:hover:not(:active) {
@@ -244,7 +244,7 @@ calendar.highlight {
 calendar:selected {
   color: #E8E3E3;
   border-radius: 0.2em;
-  background: #702645;
+  background: #5e203b;
 }
 calendar:indeterminate {
   color: rgba(232, 227, 227, 0.14);
@@ -268,9 +268,9 @@ check:active, check:checked {
   background: rgba(232, 227, 227, 0.06);
 }
 check:checked {
-  background: #702645;
+  background: #5e203b;
   -gtk-icon-transform: scale(1);
-  border-color: #702645;
+  border-color: #5e203b;
 }
 check:checked:active {
   background: transparent;
@@ -289,7 +289,7 @@ combobox entry {
   border-bottom-right-radius: 0;
 }
 combobox entry:focus + button {
-  border: 0em solid rgba(112, 38, 69, 0.8);
+  border: 0em solid rgba(94, 32, 59, 0.8);
   border-left: 0;
   margin-right: -0em;
 }
@@ -355,7 +355,7 @@ entry {
   background-clip: padding-box;
 }
 entry:focus {
-  border-color: rgba(112, 38, 69, 0.8);
+  border-color: rgba(94, 32, 59, 0.8);
 }
 entry:disabled {
   opacity: 0.55;
@@ -368,7 +368,7 @@ entry image.right {
 }
 entry selection {
   color: rgba(232, 227, 227, 0.87);
-  background: rgba(112, 38, 69, 0.6);
+  background: rgba(94, 32, 59, 0.6);
 }
 .linked.horizontal entry:not(:first-child) {
   border-top-left-radius: 0;
@@ -454,7 +454,7 @@ iconview {
 }
 iconview:selected {
   color: #E8E3E3;
-  background: #702645;
+  background: #5e203b;
   border-radius: 0.5em;
 }
 
@@ -464,7 +464,7 @@ infobar {
   background: #121212;
 }
 infobar.info {
-  background: rgba(112, 38, 69, 0.6);
+  background: rgba(94, 32, 59, 0.6);
 }
 infobar.warning {
   background: rgba(217, 188, 140, 0.6);
@@ -473,14 +473,14 @@ infobar.error {
   background: rgba(182, 100, 103, 0.6);
 }
 infobar.question {
-  background: rgba(112, 38, 69, 0.6);
+  background: rgba(94, 32, 59, 0.6);
 }
 
 label.dim-label, label:disabled {
   opacity: 0.55;
 }
 label selection {
-  background: #702645;
+  background: #5e203b;
   color: rgba(255, 255, 255, 0.87);
 }
 
@@ -489,7 +489,7 @@ levelbar trough block {
   border-radius: 3px;
 }
 levelbar trough block.filled {
-  background: #702645;
+  background: #5e203b;
 }
 levelbar trough block.empty {
   background: #151515;
@@ -589,7 +589,7 @@ placessidebar list row:active {
   background: rgba(232, 227, 227, 0.14);
 }
 placessidebar list row:selected {
-  background: rgba(112, 38, 69, 0.6);
+  background: rgba(94, 32, 59, 0.6);
 }
 placessidebar list row .sidebar-icon {
   margin-right: 0.6em;
@@ -621,7 +621,7 @@ progressbar trough {
   background: rgba(232, 227, 227, 0.06);
 }
 progressbar trough progress {
-  background: #702645;
+  background: #5e203b;
 }
 
 radio {
@@ -643,8 +643,8 @@ radio:active, radio:checked {
 }
 radio:checked {
   -gtk-icon-transform: scale(1);
-  border-color: #702645;
-  background: #702645;
+  border-color: #5e203b;
+  background: #5e203b;
 }
 
 radiobutton label {
@@ -674,7 +674,7 @@ revealer.left frame.app-notification border {
 
 rubberband, .rubberband {
   background-color: rgba(232, 227, 227, 0.06);
-  border: 0em solid rgba(112, 38, 69, 0.6);
+  border: 0em solid rgba(94, 32, 59, 0.6);
 }
 
 scale {
@@ -690,7 +690,7 @@ scale contents trough slider {
   border-radius: 100%;
 }
 scale contents trough highlight {
-  background: #702645;
+  background: #5e203b;
 }
 scale marks mark {
   padding-top: 5px;
@@ -717,7 +717,7 @@ scrollbar slider:hover {
   background: rgba(232, 227, 227, 0.14);
 }
 scrollbar slider:active {
-  background: #702645;
+  background: #5e203b;
 }
 
 separator {
@@ -738,7 +738,7 @@ spinbutton button {
   border: 0em solid transparent;
 }
 spinbutton:focus button {
-  border-color: rgba(112, 38, 69, 0.8);
+  border-color: rgba(94, 32, 59, 0.8);
 }
 spinbutton:focus button:hover {
   background-clip: padding-box;
@@ -833,10 +833,10 @@ switch :nth-child(3) {
   color: rgba(232, 227, 227, 0.34);
 }
 switch:checked {
-  background: rgba(112, 38, 69, 0.3);
+  background: rgba(94, 32, 59, 0.3);
 }
 switch:checked slider {
-  background: rgba(112, 38, 69, 0.8);
+  background: rgba(94, 32, 59, 0.8);
 }
 switch:checked :nth-child(2) {
   color: rgba(232, 227, 227, 0.87);
@@ -851,7 +851,7 @@ switch:hover slider {
   box-shadow: 0 0 0 0.3em rgba(232, 227, 227, 0.14);
 }
 switch:hover:checked slider {
-  box-shadow: 0 0 0 0.3em rgba(112, 38, 69, 0.3);
+  box-shadow: 0 0 0 0.3em rgba(94, 32, 59, 0.3);
 }
 
 tabs {
@@ -890,7 +890,7 @@ tabs tab {
   color: rgba(232, 227, 227, 0.34);
 }
 header tabs tab:checked {
-  border-color: rgba(112, 38, 69, 0.6);
+  border-color: rgba(94, 32, 59, 0.6);
   color: rgba(232, 227, 227, 0.87);
 }
 header tabs tab:hover:not(:checked) {
@@ -906,7 +906,7 @@ textview:disabled {
   opacity: 0.55;
 }
 textview selection {
-  background: rgba(112, 38, 69, 0.6);
+  background: rgba(94, 32, 59, 0.6);
   color: #E8E3E3;
 }
 
@@ -946,7 +946,7 @@ treeview:hover {
   background: rgba(232, 227, 227, 0.06);
 }
 treeview:selected {
-  background: #702645;
+  background: #5e203b;
   color: #E8E3E3;
 }
 treeview header button {
