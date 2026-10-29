@@ -89,6 +89,11 @@ hl.window_rule({
 -- tiled windows. Shadow colours match the old border colours.
 hl.window_rule({ match = { float = false }, no_shadow = true })
 
+-- Floating windows already get a shadow; glow on top of it reads as a giant
+-- halo around dialogs (file pickers, OBS properties). Keep glow for tiled
+-- windows only, where it is the focus cue.
+hl.window_rule({ match = { float = true }, no_glow = true })
+
 -- Animation opt-outs: precision tools and video players get no wobble and no
 -- glow, so dragging a mask/playhead or resizing a preview stays predictable.
 local calm_classes = {

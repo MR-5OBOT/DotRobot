@@ -42,10 +42,10 @@ hl.config({
         -- the QS accent; kept low-alpha so it reads as light, not a border.
         glow = {
             enabled = true,
-            range = 16,
-            render_power = 2,
-            color = 0x38ff6a3d,
-            color_inactive = 0x14ff6a3d,
+            range = 8,
+            render_power = 3,
+            color = 0x28ff6a3d,
+            color_inactive = 0x0aff6a3d,
         },
     },
     group = {
