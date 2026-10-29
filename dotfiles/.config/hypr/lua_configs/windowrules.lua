@@ -88,3 +88,22 @@ hl.window_rule({
 -- Shadows on floating windows only: decoration.shadow is on, this strips it from
 -- tiled windows. Shadow colours match the old border colours.
 hl.window_rule({ match = { float = false }, no_shadow = true })
+
+-- Animation opt-outs: precision tools and video players get no wobble and no
+-- glow, so dragging a mask/playhead or resizing a preview stays predictable.
+local calm_classes = {
+	"org[.]kde[.]kdenlive",
+	"kdenlive",
+	"org[.]kde[.]krita",
+	"krita",
+	"org[.]blender[.]blender",
+	"blender",
+	"gimp.*",
+	"org[.]obsproject[.]Studio",
+	"obs",
+	"mpv",
+	"vlc",
+}
+for _, cls in ipairs(calm_classes) do
+	hl.window_rule({ match = { class = "^(" .. cls .. ")$" }, no_wobble = true, no_glow = true })
+end

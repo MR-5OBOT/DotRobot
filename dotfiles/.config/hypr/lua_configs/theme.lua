@@ -24,7 +24,29 @@ hl.config({
             render_power = 3,
             color = 0xff4e1a30,
             color_inactive = 0xff33101e
-        }
+        },
+        -- Compiz-style ripple while moving/resizing. Stock intensity is 0.2;
+        -- 0.35 is clearly visible on the 240Hz screen without turning precise
+        -- drags into guesswork. Apps that need pixel accuracy opt out via
+        -- `no_wobble` in windowrules.lua.
+        wobble = {
+            enabled = true,
+            mesh = 20,
+            stiffness = 260,
+            damping = 26,
+            mass = 1.0,
+            intensity = 0.35,
+        },
+        -- Active-window bloom. With border_size = 0 and shadows stripped from
+        -- tiled windows, this doubles as the focus cue. Warm vermilion to match
+        -- the QS accent; kept low-alpha so it reads as light, not a border.
+        glow = {
+            enabled = true,
+            range = 16,
+            render_power = 2,
+            color = 0x38ff6a3d,
+            color_inactive = 0x14ff6a3d,
+        },
     },
     group = {
         groupbar = {
