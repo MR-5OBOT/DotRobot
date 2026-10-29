@@ -95,6 +95,7 @@ main() {
 
   if command -v kwriteconfig6 >/dev/null 2>&1; then
     kwriteconfig6 --file kdeglobals --group General --key ColorScheme mr5obot-scheme
+    kwriteconfig6 --file kdeglobals --group Icons --key Theme "${icon_theme}"
     kwriteconfig6 --file dolphinrc --group UiSettings --key ColorScheme mr5obot-scheme
     log "KDE color scheme set to mr5obot-scheme"
   fi

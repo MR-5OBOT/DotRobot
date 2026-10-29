@@ -123,7 +123,7 @@ accentColor=94,32,59
 shadeSortColumn=true
 
 [KDE]
-contrast=7
+contrast=0
 
 [WM]
 activeBackground=26,26,26
