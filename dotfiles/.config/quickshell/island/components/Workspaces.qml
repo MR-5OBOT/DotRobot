@@ -12,11 +12,8 @@ import "../Singletons"
  * Clicking a dot focuses that workspace (Hyprland workspace dispatcher). Active
  * marker tracks the monitor's live active workspace name.
  *
- * The dot range unions this monitor's workspace rules ([[Workspacerules]]) with
- * the workspaces Hyprland currently has on it, so a rule-driven setup (e.g.
- * monitors.lua splitting 1-5 / 6-10 across two screens) always shows every
- * assigned dot while a workspace outside the rules (r+1 past the last ruled
- * one) still appears instead of vanishing from the strip.
+ * Only this monitor's workspaces that hold windows get a dot, plus the active
+ * one; empty (even rule-persistent) workspaces stay hidden.
  *
  * The workspace list and active workspace come from the shared hyprctl
  * snapshot in [[Monitors]] (monitors -j / workspaces -j) rather than the
@@ -79,20 +76,10 @@ Item {
     function rebuild() {
         var out = [];
         var seen = ({});
-        var ruled = Workspacerules.byMonitor[screenName];
-        if (ruled && ruled.length) {
-            for (var r = 0; r < ruled.length; r++) {
-                if (!seen[ruled[r]]) {
-                    seen[ruled[r]] = true;
-                    out.push(ruled[r]);
-                }
-            }
-        }
-
         var wss = workspaces.wsList;
         for (var i = 0; i < wss.length; i++) {
             var w = wss[i];
-            if (w && w.id >= 1 && w.monitor === screenName && !seen[w.id]) {
+            if (w && w.id >= 1 && w.monitor === screenName && workspaces.occupied[w.id] && !seen[w.id]) {
                 seen[w.id] = true;
                 out.push(w.id);
             }
@@ -145,11 +132,6 @@ Item {
     Connections {
         target: Monitors
         function onUpdated() { workspaces.sync() }
-    }
-
-    Connections {
-        target: Workspacerules
-        function onByMonitorChanged() { workspaces.rebuild() }
     }
 
     implicitWidth: row.implicitWidth
