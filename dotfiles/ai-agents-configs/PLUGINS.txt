@@ -1,0 +1,33 @@
+PLUGINS I ACTUALLY USE
+======================
+Only third-party stuff. Built-in tools/skills are not listed here.
+
+Superpowers  (obra/superpowers) -- the big one: brainstorming, planning,
+  TDD, debugging, code review, worktrees. Used in ALL three agents.
+Ponytail      (DietrichGebert/ponytail) -- statusline + hooks + session
+  niceties. Used in Claude and Codex.
+opencode-antigravity-auth -- Google Antigravity models for OpenCode.
+Ad Superpowers -- Codex app plugin, ad platform connectors (Meta/Google/
+  LinkedIn/TikTok ads + GA4/GSC/GTM). Only in Codex.
+
+WHERE THEY LIVE
+---------------
+Claude Code : ~/.claude/settings.json          -> "enabledPlugins"
+              ~/.claude/plugins/installed_plugins.json (versions)
+              ponytail 4.10.0, superpowers 7.0.0 + 7.0.1  (dupe, keep 7.0.1)
+Codex       : ~/.codex/config.toml             -> [plugins."name@market"]
+              ponytail 5.3.3, Ad Superpowers 2.3.0
+OpenCode    : ~/.config/opencode/opencode.jsonc -> "plugins" array
+              opencode-antigravity-auth 2.1.1, superpowers 7.0.1
+              cache: ~/.cache/opencode/npm/
+
+NOTES FOR FUTURE AGENTS
+-----------------------
+- Superpowers is the default workflow layer. Load its skills before
+  planning or debugging; don't reinvent the process.
+- Claude has two superpowers packages enabled at once. That is a
+  duplicate install, not a feature. Prefer superpowers-marketplace 7.0.1.
+- Plugins != skills. Skills live in ~/.claude/skills, ~/.codex/skills
+  and are separate from these plugin bundles.
+- Don't add a plugin to only one agent if it is meant to be shared;
+  mirror it across all three where an equivalent exists.
