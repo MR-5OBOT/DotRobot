@@ -5,7 +5,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
 # Claude Code reads its user config from CLAUDE_CONFIG_DIR, falling back to ~/.claude.
 CLAUDE_DIR="${CLAUDE_CONFIG_DIR:-${HOME}/.claude}"
-CLAUDE_DOTFILES="${DOTFILES_DIR}/.claude"
+CLAUDE_DOTFILES="${DOTFILES_DIR}/ai-agents-configs"
 SETTINGS_FILE="${CLAUDE_DIR}/settings.json"
 STATUSLINE_SCRIPT="statusline-command.sh"
 
