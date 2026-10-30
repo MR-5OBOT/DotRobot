@@ -225,7 +225,7 @@ Item {
 
     readonly property real hoverPad: 20 * s
     readonly property real hoverW: hoverRow.implicitWidth + 2 * hoverPad
-    readonly property real hoverH: 50 * s
+    readonly property real hoverH: 40 * s
     readonly property real calendarS: s * 1.05
     readonly property real homeW: 620 * s
     /* Tall enough for the left column's real content: media card 118 + gap 9 +
