@@ -1,5 +1,11 @@
 -- Window Rules
 
+hl.layer_rule({
+	name = "no-anim-awww",
+	match = { namespace = "^awww-daemon$" },
+	no_anim = true,
+})
+
 -- Workspace assignments
 hl.window_rule({ match = { class = "^(helium)$" }, workspace = 1 })
 hl.window_rule({ match = { class = "kitty" }, workspace = 2 })
