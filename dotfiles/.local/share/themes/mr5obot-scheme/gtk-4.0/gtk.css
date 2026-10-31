@@ -37,3 +37,19 @@
 
 /* borders */
 @define-color borders            rgba(232, 227, 227, 0.10);
+
+checkbutton check, checkbutton radio, entry {
+  border: 1px solid #787477;
+}
+checkbutton check:hover, checkbutton radio:hover {
+  border-color: #aaa4a7;
+}
+checkbutton check:checked, checkbutton radio:checked {
+  border-color: #bd7793;
+}
+checkbutton:focus-within check, checkbutton:focus-within radio, entry:focus-within {
+  border-color: #d495af;
+}
+checkbutton:disabled {
+  opacity: 0.75;
+}
