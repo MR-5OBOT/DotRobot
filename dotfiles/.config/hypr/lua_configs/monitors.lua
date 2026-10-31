@@ -7,6 +7,8 @@
 -- Matched by model (desc:) instead of port, so it works on any port or dock and
 -- never applies these settings to another screen on the same HDMI port.
 local GIGABYTE = "desc:GIGA-BYTE TECHNOLOGY CO. LTD. GS25F2A"
+-- Fullscreen HDR and content-type switches blank the external HDMI monitor.
+hl.config({ render = { cm_auto_hdr = 0, send_content_type = false } })
 hl.monitor({
 	output = GIGABYTE,
 	-- Not 60Hz: Intel treats 1080p60 over HDMI as a TV and sends limited-range
