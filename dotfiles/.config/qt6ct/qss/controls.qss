@@ -1,0 +1,37 @@
+QCheckBox::indicator:unchecked, QRadioButton::indicator:unchecked {
+    border: 1px solid #787477;
+    background: #1a1a1a;
+}
+QCheckBox::indicator:checked {
+    border: 1px solid #bd7793;
+    background: #5e203b;
+    image: url(/home/mr5obot/.config/qt6ct/qss/check.svg);
+}
+QRadioButton::indicator:unchecked {
+    border-radius: 7px;
+}
+QCheckBox::indicator:unchecked:hover, QRadioButton::indicator:unchecked:hover {
+    border-color: #aaa4a7;
+}
+QCheckBox::indicator:focus, QRadioButton::indicator:unchecked:focus {
+    border-color: #d495af;
+}
+QCheckBox::indicator:unchecked:disabled, QRadioButton::indicator:unchecked:disabled {
+    border-color: #625d60;
+}
+QCheckBox::indicator:checked:disabled {
+    border-color: #625d60;
+    background: #302027;
+    image: url(/home/mr5obot/.config/qt6ct/qss/check-disabled.svg);
+}
+QLineEdit, QComboBox {
+    border: 1px solid #787477;
+    border-radius: 3px;
+    padding: 2px;
+}
+QLineEdit:focus, QComboBox:focus {
+    border-color: #d495af;
+}
+QLineEdit:disabled, QComboBox:disabled {
+    border-color: #625d60;
+}

@@ -254,7 +254,7 @@ check {
   -gtk-icon-source: -gtk-recolor(url("../assets/symbolic/check.symbolic.png"));
   -gtk-icon-transform: scale(0);
   color: #E8E3E3;
-  border: 0.2em solid rgba(232, 227, 227, 0.14);
+  border: 1px solid #787477;
   border-radius: 0.3em;
   padding: 0.1em;
   min-width: 0.7em;
@@ -262,7 +262,7 @@ check {
   transition: -gtk-icon-transform 200ms;
 }
 check:hover {
-  border-color: rgba(232, 227, 227, 0.14);
+  border-color: #aaa4a7;
 }
 check:active, check:checked {
   background: rgba(232, 227, 227, 0.06);
@@ -270,7 +270,10 @@ check:active, check:checked {
 check:checked {
   background: #5e203b;
   -gtk-icon-transform: scale(1);
-  border-color: #5e203b;
+  border-color: #bd7793;
+}
+checkbutton:focus check {
+  border-color: #d495af;
 }
 check:checked:active {
   background: transparent;
@@ -280,7 +283,7 @@ checkbutton label {
   padding-left: 5px;
 }
 checkbutton:disabled {
-  opacity: 0.55;
+  opacity: 0.75;
 }
 
 combobox entry {
@@ -289,7 +292,7 @@ combobox entry {
   border-bottom-right-radius: 0;
 }
 combobox entry:focus + button {
-  border: 0em solid rgba(94, 32, 59, 0.8);
+  border: 1px solid #d495af;
   border-left: 0;
   margin-right: -0em;
 }
@@ -350,12 +353,12 @@ dialog filechooser treeview, messagedialog filechooser treeview {
 entry {
   padding: 0.35em;
   border-radius: 0.2em;
-  border: 0em solid rgba(232, 227, 227, 0.06);
+  border: 1px solid #787477;
   background: rgba(232, 227, 227, 0.06);
   background-clip: padding-box;
 }
 entry:focus {
-  border-color: rgba(94, 32, 59, 0.8);
+  border-color: #d495af;
 }
 entry:disabled {
   opacity: 0.55;
@@ -628,7 +631,7 @@ radio {
   -gtk-icon-source: -gtk-recolor(url("../assets/symbolic/radio.symbolic.png"));
   -gtk-icon-transform: scale(0);
   color: #E8E3E3;
-  border: 0.2em solid rgba(232, 227, 227, 0.06);
+  border: 1px solid #787477;
   border-radius: 100%;
   padding: 0.1em;
   min-width: 0.6em;
@@ -636,22 +639,25 @@ radio {
   transition: -gtk-icon-transform 200ms;
 }
 radio:hover {
-  border-color: rgba(232, 227, 227, 0.14);
+  border-color: #aaa4a7;
 }
 radio:active, radio:checked {
   background: rgba(232, 227, 227, 0.06);
 }
 radio:checked {
   -gtk-icon-transform: scale(1);
-  border-color: #5e203b;
+  border-color: #bd7793;
   background: #5e203b;
+}
+radiobutton:focus radio {
+  border-color: #d495af;
 }
 
 radiobutton label {
   padding-left: 5px;
 }
 radiobutton:disabled {
-  opacity: 0.38;
+  opacity: 0.75;
 }
 
 revealer frame.app-notification border {
