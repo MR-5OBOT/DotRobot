@@ -218,6 +218,22 @@ palette_update() {
     fi
 }
 
+# Hyprland 0.57 leaves a wallpaper layer that mapped under a fullscreen window at
+# alpha 0. hypr/lua_configs/wallpaper.lua calls this once that screen is uncovered, so both
+# daemons map fresh, visible surfaces; awww restores the stills from its cache.
+if [ "${1:-}" = "respawn" ]; then
+    pkill -x awww-daemon || true
+    for _ in $(seq 1 20); do
+        pgrep -x awww-daemon >/dev/null || break
+        sleep 0.1
+    done
+    pkill -9 -x awww-daemon || true
+    ensure_daemon || exit 1
+    stop_mpv
+    sync_videos
+    exit 0
+fi
+
 if [ "${1:-}" = "restore" ]; then
     [ -s "$MAP" ] || exit 0
     for _ in {1..20}; do
