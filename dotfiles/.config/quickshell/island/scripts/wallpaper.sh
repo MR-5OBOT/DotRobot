@@ -23,8 +23,10 @@ is_video() {
 # wrappers (NixOS private env, FHS shims...) run it under a different comm, so
 # exact-name matches silently miss it and a video lingers on after switching
 # back to a still. Match the command line instead, with the [m] bracket so the
-# pattern never matches the pgrep/pkill call itself.
-MPV_PAT='[m]pvpaper'
+# pattern never matches the pgrep/pkill call itself, and only with the
+# `-o ... loop-file=inf` every player started here carries, so an editor, a
+# package manager or this script with "mpvpaper" in its arguments is never killed.
+MPV_PAT='[m]pvpaper.* -o .*loop-file=inf'
 mpv_running() { pgrep -f "$MPV_PAT" >/dev/null 2>&1; }
 mpv_list() { pgrep -af "$MPV_PAT" || true; }
 mpv_kill() { pkill -f "$MPV_PAT" 2>/dev/null || true; }
@@ -219,18 +221,48 @@ palette_update() {
 }
 
 # Hyprland 0.57 leaves a wallpaper layer that mapped under a fullscreen window at
-# alpha 0. hypr/lua_configs/wallpaper.lua calls this once that screen is uncovered, so both
-# daemons map fresh, visible surfaces; awww restores the stills from its cache.
-if [ "${1:-}" = "respawn" ]; then
-    pkill -x awww-daemon || true
-    for _ in $(seq 1 20); do
-        pgrep -x awww-daemon >/dev/null || break
-        sleep 0.1
-    done
-    pkill -9 -x awww-daemon || true
+# alpha 0. hypr/lua_configs/wallpaper.lua runs `heal` with the stuck layer's owner
+# ("stills" = awww, "videos" = mpvpaper) once its screen is uncovered. heal acts only
+# while Hyprland really holds one of that daemon's layers at alpha 0, so a fixed
+# Hyprland never pays for a restart; `respawn` always restarts. No owner given: both.
+stuck() {
+    hyprctl layers -j | jq -e --arg ns "$1" '[.[].levels[][] | select(.namespace == $ns and .alpha == 0)] | length > 0' >/dev/null
+}
+
+# Swap awww under a frozen copy so healthy screens never go blank: the stopped old
+# daemon keeps its surfaces up while the new one restores its cache (~0.6s for a
+# 3440px still) and maps above them, then the old one dies. SIGKILL only: a clean
+# exit would unlink the socket the new daemon now owns.
+respawn_stills() {
+    local old want
+    old=$(pgrep -x awww-daemon | tr '\n' ' ' || true)
+    want=$(awww query 2>/dev/null | sort || true)
+    if [ -n "$old" ]; then
+        trap "kill -KILL $old 2>/dev/null" EXIT
+        kill -STOP $old 2>/dev/null || true
+        rm -f "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/$(basename "${WAYLAND_DISPLAY:-wayland-0}")-awww-daemon.sock"
+    fi
     ensure_daemon || exit 1
-    stop_mpv
-    sync_videos
+    [ -n "$old" ] || return 0
+    for _ in $(seq 1 100); do
+        [ "$(awww query 2>/dev/null | sort)" = "$want" ] && break
+        sleep 0.05
+    done
+    sleep 0.2 # let the restored frames reach the screen
+    kill -KILL $old 2>/dev/null || true
+    trap - EXIT
+}
+
+if [ "${1:-}" = "respawn" ] || [ "${1:-}" = "heal" ]; then
+    mode=$1
+    shift
+    [ $# -gt 0 ] || set -- stills videos
+    case " $* " in *" stills "*)
+        if [ "$mode" = respawn ] || stuck awww-daemon; then respawn_stills; fi ;;
+    esac
+    case " $* " in *" videos "*)
+        if [ "$mode" = respawn ] || stuck mpvpaper; then stop_mpv; sync_videos; fi ;;
+    esac
     exit 0
 fi
 
