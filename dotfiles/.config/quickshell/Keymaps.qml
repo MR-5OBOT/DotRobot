@@ -16,13 +16,13 @@ PanelWindow {
     readonly property var groups: [
         {
             title: "HYPRLAND",
-            note: "Super = Win key · scroll for more",
+            note: "Super = Win key",
             binds: [
                 ["Super + Return", "Terminal"],
                 ["Super + Space / Q", "App launcher / close window"],
                 ["Super + X / W / D", "Power / wallpapers / workspaces"],
                 ["Super + V / N / T", "Clipboard / notifications / calendar"],
-                ["Super + I / = / /", "Network / calculator / this sheet"],
+                ["Super + = / /", "Calculator / this sheet"],
                 ["Super + Shift + N", "Restart Quickshell"],
                 ["Super + Shift + C / P", "Pick colour / power profile"],
                 ["Super + Shift + F", "Toggle fullscreen"],
@@ -48,7 +48,7 @@ PanelWindow {
                 ["Caps + - / =", "Volume down / up"],
                 ["Caps + Space", "Toggle microphone mute"],
                 ["Caps Lock", "Tap for normal Caps Lock"],
-                ["Backspace + Esc + Enter", "Stop keyd in an emergency"]
+                ["Super + Shift + K", "Turn keyd on / off"]
             ]
         },
         {
@@ -101,8 +101,8 @@ PanelWindow {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.topMargin: win.open ? 0 : -height   // hangs flush from the top edge and slides out of it
-        width: 480
-        height: Math.min(col.implicitHeight + 28, (win.screen ? win.screen.height : 800) - 20)
+        width: col.implicitWidth + 24
+        height: Math.min(col.height + 28, (win.screen ? win.screen.height : 800) - 20)
         topLeftRadius: 0
         topRightRadius: 0
         bottomLeftRadius: Theme.notchRadius
@@ -130,13 +130,16 @@ PanelWindow {
             anchors.fill: parent
             anchors.margins: 12
             clip: true
-            contentHeight: col.implicitHeight
+            contentHeight: col.height
             boundsBehavior: Flickable.StopAtBounds
 
-        ColumnLayout {
+        // Groups fill a column, then wrap right. Columns are as tall as the
+        // tallest group, so the shorter groups share the next column.
+        Flow {
             id: col
-            width: parent.width
-            spacing: 0
+            flow: Flow.TopToBottom
+            height: Math.max(...Array.from(children, c => c.implicitHeight))
+            spacing: 14
 
             Repeater {
                 model: win.groups
@@ -144,12 +147,10 @@ PanelWindow {
                 ColumnLayout {
                     id: group
                     required property var modelData
-                    required property int index
-                    Layout.fillWidth: true
-                    Layout.topMargin: index > 0 ? 14 : 0
+                    width: 456
                     spacing: 0
 
-                    RowLayout {  // header; the first one carries the close button
+                    RowLayout {  // header
                         Layout.fillWidth: true
                         Layout.preferredHeight: 30
                         Layout.bottomMargin: 8
@@ -171,29 +172,6 @@ PanelWindow {
                             color: Theme.dim
                             elide: Text.ElideRight
                         }
-
-                        Rectangle {
-                            visible: group.index === 0
-                            Layout.preferredWidth: 28
-                            Layout.preferredHeight: 28
-                            radius: 14
-                            color: closeMa.containsMouse ? Theme.hover : "transparent"
-                            Behavior on color { ColorAnimation { duration: 150 } }
-
-                            Icon {
-                                anchors.centerIn: parent
-                                text: "close"
-                                size: 16
-                                color: closeMa.containsMouse ? Theme.text : Theme.dim
-                            }
-                            MouseArea {
-                                id: closeMa
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: win.open = false
-                            }
-                        }
                     }
 
                     Repeater {
@@ -204,7 +182,7 @@ PanelWindow {
                             required property var modelData
                             Layout.fillWidth: true
                             Layout.rightMargin: 6
-                            Layout.preferredHeight: 34
+                            Layout.preferredHeight: 30  // 20 rows + header fit a 720 px tall screen
                             radius: 8
                             color: rowMa.containsMouse ? Theme.well : "transparent"
 
@@ -267,6 +245,29 @@ PanelWindow {
                 }
             }
         }
+        }
+
+        Rectangle {  // close button, level with the top headers
+            anchors { top: parent.top; right: parent.right; topMargin: 13; rightMargin: 12 }
+            width: 28
+            height: 28
+            radius: 14
+            color: closeMa.containsMouse ? Theme.hover : "transparent"
+            Behavior on color { ColorAnimation { duration: 150 } }
+
+            Icon {
+                anchors.centerIn: parent
+                text: "close"
+                size: 16
+                color: closeMa.containsMouse ? Theme.text : Theme.dim
+            }
+            MouseArea {
+                id: closeMa
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: win.open = false
+            }
         }
     }
 }

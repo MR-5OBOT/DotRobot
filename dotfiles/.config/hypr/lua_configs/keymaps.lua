@@ -28,9 +28,13 @@ hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("qs ipc call workspaces toggle"))
 hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("qs ipc call clipboard toggle"))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("qs ipc call notifications toggle"))
 hl.bind(mainMod .. " + T", hl.dsp.exec_cmd(ISLAND .. ' calendar ""'))
-hl.bind(mainMod .. " + I", hl.dsp.exec_cmd("uwsm app -- nm-connection-editor")) -- Wi-Fi lives in nm-applet's tray icon
 hl.bind(mainMod .. " + equal", hl.dsp.exec_cmd("qs ipc call calc toggle"))
 hl.bind(mainMod .. " + slash", hl.dsp.exec_cmd("qs ipc call keymaps toggle")) -- keymap cheat sheet
+-- keyd on/off (its panic combo only stops it); hyprpolkitagent asks for the password
+hl.bind(mainMod .. " + SHIFT + K", hl.dsp.exec_cmd(
+	"if systemctl is-active -q keyd; then systemctl stop keyd; else systemctl start keyd; fi; "
+		.. 'notify-send -a keyd "keyd $(systemctl is-active keyd)"'
+))
 hl.bind("XF86Calculator", hl.dsp.exec_cmd("qs ipc call calc toggle"))
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("hyprpicker -a -n"))
 
