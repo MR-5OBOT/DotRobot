@@ -70,7 +70,7 @@ Singleton {
     readonly property color frameBorder:  Qt.alpha(cream, 0.10)
     readonly property color creamMenu:     Qt.alpha(cream, 0.82)
     readonly property real shadowOpacity: 0.5
-    readonly property string font: "Inter"
+    readonly property string font: "Noto Sans"
 
     /**
      * MPRIS trackArtists arrives as a JS array from some players and as a
