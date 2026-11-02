@@ -27,6 +27,12 @@ hl.window_rule({
 hl.window_rule({ match = { class = "kitty" }, float = true, center = true, size = "620 360" })
 hl.window_rule({ match = { class = "^(nemo)$" }, float = true, center = true, size = "700 600" })
 hl.window_rule({
+	match = { class = "(?i)^(org.kde.dolphin|dolphin)$" },
+	float = true,
+	center = true,
+	size = "700 600",
+})
+hl.window_rule({
 	match = { class = "hyprland-share-picker" },
 	float = true,
 	center = true,
