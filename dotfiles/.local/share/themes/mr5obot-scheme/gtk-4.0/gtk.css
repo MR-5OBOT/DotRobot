@@ -35,6 +35,11 @@
 @define-color accent_bg_color    @paradise_accent;
 @define-color accent_fg_color    #ffffff;
 
+selection {
+  background-color: #bd7793;
+  color: #101010;
+}
+
 /* borders */
 @define-color borders            rgba(232, 227, 227, 0.10);
 
