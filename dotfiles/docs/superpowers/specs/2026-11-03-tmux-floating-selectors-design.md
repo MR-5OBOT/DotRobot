@@ -20,17 +20,17 @@ Provide clean, distraction-free floating selectors for tmux windows and sessions
 - Must work smoothly in terminal environments without screen tearing or cursor artifacts.
 
 ## Approaches Considered
-1. **Python (`curses` / ANSI) Script (Selected):** Standalone script (`~/.config/tmux/nav-list.py`) launched via `tmux display-popup`. Reliable key handling, native UTF-8 symbols, smooth colors, zero extra dependencies.
+1. **Python (`curses` / ANSI) Script (Selected):** Standalone script (`~/.config/tmux/nav_list.py`) launched via `tmux display-popup`. Reliable key handling, native UTF-8 symbols, smooth colors, zero extra dependencies.
 2. **Pure Bash / ANSI Script:** Zero dependencies, but more brittle key parsing and terminal state management.
 
 ## Implementation Details
-- **Script:** `/home/mr5obot/repos/DotRobot/dotfiles/.config/tmux/nav-list.py` (accessible via symlink at `~/.config/tmux/nav-list.py`).
-  - Mode switch: `nav-list.py windows` vs `nav-list.py sessions`.
+- **Script:** `/home/mr5obot/repos/DotRobot/dotfiles/.config/tmux/nav_list.py` (accessible via symlink at `~/.config/tmux/nav_list.py`).
+  - Mode switch: `nav_list.py windows` vs `nav_list.py sessions`.
   - Queries tmux via `tmux list-windows` or `tmux list-sessions` with format strings.
   - Interactive loop: captures keystrokes, highlights current selection, triggers `tmux select-window -t ...` or `tmux switch-client -t ...` upon selection.
 - **Tmux Config (`tmux.conf`):**
-  - Bind `w`: `display-popup -E -w 45% -h 35% -b rounded -s 'bg=#000000,fg=#ffffff' -S 'fg=#BE4277' 'python3 ~/.config/tmux/nav-list.py windows'`
-  - Bind `s`: `display-popup -E -w 45% -h 35% -b rounded -s 'bg=#000000,fg=#ffffff' -S 'fg=#BE4277' 'python3 ~/.config/tmux/nav-list.py sessions'`
+  - Bind `w`: `display-popup -E -w 45% -h 35% -b rounded -s 'bg=#000000,fg=#ffffff' -S 'fg=#BE4277' 'python3 ~/.config/tmux/nav_list.py windows'`
+  - Bind `s`: `display-popup -E -w 45% -h 35% -b rounded -s 'bg=#000000,fg=#ffffff' -S 'fg=#BE4277' 'python3 ~/.config/tmux/nav_list.py sessions'`
   - Unbind default `choose-tree` bindings as appropriate.
 
 ## Left to Builder
