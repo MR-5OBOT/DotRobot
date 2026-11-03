@@ -3,7 +3,7 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
-readonly FLAGS_FILE="${DOTFILES_DIR}/browser-flags/chromium-hwaccel.conf"
+readonly FLAGS_FILE="${ASSETS_DIR}/presets/browser-flags/chromium-hwaccel.conf"
 readonly LAUNCHER_DIR="${LAUNCHER_DIR:-/usr/bin}"
 
 # Chromium-based packages (chromium, chrome, brave, brave-origin, helium, edge, ...)
