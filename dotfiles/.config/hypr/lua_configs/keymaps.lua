@@ -42,6 +42,12 @@ hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("hyprpicker -a -n"))
 hl.bind("Print", hl.dsp.exec_cmd(RISHOT)) -- drag region or click a window
 hl.bind("SHIFT + Print", hl.dsp.exec_cmd(RISHOT .. " monitor")) -- whole output
 
+-- Keyboard clicking (wl-kbptr), Vimium-style; colors in ~/.config/wl-kbptr/config
+-- labels only on things that can be pressed; nothing pressable = nothing opens
+-- type label = press it (tmux: switch tab/pane, open link); same key or Esc closes;
+-- off in browsers (Vimium)
+hl.bind(mainMod .. " + F", hl.dsp.exec_cmd(SCRIPT .. "/kbptr.py"))
+
 -- Volume & Brightness
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --inc"), { locked = true })
 hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --dec"), { locked = true })

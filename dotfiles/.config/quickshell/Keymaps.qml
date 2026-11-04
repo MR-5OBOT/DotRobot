@@ -25,7 +25,7 @@ PanelWindow {
                 ["Super + = / /", "Calculator / this sheet"],
                 ["Super + Shift + N", "Restart Quickshell"],
                 ["Super + Shift + C / P", "Pick colour / power profile"],
-                ["Super + Shift + F", "Toggle fullscreen"],
+                ["Super + F / Shift + F", "Click by labels / fullscreen"],
                 ["Super + C", "Center window"],
                 ["Alt + Space / L", "Toggle floating / lock"],
                 ["Print / Shift + Print", "Screenshot region / monitor"],

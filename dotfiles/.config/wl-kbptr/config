@@ -1,0 +1,27 @@
+# wl-kbptr: keyboard clicking (SUPER+F labels, SUPER+ALT+F grid)
+# Grey and see-through so the screen stays visible. Colors are #RGBA,
+# the last digit is opacity (0 = invisible, f = solid).
+# Full defaults: wl-kbptr --help-config
+
+[mode_tile]
+label_color=#fffd
+label_select_color=#fd0d
+unselectable_bg_color=#0000
+selectable_bg_color=#6662
+selectable_border_color=#aaa6
+
+[mode_floating]
+label_color=#fffd
+label_select_color=#fd0d
+unselectable_bg_color=#0000
+selectable_bg_color=#4448
+selectable_border_color=#aaa9
+
+[mode_bisect]
+label_color=#fffd
+unselectable_bg_color=#0000
+even_area_bg_color=#8882
+even_area_border_color=#aaa8
+odd_area_bg_color=#4442
+odd_area_border_color=#8888
+history_border_color=#6669
