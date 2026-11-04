@@ -21,7 +21,7 @@ PanelWindow {
                 ["Super + Return", "Terminal"],
                 ["Super + Space / Q", "App launcher / close window"],
                 ["Super + X / W / D", "Power / wallpapers / workspaces"],
-                ["Super + V / N / T", "Clipboard / notifications / calendar"],
+                ["Super + V / N / T", "Clipboard / notifications / bar peek"],
                 ["Super + = / /", "Calculator / this sheet"],
                 ["Super + Shift + N", "Restart Quickshell"],
                 ["Super + Shift + C / P", "Pick colour / power profile"],

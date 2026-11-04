@@ -165,9 +165,14 @@ Scope {
         root.backSurface = "";
         root.openMon = "";
         root.openSurface = "";
+        root.peekMon = "";
     }
 
     function peek(mon) {
+        if (!mon || mon.length === 0)
+            mon = Monitors.focusedName;
+        if (root.openSurface.length > 0)
+            root.close();
         root.peekMon = root.peekMon === mon ? "" : mon;
     }
 
@@ -311,7 +316,7 @@ Scope {
             color: "transparent"
             exclusionMode: ExclusionMode.Ignore
             WlrLayershell.layer: WlrLayer.Overlay
-            WlrLayershell.keyboardFocus: surfaceOpen ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+            WlrLayershell.keyboardFocus: overlay.modal ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
             WlrLayershell.namespace: "island"
 
             anchors { top: true; left: true; right: true; bottom: true }
@@ -380,14 +385,14 @@ Scope {
                 enabled: overlay.modal
                 acceptedButtons: Qt.AllButtons
                 onPressed: (mouse) => {
+                    var inside = mouse.x >= pillRegion.x && mouse.x <= pillRegion.x + pillRegion.width
+                        && mouse.y >= pillRegion.y && mouse.y <= pillRegion.y + pillRegion.height;
                     if (overlay.surfaceOpen) {
-                        var inside = mouse.x >= pillRegion.x && mouse.x <= pillRegion.x + pillRegion.width
-                            && mouse.y >= pillRegion.y && mouse.y <= pillRegion.y + pillRegion.height;
                         if (!inside)
                             root.close();
                         else if (mouse.y <= pillRegion.y + 40 * pill.s)
                             pill.surfaceBack();
-                    } else {
+                    } else if (!inside) {
                         pill.pinned = false;
                         root.peekMon = "";
                     }
@@ -410,7 +415,7 @@ Scope {
             FocusScope {
                 id: focusScope
                 anchors.fill: parent
-                focus: overlay.surfaceOpen
+                focus: overlay.modal
 
                 /**
                  * Pill hover. While a surface is open the mask covers the whole screen,
