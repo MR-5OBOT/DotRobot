@@ -38,6 +38,13 @@ Preset references: [Orange's setup guide](https://www.orange.ma/Assistance/Mobil
 the installed `mobile-broadband-provider-info` database for IAM plans, and
 the [ASUS router carrier database](https://github.com/RMerl/asuswrt-merlin.ng/blob/main/release/src/router/rom/spn_asus.dat) for inwi.
 
+Run `sudo ./scripts/fix-hotspot.sh` to activate the saved Wi-Fi hotspot and
+allow its DHCP, DNS, and internet traffic through UFW. It backs up UFW's user
+rules first and detects the hotspot subnet and current internet uplink.
+It requires NetworkManager, an active UFW firewall, iproute2, and Python 3.
+The script uses `wlan0` and this machine's saved hotspot UUID; update
+`wifi_device` and `profile_uuid` in the script when using another setup.
+
 The wallpaper picker and the dynamic palette use
 `dotfiles/.config/quickshell/island/scripts/wallpaper.sh`. It supports stills
 through `awww`; video wallpapers require the optional `mpvpaper` package, which
