@@ -8,65 +8,77 @@ import "island/components" as IslandUi
 
 // Keymap cheat sheet: `qs ipc call keymaps toggle` (SUPER + /). A pure-black
 // top-edge notch; closes on Esc, the × button, or a click anywhere outside it.
-// Add a keyboard or app by appending a group below. In `keys`, " + " and " / "
+// Add a keyboard or app by appending a group to `columns`. In `keys`, " + " and " / "
 // between key names draw as separators and everything else as a keycap.
 PanelWindow {
     id: win
 
-    readonly property var groups: [
-        {
-            title: "HYPRLAND",
-            note: "Super = Win key",
-            binds: [
-                ["Super + Return", "Terminal"],
-                ["Super + Space / Q", "App launcher / close window"],
-                ["Super + X / W", "Power / wallpapers"],
-                ["Super + V / N / T", "Clipboard / notifications / bar peek"],
-                ["Super + = / /", "Calculator / this sheet"],
-                ["Super + Shift + N", "Restart Quickshell"],
-                ["Super + Shift + C / P", "Pick colour / power profile"],
-                ["Super + F / Shift + F", "Click by labels / fullscreen"],
-                ["Super + Alt + F", "Click anywhere (grid, g = click)"],
-                ["Super + C", "Center window"],
-                ["Alt + Space / L", "Toggle floating / lock"],
-                ["Super + S", "Quick fullscreen copy"],
-                ["Print / Shift + Print", "Screenshot region / monitor (rishot)"],
-                ["Super + H J K L", "Focus left / down / up / right"],
-                ["Super + Alt + H J K L", "Move window"],
-                ["Super + Ctrl + H J K L", "Resize window"],
-                ["Super + 1 … 0", "Switch workspace 1 … 10"],
-                ["Super + Shift + 1 … 0", "Move window to workspace"],
-                ["Super + O / Shift + O", "Focus / move window to next monitor"],
-                ["Super + mouse drag", "Left: move · right: resize"],
-                ["Mouse side buttons", "Mic mute / screenshot"],
-                ["Media keys", "Volume, mic and brightness"]
-            ]
-        },
-        {
-            title: "KEYD",
-            note: "Hold Caps Lock · applies to configured keyboards",
-            binds: [
-                ["Caps + H J K L", "Left / down / up / right"],
-                ["Caps + - / =", "Volume down / up"],
-                ["Caps + Space", "Toggle microphone mute"],
-                ["Caps Lock", "Tap for normal Caps Lock"],
-                ["Super + Shift + K", "Turn keyd on / off"]
-            ]
-        },
-        {
-            title: "ZIYOULANG T60",
-            note: "Fn layer · on-board, works on any OS",
-            binds: [
-                ["Fn + \\", "Cycle lighting effect (the \\ beside Enter)"],
-                ["Fn + ] / [", "Backlight brightness up / down"],
-                ["Fn + ' / ;", "Effect speed up / down"],
-                ["Fn + Right Shift", "Hold 2 s: / Alt Menu Ctrl turn into arrows"],
-                ["Fn + Win", "Lock the Win key"],
-                ["Fn + 1 … =", "F1 – F12"],
-                ["Fn + Space", "Reset to factory settings"],
-                ["Fn + other", "Media, volume, Home, Mail (side legends)"]
-            ]
-        }
+    // Two columns of groups; append a new group to whichever column is shorter.
+    readonly property var columns: [
+        [
+            {
+                title: "HYPRLAND",
+                note: "Apps & tools · Super = Win key",
+                binds: [
+                    ["Super + Return", "Terminal"],
+                    ["Super + Space / Q", "App launcher / close window"],
+                    ["Super + X / W", "Power / wallpapers"],
+                    ["Super + V / N / T", "Clipboard / notifications / bar peek"],
+                    ["Super + = / /", "Calculator / this sheet"],
+                    ["Super + Shift + N", "Restart Quickshell"],
+                    ["Super + Shift + C / P", "Pick colour / power profile"],
+                    ["Super + F", "Click by labels"],
+                    ["Super + Alt + F", "Click anywhere (grid, g = click)"],
+                    ["Super + S", "Quick fullscreen copy"],
+                    ["Print / Shift + Print", "Screenshot region / monitor (rishot)"],
+                    ["Mouse side buttons", "Mic mute / screenshot"],
+                    ["Media keys", "Volume, mic and brightness"]
+                ]
+            },
+            {
+                title: "KEYD",
+                note: "Hold Caps Lock · applies to configured keyboards",
+                binds: [
+                    ["Caps + H J K L", "Left / down / up / right"],
+                    ["Caps + - / =", "Volume down / up"],
+                    ["Caps + Space", "Toggle microphone mute"],
+                    ["Caps Lock", "Tap for normal Caps Lock"],
+                    ["Super + Shift + K", "Turn keyd on / off"]
+                ]
+            }
+        ],
+        [
+            {
+                title: "HYPRLAND",
+                note: "Windows & workspaces",
+                binds: [
+                    ["Super + H J K L", "Focus left / down / up / right"],
+                    ["Super + Alt + H J K L", "Move window"],
+                    ["Super + Ctrl + H J K L", "Resize window"],
+                    ["Super + mouse drag", "Left: move · right: resize"],
+                    ["Super + C", "Center window"],
+                    ["Super + Shift + F", "Fullscreen"],
+                    ["Alt + Space / L", "Toggle floating / lock"],
+                    ["Super + 1 … 0", "Switch workspace 1 … 10"],
+                    ["Super + Shift + 1 … 0", "Move window to workspace"],
+                    ["Super + O / Shift + O", "Focus / move window to next monitor"]
+                ]
+            },
+            {
+                title: "ZIYOULANG T60",
+                note: "Fn layer · on-board, works on any OS",
+                binds: [
+                    ["Fn + \\", "Cycle lighting effect (the \\ beside Enter)"],
+                    ["Fn + ] / [", "Backlight brightness up / down"],
+                    ["Fn + ' / ;", "Effect speed up / down"],
+                    ["Fn + Right Shift", "Hold 2 s: / Alt Menu Ctrl turn into arrows"],
+                    ["Fn + Win", "Lock the Win key"],
+                    ["Fn + 1 … =", "F1 – F12"],
+                    ["Fn + Space", "Reset to factory settings"],
+                    ["Fn + other", "Media, volume, Home, Mail (side legends)"]
+                ]
+            }
+        ]
     ]
 
     property bool open: false
@@ -135,21 +147,24 @@ PanelWindow {
             contentHeight: col.height
             boundsBehavior: Flickable.StopAtBounds
 
-        // Groups fill a column, then wrap right. Columns are as tall as the
-        // tallest group, so the shorter groups share the next column.
-        Flow {
+        Row {
             id: col
-            flow: Flow.TopToBottom
-            height: Math.max(...Array.from(children, c => c.implicitHeight))
             spacing: 14
 
             Repeater {
-                model: win.groups
+                model: win.columns
+
+            Column {
+                required property var modelData
+                spacing: 14
+
+            Repeater {
+                model: parent.modelData
 
                 ColumnLayout {
                     id: group
                     required property var modelData
-                    width: 456
+                    width: 480
                     spacing: 0
 
                     RowLayout {  // header
@@ -193,7 +208,7 @@ PanelWindow {
                             Row {
                                 id: caps
                                 anchors.verticalCenter: parent.verticalCenter
-                                width: Math.max(150, childrenRect.width)
+                                width: Math.max(200, childrenRect.width)
                                 spacing: 5
 
                                 Repeater {
@@ -245,6 +260,8 @@ PanelWindow {
                         }
                     }
                 }
+            }
+            }
             }
         }
         }
