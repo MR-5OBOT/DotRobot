@@ -1,0 +1,26 @@
+# AUR wl-kbptr (maintainer: Clément Martinez <me at moverest dot xyz>), built
+# without OpenCV. SUPER+F (hypr/scripts/controls/kbptr.py) hands it the areas
+# to label itself, so screen detection is unused. That drops the 100 MB+
+# opencv dependency and the AUR build that fails against OpenCV 5.
+# Installed by scripts/setup-wl-kbptr.sh.
+pkgname=wl-kbptr
+pkgver=0.4.1
+pkgrel=2
+url="https://github.com/moverest/wl-kbptr"
+pkgdesc="Control the mouse pointer with the keyboard on Wayland (without OpenCV)"
+arch=('x86_64' 'aarch64')
+license=('GPL-3.0')
+depends=('cairo' 'wayland' 'libxkbcommon')
+makedepends=('meson' 'wayland-protocols')
+source=("https://github.com/moverest/wl-kbptr/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('03ac52afa42d7aa88f909f96b2c0e57f5706a11d5d0ff451f6052927571e0624')
+
+build() {
+    arch-meson "$pkgname-$pkgver" build -Dopencv=disabled
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+    install -Dm 0644 "$pkgname-$pkgver/LICENSE" -t "$pkgdir/usr/share/licenses/wl-kbptr/"
+}
