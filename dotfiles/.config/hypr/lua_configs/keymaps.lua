@@ -47,6 +47,9 @@ hl.bind("SHIFT + Print", hl.dsp.exec_cmd(RISHOT .. " monitor")) -- whole output
 -- type label = press it (tmux: switch tab/pane, open link); same key or Esc closes;
 -- browsers too (accessibility on via uwsm/env + browser flags)
 hl.bind(mainMod .. " + F", hl.dsp.exec_cmd(SCRIPT .. "/kbptr.py"))
+-- grid over the whole screen, for spots SUPER+F can't label (tab group headers...):
+-- type a tile's label, narrow with more letters, g = left click, h = right, Enter = move only
+hl.bind(mainMod .. " + ALT + F", hl.dsp.exec_cmd("pkill -x wl-kbptr || wl-kbptr"))
 
 -- Volume & Brightness
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --inc"), { locked = true })

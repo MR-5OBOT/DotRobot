@@ -26,6 +26,7 @@ PanelWindow {
                 ["Super + Shift + N", "Restart Quickshell"],
                 ["Super + Shift + C / P", "Pick colour / power profile"],
                 ["Super + F / Shift + F", "Click by labels / fullscreen"],
+                ["Super + Alt + F", "Click anywhere (grid, g = click)"],
                 ["Super + C", "Center window"],
                 ["Alt + Space / L", "Toggle floating / lock"],
                 ["Super + S", "Quick fullscreen copy"],

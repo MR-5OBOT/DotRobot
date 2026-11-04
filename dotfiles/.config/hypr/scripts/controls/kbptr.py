@@ -135,7 +135,7 @@ def atspi_targets(win):
     pressable = {R.PUSH_BUTTON, R.TOGGLE_BUTTON, R.CHECK_BOX, R.RADIO_BUTTON, R.MENU_ITEM, R.CHECK_MENU_ITEM,
                  R.RADIO_MENU_ITEM, R.MENU, R.LINK, R.PAGE_TAB, R.COMBO_BOX, R.ENTRY, R.PASSWORD_TEXT,
                  R.SPIN_BUTTON, R.SLIDER, R.LIST_ITEM, R.TABLE_CELL, R.TREE_ITEM, R.ICON, R.PUSH_BUTTON_MENU,
-                 getattr(R, "SWITCH", R.TOGGLE_BUTTON)}
+                 getattr(R, "SWITCH", R.TOGGLE_BUTTON), R.PAGE_TAB_LIST}  # tab lists: group headers only, see below
     Atspi.set_timeout(800, 800)  # a hung app must not hang the key
     try:
         desk = Atspi.get_desktop(0)
@@ -174,6 +174,8 @@ def atspi_targets(win):
         ww, wh = win["size"]
         targets, rows = [], set()
         for o in found:
+            if o.get_role() == R.PAGE_TAB_LIST and not o.get_state_set().contains(S.EXPANDABLE):
+                continue  # a whole tab strip; only collapsible ones (Chromium tab group headers) get a label
             e = o.get_extents(Atspi.CoordType.WINDOW)  # window-relative on Wayland
             x, y, w, h = e.x, e.y, e.width, e.height
             x2, y2 = min(x + w, ww), min(y + h, wh)
