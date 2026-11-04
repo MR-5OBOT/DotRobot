@@ -45,7 +45,7 @@ hl.bind("SHIFT + Print", hl.dsp.exec_cmd(RISHOT .. " monitor")) -- whole output
 -- Keyboard clicking (wl-kbptr), Vimium-style; colors in ~/.config/wl-kbptr/config
 -- labels only on things that can be pressed; nothing pressable = nothing opens
 -- type label = press it (tmux: switch tab/pane, open link); same key or Esc closes;
--- off in browsers (Vimium)
+-- browsers too (accessibility on via uwsm/env + browser flags)
 hl.bind(mainMod .. " + F", hl.dsp.exec_cmd(SCRIPT .. "/kbptr.py"))
 
 -- Volume & Brightness

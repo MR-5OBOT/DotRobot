@@ -6,7 +6,7 @@
 
 Hard rule: only things that can be pressed get a label, and if there are none
 nothing opens. Same key again (or Esc) while it's open closes it.
-  browsers    nothing (Vimium)
+  browsers    toolbar + page links/buttons (needs ACCESSIBILITY_ENABLED=1, browser flags)
   kitty+tmux  other tmux tabs, other panes, links (switch / focus / open link)
   other apps  buttons, tabs, menus, links, list rows... as the app reports them
               over AT-SPI (GTK works; Qt/Electron only with accessibility on)
@@ -197,8 +197,10 @@ def main():
         return  # it was open: this press closes it
     win = json.loads(out("hyprctl", "-j", "activewindow") or "{}")
     cls = win.get("class") or ""
-    if not cls or cls.startswith(BROWSERS):
+    if not cls:
         return
+    # if cls.startswith(BROWSERS):  # browsers: leave to Vimium
+    #     return
     targets = tmux_targets(win) if cls == "kitty" else atspi_targets(win)
 
     mon = next(m for m in json.loads(out("hyprctl", "-j", "monitors")) if m["id"] == win["monitor"])

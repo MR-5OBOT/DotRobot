@@ -26,3 +26,8 @@ export XCURSOR_SIZE="26"
 # GTK theme name (dark mode for libadwaita/GTK comes from the xdg-desktop-portal
 # + gsettings color-scheme, which now works once uwsm starts graphical-session.target)
 export GTK_THEME="mr5obot-scheme"
+
+# Chromium/Electron join the AT-SPI bus only with this set; SUPER+F (kbptr.py)
+# reads clickable things from there. Pairs with --force-renderer-accessibility
+# in assets/presets/browser-flags/chromium-hwaccel.conf.
+export ACCESSIBILITY_ENABLED="1"
