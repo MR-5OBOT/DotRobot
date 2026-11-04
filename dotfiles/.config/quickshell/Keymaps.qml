@@ -20,7 +20,7 @@ PanelWindow {
             binds: [
                 ["Super + Return", "Terminal"],
                 ["Super + Space / Q", "App launcher / close window"],
-                ["Super + X / W / D", "Power / wallpapers / workspaces"],
+                ["Super + X / W", "Power / wallpapers"],
                 ["Super + V / N / T", "Clipboard / notifications / bar peek"],
                 ["Super + = / /", "Calculator / this sheet"],
                 ["Super + Shift + N", "Restart Quickshell"],

@@ -34,7 +34,6 @@ ShellRoot {
     Launcher { id: launcher }                  // qs ipc call launcher toggle
     Clipboard { id: clipboard }                // qs ipc call clipboard toggle
     WallpaperPanel { id: wallpicker }          // qs ipc call wallpicker toggle
-    WorkspacePanel { id: overview }            // qs ipc call workspaces toggle
     Calculator { id: calc }                    // qs ipc call calc toggle
     PowerProfileMenu { id: powerProfile }      // qs ipc call powerprofile cycle
     Keymaps { id: keymaps }                    // qs ipc call keymaps toggle
@@ -42,7 +41,7 @@ ShellRoot {
     // One panel at a time: opening any widget closes the island's open surface
     // (the dashboard etc.) and every other widget; opening an island surface
     // closes the widgets.
-    readonly property var widgets: [notifications, launcher, clipboard, wallpicker, overview, calc, powerProfile, keymaps]
+    readonly property var widgets: [notifications, launcher, clipboard, wallpicker, calc, powerProfile, keymaps]
 
     function closeWidgets(except) {
         for (const w of widgets) {
