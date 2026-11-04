@@ -22,8 +22,8 @@ hl.config({
             range = 12,
             offset = { 0, 0 },
             render_power = 3,
-            color = 0xff4e1a30,
-            color_inactive = 0xff33101e
+            color = 0xff4c1a59,
+            color_inactive = 0xff2e1036
         },
         -- Compiz-style ripple while moving/resizing. Stock intensity is 0.2;
         -- 0.35 is clearly visible on the 240Hz screen without turning precise
@@ -38,14 +38,14 @@ hl.config({
             intensity = 0.35,
         },
         -- Active-window bloom. With border_size = 0 and shadows stripped from
-        -- tiled windows, this doubles as the focus cue. Warm vermilion to match
-        -- the QS accent; kept low-alpha so it reads as light, not a border.
+        -- tiled windows, this doubles as the focus cue. Purple complements
+        -- the GTK accent; low alpha keeps it subtle.
         glow = {
             enabled = true,
             range = 8,
             render_power = 3,
-            color = 0x28ff6a3d,
-            color_inactive = 0x0aff6a3d,
+            color = 0x287b398e,
+            color_inactive = 0x0a7b398e,
         },
     },
     group = {
