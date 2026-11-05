@@ -1,8 +1,7 @@
 #!/bin/sh
 # rishot - Wayland screenshot + annotation overlay (Quickshell).
-# Launches the overlay on the current output set. Bind this command to a key
-# in your compositor config (see README). Region mode also lets you click a
-# single window to grab it.
+# Launches the overlay on the current output set (bound in hypr keymaps.lua).
+# Region mode also lets you click a single window to grab it.
 
 set -eu
 
@@ -20,7 +19,6 @@ options:
   -h, --help       show this help
 
 env:
-  RISHOT_CONFIG_DIR  override the Quickshell config dir (must hold shell.qml)
   RISHOT_UPLOAD      override the upload endpoint (https form-post target)
   RISHOT_SAVEDIR     override the auto-save directory
 EOF
@@ -34,26 +32,7 @@ case "${1:-}" in
 	*) printf 'rishot: unknown argument: %s\n' "$1" >&2; usage >&2; exit 2 ;;
 esac
 
-dir="${RISHOT_CONFIG_DIR:-}"
-if [ -z "$dir" ]; then
-	self=$(dirname "$(readlink -f "$0")")
-	# The src/ beside this launcher comes first so a checkout or a freshly pulled
-	# copy always runs its own code instead of a stale shared install; the install
-	# paths are only a fallback. A normal install resolves $self/../src to the same
-	# place, so this changes nothing there.
-	for c in \
-		"$self/../src" \
-		"${HOME:-}/.local/share/rishot/src" \
-		/usr/share/rishot/src \
-		/usr/lib/rishot/src; do
-		if [ -f "$c/shell.qml" ]; then dir="$c"; break; fi
-	done
-fi
-
-if [ -z "$dir" ] || [ ! -f "$dir/shell.qml" ]; then
-	echo "rishot: could not locate the config dir (set RISHOT_CONFIG_DIR)" >&2
-	exit 1
-fi
+dir="$(dirname "$(readlink -f "$0")")/../src"
 
 command -v qs >/dev/null 2>&1 || {
 	echo "rishot: 'qs' (quickshell) not found in PATH" >&2
