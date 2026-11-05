@@ -94,7 +94,7 @@ window.nautilus-window .nautilus-canvas-item {
   border-radius: 0.2em;
 }
 window.nautilus-window .nautilus-canvas-item:selected, window.nautilus-window .nautilus-canvas-item:active {
-  background: #521C60;
+  background: #41164c;
 }
 window.nautilus-window .floating-bar {
   background: #121212;
@@ -141,7 +141,7 @@ window.nautilus-window .operations-list row {
   background: #121212;
 }
 .nemo-window .nemo-places-sidebar treeview:selected {
-  background: #4c1a59;
+  background: #41164c;
 }
 .nemo-window .primary-toolbar {
   background: #151515;
@@ -156,10 +156,10 @@ window.nautilus-window .operations-list row {
   margin: -0.1em;
 }
 .nemo-window .nemo-window-pane :selected {
-  background: #521C60;
+  background: #41164c;
 }
 .nemo-window .nemo-window-pane :active {
-  background: #521C60;
+  background: #41164c;
 }
 
 actionbar {
@@ -468,7 +468,7 @@ iconview {
 }
 iconview:selected {
   color: #E8E3E3;
-  background: #521C60;
+  background: #41164c;
   border-radius: 0.5em;
 }
 
@@ -603,7 +603,7 @@ placessidebar list row:active {
   background: rgba(232, 227, 227, 0.14);
 }
 placessidebar list row:selected {
-  background: #521C60;
+  background: #41164c;
 }
 placessidebar list row .sidebar-icon {
   margin-right: 0.6em;
@@ -967,7 +967,7 @@ treeview:hover {
   background: rgba(232, 227, 227, 0.06);
 }
 treeview:selected {
-  background: #521C60;
+  background: #41164c;
   color: #E8E3E3;
 }
 treeview header button {
