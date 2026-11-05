@@ -67,7 +67,7 @@ compile_and_deploy() {
       [[ -n "$warn" ]] && { echo "  ── log ──"; echo "$warn" | sed 's/^/  /'; }
    fi
 
-   install -m 644 "$ex5" "$dest_dir/"
+   install -m 644 "$ex5" "$dest_dir/" || return
    echo "  Deployed: $dest_dir/$(basename "$ex5")"
 
    rm -f "$ex5"
@@ -81,7 +81,7 @@ compile_and_deploy() {
       rel="${inc//\\//}"
       [[ -f "$src_dir/$rel" ]] || continue
       target="$dest_dir/$rel"
-      install -D -m 644 "$src_dir/$rel" "$target"
+      install -D -m 644 "$src_dir/$rel" "$target" || return
       echo "  Helper:   $target"
    done < <(grep -oE '^[[:space:]]*#include[[:space:]]+"[^"]+\.mqh"' "$src" \
             | sed -E 's/.*"([^"]+)".*/\1/')
@@ -115,7 +115,7 @@ WATCH_ROOT="$("$FD" --type d --hidden --exclude .git . "$HOME" \
 
 echo "Watching $WATCH_ROOT for .mq5 changes  (Ctrl-C to stop)"
 
-declare -A MTIMES
+declare -A MTIMES=()
 while IFS= read -r -d '' f; do
    MTIMES["$f"]=$(stat -c %y "$f")
 done < <(find "$WATCH_ROOT" -type f -name '*.mq5' -print0)

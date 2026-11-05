@@ -3,6 +3,7 @@
 import QtQuick
 import Quickshell
 import "island" as IslandShell
+import "island/Singletons" as Island
 
 // The whole desktop shell in one qs process. Run with:  qs
 ShellRoot {
@@ -64,6 +65,8 @@ ShellRoot {
             function onOpenChanged() {
                 if (!modelData.open)
                     return;
+                if (modelData !== notifications)
+                    modelData.screen = Island.Monitors.focusedScreen;
                 island.close();
                 root.closeWidgets(modelData);
             }

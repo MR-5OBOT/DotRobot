@@ -36,7 +36,7 @@ prompt_step() {
 
   while true; do
     printf '%s [Y/n]: ' "${label}"
-    read -r answer
+    read -r answer || return 1
     answer="${answer:-y}"
     case "${answer}" in
       [Yy]) return 0 ;;
@@ -104,7 +104,7 @@ pacman_install() {
   if [[ -n "${DOTROBOT_SYNC_STAMP:-}" && -e "${DOTROBOT_SYNC_STAMP}" ]]; then
     sudo pacman -S --needed --noconfirm "$@"
   else
-    sudo pacman -Syu --needed --noconfirm "$@"
+    sudo pacman -Syu --needed --noconfirm "$@" || return
     [[ -z "${DOTROBOT_SYNC_STAMP:-}" ]] || touch "${DOTROBOT_SYNC_STAMP}"
   fi
 }

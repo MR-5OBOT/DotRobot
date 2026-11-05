@@ -6,6 +6,7 @@ import hashlib
 import fcntl
 import subprocess
 import urllib.parse
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 
 try:
@@ -91,14 +92,15 @@ def extract_color(filepath):
 
 def process_entry(entry_tuple, cached_items):
     fname, fpath, mtime, size = entry_tuple
+    file_url = Path(fpath).as_uri()
     existing = cached_items.get(fname)
     if existing and existing.get("mtime") == mtime and existing.get("size") == size:
-        return existing
+        return {**existing, "filePath": fpath, "fileUrl": file_url}
     hex_color = extract_color(fpath)
     return {
         "fileName": fname,
         "filePath": fpath,
-        "fileUrl": f"file://{fpath}",
+        "fileUrl": file_url,
         "hex": hex_color,
         "bucket": get_color_bucket(hex_color),
         "mtime": mtime,

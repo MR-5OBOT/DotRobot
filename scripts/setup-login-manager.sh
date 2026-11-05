@@ -19,7 +19,7 @@ choose_dm() {
   local answer
   while true; do
     printf 'Login manager: [1] ly  [2] greetd + tuigreet (default 1): '
-    read -r answer
+    read -r answer || die "No input; login manager unchanged."
     case "${answer:-1}" in
       1 | ly) DM=ly; return ;;
       2 | greetd) DM=greetd; return ;;
