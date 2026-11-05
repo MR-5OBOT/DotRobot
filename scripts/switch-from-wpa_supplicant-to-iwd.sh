@@ -4,15 +4,7 @@ set -euo pipefail
 # switch-from-wpa_supplicant-to-iwd.sh
 # Switches NetworkManager Wi-Fi backend from wpa_supplicant to iwd (or reverts back)
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-if [[ -f "${SCRIPT_DIR}/lib.sh" ]]; then
-  # shellcheck source=/dev/null
-  source "${SCRIPT_DIR}/lib.sh"
-else
-  log() { printf '[*] %s\n' "$*"; }
-  warn() { printf '[!] %s\n' "$*" >&2; }
-  die() { warn "$*"; exit 1; }
-fi
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
 CONF_DIR="/etc/NetworkManager/conf.d"
 CONF_FILE="${CONF_DIR}/wifi_backend.conf"

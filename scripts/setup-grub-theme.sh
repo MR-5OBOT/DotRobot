@@ -42,8 +42,6 @@ install -d /boot/grub/themes/obsidian /etc/pacman.d/hooks
 install -m 644 "$source_dir/theme.txt" "$source_dir"/*.pf2 "$source_dir"/*.png "$source_dir"/*.jpg /boot/grub/themes/obsidian/
 install -m 644 "$source_dir/05-grub-uki-only.hook" /etc/pacman.d/hooks/05-grub-uki-only.hook
 chmod a-x /etc/grub.d/10_linux
-# Undo Minegrub's optional background patch to the packaged generator.
-sed -i 's/fi; if \(\[ "x$GRUB_BACKGROUND"\)/elif \1/' /etc/grub.d/00_header
 sed -i '/^GRUB_THEME=/d; /^GRUB_BACKGROUND=/d; /^GRUB_DISABLE_BOOTNEXT=/d; /^GRUB_TERMINAL_OUTPUT=/d; /^GRUB_GFXMODE=/d; s/^GRUB_DEFAULT=.*/GRUB_DEFAULT=0/' /etc/default/grub
 printf '\nGRUB_THEME=/boot/grub/themes/obsidian/theme.txt\nGRUB_DISABLE_BOOTNEXT=true\nGRUB_TERMINAL_OUTPUT=gfxterm\nGRUB_GFXMODE=1920x1080,1280x720,1024x768,auto\n' >> /etc/default/grub
 
@@ -52,24 +50,11 @@ grub-script-check "$candidate"
 grep -Eq '^[[:space:]]*uki([[:space:]]|$)' "$candidate" || { printf 'Generated menu has no UKI entry.\n' >&2; false; }
 grep -Fq 'Windows Boot Manager' "$candidate" || { printf 'Generated menu has no Windows Boot Manager entry.\n' >&2; false; }
 grep -Fq '/grub/themes/obsidian/theme.txt' "$candidate" || { printf 'Generated menu does not reference the Obsidian theme.\n' >&2; false; }
-if grep -Eq 'gnulinux-simple-|gnulinux-advanced-|efi-bootnext-|/themes/minegrub/' "$candidate"; then
-  printf 'Unexpected entries or old theme references; keeping the existing menu.\n' >&2
+if grep -Eq 'gnulinux-simple-|gnulinux-advanced-|efi-bootnext-' "$candidate"; then
+  printf 'Unexpected menu entries; keeping the existing menu.\n' >&2
   false
 fi
 
 mv -f "$candidate" /boot/grub/grub.cfg
 trap - ERR INT TERM
-# Archive the old theme and stop its updater only after the new menu is installed.
-if [[ -f /etc/systemd/system/minegrub-update.service ]]; then
-  if systemctl disable --now minegrub-update.service; then
-    mv /etc/systemd/system/minegrub-update.service "$backup/"
-    systemctl daemon-reload
-  else
-    printf 'Could not disable the old updater; its theme files were kept.\n' >&2
-    exit 1
-  fi
-fi
-if [[ -d /boot/grub/themes/minegrub ]]; then
-  mv /boot/grub/themes/minegrub "$backup/"
-fi
 printf 'Obsidian installed. Working Arch and Windows entries retained.\nBackup: %s\n' "$backup"

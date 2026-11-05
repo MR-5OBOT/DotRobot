@@ -19,7 +19,7 @@ the selected entry, and Escape to return from the console or editor.
 Setup expects the existing working `/boot/EFI/Linux/arch-linux.efi` UKI and a
 Windows entry from os-prober. It backs up settings and any previous Obsidian
 theme under `/root/grub-obsidian-backup.*`, validates a generated menu before
-replacing it, archives Minegrub, and preserves the existing kernel images and
+replacing it, and preserves the existing kernel images and
 EFI loader. Rerunning updates the theme. A pacman hook keeps the duplicate
 traditional kernel generator disabled after GRUB updates.
 
