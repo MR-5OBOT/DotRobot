@@ -30,7 +30,6 @@ Run these when needed; each one explains itself as it runs.
 | `scripts/setup-mobile-broadband.sh` | Cellular modem and carrier APN, including the Dell DW5825e FCC unlock (also offered by the installer) |
 | `sudo scripts/fix-hotspot.sh` | Starts the saved NetworkManager hotspot and opens UFW for it |
 | `scripts/setup-browser-shortcuts.py` | Helium shortcuts for Brovim; close Helium first, `--dry-run` previews |
-| `scripts/setup-brovim-internal-pages.sh /path/to/brovim` | Lets Brovim run on Helium's internal pages (`--extensions-on-chrome-urls`) |
 | `assets/presets/kdenlive-config/kdenlive-setup.sh` | Kdenlive theme and layouts |
 | `scripts/switch-from-wpa_supplicant-to-iwd.sh` | Switches the Wi-Fi backend to iwd; `revert` undoes it |
 | `sudo bash scripts/setup-grub-theme.sh` | Obsidian GRUB theme for the UKI + Windows setup; preview with `scripts/preview-grub-theme.sh` |
