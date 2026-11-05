@@ -11,7 +11,7 @@ main() {
     log "wl-kbptr is already installed"
     return 0
   fi
-  pacman -Qq base-devel >/dev/null 2>&1 || sudo pacman -Syu --needed base-devel
+  pacman -Qq base-devel >/dev/null 2>&1 || pacman_install base-devel
   build_dir="$(mktemp -d)"
   trap 'rm -rf -- "${build_dir}"' EXIT
   cp "${PACKAGES_DIR}/wl-kbptr/PKGBUILD" "${build_dir}/"

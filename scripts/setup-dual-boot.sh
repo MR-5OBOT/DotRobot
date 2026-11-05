@@ -40,7 +40,7 @@ main() {
     return 0
   fi
 
-  sudo pacman -Syu --needed --noconfirm os-prober
+  pacman_install os-prober
   setup_os_prober_flag
   log "Regenerating GRUB config; look for a \"Found Windows Boot Manager\" line"
   sudo grub-mkconfig -o /boot/grub/grub.cfg

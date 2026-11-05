@@ -68,7 +68,7 @@ install_repo_group() {
   fi
 
   log "Installing ${group} packages"
-  sudo pacman -Syu --needed --noconfirm "${packages[@]}"
+  pacman_install "${packages[@]}"
 }
 
 install_aur_group() {

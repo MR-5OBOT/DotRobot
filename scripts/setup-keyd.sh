@@ -12,7 +12,7 @@ readonly TARGET="/etc/keyd/default.conf"
 main() {
   require_arch
   [[ -r "${CONF}" ]] || die "Missing ${CONF}"
-  pacman -Qq keyd >/dev/null 2>&1 || sudo pacman -Syu --needed --noconfirm keyd
+  pacman -Qq keyd >/dev/null 2>&1 || pacman_install keyd
   keyd check "${CONF}" || die "keyd rejected ${CONF}; kept the current config"
   sudo install -Dm 644 "${CONF}" "${TARGET}"
   if systemctl is-active --quiet keyd; then

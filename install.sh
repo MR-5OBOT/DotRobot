@@ -22,13 +22,17 @@ main() {
   [[ $EUID -eq 0 ]] && die "Run as your normal user; the installer uses sudo when needed."
   command -v sudo >/dev/null 2>&1 || die "sudo is required. Install it as root with: pacman -Syu sudo"
   sudo -v || die "Your user is not allowed to use sudo. Configure sudo first."
+  # One full upgrade per run: the first package step syncs, later ones only add.
+  DOTROBOT_SYNC_STAMP="$(mktemp -d)/synced"
+  export DOTROBOT_SYNC_STAMP
+  trap 'rm -rf -- "${DOTROBOT_SYNC_STAMP%/*}"' EXIT
 
   cat <<'EOF'
 DotRobot Arch setup
 Each step can be run, skipped, or revisited later.
 EOF
 
-  run_step "Configure pacman" "scripts/configure-pacman.sh"
+  run_step "Replace /etc/pacman.conf with the tracked template (multilib on)" "scripts/configure-pacman.sh"
   run_step "Install core packages" "scripts/install-packages.sh" core
   run_step "Install desktop packages" "scripts/install-packages.sh" desktop
   run_step "Install paru (AUR helper)" "scripts/setup-aur-helper.sh"

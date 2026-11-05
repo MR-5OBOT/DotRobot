@@ -16,7 +16,7 @@ main() (
 
   # paru-bin: the prebuilt release, so no Rust compile and no paru-debug package.
   log "Installing paru"
-  sudo pacman -Syu --needed --noconfirm base-devel git
+  pacman_install base-devel git
   git clone https://aur.archlinux.org/paru-bin.git "${build_dir}/paru-bin"
   (
     cd "${build_dir}/paru-bin"

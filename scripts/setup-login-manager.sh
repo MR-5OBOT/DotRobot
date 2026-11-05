@@ -63,7 +63,7 @@ enable_dm() {
 }
 
 setup_ly() {
-  sudo pacman -Syu --needed --noconfirm ly
+  pacman_install ly
   DISABLED_DMS=()
   disable_other_dms "${LY_UNIT}"
   enable_dm "${LY_UNIT}"
@@ -73,7 +73,7 @@ setup_ly() {
 }
 
 setup_greetd() {
-  sudo pacman -Syu --needed --noconfirm greetd greetd-tuigreet
+  pacman_install greetd greetd-tuigreet
 
   if [[ -e "${GREETD_CONF}" || -L "${GREETD_CONF}" ]]; then
     if [[ -e "${GREETD_CONF}.dotrobot.bak" || -L "${GREETD_CONF}.dotrobot.bak" ]]; then

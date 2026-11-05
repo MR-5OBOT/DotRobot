@@ -10,7 +10,7 @@ install_flatpak() {
   fi
   require_arch
   log "Installing flatpak"
-  sudo pacman -Syu --needed --noconfirm flatpak
+  pacman_install flatpak
 }
 
 add_flathub() {

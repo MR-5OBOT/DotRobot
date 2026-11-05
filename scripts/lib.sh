@@ -90,17 +90,23 @@ fetch_release_asset() {
   fi
 
   log "Downloading ${asset} from ${repo} ${tag}"
-  if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
-    gh release download "${tag}" --repo "${repo}" --pattern "${asset}" --dir "${CACHE_DIR}" --clobber
-  elif command -v curl >/dev/null 2>&1; then
-    curl -fsSL --retry 3 -o "${dest}" "https://github.com/${repo}/releases/download/${tag}/${asset}"
-  else
-    die "Need gh or curl to download ${asset}"
-  fi
+  curl -fsSL --retry 3 -o "${dest}" "https://github.com/${repo}/releases/download/${tag}/${asset}"
 
   printf '%s  %s' "${sha}" "${dest}" | sha256sum --check --status \
     || die "${asset} failed checksum verification"
   FETCHED_ASSET="${dest}"
+}
+
+# The first install of an installer run does the full upgrade; later ones only
+# add packages. install.sh sets DOTROBOT_SYNC_STAMP. A script run on its own
+# always upgrades first, so it never installs against a stale package database.
+pacman_install() {
+  if [[ -n "${DOTROBOT_SYNC_STAMP:-}" && -e "${DOTROBOT_SYNC_STAMP}" ]]; then
+    sudo pacman -S --needed --noconfirm "$@"
+  else
+    sudo pacman -Syu --needed --noconfirm "$@"
+    [[ -z "${DOTROBOT_SYNC_STAMP:-}" ]] || touch "${DOTROBOT_SYNC_STAMP}"
+  fi
 }
 
 read_package_file() {

@@ -11,7 +11,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 main() {
   local yes=0 extras=0 arg vendor
   local -a pkgs=(steam steam-devices vulkan-icd-loader lib32-vulkan-icd-loader vulkan-tools
-    ttf-liberation lib32-alsa-plugins lib32-libpulse) noconfirm=()
+    ttf-liberation lib32-alsa-plugins lib32-libpulse)
 
   for arg in "$@"; do
     case "${arg}" in
@@ -40,12 +40,8 @@ main() {
   (( extras )) && pkgs+=(gamescope mangohud lib32-mangohud protontricks)
 
   log "Steam packages: ${pkgs[*]}"
-  if (( yes )); then
-    noconfirm=(--noconfirm)
-  else
-    prompt_step "Install them (full system upgrade, pacman -Syu)" || return 0
-  fi
-  sudo pacman -Syu --needed "${noconfirm[@]}" "${pkgs[@]}"
+  (( yes )) || prompt_step "Install them" || return 0
+  pacman_install "${pkgs[@]}"
   log "Launch Steam once, then Settings > Compatibility > enable Steam Play for all titles"
 }
 

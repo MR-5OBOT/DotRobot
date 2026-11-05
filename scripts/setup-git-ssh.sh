@@ -119,7 +119,7 @@ ensure_gh() {
     return 0
   fi
   log "Installing github-cli"
-  sudo pacman -Syu --needed --noconfirm github-cli
+  pacman_install github-cli
 }
 
 gh_login() {
