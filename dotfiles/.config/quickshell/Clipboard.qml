@@ -10,7 +10,7 @@ import "island/components" as Island
 // cliphist-backed clipboard history, coloured like the island (black,
 // neutral greys, purple accent), 4px corners. Keyboard-driven like the launcher. Toggle: qs ipc call
 // clipboard toggle (Super+V). Enter/click copies the entry via wl-copy.
-// Backend: `wl-paste --watch cliphist store` (see autostart/cliphist.sh).
+// Backend: `wl-paste --watch cliphist store`, run by the cliphist.service user unit.
 PanelWindow {
     id: win
 
