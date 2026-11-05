@@ -7,6 +7,7 @@ url=https://github.com/fibocom-pc/linux_apps_opensource
 license=('GPL-2.0-only' MIT)
 depends=('libmbim>=1.32' libmm-glib libxml2 libxml2-legacy dbus dmidecode gcc-libs)
 makedepends=(cmake glib2-devel)
+options=('!debug')
 _commit=a508df86f988f7de7669f4ef5eadcfeb2b5b49ee
 source=("fibocom-${_commit}.tar.gz::${url}/archive/${_commit}.tar.gz" arch.patch)
 sha256sums=('7f48d7694104508bc0a678cf30c9e4e5e3b443eed6f73222f78e70982971c67e'

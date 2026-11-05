@@ -12,6 +12,7 @@ arch=('x86_64' 'aarch64')
 license=('GPL-3.0')
 depends=('cairo' 'wayland' 'libxkbcommon')
 makedepends=('meson' 'wayland-protocols')
+options=('!debug')  # no wl-kbptr-debug package
 source=("https://github.com/moverest/wl-kbptr/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('03ac52afa42d7aa88f909f96b2c0e57f5706a11d5d0ff451f6052927571e0624')
 

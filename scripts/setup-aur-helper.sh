@@ -14,11 +14,12 @@ main() (
   build_dir="$(mktemp -d)"
   trap 'rm -rf -- "${build_dir}"' EXIT
 
+  # paru-bin: the prebuilt release, so no Rust compile and no paru-debug package.
   log "Installing paru"
   sudo pacman -Syu --needed --noconfirm base-devel git
-  git clone https://aur.archlinux.org/paru.git "${build_dir}/paru"
+  git clone https://aur.archlinux.org/paru-bin.git "${build_dir}/paru-bin"
   (
-    cd "${build_dir}/paru"
+    cd "${build_dir}/paru-bin"
     makepkg -si --noconfirm
   )
 )
