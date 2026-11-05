@@ -1,0 +1,5 @@
+# Qt reads these paths literally (no ~ or $HOME): git stores @HOME@ and the
+# "home" filter (set up by scripts/link-dotfiles.sh) swaps in the real home.
+dotfiles/.config/qt5ct/qt5ct.conf filter=home
+dotfiles/.config/qt6ct/qt6ct.conf filter=home
+dotfiles/.config/qt6ct/qss/controls.qss filter=home

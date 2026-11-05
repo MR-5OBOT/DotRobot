@@ -16,10 +16,26 @@ link_children() {
   done
 }
 
+# Qt reads stylesheet paths and url()s literally, so the files in .gitattributes
+# hold @HOME@ in git. This filter writes your home on checkout and puts @HOME@
+# back on commit; files still holding @HOME@ (fresh clone) are checked out again.
+setup_home_filter() {
+  local file
+  git -C "${REPO_ROOT}" config filter.home.smudge 'sed "s|@HOME@|$HOME|g"'
+  git -C "${REPO_ROOT}" config filter.home.clean 'sed "s|$HOME|@HOME@|g"'
+  while IFS= read -r file; do
+    grep -q '@HOME@' "${REPO_ROOT}/${file}" && git -C "${REPO_ROOT}" diff --quiet -- "${file}" || continue
+    rm -f -- "${REPO_ROOT}/${file}"
+    git -C "${REPO_ROOT}" checkout -- "${file}"
+  done < <(git -C "${REPO_ROOT}" ls-files -- ':(attr:filter=home)')
+  log "Qt config paths point at ${HOME}"
+}
+
 main() {
   local icons_dir="${XDG_DATA_HOME:-${HOME}/.local/share}/icons"
 
   symlink_path "${DOTFILES_DIR}/.gitconfig" "${HOME}/.gitconfig"
+  setup_home_filter
   link_children "${DOTFILES_DIR}/.config" "${HOME}/.config"
   # ~/.local/bin used to be one symlink into the repo; it is a real directory now.
   if [[ -L "${HOME}/.local/bin" ]]; then

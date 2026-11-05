@@ -5,7 +5,7 @@ QCheckBox::indicator:unchecked, QRadioButton::indicator:unchecked {
 QCheckBox::indicator:checked {
     border: 1px solid #521C60;
     background: #521C60;
-    image: url(/home/mr5obot/.config/qt6ct/qss/check.svg);
+    image: url(@HOME@/.config/qt6ct/qss/check.svg);
 }
 QRadioButton::indicator:unchecked {
     border-radius: 7px;
@@ -37,7 +37,7 @@ QCheckBox::indicator:unchecked:disabled, QRadioButton::indicator:unchecked:disab
 QCheckBox::indicator:checked:disabled {
     border-color: #625d60;
     background: #2d2030;
-    image: url(/home/mr5obot/.config/qt6ct/qss/check-disabled.svg);
+    image: url(@HOME@/.config/qt6ct/qss/check-disabled.svg);
 }
 QLineEdit, QComboBox {
     border: 1px solid #787477;
