@@ -56,7 +56,10 @@ for d in /sys/bus/usb/devices/*/; do
         break
     fi
 done
-[[ -n "$READER" ]] || die "no USB fingerprint reader found. If yours is not USB, check 'dmesg | grep -i finger'."
+if [[ -z "$READER" ]]; then
+    warn "no USB fingerprint reader found, skipping. If yours is not USB, check 'dmesg | grep -i finger'."
+    exit 0
+fi
 
 # --------------------------------------------------------------- 2. install
 info "Installing fprintd + libfprint"
