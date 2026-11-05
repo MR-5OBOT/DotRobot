@@ -26,7 +26,7 @@ setup_fibocom_unlock() (
     log "Dell DW5825e / Fibocom FM101R-GL needs its vendor FCC unlock helper."
     prompt_step "Set up and enable Fibocom unlock support (no firmware flashing)" || return 0
     if ! pacman -Qq fibocom-fm101r-unlock >/dev/null 2>&1; then
-      pacman -Qq base-devel curl >/dev/null 2>&1 || sudo pacman -Syu --needed base-devel curl
+      pacman -Qq base-devel curl >/dev/null 2>&1 || pacman_install base-devel curl
       build_dir="$(mktemp -d)"
       trap 'rm -rf -- "${build_dir}"' EXIT
       cp "${PACKAGES_DIR}/fibocom-fm101r-unlock/"* "${build_dir}/"
@@ -236,8 +236,8 @@ main() {
 
   if ! pacman -Qq networkmanager modemmanager >/dev/null 2>&1; then
     log "Mobile broadband needs NetworkManager and ModemManager. An existing internet connection is needed to install them."
-    prompt_step "Install missing packages and upgrade Arch (pacman -Syu)" || return 0
-    sudo pacman -Syu --needed networkmanager modemmanager
+    prompt_step "Install NetworkManager and ModemManager (run on its own, this upgrades Arch first)" || return 0
+    pacman_install networkmanager modemmanager
   else
     log "NetworkManager and ModemManager are already installed."
   fi

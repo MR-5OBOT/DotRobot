@@ -15,6 +15,10 @@
 
 set -uo pipefail
 
+# pacman_install only; lib.sh turns on set -e, but this script checks each step itself.
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
+set +e
+
 PAM_SUDO=/etc/pam.d/sudo
 HYPRLOCK_CONF="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprlock.conf"
 FINGER=right-index-finger
@@ -66,7 +70,7 @@ info "Installing fprintd + libfprint"
 if pacman -Qq fprintd &>/dev/null && pacman -Qq libfprint &>/dev/null; then
     ok "already installed"
 else
-    sudo pacman -Syu --needed --noconfirm fprintd libfprint || die "install failed"
+    pacman_install fprintd libfprint || die "install failed"
     ok "installed"
 fi
 
