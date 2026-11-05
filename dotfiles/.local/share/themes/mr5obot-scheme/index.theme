@@ -7,6 +7,6 @@ Encoding=UTF-8
 [X-GNOME-Metatheme]
 GtkTheme=mr5obot-scheme
 MetacityTheme=mr5obot-scheme
-IconTheme=gnome
-CursorTheme=DMZ-Black
+IconTheme=Gruvbox-Plus-Dark
+CursorTheme=volantes_light_cursors
 ButtonLayout=menu:minimize,maximize,close

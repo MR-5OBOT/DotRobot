@@ -18,7 +18,6 @@ import subprocess as sp
 import sys
 import unicodedata
 
-BROWSERS = ("helium", "brave-origin", "chrome-")  # class prefixes
 KITTY_MARGIN = 5  # window_margin_width in kitty.conf
 URL = re.compile(r"(?:https?|ftps?|sftp|file|ssh|git)://[^\s<>\"'`│]+")
 
@@ -201,8 +200,6 @@ def main():
     cls = win.get("class") or ""
     if not cls:
         return
-    # if cls.startswith(BROWSERS):  # browsers: leave to Vimium
-    #     return
     targets = tmux_targets(win) if cls == "kitty" else atspi_targets(win)
 
     mon = next(m for m in json.loads(out("hyprctl", "-j", "monitors")) if m["id"] == win["monitor"])
