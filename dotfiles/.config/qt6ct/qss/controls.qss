@@ -3,25 +3,40 @@ QCheckBox::indicator:unchecked, QRadioButton::indicator:unchecked {
     background: #1a1a1a;
 }
 QCheckBox::indicator:checked {
-    border: 1px solid #bd7793;
-    background: #5e203b;
+    border: 1px solid #521C60;
+    background: #521C60;
     image: url(/home/mr5obot/.config/qt6ct/qss/check.svg);
 }
 QRadioButton::indicator:unchecked {
     border-radius: 7px;
 }
+/* checked radio = GTK3's: purple disc with a light centre dot */
+QRadioButton::indicator:checked {
+    border: 1px solid #521C60;
+    border-radius: 7px;
+    background: qradialgradient(cx:0.5, cy:0.5, radius:0.5, fx:0.5, fy:0.5,
+        stop:0 #e8e3e3, stop:0.38 #e8e3e3, stop:0.45 #521C60, stop:1 #521C60);
+}
+QRadioButton::indicator:checked:focus {
+    border-color: #a66bb3;
+}
+QRadioButton::indicator:checked:disabled {
+    border-color: #625d60;
+    background: qradialgradient(cx:0.5, cy:0.5, radius:0.5, fx:0.5, fy:0.5,
+        stop:0 #918a8d, stop:0.38 #918a8d, stop:0.45 #2d2030, stop:1 #2d2030);
+}
 QCheckBox::indicator:unchecked:hover, QRadioButton::indicator:unchecked:hover {
     border-color: #aaa4a7;
 }
 QCheckBox::indicator:focus, QRadioButton::indicator:unchecked:focus {
-    border-color: #d495af;
+    border-color: #a66bb3;
 }
 QCheckBox::indicator:unchecked:disabled, QRadioButton::indicator:unchecked:disabled {
     border-color: #625d60;
 }
 QCheckBox::indicator:checked:disabled {
     border-color: #625d60;
-    background: #302027;
+    background: #2d2030;
     image: url(/home/mr5obot/.config/qt6ct/qss/check-disabled.svg);
 }
 QLineEdit, QComboBox {
@@ -30,7 +45,7 @@ QLineEdit, QComboBox {
     padding: 2px;
 }
 QLineEdit:focus, QComboBox:focus {
-    border-color: #d495af;
+    border-color: #a66bb3;
 }
 QLineEdit:disabled, QComboBox:disabled {
     border-color: #625d60;

@@ -995,3 +995,11 @@ window.csd decoration {
 }
 
 /*# sourceMappingURL=gtk.css.map */
+
+/* Links: light purple, readable on the dark surfaces (4.9:1 on #101010). */
+*:link, button:link {
+  color: #a66bb3;
+}
+*:visited, button:visited {
+  color: #9e76a8;
+}
