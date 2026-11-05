@@ -324,7 +324,7 @@ Item {
                 onClicked: tb.uploadRequested()
                 HoverHandler {
                     onHoveredChanged: hovered
-                        ? tb.showTip("Upload · public", "Ctrl+U", uploadBtn.x + row.x + uploadBtn.width / 2)
+                        ? tb.showTip("Upload · public", "", uploadBtn.x + row.x + uploadBtn.width / 2)
                         : tb.hideTip("Upload · public")
                 }
             }

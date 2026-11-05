@@ -732,7 +732,6 @@ ShellRoot {
                     if (e.modifiers & Qt.ControlModifier) {
                         if (e.key === Qt.Key_C) { if (root.phase === "editing") root.doCopy(); e.accepted = true; }
                         else if (e.key === Qt.Key_S) { if (root.phase === "editing") root.doSave(); e.accepted = true; }
-                        else if (e.key === Qt.Key_U) { if (root.phase === "editing") root.doUpload(); e.accepted = true; }
                         else if (e.key === Qt.Key_Z) { root.undo(); e.accepted = true; }
                         else if (e.key === Qt.Key_Y) { root.redo(); e.accepted = true; }
                         return;
