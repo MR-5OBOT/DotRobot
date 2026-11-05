@@ -1,5 +1,9 @@
-devify
+bifrost-bin
+brave-origin-bin
+droidcam-obs-plugin
 helium-browser-bin
+obs-backgroundremoval
+odin4-cli
 open-tv-bin
 ventoy-bin
-vesktop-git
+vesktop-bin

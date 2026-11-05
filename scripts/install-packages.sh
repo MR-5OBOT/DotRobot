@@ -25,7 +25,7 @@ cpu_microcode_package() {
 
 gpu_video_package() {
   case "${1,,}" in
-    0x8086) printf '%s\n' intel-media-driver ;;
+    0x8086) printf '%s\n' intel-media-driver vpl-gpu-rt ;;
     0x1002) printf '%s\n' mesa ;;
     *) return 1 ;;
   esac
@@ -54,7 +54,9 @@ install_repo_group() {
       [[ ${class} == 0x03* ]] || continue
       read -r vendor <"${device}/vendor"
       if package="$(gpu_video_package "${vendor}")"; then
-        gpu_packages["${package}"]=1
+        for package in ${package}; do
+          gpu_packages["${package}"]=1
+        done
       elif [[ ${vendor,,} == 0x10de ]]; then
         nvidia_gpu=1
       fi
