@@ -15,21 +15,8 @@ setup_zinit() {
   log "Installed zinit"
 }
 
-setup_tpm() {
-  local tpm_dir="${HOME}/.tmux/plugins/tpm"
-  if [[ -d "${tpm_dir}" ]]; then
-    log "tmux plugin manager is already installed"
-    return 0
-  fi
-
-  mkdir -p "$(dirname "${tpm_dir}")"
-  git clone https://github.com/tmux-plugins/tpm "${tpm_dir}"
-  log "Installed tmux plugin manager"
-}
-
 main() {
   setup_zinit
-  setup_tpm
 }
 
 main "$@"
