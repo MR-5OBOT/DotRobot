@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# wallpaper.sh set <file> [output|all] — paint a wallpaper (stills through awww,
-# videos through mpvpaper) and regenerate the island palette from it.
+# wallpaper.sh set <file> [output|all] — paint a wallpaper through awww and
+# regenerate the island palette from it.
 set -euo pipefail
 
 flags_file="${XDG_STATE_HOME:-$HOME/.local/state}/island/flags.json"
@@ -9,58 +9,8 @@ case "$FIT" in no|crop|fit|stretch) ;; *) FIT=crop ;; esac
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper"
 MAP="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-map"
 STILL="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-still.png"
-FIT_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-fit"
 WLOG="${XDG_STATE_HOME:-$HOME/.local/state}/island/wallcolors.log"
 DEFAULT_WALL="$HOME/Pictures/wallpapers/mr5obot-prpl.jpg"
-
-is_video() {
-    case "${1##*.}" in
-        [Mm][Pp]4|[Ww][Ee][Bb][Mm]|[Mm][Kk][Vv]|[Mm][Oo][Vv]) return 0 ;;
-        *) return 1 ;;
-    esac
-}
-
-# mpvpaper keeps its real process name only when it runs as a bare ELF; distro
-# wrappers (NixOS private env, FHS shims...) run it under a different comm, so
-# exact-name matches silently miss it and a video lingers on after switching
-# back to a still. Match the command line instead, with the [m] bracket so the
-# pattern never matches the pgrep/pkill call itself, and only with the
-# `-o ... loop-file=inf` every player started here carries, so an editor, a
-# package manager or this script with "mpvpaper" in its arguments is never killed.
-MPV_PAT='[m]pvpaper.* -o .*loop-file=inf'
-mpv_running() { pgrep -f "$MPV_PAT" >/dev/null 2>&1; }
-mpv_list() { pgrep -af "$MPV_PAT" || true; }
-mpv_kill() { pkill -f "$MPV_PAT" 2>/dev/null || true; }
-
-# Soft-kill first so mpv can flush its quit bookkeeping, then escalate to
-# SIGKILL. A decoder wedged on the frame queue otherwise lingers with its full
-# buffer pool while the next video spawns on top, so a rapid video-to-video
-# switch ratchets the footprint up instead of swapping one player for another.
-stop_mpv() {
-    mpv_running || return 0
-    mpv_kill
-    for _ in $(seq 1 10); do
-        mpv_running || return 0
-        sleep 0.1
-    done
-    pkill -9 -f "$MPV_PAT" 2>/dev/null || true
-    for _ in $(seq 1 10); do
-        mpv_running || return 0
-        sleep 0.1
-    done
-}
-
-# Fit intent mapped to mpv flags (videos have no awww --resize): cover zooms
-# with panscan, contain letterboxes, stretch distorts, center stays native, all
-# mirroring what aww's --resize does for stills.
-opts_for_fit() {
-    case "$FIT" in
-        no)      printf '%s' "no-audio loop-file=inf hwdec=auto video-unscaled=yes panscan=0" ;;
-        fit)     printf '%s' "no-audio loop-file=inf hwdec=auto panscan=0" ;;
-        stretch) printf '%s' "no-audio loop-file=inf hwdec=auto keepaspect=no panscan=0" ;;
-        *)       printf '%s' "no-audio loop-file=inf hwdec=auto panscan=1.0" ;;
-    esac
-}
 
 ensure_daemon() {
     awww query >/dev/null 2>&1 && return 0
@@ -107,15 +57,15 @@ make_still() {
     ffmpeg -y -loglevel error -i "$1" -frames:v 1 -f image2 -c:v png "$2.tmp" && mv "$2.tmp" "$2"
 }
 
-# Animated picks wave in over their own first frame, then swap to the live
-# source with no transition: the frames are identical, so the gif restart and
-# the mpvpaper spawn stop reading as a flicker at the end of the wave.
+# Animated gifs wave in over their own first frame, then swap to the live gif
+# with no transition: the frames are identical, so the restart never reads as a
+# flicker at the end of the wave.
 apply_visual() {
     local pic="$1" out="${2:-}" show="$1" st
     local -a oflag=()
     [ -n "$out" ] && oflag=(--outputs "$out")
     case "${pic##*.}" in
-        [Mm][Pp]4|[Ww][Ee][Bb][Mm]|[Mm][Kk][Vv]|[Mm][Oo][Vv]|[Gg][Ii][Ff])
+        [Gg][Ii][Ff])
             st="$STILL"
             [ -n "$out" ] && st="${STILL%.png}-$out.png"
             make_still "$pic" "$st" && show="$st"
@@ -128,85 +78,22 @@ apply_visual() {
         --transition-wave "60,30" \
         --transition-fps 60 \
         --transition-step 90
-    if [ "$show" != "$pic" ] && ! is_video "$pic"; then
+    if [ "$show" != "$pic" ]; then
         sleep 0.9
         awww img ${oflag[@]+"${oflag[@]}"} "$pic" --resize "$FIT" --transition-type none
     fi
-}
-
-# The desired video set comes from the map, collapsed to one '*' instance when
-# every output plays the same file so a shared video decodes once. The running
-# instances are compared first and the kill/respawn skipped on a match, so
-# changing one monitor's still never restarts the other monitor's video. The mpv
-# scaling follows the fit flag: a fit change keeps the same pics, but the stored
-# fit diverging from the running one forces the respawn so the videos re-arm
-# under the new options.
-sync_videos() {
-    local desired="" actual="" o pic outs n_out n_vid VOPTS
-    outs=$(outputs)
-    for o in $outs; do
-        pic=$(map_get "$o")
-        [ -n "$pic" ] && [ -f "$pic" ] && is_video "$pic" || continue
-        desired+="$o"$'\t'"$pic"$'\n'
-    done
-    n_out=$(printf '%s\n' "$outs" | sed '/^$/d' | wc -l)
-    n_vid=$(printf '%s' "$desired" | sed '/^$/d' | wc -l)
-    if [ "$n_vid" -gt 0 ] && [ "$n_vid" = "$n_out" ] && [ "$(printf '%s' "$desired" | cut -f2 | sort -u | wc -l)" = 1 ]; then
-        desired="*"$'\t'"$(printf '%s' "$desired" | head -n1 | cut -f2)"$'\n'
-    fi
-    desired=$(printf '%s' "$desired" | sort)
-    # Running set keyed by the output, keeping the whole trailing path so a file
-    # name with spaces can never read as a different video and force a kill-and-
-    # respawn loop (each cycle re-decodes the clip and re-grows the buffer pools).
-    actual=$(for o in $outs; do
-        mpv_list | awk -v o="$o" '
-            { n = 0; for (i = 1; i <= NF; i++) if ($i == o || $i == "*") n = i }
-            n { for (j = 1; j <= n; j++) $j = ""; sub(/^ +/, ""); print o "\t" $0 }'
-    done | sort -u)
-    # When the desired set is the collapsed shared instance ('*'), fold the
-    # running set to the same shape whenever every running video is that same
-    # file: mpvpaper only reports real output names, so without this a shared
-    # video would restart on every sync even though nothing changed.
-    if [ "$(printf '%s' "$desired" | head -n1 | cut -f1)" = "*" ] \
-        && [ "$(printf '%s' "$actual" | cut -f2 | sort -u | wc -l)" = 1 ] \
-        && [ -n "$(printf '%s' "$actual" | cut -f2 | head -n1)" ]; then
-        actual="*"$'\t'"$(printf '%s' "$actual" | cut -f2 | sort -u)"
-    fi
-    VOPTS=$(opts_for_fit)
-    if [ "$(cat "$FIT_STATE" 2>/dev/null || true)" != "$VOPTS" ]; then
-        if mpv_running; then
-            stop_mpv
-            actual=""
-        fi
-    fi
-    mkdir -p "$(dirname "$FIT_STATE")"
-    printf '%s\n' "$VOPTS" > "$FIT_STATE.tmp" && mv "$FIT_STATE.tmp" "$FIT_STATE"
-    [ "$desired" = "$actual" ] && return 0
-    if mpv_running; then
-        stop_mpv
-    fi
-    [ -n "$desired" ] || return 0
-    sleep 0.8
-    while IFS=$'\t' read -r o pic; do
-        [ -n "$o" ] || continue
-        setsid -f mpvpaper -p -o "$VOPTS" "$o" "$pic" >/dev/null 2>&1
-    done <<< "$desired"
 }
 
 # The palette follows the focused monitor: whatever hangs there drives wallcolors,
 # the global state file and the global still, so the Settings dynamic re-run
 # and the picker's current marker stay coherent with what the user looks at.
 palette_update() {
-    local pmode focused pic show mh md ms
+    local pmode focused pic mh md ms
     focused=$(focused_output)
     pic=""
     [ -n "$focused" ] && pic=$(map_get "$focused")
     [ -n "$pic" ] || pic=$(cat "$STATE" 2>/dev/null || true)
     [ -n "$pic" ] && [ -f "$pic" ] || return 0
-    show="$pic"
-    if is_video "$pic"; then
-        make_still "$pic" "$STILL" && show="$STILL" || return 0
-    fi
     mkdir -p "$(dirname "$STATE")"
     printf '%s\n' "$pic" > "$STATE"
     pmode=$(jq -r '.paletteMode // "static"' "$flags_file" 2>/dev/null || echo static)
@@ -217,15 +104,14 @@ palette_update() {
         ms=$(jq -r '.manualSat // 0.5' "$flags_file" 2>/dev/null || echo 0.5)
         python3 "$(dirname "$0")/wallcolors.py" --hue "$mh" "$md" "$ms" >>"$WLOG" 2>&1 || true
     else
-        python3 "$(dirname "$0")/wallcolors.py" "$show" >>"$WLOG" 2>&1 || true
+        python3 "$(dirname "$0")/wallcolors.py" "$pic" >>"$WLOG" 2>&1 || true
     fi
 }
 
 # Hyprland 0.57 leaves a wallpaper layer that mapped under a fullscreen window at
-# alpha 0. hypr/lua_configs/wallpaper.lua runs `heal` with the stuck layer's owner
-# ("stills" = awww, "videos" = mpvpaper) once its screen is uncovered. heal acts only
-# while Hyprland really holds one of that daemon's layers at alpha 0, so a fixed
-# Hyprland never pays for a restart; `respawn` always restarts. No owner given: both.
+# alpha 0. hypr/lua_configs/wallpaper.lua runs `heal` once its screen is uncovered.
+# heal acts only while Hyprland really holds an awww layer at alpha 0, so a fixed
+# Hyprland never pays for a restart; `respawn` always restarts.
 stuck() {
     hyprctl layers -j | jq -e --arg ns "$1" '[.[].levels[][] | select(.namespace == $ns and .alpha == 0)] | length > 0' >/dev/null
 }
@@ -255,26 +141,15 @@ respawn_stills() {
 }
 
 if [ "${1:-}" = "respawn" ] || [ "${1:-}" = "heal" ]; then
-    mode=$1
-    shift
-    [ $# -gt 0 ] || set -- stills videos
-    case " $* " in *" stills "*)
-        if [ "$mode" = respawn ] || stuck awww-daemon; then respawn_stills; fi ;;
-    esac
-    case " $* " in *" videos "*)
-        if [ "$mode" = respawn ] || stuck mpvpaper; then stop_mpv; sync_videos; fi ;;
-    esac
+    if [ "$1" = respawn ] || stuck awww-daemon; then respawn_stills; fi
     exit 0
 fi
 
+# awww brings back its own last images; only a first login has nothing to restore.
 if [ "${1:-}" = "restore" ]; then
+    [ -s "$MAP" ] && exit 0
     for _ in {1..20}; do
-        if [ -n "$(outputs || true)" ]; then
-            # First login: nothing picked yet, so start on the default wallpaper.
-            [ -s "$MAP" ] || exec bash "$0" set "$DEFAULT_WALL"
-            sync_videos
-            exit 0
-        fi
+        [ -n "$(outputs || true)" ] && exec bash "$0" set "$DEFAULT_WALL"
         sleep 0.25
     done
     exit 1
@@ -283,10 +158,6 @@ fi
 [ "${1:-}" = "set" ] || { echo "usage: wallpaper.sh set <file> [output|all]" >&2; exit 2; }
 pic="${2:-}"
 [ -f "$pic" ] || exit 1
-if is_video "$pic" && ! command -v mpvpaper >/dev/null 2>&1; then
-    printf 'Video wallpapers are unavailable: mpvpaper is not installed.\n' >&2
-    exit 69
-fi
 target="${3:-}"
 [ "$target" = "all" ] && target=""
 
@@ -299,5 +170,4 @@ else
 fi
 
 apply_visual "$pic" "$target"
-sync_videos
 palette_update

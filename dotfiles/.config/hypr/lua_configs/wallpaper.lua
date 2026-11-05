@@ -1,15 +1,14 @@
 -- Wallpaper self-heal for a Hyprland 0.57 bug that hits every layer-shell
--- wallpaper (awww, hyprpaper, mpvpaper alike): a layer that maps while its monitor
--- shows a fullscreen window skips its fade-in, and leaving fullscreen restores only
--- TOP layers, so a wallpaper surface made then (HDMI replug, daemon restart) stays
--- at alpha 0 for good. awww and mpvpaper never remap a surface, so "opened under
--- fullscreen" means exactly "stuck". Track those surfaces; once their screen is
--- uncovered, `wallpaper.sh heal` respawns only the daemon that owns them (and only if
--- Hyprland really left one at alpha 0, so a fixed Hyprland costs nothing).
+-- wallpaper: a layer that maps while its monitor shows a fullscreen window skips
+-- its fade-in, and leaving fullscreen restores only TOP layers, so a wallpaper
+-- surface made then (HDMI replug, daemon restart) stays at alpha 0 for good. awww
+-- never remaps a surface, so "opened under fullscreen" means exactly "stuck".
+-- Track those surfaces; once their screen is uncovered, `wallpaper.sh heal`
+-- respawns awww (only if Hyprland really left one at alpha 0, so a fixed Hyprland
+-- costs nothing).
 local HEAL = os.getenv("HOME") .. "/.config/quickshell/island/scripts/wallpaper.sh heal"
--- layer namespace -> what `wallpaper.sh heal` restarts. Never pass "mpvpaper" itself:
--- the script's player match would see it in its own command line and kill itself.
-local WALL_LAYERS = { ["awww-daemon"] = "stills", mpvpaper = "videos" }
+-- layer namespace -> what `wallpaper.sh heal` restarts
+local WALL_LAYERS = { ["awww-daemon"] = "stills" }
 -- Kept in this Hyprland instance's runtime dir: `hyprctl reload` rebuilds this Lua
 -- state but must not forget a stuck surface, and a new session starts clean.
 local RUN, SIG = os.getenv("XDG_RUNTIME_DIR"), os.getenv("HYPRLAND_INSTANCE_SIGNATURE")

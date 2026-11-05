@@ -54,10 +54,9 @@ Singleton {
      * editor exporting over the same name) kept its old pixels on screen. Every
      * shown still is watched and re-applied to the outputs showing it; one save
      * fires several change events (truncate, write), so they settle first.
-     * Videos are skipped: wallpaper.sh never restarts mpvpaper on the same path.
      */
     Instantiator {
-        model: [...new Set(root.shown.map(e => e[1]))].filter(p => !/\.(mp4|webm|mkv|mov)$/i.test(p))
+        model: [...new Set(root.shown.map(e => e[1]))]
         delegate: FileView {
             required property string modelData
             path: modelData
@@ -80,10 +79,6 @@ Singleton {
     Process {
         id: applyProc
         onExited: function(code) {
-            if (code === 69) {
-                root.queuedApplies = root.queuedApplies.filter(function(item) { return item.path !== root.activePath; });
-                Quickshell.execDetached(["notify-send", "-a", "Wallpaper", "Video wallpaper unavailable", "Video playback is not installed."]);
-            }
             if (root.queuedApplies.length) {
                 var next = root.queuedApplies[0];
                 root.queuedApplies = root.queuedApplies.slice(1);

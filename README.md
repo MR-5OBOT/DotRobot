@@ -34,5 +34,3 @@ Run these when needed; each one explains itself as it runs.
 | `assets/presets/kdenlive-config/kdenlive-setup.sh` | Kdenlive theme and layouts |
 | `scripts/switch-from-wpa_supplicant-to-iwd.sh` | Switches the Wi-Fi backend to iwd; `revert` undoes it |
 | `sudo bash scripts/setup-grub-theme.sh` | Obsidian GRUB theme for the UKI + Windows setup; preview with `scripts/preview-grub-theme.sh` |
-
-Video wallpapers need `mpvpaper`, which the installer doesn't install.

@@ -89,92 +89,24 @@ def extract_color(filepath):
             continue
     return "#808080"
 
-def generate_video_poster(video_path, poster_path):
-    if os.path.exists(poster_path) and os.path.getsize(poster_path) > 1024:
-        return True
-    os.makedirs(os.path.dirname(poster_path), exist_ok=True)
-    tmp_poster = f"{poster_path}.tmp.jpg"
-    for seek in ["00:00:01", "00:00:00.5", "00:00:02", None]:
-        cmd = ["ffmpeg", "-y", "-hide_banner", "-loglevel", "error"]
-        if seek:
-            cmd += ["-ss", seek]
-        cmd += [
-            "-i", video_path,
-            "-vframes", "1",
-            "-vf", "scale=960:-2:force_original_aspect_ratio=decrease",
-            "-q:v", "2",
-            tmp_poster
-        ]
-        try:
-            subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True, timeout=8)
-            if os.path.exists(tmp_poster) and os.path.getsize(tmp_poster) > 512:
-                os.replace(tmp_poster, poster_path)
-                return True
-        except Exception:
-            pass
-    try:
-        if os.path.exists(tmp_poster):
-            os.remove(tmp_poster)
-    except OSError:
-        pass
-    for cmd in ["magick", "convert"]:
-        try:
-            subprocess.run([cmd, "-size", "960x540", "xc:#1e1e2e", poster_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True, timeout=5)
-            return True
-        except Exception:
-            continue
-    return False
-
-def process_entry(entry_tuple, poster_dir, cached_items):
-    fname, fpath, mtime, size, is_video = entry_tuple
-    furl = f"file://{fpath}"
-
+def process_entry(entry_tuple, cached_items):
+    fname, fpath, mtime, size = entry_tuple
     existing = cached_items.get(fname)
     if existing and existing.get("mtime") == mtime and existing.get("size") == size:
-        if is_video:
-            p_path = existing.get("posterPath", "")
-            if p_path and os.path.exists(p_path) and os.path.getsize(p_path) > 512:
-                return existing
-        else:
-            return existing
+        return existing
+    hex_color = extract_color(fpath)
+    return {
+        "fileName": fname,
+        "filePath": fpath,
+        "fileUrl": f"file://{fpath}",
+        "hex": hex_color,
+        "bucket": get_color_bucket(hex_color),
+        "mtime": mtime,
+        "size": size
+    }
 
-    if is_video:
-        poster_name = f"{hashlib.sha256(fname.encode('utf-8')).hexdigest()[:16]}.jpg"
-        poster_path = os.path.join(poster_dir, poster_name)
-        generate_video_poster(fpath, poster_path)
-        poster_url = f"file://{poster_path}"
-        hex_color = extract_color(poster_path) if os.path.exists(poster_path) else "#808080"
-        return {
-            "fileName": fname,
-            "filePath": fpath,
-            "fileUrl": furl,
-            "isVideo": True,
-            "posterPath": poster_path,
-            "posterUrl": poster_url,
-            "hex": hex_color,
-            "bucket": "Video",
-            "mtime": mtime,
-            "size": size
-        }
-    else:
-        hex_color = extract_color(fpath)
-        bucket = get_color_bucket(hex_color)
-        return {
-            "fileName": fname,
-            "filePath": fpath,
-            "fileUrl": furl,
-            "isVideo": False,
-            "posterPath": "",
-            "posterUrl": "",
-            "hex": hex_color,
-            "bucket": bucket,
-            "mtime": mtime,
-            "size": size
-        }
-
-def run_indexing(src_dir, per_dir_cache, index_file, poster_dir):
+def run_indexing(src_dir, per_dir_cache, index_file):
     os.makedirs(per_dir_cache, exist_ok=True)
-    os.makedirs(poster_dir, exist_ok=True)
 
     cached_items = {}
     if os.path.exists(index_file):
@@ -188,7 +120,6 @@ def run_indexing(src_dir, per_dir_cache, index_file, poster_dir):
             cached_items = {}
 
     img_exts = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp"}
-    vid_exts = {".mp4", ".mkv", ".mov", ".webm"}
 
     entries_to_process = []
     seen_entry_names = set()
@@ -210,7 +141,7 @@ def run_indexing(src_dir, per_dir_cache, index_file, poster_dir):
             continue
 
         ext = os.path.splitext(fname)[1].lower()
-        if ext not in img_exts and ext not in vid_exts:
+        if ext not in img_exts:
             continue
 
         try:
@@ -226,13 +157,12 @@ def run_indexing(src_dir, per_dir_cache, index_file, poster_dir):
         seen_entry_names.add(fname)
         seen_entry_paths.add(real_path)
         fpath = os.path.abspath(entry.path)
-        is_video = ext in vid_exts
-        entries_to_process.append((fname, fpath, mtime, size, is_video))
+        entries_to_process.append((fname, fpath, mtime, size))
 
     workers = min(12, max(4, os.cpu_count() or 4))
     items_map = {}
     with ThreadPoolExecutor(max_workers=workers) as executor:
-        futures = [executor.submit(process_entry, item, poster_dir, cached_items) for item in entries_to_process]
+        futures = [executor.submit(process_entry, item, cached_items) for item in entries_to_process]
         for f in futures:
             try:
                 res = f.result()
@@ -279,7 +209,6 @@ def main():
 
     dir_hash = get_dir_hash(src_dir)
     per_dir_cache = os.path.join(cache_dir, "dirs", dir_hash)
-    poster_dir = os.path.join(per_dir_cache, "posters")
     index_file = os.path.join(per_dir_cache, "index.json")
 
     dirty_file = os.path.join(run_dir, f"indexer_{dir_hash}.dirty")
@@ -307,7 +236,7 @@ def main():
                     os.remove(dirty_file)
                 except OSError:
                     pass
-            result_data = run_indexing(src_dir, per_dir_cache, index_file, poster_dir)
+            result_data = run_indexing(src_dir, per_dir_cache, index_file)
             if not os.path.exists(dirty_file):
                 break
 

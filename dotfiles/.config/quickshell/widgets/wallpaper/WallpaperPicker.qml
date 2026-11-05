@@ -2,7 +2,6 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Window
 import Qt.labs.folderlistmodel
-import QtMultimedia
 import QtQuick.Effects
 import Quickshell
 import Quickshell.Io
@@ -88,20 +87,6 @@ Item {
         }
     }
 
-    MediaPlayer {
-        id: globalPreviewPlayer
-        audioOutput: AudioOutput { muted: true }
-        loops: MediaPlayer.Infinite
-    }
-
-    function resetPreviewPlayer() {
-        if (globalPreviewPlayer.playbackState === MediaPlayer.PlayingState) {
-            globalPreviewPlayer.stop();
-        }
-        globalPreviewPlayer.source = "";
-        globalPreviewPlayer.videoOutput = null;
-    }
-
     function refreshCurrent() {
         let scName = window.hostScreen ? window.hostScreen.name : "";
         let activeWallpaper = Wallpaper.getWallpaper(scName);
@@ -115,8 +100,7 @@ Item {
         let clean = String(name);
         let slash = clean.lastIndexOf("/");
         if (slash !== -1) clean = clean.substring(slash + 1);
-        if (clean.startsWith("000_")) clean = clean.substring(4);
-        clean = clean.replace(/\.(jpg|jpeg|png|webp|gif|bmp|mp4|mkv|mov|webm)$/i, "");
+        clean = clean.replace(/\.(jpg|jpeg|png|webp|gif|bmp)$/i, "");
         return clean;
     }
 
@@ -125,7 +109,7 @@ Item {
         let clean = String(name);
         let slash = clean.lastIndexOf("/");
         if (slash !== -1) clean = clean.substring(slash + 1);
-        return clean.startsWith("000_") ? clean.substring(4) : clean;
+        return clean;
     }
 
     function getOriginalFileName(safeFileName) {
@@ -139,21 +123,6 @@ Item {
         let base = window.getCleanBaseName(s);
         if (window.srcNameLookup[base]) return window.srcNameLookup[base];
         return clean;
-    }
-
-    function isVideoTarget(name) {
-        if (!name) return false;
-        let s = String(name).toLowerCase();
-        let slash = s.lastIndexOf("/");
-        if (slash !== -1) s = s.substring(slash + 1);
-        if (s.startsWith("000_")) return true;
-        if (s.endsWith(".mp4") || s.endsWith(".mkv") || s.endsWith(".mov") || s.endsWith(".webm")) return true;
-        let orig = window.getOriginalFileName(name).toLowerCase();
-        if (orig.endsWith(".mp4") || orig.endsWith(".mkv") || orig.endsWith(".mov") || orig.endsWith(".webm")) return true;
-        let base = window.getCleanBaseName(name);
-        let match = window.thumbLookup[base] || window.thumbLookup[s];
-        if (match && match.isVideo) return true;
-        return false;
     }
 
     function loadMonitors() {
@@ -247,7 +216,6 @@ Item {
             window.allowAddAnimation = false;
             window.isApplying = false;
             window.isMonitorSelectorOpen = false;
-            window.resetPreviewPlayer();
         } else {
             window.loadMonitors();
             window.refreshForDisplay();
@@ -282,7 +250,6 @@ Item {
         if (srcModel.status !== FolderListModel.Ready || srcModel.count === 0) return;
 
         let localItems = [];
-        let videoItems = [];
         let seen = {};
         let newSrcLookup = Object.assign({}, window.srcNameLookup);
         let newThumbLookup = Object.assign({}, window.thumbLookup);
@@ -298,18 +265,14 @@ Item {
             let sFu = String(fu);
             let clean = window.getCleanName(sFn);
             let base = window.getCleanBaseName(sFn);
-            let isVid = window.isVideoTarget(sFn) || sFn.toLowerCase().match(/\.(mp4|mkv|mov|webm)$/) !== null;
 
             let cached = newThumbLookup[sFn] || newThumbLookup[clean] || newThumbLookup[base];
             let item = cached ? cached : {
                 "fileName": sFn,
                 "filePath": decodeURIComponent(sFu.replace("file://", "")),
                 "fileUrl": sFu,
-                "isVideo": isVid,
-                "posterPath": "",
-                "posterUrl": "",
                 "hex": "#808080",
-                "bucket": isVid ? "Video" : "Monochrome"
+                "bucket": "Monochrome"
             };
 
             newSrcLookup[sFn] = sFn;
@@ -320,16 +283,14 @@ Item {
             newThumbLookup[clean] = item;
             newThumbLookup[base] = item;
 
-            if (isVid) videoItems.push(item);
-            else localItems.push(item);
+            localItems.push(item);
         }
 
         window.srcNameLookup = newSrcLookup;
         window.thumbLookup = newThumbLookup;
 
-        if (localProxyModel.count === 0 && videoProxyModel.count === 0) {
+        if (localProxyModel.count === 0) {
             if (localItems.length > 0) localProxyModel.append(localItems);
-            if (videoItems.length > 0) videoProxyModel.append(videoItems);
             window.updateDisplay(true);
         }
     }
@@ -337,7 +298,7 @@ Item {
     FolderListModel {
         id: srcModel
         folder: "file://" + window.srcDir
-        nameFilters: ["*.jpg", "*.jpeg", "*.png", "*.webp", "*.gif", "*.bmp", "*.mp4", "*.mkv", "*.mov", "*.webm", "*.JPG", "*.JPEG", "*.PNG", "*.WEBP", "*.GIF", "*.BMP", "*.MP4", "*.MKV", "*.MOV", "*.WEBM"]
+        nameFilters: ["*.jpg", "*.jpeg", "*.png", "*.webp", "*.gif", "*.bmp", "*.JPG", "*.JPEG", "*.PNG", "*.WEBP", "*.GIF", "*.BMP"]
         caseSensitive: true
         showDirs: false
         onCountChanged: {
@@ -414,10 +375,8 @@ Item {
             let e = model.get(i);
             if (e.fileName !== newItems[i].fileName ||
                 e.fileUrl !== newItems[i].fileUrl ||
-                e.posterUrl !== newItems[i].posterUrl ||
                 e.hex !== newItems[i].hex ||
-                e.bucket !== newItems[i].bucket ||
-                e.isVideo !== newItems[i].isVideo) {
+                e.bucket !== newItems[i].bucket) {
                 return false;
             }
         }
@@ -428,7 +387,6 @@ Item {
         if (!data || !data.items) return;
 
         let localItems = [];
-        let videoItems = [];
         let seen = {};
         let newSrcLookup = {};
         let newThumbLookup = {};
@@ -451,16 +409,7 @@ Item {
             newThumbLookup[clean] = item;
             newThumbLookup[base] = item;
 
-            let isVid = !!item.isVideo || window.isVideoTarget(fname) || fname.toLowerCase().match(/\.(mp4|mkv|mov|webm)$/) !== null;
-
-            if (isVid) {
-                item.isVideo = true;
-                item.bucket = "Video";
-                videoItems.push(item);
-            } else {
-                item.isVideo = false;
-                localItems.push(item);
-            }
+            localItems.push(item);
         }
 
         window.srcNameLookup = newSrcLookup;
@@ -473,25 +422,15 @@ Item {
             if (oA !== oB) return oA - oB;
             return String(a.fileName).localeCompare(String(b.fileName));
         });
-        videoItems.sort((a, b) => String(a.fileName).localeCompare(String(b.fileName)));
 
-        let localChanged = !window.itemsEqualToModel(localProxyModel, localItems);
-        let videoChanged = !window.itemsEqualToModel(videoProxyModel, videoItems);
-
-        if (!localChanged && !videoChanged) return;
+        if (window.itemsEqualToModel(localProxyModel, localItems)) return;
 
         window.isModelChanging = true;
         let wasAllowing = window.allowAddAnimation;
         window.allowAddAnimation = false;
 
-        if (localChanged) {
-            localProxyModel.clear();
-            if (localItems.length > 0) localProxyModel.append(localItems);
-        }
-        if (videoChanged) {
-            videoProxyModel.clear();
-            if (videoItems.length > 0) videoProxyModel.append(videoItems);
-        }
+        localProxyModel.clear();
+        if (localItems.length > 0) localProxyModel.append(localItems);
 
         window.updateDisplay(true);
 
@@ -512,7 +451,6 @@ Item {
 
     function updateDisplay(forceSnap) {
         window.isModelChanging = true;
-        window.resetPreviewPlayer();
 
         let newItems = [];
         let seenNames = {};
@@ -521,7 +459,7 @@ Item {
         let cleanTarget = window.getCleanBaseName(focusName);
         let fullTarget = window.getCleanName(focusName);
 
-        for (let sourceModel of [localProxyModel, videoProxyModel]) {
+        for (let sourceModel of [localProxyModel]) {
             for (let i = 0; i < sourceModel.count; i++) {
                 let it = sourceModel.get(i);
                 let fname = it && it.fileName;
@@ -532,11 +470,8 @@ Item {
                     "fileName": fname,
                     "filePath": it.filePath || "",
                     "fileUrl": String(it.fileUrl),
-                    "posterPath": it.posterPath || "",
-                    "posterUrl": String(it.posterUrl || ""),
-                    "isVideo": !!it.isVideo,
                     "hex": it.hex || "#808080",
-                    "bucket": it.bucket || (it.isVideo ? "Video" : "Monochrome")
+                    "bucket": it.bucket || "Monochrome"
                 });
 
                 if (cleanTarget !== "" && (fname === focusName || window.getCleanName(fname) === fullTarget || window.getCleanBaseName(fname) === cleanTarget)) {
@@ -551,8 +486,7 @@ Item {
                 let old = displayModel.get(i);
                 let item = newItems[i];
                 if (old.fileName !== item.fileName || old.fileUrl !== item.fileUrl ||
-                    old.posterUrl !== item.posterUrl || old.bucket !== item.bucket ||
-                    old.isVideo !== item.isVideo) {
+                    old.bucket !== item.bucket) {
                     isIdentical = false;
                     break;
                 }
@@ -595,7 +529,6 @@ Item {
     Shortcut { sequence: "Backtab"; enabled: window.visible && !window.isApplying; onActivated: window.stepToNextValidIndex(-1) }
 
     ListModel { id: localProxyModel }
-    ListModel { id: videoProxyModel }
     ListModel { id: displayModel }
     ListView {
         id: view
@@ -690,31 +623,17 @@ Item {
                         localProxyModel.remove(i);
                     }
                 }
-                for (let i = videoProxyModel.count - 1; i >= 0; i--) {
-                    if (videoProxyModel.get(i).fileName === fn) {
-                        videoProxyModel.remove(i);
-                    }
-                }
             }
 
-            ListView.onPooled: {
-                imageRetryTimer.stop();
-                if (delegateRoot.isPlayingVideo || globalPreviewPlayer.videoOutput === previewOutput) {
-                    window.resetPreviewPlayer();
-                    delegateRoot.isPlayingVideo = false;
-                }
-            }
+            ListView.onPooled: imageRetryTimer.stop()
 
             ListView.onReused: {
-                delegateRoot.isPlayingVideo = false;
                 delegateRoot.isFailed = false;
                 paperImage.retryCount = 0;
             }
 
             readonly property string safeFileName: fileName !== undefined ? String(fileName) : ""
             readonly property string itemFileUrl: fileUrl !== undefined ? String(fileUrl) : ""
-            readonly property string itemPosterUrl: posterUrl !== undefined ? String(posterUrl) : ""
-            readonly property bool isVideo: (model.isVideo !== undefined && model.isVideo !== null) ? !!model.isVideo : (safeFileName.toLowerCase().match(/\.(mp4|mkv|mov|webm)$/) !== null || safeFileName.startsWith("000_"))
 
             readonly property bool isCurrent: ListView.isCurrentItem
             readonly property bool isVisuallyEnlarged: isCurrent
@@ -734,29 +653,6 @@ Item {
             readonly property real cellWidth: isVisuallyEnlarged ? (window.itemWidth * 1.5 + window.s(4)) : (window.itemWidth * 0.48 * sideScale)
             readonly property real targetWidth: isVisuallyEnlarged ? (window.itemWidth * 1.5) : (window.itemWidth * 0.48 * sideScale)
             readonly property real targetHeight: isVisuallyEnlarged ? (window.itemHeight + window.s(30)) : (window.itemHeight * Math.max(0.62, Math.pow(0.90, Math.max(0, dist - 1))))
-            property bool isPlayingVideo: false
-
-            function toggleVideoPlay() {
-                if (isPlayingVideo) {
-                    window.resetPreviewPlayer();
-                    isPlayingVideo = false;
-                } else {
-                    window.resetPreviewPlayer();
-                    globalPreviewPlayer.videoOutput = previewOutput;
-                    globalPreviewPlayer.source = delegateRoot.itemFileUrl !== "" ? delegateRoot.itemFileUrl : ("file://" + window.srcDir + "/" + window.getOriginalFileName(delegateRoot.safeFileName));
-                    isPlayingVideo = true;
-                    globalPreviewPlayer.play();
-                }
-            }
-
-            onIsVisuallyEnlargedChanged: {
-                if (!isVisuallyEnlarged) {
-                    if (globalPreviewPlayer.videoOutput === previewOutput) {
-                        window.resetPreviewPlayer();
-                    }
-                    isPlayingVideo = false;
-                }
-            }
 
             width: isFailed ? 0 : cellWidth
             visible: (opacity > 0.01) && !isFailed
@@ -823,7 +719,7 @@ Item {
                             width: (window.itemWidth * 1.5) + ((window.itemHeight + window.s(30)) * Math.abs(window.skewFactor)) + window.s(50)
                             height: window.itemHeight + window.s(30)
                             fillMode: Image.PreserveAspectCrop
-                            source: delegateRoot.isVideo ? (delegateRoot.itemPosterUrl !== "" ? delegateRoot.itemPosterUrl : "") : delegateRoot.itemFileUrl
+                            source: delegateRoot.itemFileUrl
                             asynchronous: true
                             cache: true
                             opacity: (status === Image.Ready && source.toString() !== "") ? 1.0 : 0.0
@@ -855,34 +751,6 @@ Item {
                                     }
                                 }
                             }
-                            transform: Matrix4x4 { property real s: -window.skewFactor; matrix: Qt.matrix4x4(1, s, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1) }
-                        }
-
-                        VideoOutput {
-                            id: previewOutput
-                            anchors.centerIn: parent ? parent : undefined
-                            anchors.horizontalCenterOffset: window.s(-50)
-                            width: (window.itemWidth * 1.5) + ((window.itemHeight + window.s(30)) * Math.abs(window.skewFactor)) + window.s(50)
-                            height: window.itemHeight + window.s(30)
-                            fillMode: VideoOutput.PreserveAspectCrop
-                            visible: delegateRoot.isPlayingVideo && globalPreviewPlayer.playbackState === MediaPlayer.PlayingState
-                            transform: Matrix4x4 { property real s: -window.skewFactor; matrix: Qt.matrix4x4(1, s, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1) }
-                        }
-
-                        IconButton {
-                            id: videoActionButton
-                            visible: delegateRoot.isVideo
-                            anchors.centerIn: parent ? parent : undefined
-                            size: window.s(50)
-                            cornerRadius: window.s(16)
-                            iconFontSize: window.s(20)
-                            buttonIcon: delegateRoot.isPlayingVideo && globalPreviewPlayer.playbackState === MediaPlayer.PlayingState ? "󰏤" : "󰐊"
-                            accentColor: Qt.rgba(ThemeBackend.surface0.r, ThemeBackend.surface0.g, ThemeBackend.surface0.b, 0.65)
-                            textColor: ThemeBackend.text
-                            opacity: (delegateRoot.isPlayingVideo && globalPreviewPlayer.playbackState === MediaPlayer.PlayingState) ? (isHoveredOrHighlighted ? 0.9 : 0.18) : 0.88
-                            Behavior on opacity { NumberAnimation { duration: 200 } }
-                            enabled: !window.isApplying
-                            onClicked: delegateRoot.toggleVideoPlay()
                             transform: Matrix4x4 { property real s: -window.skewFactor; matrix: Qt.matrix4x4(1, s, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1) }
                         }
                     }

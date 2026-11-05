@@ -68,7 +68,7 @@ SettingsSurface {
     Process {
         id: dynamicProc
         command: ["sh", "-c",
-            "f=\"${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper\"; pic=$(cat \"$f\" 2>/dev/null); case \"$pic\" in *.[Mm][Pp]4|*.[Ww][Ee][Bb][Mm]|*.[Mm][Kk][Vv]|*.[Mm][Oo][Vv]) pic=\"${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-still.png\";; esac; [ -f \"$pic\" ] && exec python3 \"$1\" \"$pic\"",
+            "f=\"${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper\"; pic=$(cat \"$f\" 2>/dev/null); [ -f \"$pic\" ] && exec python3 \"$1\" \"$pic\"",
             "sh", Config.islandPath("scripts", "wallcolors.py")]
     }
 
