@@ -1,7 +1,6 @@
 pragma Singleton
 import QtQuick
 import Quickshell
-import "../../widgets" as Widgets
 
 /**
  * Path authority for the pill, kept as one self-locating source of truth. The
@@ -12,11 +11,9 @@ import "../../widgets" as Widgets
 Singleton {
     id: root
 
-    // The picker and drag-and-drop must save/read the same collection.
+    // The picker and drag-and-drop must save/read the same collection: the folder
+    // set in island Settings, else ~/Pictures/wallpapers.
     readonly property string wallpaperDir: Flags.wallpaperDir
-        || Widgets.Config.rawSettings.wallpaperDir
-        || Widgets.Config.rawSettings.wallpaper_dir
-        || Quickshell.env("WALLPAPER_DIR")
         || (Quickshell.env("HOME") + "/Pictures/wallpapers")
 
     /** Absolute filesystem path of the quickshell project folder (parent of Singletons/). */

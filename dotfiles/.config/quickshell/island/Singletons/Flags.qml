@@ -73,7 +73,7 @@ Singleton {
             property bool time12h: false
             property bool clockSeconds: false
             property string paletteMode: "static"
-            /** Explicit wallpaper folder override. Empty falls back through Config.wallpaperDir (widget settings, $WALLPAPER_DIR, ~/Pictures/wallpapers). Lives in user state so an in-app update never clobbers a custom folder. */
+            /** Explicit wallpaper folder override. Empty means ~/Pictures/wallpapers. Lives in user state so an in-app update never clobbers a custom folder. */
             property string wallpaperDir: ""
             /** Wallpaper scaling read by wallpaper.sh: awww --resize "no" (center), "crop" (cover), "fit" (contain) or "stretch". */
             property string wallpaperFit: "crop"

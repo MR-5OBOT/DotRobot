@@ -2,6 +2,5 @@
   "theme": {
     "borderRadius": 8,
     "fontFamily": "Adwaita Mono"
-  },
-  "wallpaperDir": ""
+  }
 }
