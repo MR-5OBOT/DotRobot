@@ -5,15 +5,41 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
 # Link each entry of $1 into $2 one by one, so $2 stays a real directory that
 # tool installers (uv, claude, ...) can also drop their own files into.
+# Further arguments name entries to leave out.
 link_children() {
   local src="$1" dest="$2" item
+  shift 2
 
   [[ -d "${src}" ]] || return 0
   mkdir -p "${dest}"
   for item in "${src}"/*; do
     [[ -e "${item}" ]] || continue
+    [[ " $* " == *" ${item##*/} "* ]] && continue
     symlink_path "${item}" "${dest}/$(basename "${item}")"
   done
+}
+
+# Vesktop keeps the Discord session (login token) in ~/.config/vesktop, so that
+# stays a real directory and only themes/ comes from the repo. It used to be one
+# symlink into the repo; move the session found there out first.
+link_vesktop() {
+  local dir="${HOME}/.config/vesktop" repo_dir="${DOTFILES_DIR}/.config/vesktop"
+
+  if [[ -L "${dir}" ]]; then
+    if [[ "$(readlink "${dir}")" != "${repo_dir}" ]]; then
+      warn "${dir} links somewhere else; left it alone"
+      return 0
+    fi
+    if pgrep -x vesktop >/dev/null; then
+      warn "Close Vesktop and re-run to move its session out of the repo"
+      return 0
+    fi
+    rm "${dir}"
+    mkdir -p "${dir}"
+    find "${repo_dir}" -mindepth 1 -maxdepth 1 ! -name themes -exec mv -t "${dir}" -- {} +
+    log "Moved Vesktop's session out of the repo into ${dir}"
+  fi
+  link_children "${repo_dir}" "${dir}"
 }
 
 # Qt reads stylesheet paths and url()s literally, so the files in .gitattributes
@@ -36,7 +62,8 @@ main() {
 
   symlink_path "${DOTFILES_DIR}/.gitconfig" "${HOME}/.gitconfig"
   setup_home_filter
-  link_children "${DOTFILES_DIR}/.config" "${HOME}/.config"
+  link_children "${DOTFILES_DIR}/.config" "${HOME}/.config" vesktop
+  link_vesktop
   # ~/.local/bin used to be one symlink into the repo; it is a real directory now.
   if [[ -L "${HOME}/.local/bin" ]]; then
     rm "${HOME}/.local/bin"

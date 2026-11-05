@@ -3,7 +3,7 @@ dotfiles/.config/gtk-3.0/bookmarks
 claude
 # zsh rebuilds the completion cache in $ZDOTDIR on every start
 dotfiles/.config/zsh/.zcompdump*
-# vesktop writes its Discord session token + caches into the linked config dir
+# Safety net: Vesktop's session (Discord token) lives in ~/.config/vesktop, never here
 dotfiles/.config/vesktop/*
 !dotfiles/.config/vesktop/themes/
 
