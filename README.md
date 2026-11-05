@@ -45,6 +45,34 @@ It requires NetworkManager, an active UFW firewall, iproute2, and Python 3.
 The script uses `wlan0` and this machine's saved hotspot UUID; update
 `wifi_device` and `profile_uuid` in the script when using another setup.
 
+For Helium with Brovim, close Helium completely and run
+`./scripts/setup-browser-shortcuts.py`. This reproduces the browser shortcuts
+configured on 2026-11-05, including disabled Ctrl+Tab/Ctrl+Shift+Tab, Ctrl+X to
+close a tab (plain x belongs to Brovim), and Alt+S for Settings. The preset lives
+beside the browser flags in
+`assets/presets/browser-flags/helium-brovim-shortcuts.json`. Use `--dry-run` to
+preview or `--profile-dir /path/to/profile` for a different Helium profile.
+The script changes only browser shortcut overrides; Brovim's Alt+Q and other
+extension shortcuts remain assigned in `chrome://extensions/shortcuts`.
+It saves the previous overrides in the profile and prints an undo command.
+This is a snapshot of Helium 0.20.3.1: browser updates can add new defaults.
+
+To use Brovim on Helium's Settings, History and other internal pages, run
+`./scripts/setup-brovim-internal-pages.sh /path/to/brovim` once and fully restart
+Helium. This links `assets/presets/browser-flags/helium-brovim.conf` to
+`~/.config/helium-browser-flags.conf`, preserving the old flags in a backup.
+The installer's `setup-browser-flags.sh` also selects this preset for Helium.
+The Helium launcher reads it on every start, including after reboots and browser
+updates; no desktop-file edit is needed. It includes the hardware video and
+accessibility flags plus `--extensions-on-chrome-urls`, which lets extensions
+with explicit `chrome://` permission read and modify browser pages.
+Keep loading Brovim unpacked from its repository root, with the same settings
+and Alt+Q assignment. Options → General → **Use Brovim on browser pages** is on
+by default and can be switched off. No Deno or separate build is needed.
+To remove the browser override entirely, restore the flags backup (or link
+`chromium-hwaccel.conf`) and restart Helium. This is specific to Helium/Chromium;
+branded Google Chrome does not support the override.
+
 The wallpaper picker and the dynamic palette use
 `dotfiles/.config/quickshell/island/scripts/wallpaper.sh`. It supports stills
 through `awww`; video wallpapers require the optional `mpvpaper` package, which

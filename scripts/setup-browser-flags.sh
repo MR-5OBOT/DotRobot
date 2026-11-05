@@ -4,6 +4,7 @@ set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
 readonly FLAGS_FILE="${ASSETS_DIR}/presets/browser-flags/chromium-hwaccel.conf"
+readonly HELIUM_FLAGS_FILE="${ASSETS_DIR}/presets/browser-flags/helium-brovim.conf"
 readonly LAUNCHER_DIR="${LAUNCHER_DIR:-/usr/bin}"
 
 # Chromium-based packages (chromium, chrome, brave, brave-origin, helium, edge, ...)
@@ -26,8 +27,9 @@ find_launchers() {
 # file the user already has instead of silently losing it.
 keep_existing() {
   local target="$1"
+  local source="$2"
 
-  if [[ -L "${target}" && "$(readlink "${target}")" == "${FLAGS_FILE}" ]]; then
+  if [[ -L "${target}" && "$(readlink "${target}")" == "${source}" ]]; then
     return 0
   fi
   if [[ -e "${target}" || -L "${target}" ]]; then
@@ -38,10 +40,11 @@ keep_existing() {
 
 main() {
   local config_home="${XDG_CONFIG_HOME:-${HOME}/.config}"
-  local entry answer i
+  local entry answer i flags_file
   local -a found=()
 
   [[ -f "${FLAGS_FILE}" ]] || die "Missing ${FLAGS_FILE}"
+  [[ -f "${HELIUM_FLAGS_FILE}" ]] || die "Missing ${HELIUM_FLAGS_FILE}"
   if ! vainfo 2>/dev/null | grep -q VAEntrypointVLD; then
     warn "vainfo reports no VA-API decode profiles; install your GPU's VA-API driver or the flags have nothing to use"
   fi
@@ -56,7 +59,8 @@ main() {
   for i in "${!found[@]}"; do
     printf '  %d) %s -> %s/%s\n' "$((i + 1))" "${found[i]%%:*}" "${config_home}" "${found[i]#*:}"
   done
-  printf 'Link hardware video flags for [numbers, a = all, Enter = none]: '
+  printf 'Helium also enables Brovim on browser pages.\n'
+  printf 'Link browser flags for [numbers, a = all, Enter = none]: '
   read -r answer
 
   if [[ -z "${answer}" ]]; then
@@ -73,8 +77,12 @@ main() {
       continue
     fi
     entry="${found[i - 1]}"
-    keep_existing "${config_home}/${entry#*:}"
-    symlink_path "${FLAGS_FILE}" "${config_home}/${entry#*:}"
+    flags_file="${FLAGS_FILE}"
+    if [[ "${entry#*:}" == "helium-browser-flags.conf" ]]; then
+      flags_file="${HELIUM_FLAGS_FILE}"
+    fi
+    keep_existing "${config_home}/${entry#*:}" "${flags_file}"
+    symlink_path "${flags_file}" "${config_home}/${entry#*:}"
   done
   log "Restart each linked browser, then check chrome://media-internals (video_decoder) while a video plays"
 }
