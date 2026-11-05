@@ -7,18 +7,30 @@ if (( EUID != 0 )); then
   exit 1
 fi
 
-for required in nmcli ufw ip python3; do
+# dnsmasq: NetworkManager's shared mode hands out the hotspot's DHCP and DNS with it.
+for required in nmcli ufw ip python3 dnsmasq; do
   command -v "$required" >/dev/null || { printf 'Missing command: %s\n' "$required" >&2; exit 1; }
 done
 
-wifi_device=wlan0
-profile_uuid=f8cbfb5b-5667-4ca0-9c60-d1247c5f8298
-
-if [[ $(nmcli -g 802-11-wireless.mode connection show uuid "$profile_uuid") != ap ||
-      $(nmcli -g ipv4.method connection show uuid "$profile_uuid") != shared ]]; then
-  printf 'The saved Hotspot profile is not configured for shared access-point mode. Stopping.\n' >&2
+# The saved hotspot: the first Wi-Fi profile in access-point mode with shared IPv4.
+profile_uuid=""
+while IFS=: read -r uuid type; do
+  [[ $type == 802-11-wireless ]] || continue
+  if [[ $(nmcli -g 802-11-wireless.mode connection show uuid "$uuid") == ap &&
+        $(nmcli -g ipv4.method connection show uuid "$uuid") == shared ]]; then
+    profile_uuid=$uuid
+    break
+  fi
+done < <(nmcli -t -f UUID,TYPE connection show)
+if [[ -z $profile_uuid ]]; then
+  printf 'No saved hotspot (Wi-Fi access point with shared IPv4) found. Create one in NetworkManager first.\n' >&2
   exit 1
 fi
+ssid=$(nmcli -g 802-11-wireless.ssid connection show uuid "$profile_uuid")
+# The interface the profile is pinned to, else the first Wi-Fi device.
+wifi_device=$(nmcli -g connection.interface-name connection show uuid "$profile_uuid")
+[[ -n $wifi_device ]] || wifi_device=$(nmcli -t -f DEVICE,TYPE device | awk -F: '$2 == "wifi" { print $1; exit }')
+[[ -n $wifi_device ]] || { printf 'No Wi-Fi device found.\n' >&2; exit 1; }
 
 nmcli radio wifi on
 nmcli --wait 30 connection up uuid "$profile_uuid" ifname "$wifi_device"
@@ -62,4 +74,4 @@ ufw route allow in on "$wifi_device" out on "$uplink" from "$hotspot_network" to
 printf '\nHotspot: %s (%s), internet uplink: %s\n' "$hotspot_address" "$hotspot_network" "$uplink"
 nmcli -f GENERAL.STATE,GENERAL.CONNECTION,IP4.ADDRESS device show "$wifi_device"
 ufw status
-printf '\nRules applied. On your phone, forget mr5obot-desktop and reconnect with the existing password.\n'
+printf '\nRules applied. On your phone, forget %s and reconnect with the existing password.\n' "$ssid"

@@ -27,7 +27,7 @@ echo "----------------------------------------------------"
 echo "CLEARING AUR, FLATPAK & NPM CACHES"
 echo "----------------------------------------------------"
 paru -Sc --aur --noconfirm >/dev/null
-flatpak uninstall --unused -y
+if command -v flatpak >/dev/null; then flatpak uninstall --unused -y; fi
 npm cache clean --force --loglevel=error
 
 echo ""
