@@ -57,10 +57,12 @@ main() {
   command -v gsettings >/dev/null 2>&1 || die "gsettings is not installed (glib2)."
 
   # A fresh install runs from a bare TTY with no session bus; dconf needs one.
+  # GIO_USE_VFS=local: otherwise gsettings wakes gvfs on that private bus, and its
+  # gvfsd-fuse keeps the $(...) pipe open, so the script waits forever.
   if [[ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]]; then
     command -v dbus-run-session >/dev/null 2>&1 || die "No session bus and dbus-run-session is missing."
     log "No session bus, writing dconf through dbus-run-session"
-    gsettings_cmd=(dbus-run-session -- gsettings)
+    gsettings_cmd=(env GIO_USE_VFS=local dbus-run-session -- gsettings)
   fi
 
   # gsettings-desktop-schemas arrives with xdg-desktop-portal-gtk; without it
