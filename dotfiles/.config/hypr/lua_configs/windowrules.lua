@@ -40,6 +40,14 @@ hl.window_rule({
 	pin = true,
 })
 hl.window_rule({ match = { class = "nwg-look" }, float = true, center = true, size = "500 400", pin = true })
+-- GTK4 pavucontrol's app id; the old "pavucontrol" class never matches. 900x560
+-- fits the 1280x720 logical laptop screen and shows a full row of sliders.
+hl.window_rule({
+	match = { class = "^(org[.]pulseaudio[.]pavucontrol)$" },
+	float = true,
+	center = true,
+	size = "900 560",
+})
 
 -- Kdenlive popups & dialogs: ensure good size and centered
 hl.window_rule({
@@ -62,7 +70,6 @@ hl.window_rule({
 
 local float_classes = {
 	"Tk",
-	"pavucontrol",
 	"nm-connection-editor",
 	"blueman-manager",
 	"file-roller",
