@@ -14,7 +14,6 @@ dolphin
 dolphin-plugins
 ffmpegthumbnailer
 file-roller
-freerdp
 geoclue
 gimp
 glow
