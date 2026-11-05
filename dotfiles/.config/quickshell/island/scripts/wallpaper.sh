@@ -11,6 +11,7 @@ MAP="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-map"
 STILL="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-still.png"
 FIT_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-fit"
 WLOG="${XDG_STATE_HOME:-$HOME/.local/state}/island/wallcolors.log"
+DEFAULT_WALL="$HOME/Pictures/wallpapers/mr5obot-prpl.jpg"
 
 is_video() {
     case "${1##*.}" in
@@ -267,9 +268,10 @@ if [ "${1:-}" = "respawn" ] || [ "${1:-}" = "heal" ]; then
 fi
 
 if [ "${1:-}" = "restore" ]; then
-    [ -s "$MAP" ] || exit 0
     for _ in {1..20}; do
         if [ -n "$(outputs || true)" ]; then
+            # First login: nothing picked yet, so start on the default wallpaper.
+            [ -s "$MAP" ] || exec bash "$0" set "$DEFAULT_WALL"
             sync_videos
             exit 0
         fi
