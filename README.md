@@ -1,88 +1,38 @@
 # DotRobot
 
-Arch Linux desktop dotfiles for Hyprland, Quickshell, Kitty, and related tools.
+Arch Linux dotfiles: Hyprland (Lua config), a Quickshell bar, kitty, zsh and tmux.
 
-Run `./install.sh` as your normal user on Arch. It offers each setup step
-separately; `scripts/link-dotfiles.sh` links the tracked configuration into
-your home directory. Existing link targets are replaced intentionally, so
-review them before running the installer. Wallpapers live in
-`~/Pictures/wallpapers` unless changed in Island's wallpaper settings.
+## New machine
 
-For a machine with a cellular modem, the installer offers
-`./scripts/setup-mobile-broadband.sh`, which also runs on its own. It asks
-before installing packages (including an Arch upgrade), enabling services,
-saving a connection, or connecting. Its carrier menu includes Maroc Telecom
-(subscription/Jawal), Orange Morocco, inwi, a custom APN, and setup later.
-APNs and usernames are editable; existing connections are preserved. New
-connections have autoconnect and roaming off and are marked as metered.
-SIM PINs and APN passwords are requested by `nmcli --ask` when connecting;
-the script does not save them. An activated SIM/data plan is needed to connect.
-Before connecting it offers modem/SIM-slot selection, waits for a switched modem
-to reappear, and checks SIM readiness. For the DW5825e, slot 1 is the physical
-SIM and slot 2 is the eSIM. An empty eSIM profile or missing SIM stops the
-connection attempt before carrier authentication; insert the SIM and re-run.
-It skips machines without kernel WWAN/MBIM/QMI ports; BIOS-disabled modems,
-missing drivers and serial-only modems need separate detection/setup.
-Failed connections show recent ModemManager logs, with guidance for radio
-blocks and [vendor FCC-unlock requirements](https://modemmanager.org/docs/modemmanager/fcc-unlock/).
-For the Dell DW5825e/Fibocom FM101R-GL (`413c:8213`), the script offers to
-build/install the local `fibocom-fm101r-unlock` Arch package and enable its
-two helpers. It uses pinned [Fibocom vendor code](https://github.com/fibocom-pc/linux_apps_opensource)
-and its unlock binary, with root-only D-Bus/IPC access. It installs no
-firmware images or flashing services. It installs missing build tools and
-runtime dependencies, starts the helpers, runs the unlock immediately, and
-reads back the hardware radio state before reporting success.
-The helpers and ModemManager unlock hook persist across reboots. An existing
-internet connection and sudo access are needed; no files from `/tmp` are required.
-Preset references: [Orange's setup guide](https://www.orange.ma/Assistance/Mobiles-et-tablettes/Utiliser-votre-tablette),
-the installed `mobile-broadband-provider-info` database for IAM plans, and
-the [ASUS router carrier database](https://github.com/RMerl/asuswrt-merlin.ng/blob/main/release/src/router/rom/spn_asus.dat) for inwi.
+1. Install Arch with a sudo user and a working network, then `sudo pacman -S git`.
+2. Clone the repo and run the installer as your normal user:
 
-Run `sudo ./scripts/fix-hotspot.sh` to activate the saved Wi-Fi hotspot and
-allow its DHCP, DNS, and internet traffic through UFW. It backs up UFW's user
-rules first and detects the hotspot subnet and current internet uplink.
-It requires NetworkManager, an active UFW firewall, iproute2, and Python 3.
-The script uses `wlan0` and this machine's saved hotspot UUID; update
-`wifi_device` and `profile_uuid` in the script when using another setup.
+   ```sh
+   git clone https://github.com/MR-5OBOT/DotRobot.git ~/repos/DotRobot
+   cd ~/repos/DotRobot && ./install.sh
+   ```
 
-For Helium with Brovim, close Helium completely and run
-`./scripts/setup-browser-shortcuts.py`. This reproduces the browser shortcuts
-configured on 2026-11-05, including disabled Ctrl+Tab/Ctrl+Shift+Tab, Ctrl+X to
-close a tab (plain x belongs to Brovim), and Alt+S for Settings. The preset lives
-beside the browser flags in
-`assets/presets/browser-flags/helium-brovim-shortcuts.json`. Use `--dry-run` to
-preview or `--profile-dir /path/to/profile` for a different Helium profile.
-The script changes only browser shortcut overrides; Brovim's Alt+Q and other
-extension shortcuts remain assigned in `chrome://extensions/shortcuts`.
-It saves the previous overrides in the profile and prints an undo command.
-This is a snapshot of Helium 0.20.3.1: browser updates can add new defaults.
+   Every step asks Y/n and can be re-run later. Linking replaces whatever is
+   already at each target, including `~/Pictures/wallpapers`, without a backup.
+3. Reboot, pick **Hyprland (uwsm-managed)** at the login screen, then press
+   Super+/ for the keybinds and Super+W for wallpapers.
 
-To use Brovim on Helium's Settings, History and other internal pages, run
-`./scripts/setup-brovim-internal-pages.sh /path/to/brovim` once and fully restart
-Helium. This links `assets/presets/browser-flags/helium-brovim.conf` to
-`~/.config/helium-browser-flags.conf`, preserving the old flags in a backup.
-The installer's `setup-browser-flags.sh` also selects this preset for Helium.
-The Helium launcher reads it on every start, including after reboots and browser
-updates; no desktop-file edit is needed. It includes the hardware video and
-accessibility flags plus `--extensions-on-chrome-urls`, which lets extensions
-with explicit `chrome://` permission read and modify browser pages.
-Keep loading Brovim unpacked from its repository root, with the same settings
-and Alt+Q assignment. Options → General → **Use Brovim on browser pages** is on
-by default and can be switched off. No Deno or separate build is needed.
-To remove the browser override entirely, restore the flags backup (or link
-`chromium-hwaccel.conf`) and restart Helium. This is specific to Helium/Chromium;
-branded Google Chrome does not support the override.
+To adjust for other hardware, edit the external monitor in
+`dotfiles/.config/hypr/lua_configs/monitors.lua` and the keyboard ids in
+`dotfiles/keyd/default.conf` (then run `scripts/setup-keyd.sh`).
 
-The wallpaper picker and the dynamic palette use
-`dotfiles/.config/quickshell/island/scripts/wallpaper.sh`. It supports stills
-through `awww`; video wallpapers require the optional `mpvpaper` package, which
-the installer does not install.
+## Extra scripts
 
-Workspace 0 is named `0`; Super+0 still selects workspace 10.
-Switching with Super+1–9 or Super+0 briefly shows a vertical strip of workspace
-dots at the left edge of that monitor, with a pill marking the active workspace.
-Run the workspace popup checks in a Wayland session with `bash tests/workspace-osd.sh`.
+Run these when needed; each one explains itself as it runs.
 
-The [Obsidian GRUB theme](assets/grub/obsidian) uses the default wallpaper with
-a centered translucent frame. Preview it with `bash scripts/preview-grub-theme.sh`;
-apply it with `sudo bash scripts/setup-grub-theme.sh` on the UKI/Windows setup.
+| Script | What it does |
+|---|---|
+| `scripts/setup-mobile-broadband.sh` | Cellular modem and carrier APN, including the Dell DW5825e FCC unlock (also offered by the installer) |
+| `sudo scripts/fix-hotspot.sh` | Starts the saved NetworkManager hotspot and opens UFW for it |
+| `scripts/setup-browser-shortcuts.py` | Helium shortcuts for Brovim; close Helium first, `--dry-run` previews |
+| `scripts/setup-brovim-internal-pages.sh /path/to/brovim` | Lets Brovim run on Helium's internal pages (`--extensions-on-chrome-urls`) |
+| `assets/presets/kdenlive-config/kdenlive-setup.sh` | Kdenlive theme and layouts |
+| `scripts/switch-from-wpa_supplicant-to-iwd.sh` | Switches the Wi-Fi backend to iwd; `revert` undoes it |
+| `sudo bash scripts/setup-grub-theme.sh` | Obsidian GRUB theme for the UKI + Windows setup; preview with `scripts/preview-grub-theme.sh` |
+
+Video wallpapers need `mpvpaper`, which the installer doesn't install.

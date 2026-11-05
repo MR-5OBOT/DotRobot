@@ -38,8 +38,6 @@ Handlers: `home`, `mixer`, `calendar`, `power`, `link`, `battery`, `sysmon`, `pe
 
 `qs ipc call notifications toggle` opens the notification center; `notifications hide` closes it. The island's `link`, `page "" link` and `nav "" link` routes open the same panel.
 
-Run `bash tests/notifications.sh` from the repository to check grouping, stacked-card layout, expansion and clearing on an isolated D-Bus session.
-
 ## Precise location (GeoClue)
 
 GeoClue needs an agent to authorise requests; the island starts GeoClue's demo agent itself. If the default wifi database does not know your area, point GeoClue at another one:
