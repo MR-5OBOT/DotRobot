@@ -21,5 +21,5 @@ Only what that popup references is kept (the side bar is gone). Changed from ups
 - `singletons/theme/Wallpaper.qml` — reads island's current wallpaper and
   per-monitor map. Its apply signal is bridged to the same backend by
   `../WallpaperPanel.qml`; awww paints the wallpaper.
-- `scripts/` — monitors_detect.sh and the local wallpaper indexer.
+- `scripts/` — the local wallpaper indexer; monitor names come from `hyprctl` directly.
 - `qmldir`, `wallpaper/qmldir` — trimmed to the vendored files.

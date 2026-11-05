@@ -69,7 +69,7 @@ Item {
     Process {
         id: monitorDetector
         running: false
-        command: ["bash", Quickshell.shellDir + "/widgets/scripts/monitors_detect.sh"]
+        command: ["sh", "-c", "hyprctl monitors -j | jq -r '.[].name'"]
         stdout: StdioCollector {
             onStreamFinished: {
                 let lines = this.text.trim().split("\n").map(s => s.trim()).filter(s => s.length > 0);
