@@ -1,7 +1,8 @@
 # Obsidian GRUB theme
 
-A centered translucent frame over DotRobot's default `reborn.png` wallpaper.
-The background symlink reuses `assets/wallpapers/reborn.png`.
+A centered translucent frame over DotRobot's default `mr5obot-prpl.jpg` wallpaper.
+`background.jpg` is that wallpaper saved as a baseline JPEG, since GRUB can't
+read progressive JPEGs; re-export it after changing the wallpaper.
 
 From the repository root:
 
@@ -22,5 +23,5 @@ replacing it, archives Minegrub, and preserves the existing kernel images and
 EFI loader. Rerunning updates the theme. A pacman hook keeps the duplicate
 traditional kernel generator disabled after GRUB updates.
 
-Only the assets under this directory are copied to `/boot`; the wallpaper
-symlink becomes a regular file there. Apply setup again after changing assets.
+Only the assets under this directory are copied to `/boot`. Apply setup again
+after changing them.

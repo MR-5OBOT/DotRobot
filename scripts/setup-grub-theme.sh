@@ -6,7 +6,7 @@ if (( EUID != 0 )); then
   exit 1
 fi
 source_dir=$(cd -- "$(dirname -- "$0")/../assets/grub/obsidian" && pwd)
-for file in /boot/EFI/Linux/arch-linux.efi "$source_dir/theme.txt" "$source_dir/mono.pf2" "$source_dir/title.pf2" "$source_dir/background.png" "$source_dir/frame.png"; do
+for file in /boot/EFI/Linux/arch-linux.efi "$source_dir/theme.txt" "$source_dir/mono.pf2" "$source_dir/title.pf2" "$source_dir/background.jpg" "$source_dir/frame.png"; do
   [[ -s "$file" ]] || { printf "Missing or empty required file: %s\n" "$file" >&2; exit 1; }
 done
 [[ -x /etc/grub.d/15_uki ]] || { printf "Missing or non-executable: /etc/grub.d/15_uki\n" >&2; exit 1; }
@@ -39,7 +39,7 @@ rollback() {
 trap rollback ERR INT TERM
 
 install -d /boot/grub/themes/obsidian /etc/pacman.d/hooks
-install -m 644 "$source_dir/theme.txt" "$source_dir"/*.pf2 "$source_dir"/*.png /boot/grub/themes/obsidian/
+install -m 644 "$source_dir/theme.txt" "$source_dir"/*.pf2 "$source_dir"/*.png "$source_dir"/*.jpg /boot/grub/themes/obsidian/
 install -m 644 "$source_dir/05-grub-uki-only.hook" /etc/pacman.d/hooks/05-grub-uki-only.hook
 chmod a-x /etc/grub.d/10_linux
 # Undo Minegrub's optional background patch to the packaged generator.

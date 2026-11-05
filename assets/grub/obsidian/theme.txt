@@ -1,5 +1,5 @@
 title-text: ""
-desktop-image: "background.png"
+desktop-image: "background.jpg"
 desktop-image-scale-method: "crop"
 desktop-color: "#000000"
 terminal-font: "Obsidian Regular 22"

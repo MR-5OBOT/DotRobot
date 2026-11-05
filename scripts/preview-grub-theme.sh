@@ -2,7 +2,7 @@
 set -euo pipefail
 
 theme=$(cd -- "$(dirname -- "$0")/../assets/grub/obsidian" && pwd)
-[[ -s "$theme/background.png" && -s "$theme/frame.png" ]]
+[[ -s "$theme/background.jpg" && -s "$theme/frame.png" ]]
 preview=$(mktemp -d /tmp/obsidian-preview.XXXXXXXX)
 trap 'rm -rf "$preview"' EXIT
 mkdir -p "$preview/iso/boot/grub/themes"
@@ -16,6 +16,7 @@ insmod all_video
 insmod gfxterm
 insmod gfxmenu
 insmod png
+insmod jpeg
 set gfxmode=1920x1080,1280x720,1024x768,auto
 loadfont /boot/grub/themes/obsidian/mono.pf2
 loadfont /boot/grub/themes/obsidian/title.pf2
