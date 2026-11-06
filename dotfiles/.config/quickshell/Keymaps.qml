@@ -8,84 +8,162 @@ import "island/components" as IslandUi
 
 // Keymap cheat sheet: `qs ipc call keymaps toggle` (SUPER + /). A pure-black
 // top-edge notch; closes on Esc, the × button, or a click anywhere outside it.
-// Add a keyboard or app by appending a group to `columns`. In `keys`, " + " and " / "
-// between key names draw as separators and everything else as a keycap.
+// Tabs (Hyprland, keyd, tmux, zsh): Tab / Shift+Tab cycle them, or click one. Add a
+// tool by appending a tab to `tabs`. In a bind's keys, " + " and " / " between key
+// names draw as separators and everything else as a keycap.
 PanelWindow {
     id: win
 
-    // Two columns of groups; append a new group to whichever column is shorter.
-    readonly property var columns: [
-        [
-            {
-                title: "HYPRLAND",
-                note: "Apps & tools · Super = Win key",
-                binds: [
-                    ["Super + Return", "Terminal"],
-                    ["Super + Space / Q", "App launcher / close window"],
-                    ["Super + X / W", "Power / wallpapers"],
-                    ["Super + V / N / T", "Clipboard / notifications / bar peek"],
-                    ["Super + = / /", "Calculator / this sheet"],
-                    ["Super + Shift + N", "Restart Quickshell"],
-                    ["Super + Shift + C / P", "Pick colour / power profile"],
-                    ["Super + F", "Click by labels"],
-                    ["Super + Alt + F", "Click anywhere (grid, g = click)"],
-                    ["Super + S", "Quick fullscreen copy"],
-                    ["Print / Shift + Print", "Screenshot region / monitor (rishot)"],
-                    ["Mouse side buttons", "Mic mute / screenshot"],
-                    ["Media keys", "Volume, mic and brightness"]
-                ]
-            },
-            {
-                title: "KEYD",
-                note: "Hold Caps Lock · applies to configured keyboards",
-                binds: [
-                    ["Caps + H J K L", "Left / down / up / right"],
-                    ["Caps + W / B", "Jump word right / left"],
-                    ["Caps + U / D", "Page up / down"],
-                    ["Caps + 0 / 4", "Line start / end"],
-                    ["Caps + - / =", "Volume down / up"],
-                    ["Caps + Space", "Toggle microphone mute"],
-                    ["Caps Lock", "Tap for normal Caps Lock"],
-                    ["Super + Alt + K", "Turn keyd on / off"]
-                ]
-            }
-        ],
-        [
-            {
-                title: "HYPRLAND",
-                note: "Windows & workspaces",
-                binds: [
-                    ["Super + H J K L", "Focus left / down / up / right"],
-                    ["Super + Shift + H J K L", "Move window"],
-                    ["Super + Ctrl + H J K L", "Resize window"],
-                    ["Super + mouse drag", "Left: move · right: resize"],
-                    ["Super + C", "Center window"],
-                    ["Super + Shift + F", "Fullscreen"],
-                    ["Alt + Space", "Toggle floating"],
-                    ["Super + Alt + L", "Lock screen"],
-                    ["Super + 1 … 0", "Switch workspace 1 … 10"],
-                    ["Super + Shift + 1 … 0", "Move window to workspace"],
-                    ["Super + O / Shift + O", "Focus / move window to next monitor"]
-                ]
-            },
-            {
-                title: "ZIYOULANG T60",
-                note: "Fn layer · on-board, works on any OS",
-                binds: [
-                    ["Fn + \\", "Cycle lighting effect (the \\ beside Enter)"],
-                    ["Fn + ] / [", "Backlight brightness up / down"],
-                    ["Fn + ' / ;", "Effect speed up / down"],
-                    ["Fn + Right Shift", "Hold 2 s: / Alt Menu Ctrl turn into arrows"],
-                    ["Fn + Win", "Lock the Win key"],
-                    ["Fn + 1 … =", "F1 – F12"],
-                    ["Fn + Space", "Reset to factory settings"],
-                    ["Fn + other", "Media, volume, Home, Mail (side legends)"]
-                ]
-            }
-        ]
+    // One entry per tab; each tab is two columns of groups (keeps the card one width).
+    readonly property var tabs: [
+        {
+            name: "Hyprland",
+            columns: [
+                [{
+                    title: "HYPRLAND",
+                    note: "Apps & tools · Super = Win key",
+                    binds: [
+                        ["Super + Return", "Terminal"],
+                        ["Super + Space / Q", "App launcher / close window"],
+                        ["Super + X / W", "Power / wallpapers"],
+                        ["Super + V / N / T", "Clipboard / notifications / bar peek"],
+                        ["Super + = / /", "Calculator / this sheet"],
+                        ["Super + Shift + N", "Restart Quickshell"],
+                        ["Super + Shift + C / P", "Pick colour / power profile"],
+                        ["Super + F", "Click by labels"],
+                        ["Super + Alt + F", "Click anywhere (grid, g = click)"],
+                        ["Super + S", "Quick fullscreen copy"],
+                        ["Print / Shift + Print", "Screenshot region / monitor (rishot)"],
+                        ["Mouse side buttons", "Mic mute / screenshot"],
+                        ["Media keys", "Volume, mic and brightness"]
+                    ]
+                }],
+                [{
+                    title: "HYPRLAND",
+                    note: "Windows & workspaces",
+                    binds: [
+                        ["Super + H J K L", "Focus left / down / up / right"],
+                        ["Super + Shift + H J K L", "Move window (crosses to the other screen)"],
+                        ["Super + Ctrl + H J K L", "Resize window"],
+                        ["Super + mouse drag", "Left: move · right: resize"],
+                        ["Super + C", "Center window"],
+                        ["Super + Shift + F", "Fullscreen"],
+                        ["Alt + Space", "Toggle floating"],
+                        ["Super + Alt + L", "Lock screen"],
+                        ["Super + 1 … 0", "Switch workspace 1 … 10"],
+                        ["Super + Shift + 1 … 0", "Move window to workspace"],
+                        ["Super + O / Shift + O", "Focus / move window to next monitor"]
+                    ]
+                }]
+            ]
+        },
+        {
+            name: "keyd",
+            columns: [
+                [{
+                    title: "KEYD",
+                    note: "Hold Caps Lock · works everywhere, even the TTY",
+                    binds: [
+                        ["Caps + H J K L", "Left / down / up / right"],
+                        ["Caps + W / B", "Jump word right / left"],
+                        ["Caps + U / D", "Page up / down"],
+                        ["Caps + 0 / 4", "Line start / end"],
+                        ["Caps + - / =", "Volume down / up"],
+                        ["Caps + Space", "Toggle microphone mute"],
+                        ["Caps Lock", "Tap for normal Caps Lock"],
+                        ["Super + Alt + K", "Turn keyd on / off"]
+                    ]
+                }],
+                [{
+                    title: "ZIYOULANG T60",
+                    note: "Fn layer · on-board, works on any OS",
+                    binds: [
+                        ["Fn + \\", "Cycle lighting effect (the \\ beside Enter)"],
+                        ["Fn + ] / [", "Backlight brightness up / down"],
+                        ["Fn + ' / ;", "Effect speed up / down"],
+                        ["Fn + Right Shift", "Hold 2 s: / Alt Menu Ctrl turn into arrows"],
+                        ["Fn + Win", "Lock the Win key"],
+                        ["Fn + 1 … =", "F1 – F12"],
+                        ["Fn + Space", "Reset to factory settings"],
+                        ["Fn + other", "Media, volume, Home, Mail (side legends)"]
+                    ]
+                }]
+            ]
+        },
+        {
+            name: "tmux",
+            columns: [
+                [{
+                    title: "TMUX",
+                    note: "Panes · Prefix = Ctrl + Space, let go, then the key",
+                    binds: [
+                        ["Ctrl + H J K L", "Switch pane / nvim split (no prefix)"],
+                        ["Prefix + | / -", "Split side by side / stacked"],
+                        ["Prefix + Shift + H J K L", "Resize pane (tap again to repeat)"],
+                        ["Prefix + Ctrl + Z", "Zoom pane in / out"],
+                        ["Prefix + X", "Close pane (asks first)"],
+                        ["Prefix + Ctrl + L", "Clear the screen"],
+                        ["Prefix + O", "Floating terminal show / hide"],
+                        ["Prefix + Shift + X", "Close the floating terminal"],
+                        ["Prefix + [", "Copy mode (vi keys, scroll back)"],
+                        ["V / Y / X", "In copy mode: select / copy / cut"]
+                    ]
+                }],
+                [{
+                    title: "TMUX",
+                    note: "Windows & sessions",
+                    binds: [
+                        ["Prefix + C", "New window"],
+                        ["Prefix + 1 … 9 / 0", "Go to window 1 … 9 / 10"],
+                        ["Prefix + Space", "Last window"],
+                        ["Prefix + Ctrl + N / P", "Next / previous window"],
+                        ["Prefix + W / S", "Pick a window / session"],
+                        ["Prefix + Shift + R", "Rename window"],
+                        ["Prefix + G", "Lazygit in a new window"],
+                        ["Prefix + B", "Show / hide the status bar"],
+                        ["Prefix + R", "Reload tmux config"],
+                        ["Prefix + D", "Detach (tmux keeps running)"]
+                    ]
+                }]
+            ]
+        },
+        {
+            name: "zsh",
+            columns: [
+                [{
+                    title: "ZSH",
+                    note: "Normal mode (after Esc, block cursor) · vim keys, case matters",
+                    binds: [
+                        ["Esc", "Normal mode: keys move instead of typing"],
+                        ["i / a", "Back to typing, before / after the cursor"],
+                        ["w / b / e", "Word right / left / to its end"],
+                        ["0 / $", "Line start / end"],
+                        ["x / dd / cc", "Delete char / clear line / retype line"],
+                        ["u", "Undo"],
+                        ["k / j", "Older / newer command"],
+                        ["/", "Search old commands, vim style"],
+                        ["v", "Edit the command in nvim (:wq comes back)"]
+                    ]
+                }],
+                [{
+                    title: "ZSH",
+                    note: "While typing (bar cursor)",
+                    binds: [
+                        ["Ctrl + R", "Fuzzy search old commands (fzf)"],
+                        ["Tab", "Complete with a fuzzy menu (fzf-tab)"],
+                        ["Ctrl + Space", "Accept the grey suggestion"],
+                        ["Alt + F", "Accept just its next word"],
+                        ["Caps + W / B", "Jump word right / left"],
+                        ["Caps + 0 / 4", "Line start / end"]
+                    ]
+                }]
+            ]
+        }
     ]
 
     property bool open: false
+    property int tab: 0  // stays on the last tab between opens
+    function show(i: int): void { tab = (i + tabs.length) % tabs.length; flick.contentY = 0; }
     readonly property real drop: open ? card.height : 0  // island drops toasts below the card
 
     IpcHandler {
@@ -120,7 +198,7 @@ PanelWindow {
         anchors.top: parent.top
         anchors.topMargin: win.open ? 0 : -height   // hangs flush from the top edge and slides out of it
         width: col.implicitWidth + 24
-        height: Math.min(col.height + 28, (win.screen ? win.screen.height : 800) - 20)
+        height: Math.min(col.height + strip.y + strip.height + 28,(win.screen ? win.screen.height : 800) - 20)
         topLeftRadius: 0
         topRightRadius: 0
         bottomLeftRadius: Theme.notchRadius
@@ -142,11 +220,64 @@ PanelWindow {
         Item {  // key sink
             focus: true
             Keys.onEscapePressed: win.open = false
+            Keys.onTabPressed: win.show(win.tab + 1)
+            Keys.onBacktabPressed: win.show(win.tab - 1)
+        }
+
+        Row {  // tab strip, level with the close button
+            id: strip
+            anchors { top: parent.top; left: parent.left; topMargin: 13; leftMargin: 12 }
+            spacing: 6
+
+            Repeater {
+                model: win.tabs
+
+                Rectangle {
+                    id: pill
+                    required property var modelData
+                    required property int index
+                    readonly property bool current: index === win.tab
+                    width: pillLabel.implicitWidth + 26
+                    height: 28
+                    radius: 14
+                    color: current ? Theme.well : pillMa.containsMouse ? Theme.hover : "transparent"
+                    border.width: current ? 1 : 0
+                    border.color: Theme.ghost
+                    Behavior on color { ColorAnimation { duration: 150 } }
+
+                    Text {
+                        id: pillLabel
+                        anchors.centerIn: parent
+                        text: pill.modelData.name
+                        font.family: Theme.font
+                        font.pixelSize: 12
+                        font.weight: pill.current ? Font.Bold : Font.Medium
+                        color: pill.current ? Theme.notchAccent : pillMa.containsMouse ? Theme.text : Theme.dim
+                    }
+                    MouseArea {
+                        id: pillMa
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: win.show(pill.index)
+                    }
+                }
+            }
+        }
+
+        Text {  // hint, left of the close button
+            anchors { right: closeBtn.left; rightMargin: 10; verticalCenter: strip.verticalCenter }
+            text: "Tab / Shift + Tab to switch"
+            font.family: Theme.font
+            font.pixelSize: 11
+            color: Theme.dim
         }
 
         Flickable {
+            id: flick
             anchors.fill: parent
             anchors.margins: 12
+            anchors.topMargin: strip.y + strip.height + 12
             clip: true
             contentHeight: col.height
             boundsBehavior: Flickable.StopAtBounds
@@ -156,7 +287,7 @@ PanelWindow {
             spacing: 14
 
             Repeater {
-                model: win.columns
+                model: win.tabs[win.tab].columns
 
             Column {
                 required property var modelData
@@ -270,7 +401,8 @@ PanelWindow {
         }
         }
 
-        Rectangle {  // close button, level with the top headers
+        Rectangle {  // close button, level with the tab strip
+            id: closeBtn
             anchors { top: parent.top; right: parent.right; topMargin: 13; rightMargin: 12 }
             width: 28
             height: 28
