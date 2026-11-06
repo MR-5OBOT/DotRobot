@@ -68,15 +68,16 @@ hl.config({
 		movefocus_cycles_fullscreen = 1,
 	},
 })
--- Hyprland's movefocus from a float only sees other floats (then the next monitor), and
--- no option changes that (0.57), so a float picks the nearest window that way itself.
--- Tiled windows keep Hyprland's movefocus. Check: lua scripts/test-focus-dir.lua
+-- Hyprland's movefocus never crosses between floating and tiled windows (a float only
+-- sees floats, a tile only tiles, then the next monitor) and no option changes that
+-- (0.57). So find the nearest window that way ourselves and use it when the hop starts
+-- or ends on a float; tile to tile stays Hyprland's. Check: lua scripts/test-focus-dir.lua
 -- ponytail: nearest by centre, sideways counts double; use edge overlap if it misjumps.
 local STEP = { left = { -1, 0 }, right = { 1, 0 }, up = { 0, -1 }, down = { 0, 1 } }
 local function focusDir(dir)
 	return function()
 		local cur = hl.get_active_window()
-		if cur and cur.floating and cur.fullscreen == 0 and cur.workspace then
+		if cur and cur.fullscreen == 0 and cur.workspace then
 			local dx, dy = STEP[dir][1], STEP[dir][2]
 			local cx, cy = cur.at.x + cur.size.x / 2, cur.at.y + cur.size.y / 2
 			local best, bestScore
@@ -90,7 +91,7 @@ local function focusDir(dir)
 					end
 				end
 			end
-			if best then
+			if best and (cur.floating or best.floating) then
 				hl.dispatch(hl.dsp.focus({ window = best }))
 				return
 			end

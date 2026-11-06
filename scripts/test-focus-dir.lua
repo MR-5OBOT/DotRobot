@@ -43,9 +43,20 @@ local F2 = win("float2", 1100, 300, 200, 400, true) -- centre x 1200, tileR cent
 wins = { L, R, F, F2 }
 check("float  Super+L, float2 nearer", press("L"), "float2")
 
--- tiled windows keep Hyprland's own movefocus
+-- back into the float from either tile (Hyprland's own movefocus skips floats)
+wins = { L, R, F }
 active = L
-check("tiled  Super+L", press("L"), "dir:right")
+check("tileL  Super+L -> float", press("L"), "float")
+active = R
+check("tileR  Super+H -> float", press("H"), "float")
+check("tileR  Super+K (nothing above)", press("K"), "dir:up")
+
+-- tile to tile stays Hyprland's movefocus (its edge logic and history)
+wins, active = { L, R }, L
+check("tileL  Super+L, no floats", press("L"), "dir:right")
+local small = win("smallfloat", 1700, 100, 100, 100, true) -- far right corner
+wins = { L, R, small }
+check("tileL  Super+L, tile nearer than float", press("L"), "dir:right")
 
 -- fullscreen float keeps Hyprland's own movefocus
 active = win("fsfloat", 0, 0, 1920, 1080, true, 1)
