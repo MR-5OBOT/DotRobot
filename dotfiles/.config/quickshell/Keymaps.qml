@@ -151,7 +151,7 @@ PanelWindow {
                     binds: [
                         ["Ctrl + R", "Fuzzy search old commands (fzf)"],
                         ["Tab", "Complete with a fuzzy menu (fzf-tab)"],
-                        ["Alt + F", "Accept just its next word"],
+                        ["Alt + F", "Accept the next word of the grey suggestion"],
                         ["Caps + W / B", "Jump word right / left"],
                         ["Caps + 0 / 4", "Line start / end"]
                     ]
