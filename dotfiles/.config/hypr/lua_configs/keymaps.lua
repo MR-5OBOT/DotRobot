@@ -16,7 +16,7 @@ hl.bind(mainMod .. " + C", hl.dsp.window.center())
 hl.bind("ALT + Space", hl.dsp.window.float({ action = "toggle" }))
 -- lockscreen: pauses whatever is playing, then hyprlock (fingerprint unlock)
 local LOCK = os.getenv("HOME") .. "/.config/quickshell/island/scripts/lock.sh"
-hl.bind("ALT + L", hl.dsp.exec_cmd(LOCK))
+hl.bind(mainMod .. " + ALT + L", hl.dsp.exec_cmd(LOCK))
 
 -- Application Launchers
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd("uwsm app -- kitty"))
@@ -30,7 +30,7 @@ hl.bind(mainMod .. " + T", hl.dsp.exec_cmd(ISLAND .. ' peek ""'))
 hl.bind(mainMod .. " + equal", hl.dsp.exec_cmd("qs ipc call calc toggle"))
 hl.bind(mainMod .. " + slash", hl.dsp.exec_cmd("qs ipc call keymaps toggle")) -- keymap cheat sheet
 -- keyd on/off (its panic combo only stops it); hyprpolkitagent asks for the password
-hl.bind(mainMod .. " + SHIFT + K", hl.dsp.exec_cmd(
+hl.bind(mainMod .. " + ALT + K", hl.dsp.exec_cmd(
 	"if systemctl is-active -q keyd; then systemctl stop keyd; else systemctl start keyd; fi; "
 		.. 'notify-send -a keyd "keyd $(systemctl is-active keyd)"'
 ))
@@ -74,10 +74,10 @@ hl.bind(mainMod .. " + K", hl.dsp.focus({ direction = "up" }))
 hl.bind(mainMod .. " + J", hl.dsp.focus({ direction = "down" }))
 
 -- Moving Windows
-hl.bind(mainMod .. " + ALT + H", hl.dsp.window.move({ direction = "left" }))
-hl.bind(mainMod .. " + ALT + L", hl.dsp.window.move({ direction = "right" }))
-hl.bind(mainMod .. " + ALT + K", hl.dsp.window.move({ direction = "up" }))
-hl.bind(mainMod .. " + ALT + J", hl.dsp.window.move({ direction = "down" }))
+hl.bind(mainMod .. " + SHIFT + H", hl.dsp.window.move({ direction = "left" }))
+hl.bind(mainMod .. " + SHIFT + L", hl.dsp.window.move({ direction = "right" }))
+hl.bind(mainMod .. " + SHIFT + K", hl.dsp.window.move({ direction = "up" }))
+hl.bind(mainMod .. " + SHIFT + J", hl.dsp.window.move({ direction = "down" }))
 
 -- Resizing Windows
 hl.bind(mainMod .. " + CTRL + H", hl.dsp.window.resize({ x = -20, y = 0, relative = true }), { repeating = true })
@@ -94,7 +94,7 @@ hl.bind(mainMod .. " + 0", hl.dsp.focus({ workspace = 10 }))
 hl.bind(mainMod .. " + SHIFT + 0", hl.dsp.window.move({ workspace = 10 }))
 
 -- Monitors: O (the letter, not 0) jumps to the other screen, SHIFT + O carries the
--- active window there (onto whatever workspace that screen is showing). ALT + H/L
+-- active window there (onto whatever workspace that screen is showing). SHIFT + H/L
 -- also cross over at the edge. Each switch flashes a Hyprland notification rather
 -- than an island toast, which would pile up in the notification history.
 local monToast

@@ -43,7 +43,7 @@ PanelWindow {
                     ["Caps + - / =", "Volume down / up"],
                     ["Caps + Space", "Toggle microphone mute"],
                     ["Caps Lock", "Tap for normal Caps Lock"],
-                    ["Super + Shift + K", "Turn keyd on / off"]
+                    ["Super + Alt + K", "Turn keyd on / off"]
                 ]
             }
         ],
@@ -53,12 +53,13 @@ PanelWindow {
                 note: "Windows & workspaces",
                 binds: [
                     ["Super + H J K L", "Focus left / down / up / right"],
-                    ["Super + Alt + H J K L", "Move window"],
+                    ["Super + Shift + H J K L", "Move window"],
                     ["Super + Ctrl + H J K L", "Resize window"],
                     ["Super + mouse drag", "Left: move · right: resize"],
                     ["Super + C", "Center window"],
                     ["Super + Shift + F", "Fullscreen"],
-                    ["Alt + Space / L", "Toggle floating / lock"],
+                    ["Alt + Space", "Toggle floating"],
+                    ["Super + Alt + L", "Lock screen"],
                     ["Super + 1 … 0", "Switch workspace 1 … 10"],
                     ["Super + Shift + 1 … 0", "Move window to workspace"],
                     ["Super + O / Shift + O", "Focus / move window to next monitor"]

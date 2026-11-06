@@ -1,5 +1,5 @@
 #!/bin/sh
-# The one way into the lock screen: hypridle's lock_cmd, the ALT+L bind and the
+# The one way into the lock screen: hypridle's lock_cmd, the SUPER+ALT+L bind and the
 # island's Power surface all come through here.
 #
 # Anything playing is paused first — a browser tab, a music player, a video —
