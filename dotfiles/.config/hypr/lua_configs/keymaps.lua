@@ -68,10 +68,40 @@ hl.config({
 		movefocus_cycles_fullscreen = 1,
 	},
 })
-hl.bind(mainMod .. " + H", hl.dsp.focus({ direction = "left" }))
-hl.bind(mainMod .. " + L", hl.dsp.focus({ direction = "right" }))
-hl.bind(mainMod .. " + K", hl.dsp.focus({ direction = "up" }))
-hl.bind(mainMod .. " + J", hl.dsp.focus({ direction = "down" }))
+-- Hyprland's movefocus from a float only sees other floats (then the next monitor), and
+-- no option changes that (0.57), so a float picks the nearest window that way itself.
+-- Tiled windows keep Hyprland's movefocus. Check: lua scripts/test-focus-dir.lua
+-- ponytail: nearest by centre, sideways counts double; use edge overlap if it misjumps.
+local STEP = { left = { -1, 0 }, right = { 1, 0 }, up = { 0, -1 }, down = { 0, 1 } }
+local function focusDir(dir)
+	return function()
+		local cur = hl.get_active_window()
+		if cur and cur.floating and cur.fullscreen == 0 and cur.workspace then
+			local dx, dy = STEP[dir][1], STEP[dir][2]
+			local cx, cy = cur.at.x + cur.size.x / 2, cur.at.y + cur.size.y / 2
+			local best, bestScore
+			for _, w in ipairs(hl.get_workspace_windows(cur.workspace.id)) do
+				if w.address ~= cur.address and w.mapped and not w.hidden then
+					local ox, oy = w.at.x + w.size.x / 2 - cx, w.at.y + w.size.y / 2 - cy
+					local ahead = ox * dx + oy * dy -- distance in the pressed direction
+					local score = ahead + 2 * math.abs(ox * dy + oy * dx)
+					if ahead > 0 and (not bestScore or score < bestScore) then
+						best, bestScore = w, score
+					end
+				end
+			end
+			if best then
+				hl.dispatch(hl.dsp.focus({ window = best }))
+				return
+			end
+		end
+		hl.dispatch(hl.dsp.focus({ direction = dir }))
+	end
+end
+hl.bind(mainMod .. " + H", focusDir("left"))
+hl.bind(mainMod .. " + L", focusDir("right"))
+hl.bind(mainMod .. " + K", focusDir("up"))
+hl.bind(mainMod .. " + J", focusDir("down"))
 
 -- Moving Windows
 hl.bind(mainMod .. " + SHIFT + H", hl.dsp.window.move({ direction = "left" }))
