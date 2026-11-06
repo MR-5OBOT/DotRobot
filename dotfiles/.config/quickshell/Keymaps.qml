@@ -40,6 +40,9 @@ PanelWindow {
                 note: "Hold Caps Lock · applies to configured keyboards",
                 binds: [
                     ["Caps + H J K L", "Left / down / up / right"],
+                    ["Caps + W / B", "Jump word right / left"],
+                    ["Caps + U / D", "Page up / down"],
+                    ["Caps + 0 / 4", "Line start / end"],
                     ["Caps + - / =", "Volume down / up"],
                     ["Caps + Space", "Toggle microphone mute"],
                     ["Caps Lock", "Tap for normal Caps Lock"],
