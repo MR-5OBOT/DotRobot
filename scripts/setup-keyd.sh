@@ -15,11 +15,10 @@ main() {
   pacman -Qq keyd >/dev/null 2>&1 || pacman_install keyd
   keyd check "${CONF}" || die "keyd rejected ${CONF}; kept the current config"
   sudo install -Dm 644 "${CONF}" "${TARGET}"
-  if systemctl is-active --quiet keyd; then
-    sudo keyd reload
-  else
-    sudo systemctl enable --now keyd
-  fi
+  # restart, not `keyd reload`: keyd 2.6.0 segfaulted seconds after a reload,
+  # while a fresh start with the same config ran fine (2026-11-06)
+  sudo systemctl enable keyd
+  sudo systemctl restart keyd
   log "keyd is using ${CONF}. Panic exit: Backspace+Escape+Enter"
 }
 
