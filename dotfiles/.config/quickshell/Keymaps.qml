@@ -97,13 +97,13 @@ PanelWindow {
                     title: "TMUX",
                     note: "Panes · Prefix = Ctrl + Space, let go, then the key",
                     binds: [
-                        ["Ctrl + H J K L", "Switch pane / nvim split / out of the float"],
+                        ["Ctrl + H J K L", "Switch pane / nvim split (no prefix)"],
                         ["Prefix + | / -", "Split side by side / stacked"],
                         ["Prefix + Shift + H J K L", "Resize pane (tap again to repeat)"],
                         ["Prefix + Ctrl + Z", "Zoom pane in / out"],
                         ["Prefix + X", "Close pane (asks first)"],
                         ["Prefix + Ctrl + L", "Clear the screen"],
-                        ["Prefix + O", "Float: open / go back in / hide"],
+                        ["Prefix + O", "Floating terminal show / hide"],
                         ["Prefix + Shift + X", "Close the floating terminal"],
                         ["Prefix + [", "Copy mode (vi keys, scroll back)"],
                         ["V / Y / X", "In copy mode: select / copy / cut"]

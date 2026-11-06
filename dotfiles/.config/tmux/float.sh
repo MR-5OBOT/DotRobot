@@ -41,14 +41,6 @@ if [ "$action" = attach ]; then
   exit 0
 fi
 
-# Ctrl+hjkl at the float's edge: back to the pane you opened it from. tmux 3.8 can't
-# select-pane a direction out of a floating pane, but last-pane works.
-if [ "$action" = leave ]; then
-  view=$(tmux list-panes -a -f '#{@float-session}' -F '#{pane_id}' | head -n1)
-  [ -z "$view" ] || tmux last-pane -t "$view"
-  exit 0
-fi
-
 pane="${2:-$(tmux display-message -p '#{pane_id}')}"
 session=$(tmux show-option -pqv -t "$pane" @float-session || true)
 
@@ -67,13 +59,7 @@ fi
 current_view=$(tmux list-panes -t "$pane" -f '#{@float-session}' -F '#{pane_id}' 2>/dev/null || true)
 
 if [ -n "$current_view" ]; then
-  # Visible here but you left it (Ctrl+hjkl) -> go back into it
-  if [ -z "$session" ]; then
-    set -- $current_view
-    tmux select-pane -t "$1"
-    exit 0
-  fi
-  # Visible and focused -> hide it
+  # Already visible in this window -> hide it
   for v in $current_view; do
     tmux kill-pane -t "$v" 2>/dev/null || :
   done
