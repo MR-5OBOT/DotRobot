@@ -80,7 +80,7 @@ C_DIM = "\033[2m"
 # Colors matching the user's palette
 C_BG_BLACK = "\033[48;2;0;0;0m"           # #000000 pure black
 C_BG_SELECTED = "\033[48;2;22;22;22m"     # #161616 subtle dark selection bar
-C_FG_ACCENT = "\033[38;2;190;66;119m"     # #BE4277 muted pink / accent
+C_FG_ACCENT = "\033[38;2;91;42;105m"      # #5B2A69 darker Hyprland purple accent
 C_FG_WHITE = "\033[38;2;230;230;230m"     # clean bright white
 C_FG_GRAY = "\033[38;2;112;112;112m"      # #707070 medium gray
 C_FG_DARK_GRAY = "\033[38;2;70;70;70m"    # #464646 dark gray

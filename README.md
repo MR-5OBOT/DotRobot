@@ -25,6 +25,9 @@ To adjust for other hardware, edit the external monitor in
 
 Run these when needed; each one explains itself as it runs.
 
+See the [practical keyboard workflow report](docs/keyboard-workflow.md) for the
+installed terminal alternatives, Brovim selection and current session decisions.
+
 | Script | What it does |
 |---|---|
 | `scripts/setup-mobile-broadband.sh` | Cellular modem and carrier APN, including the Dell DW5825e FCC unlock (also offered by the installer) |

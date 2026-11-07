@@ -78,7 +78,7 @@ else
   view=$(tmux new-pane -A -P -F '#{pane_id}' -t "$pane" -c "$cwd" \
     -x 68% -y 80% -X 16% -Y 10% \
     -B single -T ' float ' \
-    -S 'fg=#BE4277' \
+    -S 'fg=#5B2A69' \
     sh "$0" attach "$session" "$parent")
   tmux set-option -p -t "$view" @float-session "$session"
 fi
