@@ -180,7 +180,7 @@ changes.
 | Compare Neru | Official project checked again; Linux Beta and additional hint/OCR/grid features confirmed. No measured replacement claim or installation. |
 | Reversible accessibility setup | Superseded by your simpler scope; manager, state and added environment/keymap hooks are absent. |
 | Explain termfilechooser | Official Superfile support and app-dependent portal limits checked; explanation retained, integration skipped. |
-| Caps+gg/G, followed by purge | All three repo configs restored to their original versions; installed keyd file matches, daemon restarted, live tmux custom keys removed and Kitty reloaded. Existing Caps navigation remains. |
+| Caps+gg/G, followed by purge | Caps additions removed from all three repo configs; installed keyd restored, daemon restarted, live tmux custom keys removed and Kitty reloaded. Existing Caps navigation remains. |
 | Report and implementation details | This report and Brovim's README/REPORT reflect the final behavior, including the two later corrections above. |
 
 The Caps purge requires no further action. Reload Brovim once at
