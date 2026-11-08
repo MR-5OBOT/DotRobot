@@ -24,7 +24,6 @@ hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("qs ipc call launcher toggle"))
 hl.bind(mainMod .. " + D", hl.dsp.exec_cmd(ISLAND .. ' home ""')) -- dashboard
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd("blueman-manager")) -- bluetooth manager
 hl.bind(mainMod .. " + I", hl.dsp.exec_cmd("kitty --class nmtui -e nmtui")) -- network manager (tui)
-hl.bind(mainMod .. " + ALT + I", hl.dsp.exec_cmd("nm-connection-editor")) -- network connections editor (gui)
 hl.bind(mainMod .. " + SHIFT + I", hl.dsp.exec_cmd("kitty --class nmtui -e nmtui connect")) -- direct wifi connection picker
 hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("pkill -x qs; " .. QS)) -- restart quickshell (island included)
 hl.bind(mainMod .. " + X", hl.dsp.exec_cmd(ISLAND .. ' power ""'))

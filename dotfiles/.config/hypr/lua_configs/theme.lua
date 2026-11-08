@@ -23,7 +23,8 @@ hl.config({
             offset = { 0, 0 },
             render_power = 3,
             color = 0xff381341,
-            color_inactive = 0xff2e1036
+            -- Keep unfocused floating windows separated without the active purple halo.
+            color_inactive = 0xb018151b
         },
         -- Compiz-style ripple while moving/resizing. Stock intensity is 0.2;
         -- 0.35 is clearly visible on the 240Hz screen without turning precise
