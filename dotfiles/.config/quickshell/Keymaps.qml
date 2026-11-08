@@ -25,6 +25,9 @@ PanelWindow {
                     binds: [
                         ["Super + Return", "Terminal"],
                         ["Super + Space / Q", "App launcher / close window"],
+                        ["Super + D / B", "Dashboard / Bluetooth manager"],
+                        ["Super + I / Alt + I", "Network: TUI / GUI editor"],
+                        ["Super + Shift + I", "Wi-Fi selector"],
                         ["Super + X / W", "Power / wallpapers"],
                         ["Super + V / N / T", "Clipboard / notifications / bar peek"],
                         ["Super + = / /", "Calculator / this sheet"],
@@ -67,7 +70,8 @@ PanelWindow {
                         ["Caps + H J K L", "Left / down / up / right"],
                         ["Caps + W / B", "Jump word right / left"],
                         ["Caps + U / D", "Page up / down"],
-                        ["Caps + 0 / 4", "Line start / end"],
+                        ["Caps + 0", "Line start"],
+                        ["Caps + Shift + 4 ($)", "Line end"],
                         ["Caps + - / =", "Volume down / up"],
                         ["Caps + Space", "Toggle microphone mute"],
                         ["Caps Lock", "Tap for normal Caps Lock"],
@@ -152,7 +156,8 @@ PanelWindow {
                         ["Tab", "Complete with a fuzzy menu (fzf-tab)"],
                         ["Alt + F", "Accept the next word of the grey suggestion"],
                         ["Caps + W / B", "Jump word right / left"],
-                        ["Caps + 0 / 4", "Line start / end"]
+                        ["Caps + 0", "Line start"],
+                        ["Caps + Shift + 4 ($)", "Line end"]
                     ]
                 }]
             ]

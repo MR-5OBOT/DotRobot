@@ -40,6 +40,9 @@ hl.window_rule({
 	pin = true,
 })
 hl.window_rule({ match = { class = "nwg-look" }, float = true, center = true, size = "500 400", pin = true })
+hl.window_rule({ match = { class = "^(nmtui)$" }, float = true, center = true, size = "720 500" })
+hl.window_rule({ match = { class = "^(blueman-manager)$" }, float = true, center = true, size = "700 480" })
+hl.window_rule({ match = { class = "^(nm-connection-editor)$" }, float = true, center = true, size = "700 520" })
 -- GTK4 pavucontrol's app id; the old "pavucontrol" class never matches. 900x560
 -- fits the 1280x720 logical laptop screen and shows a full row of sliders.
 hl.window_rule({

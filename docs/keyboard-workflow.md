@@ -13,7 +13,7 @@ this machine. It does not mean every feature of every tool was tested.
    shortcuts and suitable terminal tools. Mouse use remains fine.
 3. **Add Brovim selection:** `/phrase` → Enter → `v` → movements → `y` copies
    and immediately clears the highlight. `c` positions the caret, `V` selects
-   lines, and `o` swaps ends. Enter and Y also copy and clear the selection.
+   lines. `o` was removed at your request; `c` remains. Enter and Y also copy and clear the selection.
    Escape cancels selection, including existing search selections and pending
    movement prefixes. Reload Brovim once at `chrome://extensions` to load it.
 4. **Explain Super+F:** it asks the focused app for accessible controls and
@@ -106,10 +106,33 @@ has reloaded its original configuration. The loaded tmux User0/User1 bindings
 and both custom key sequences have been removed. Your original Caps+u/d,
 Caps+hjkl, word movements and Home/End mappings remain.
 
+The later correction changes End to **Caps+Shift+4 (`$`)**, matching Vim.
+Caps+0 remains Home; Caps+4 no longer means End. Both cheatsheet rows match.
+The installed keyd config matches the repository and the service is active.
+
 The installed `/etc/keyd/default.conf` was restored to the original repository
 version, and keyd was restarted successfully after desktop authentication.
 The repository, installed config and active Kitty/tmux settings are now back
 to their previous mappings. No setup command is needed for this purge.
+
+The subsequent Shift+4 correction is already applied; Caps+gg/G stay purged.
+
+## Later browser requests
+
+- **Alt+E:** a centered browser-page search palette, with its input focused on opening. Enter always
+  opens a new tab. Search settings, extensions, performance, downloads, history and other browser
+  pages. Automatic detects the exposed browser identity; a manual selector exposes Helium/Brave
+  specific pages when identity is hidden.
+- **Protected pages:** Alt+E and Alt+Q use a temporary extension tab when an overlay cannot work.
+  Alt+Q always shows its grid on browser pages, even with two tabs and normal browser-page access
+  disabled. No new setting. Enter selects and closes the temporary grid; Escape cancels it.
+- **Shortcut conflicts:** Alt+E is removed from Helium's native menu backup. In another browser,
+  assign Brovim's command manually in its extension-shortcuts page if needed. The Helium backup is
+  not a shared Brave settings format.
+- **Selection:** keep `c`, remove visual `o`; y/Y/Enter copy and immediately clear highlights.
+  Escape also clears highlights. Fixed the Extensions-page find/selection helper ReferenceError.
+- **Default:** Keep focus on the page is true for new settings. Existing saved choices are
+  respected. Automatic focus recovery handles editors that try to refocus themselves.
 
 ## Optional additions, only when you need the task
 
@@ -158,10 +181,11 @@ caret and line highlights. Copying with y/Enter/Y now clears the highlight
 immediately and leaves no selection range. Editor typing keeps its normal
 behavior.
 
-Formatting/lint, 325 unit tests, 101 DOM tests and 101 installed-browser checks
-passed in Helium/Chromium. Twelve internal-page checks also passed, including
+Formatting/lint, 334 unit tests, 102 DOM tests and 101 installed-browser checks
+passed in Helium/Chromium. Thirteen internal-page checks also passed, including
 immediate copy cleanup, clipboard contents and Escape cleanup on
-chrome://extensions with shadow DOM. All three distribution ZIPs were rebuilt.
+chrome://extensions with shadow DOM. Eight browser-navigation checks and 11
+real-shortcut checks passed in isolated Helium profiles. All three distribution ZIPs were rebuilt.
 Firefox runtime tests were not run. Reload Brovim once to activate the source
 changes.
 
