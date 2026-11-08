@@ -55,6 +55,7 @@ EOF
   # --yes: this prompt is the yes/no, so the script installs its plan without asking again.
   run_step "Install Steam + Proton (gaming)" "scripts/setup-steam.sh" --yes
   run_step "Set up fingerprint unlock (machines with a reader)" "scripts/setup-fingerprint.sh"
+  run_step "Set up external monitor brightness control (ddcutil + i2c)" "scripts/setup-monitor-brightness.sh"
   log "Setup finished. Log: ${LOG_FILE}"
 }
 

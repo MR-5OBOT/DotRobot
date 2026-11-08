@@ -15,10 +15,9 @@ Singleton {
     id: root
 
     /**
-     * DDC-capable monitors from `ddcutil detect`: [{ bus, label }] with label
-     * taken from the DRM connector, falling back to the I2C bus number.
+     * DDC-capable monitors from MonitorBrightness singleton: [{ bus, label, connector }]
      */
-    property var ddcMonitors: []
+    readonly property var ddcMonitors: MonitorBrightness.monitors
 
     /** True once an internal backlight has been found under /sys/class/backlight. */
     property bool backlightPresent: false
@@ -27,18 +26,17 @@ Singleton {
     property int backlightPct: 75
 
     /**
-     * Probes for brightness controls when the mixer opens. DDC (external-monitor)
-     * detection runs whenever the mixer opens: one external monitor may be
-     * the only connected display. The internal backlight is probed separately.
+     * Probes for brightness controls when the mixer opens. External monitor
+     * detection is handled by the dedicated MonitorBrightness singleton;
+     * the internal backlight is probed separately.
      */
     function detect() {
-        ddcDetect.running = true;
+        MonitorBrightness.detect();
         blDetect.running = true;
     }
 
     function setBrightness(bus, pct) {
-        Quickshell.execDetached(["timeout", "3", "ddcutil", "setvcp", "10",
-            String(pct), "--bus", bus, "--noverify"]);
+        MonitorBrightness.setBrightness(bus, pct);
     }
 
     /**
@@ -56,31 +54,7 @@ Singleton {
      * percent or -1 when no value is present.
      */
     function parseBrightness(text) {
-        var m = text.match(/C\s+(\d+)\s+/);
-        return m ? parseInt(m[1], 10) : -1;
-    }
-
-    Process {
-        id: ddcDetect
-        command: ["sh", "-c", "command -v ddcutil >/dev/null 2>&1 || exit 0; ddcutil detect --brief"]
-        running: false
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var mons = [];
-                var blocks = this.text.split(/\bDisplay \d+/);
-                for (var i = 0; i < blocks.length; i++) {
-                    var bus = /I2C bus:\s+\/dev\/i2c-(\d+)/.exec(blocks[i]);
-                    var conn = /DRM connector:\s+card\d+-(\S+)/.exec(blocks[i]);
-                    if (!bus)
-                        continue;
-                    var name = conn ? conn[1] : "BUS " + bus[1];
-                    if (/^eDP/i.test(name))
-                        continue;
-                    mons.push({ bus: bus[1], label: name });
-                }
-                root.ddcMonitors = mons;
-            }
-        }
+        return MonitorBrightness.parseBrightness(text);
     }
 
     Process {
