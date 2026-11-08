@@ -104,7 +104,6 @@ PanelWindow {
                         ["Prefix + X", "Close pane (asks first)"],
                         ["Prefix + Ctrl + L", "Clear the screen"],
                         ["Prefix + O", "Floating terminal show / hide"],
-                        ["Prefix + Shift + X", "Close the floating terminal"],
                         ["Prefix + [", "Copy mode (vi keys, scroll back)"],
                         ["V / Y / X", "In copy mode: select / copy / cut"]
                     ]
