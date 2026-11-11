@@ -11,7 +11,7 @@ DEFAULT_UNITS=(NetworkManager.service power-profiles-daemon.service paccache.tim
 OPTIONAL_UNITS=(bluetooth.service docker.socket thermald.service)
 # Session daemons as user units: uwsm starts them with the Hyprland session,
 # systemd restarts them on a crash, and `journalctl --user -u <name>` has logs.
-USER_UNITS=(cliphist.service hypridle.service hyprpolkitagent.service)
+USER_UNITS=(cliphist.service hypridle.service hyprpolkitagent.service battery-notify.service)
 
 enable_unit() {
   local unit="$1"

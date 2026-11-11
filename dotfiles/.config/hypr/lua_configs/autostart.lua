@@ -1,7 +1,7 @@
 local SCRIPTS = os.getenv("HOME") .. "/.config/hypr/scripts"
 local QS = require("lua_configs.qs")
 
--- cliphist, hypridle and hyprpolkitagent run as systemd user units
+-- cliphist, hypridle, hyprpolkitagent and battery-notify run as systemd user units
 -- (scripts/enable-services.sh enables them): uwsm starts them with the session,
 -- restarts them on a crash, and `journalctl --user -u <name>` shows their logs.
 
@@ -32,5 +32,4 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd(os.getenv("HOME") .. "/.config/quickshell/island/scripts/wallpaper.sh restore")
 	-- one quickshell: the island bar (owns notifications) + launcher, clipboard, menus.
 	hl.exec_cmd(QS)
-	hl.exec_cmd(SCRIPTS .. "/autostart/battery-notify.sh") -- low-batt nag; the island draws it as a toast
 end)

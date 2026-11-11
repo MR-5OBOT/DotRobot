@@ -1,0 +1,15 @@
+[Unit]
+Description=Low-battery notification daemon
+Documentation=https://github.com/mr5obot/DotRobot
+PartOf=graphical-session.target
+After=graphical-session.target
+ConditionEnvironment=WAYLAND_DISPLAY
+
+[Service]
+Type=simple
+ExecStart=%h/.config/hypr/scripts/autostart/battery-notify.sh
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=graphical-session.target
