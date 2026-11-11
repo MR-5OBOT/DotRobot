@@ -39,11 +39,11 @@ EOF
   run_step "Install AUR packages" "scripts/install-packages.sh" aur
   run_step "Build wl-kbptr (SUPER+F keyboard clicking)" "scripts/setup-wl-kbptr.sh"
   run_step "Set up Flatpak + Flathub" "scripts/setup-flatpak.sh"
+  run_step "Link dotfiles into \$HOME" "scripts/link-dotfiles.sh"
   run_step "Enable system services" "scripts/enable-services.sh"
   run_step "Set up SIM/mobile broadband (modem machines only)" "scripts/setup-mobile-broadband.sh"
   run_step "Set up zram sized for this machine" "scripts/setup-zram.sh"
   run_step "Show Windows in the GRUB menu (os-prober, dual boot only)" "scripts/setup-dual-boot.sh"
-  run_step "Link dotfiles into \$HOME" "scripts/link-dotfiles.sh"
   run_step "Set up keyd key remapping" "scripts/setup-keyd.sh"
   run_step "Link browser video flags and enable Brovim on Helium browser pages" "scripts/setup-browser-flags.sh"
   run_step "Apply GTK/icon/cursor theme settings" "scripts/setup-gtk-theme.sh"

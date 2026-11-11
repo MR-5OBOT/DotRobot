@@ -1,6 +1,6 @@
 [Unit]
 Description=Low-battery notification daemon
-Documentation=https://github.com/mr5obot/DotRobot
+Documentation=https://github.com/MR-5OBOT/DotRobot
 PartOf=graphical-session.target
 After=graphical-session.target
 ConditionEnvironment=WAYLAND_DISPLAY

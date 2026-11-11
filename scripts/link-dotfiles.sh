@@ -42,14 +42,6 @@ link_vesktop() {
   link_children "${repo_dir}" "${dir}"
 }
 
-# systemd keeps generated state and wants/ in ~/.config/systemd/user, so that
-# stays a real directory and only repo-defined unit files are linked in.
-link_systemd() {
-  local dir="${HOME}/.config/systemd/user" repo_dir="${DOTFILES_DIR}/.config/systemd/user"
-  mkdir -p "${dir}"
-  link_children "${repo_dir}" "${dir}"
-}
-
 # Qt reads stylesheet paths and url()s literally, so the files in .gitattributes
 # hold @HOME@ in git. This filter writes your home on checkout and puts @HOME@
 # back on commit; files still holding @HOME@ (fresh clone) are checked out again.
@@ -72,7 +64,9 @@ main() {
   setup_home_filter
   link_children "${DOTFILES_DIR}/.config" "${HOME}/.config" vesktop systemd
   link_vesktop
-  link_systemd
+  # systemd keeps its enable links (*.wants/) in ~/.config/systemd/user, so it
+  # stays a real directory and only the repo's unit files are linked in.
+  link_children "${DOTFILES_DIR}/.config/systemd/user" "${HOME}/.config/systemd/user"
   # ~/.local/bin used to be one symlink into the repo; it is a real directory now.
   if [[ -L "${HOME}/.local/bin" ]]; then
     rm "${HOME}/.local/bin"

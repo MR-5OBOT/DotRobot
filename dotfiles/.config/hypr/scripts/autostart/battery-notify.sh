@@ -4,11 +4,11 @@
 # bar constantly). The island (repo island/) owns the notification server and draws
 # the toast -- this decides when one is due.
 #
-# Idempotent: a hyprland reload won't stack a second watcher.
+# Runs as battery-notify.service; systemd keeps it to one copy and logs it
+# (journalctl --user -u battery-notify).
 
 set -uo pipefail
 
-LOCK="${XDG_RUNTIME_DIR:-/tmp}/battery-notify.lock"
 POWER_SUPPLY_DIR="${POWER_SUPPLY_DIR:-/sys/class/power_supply}"
 LOW_PCT=20          # start warning at or under this
 CRIT_PCT=10         # tighten the nag at or under this
@@ -26,6 +26,10 @@ has_battery() {
   return 1
 }
 
+# rd VAR FILE [default]: read one sysfs value with no fork (polled every 10s);
+# a missing file gives the default, 0 unless set.
+rd() { read -r "$1" 2>/dev/null < "$2" || printf -v "$1" '%s' "${3-0}"; }
+
 # Kernels expose one of two unit families: energy_*/power_now (uWh/uW, the
 # ThinkPad) or charge_*/current_now (uAh/uA, the Dell). Scale charge units by
 # voltage so both end up as energy, then sum across every BAT.
@@ -36,15 +40,15 @@ read_battery() {
   for b in "${POWER_SUPPLY_DIR}"/BAT*; do
     [[ -d "${b}" ]] || continue
     batteries=$(( batteries + 1 ))
-    v=$(cat "${b}/voltage_now" 2>/dev/null || echo 0)
-    [[ "${v}" == 0 ]] && v=$(cat "${b}/voltage_min_design" 2>/dev/null || echo 0)
-    now=$(cat "${b}/energy_now" 2>/dev/null || echo 0)
-    fu=$(cat "${b}/energy_full" 2>/dev/null || echo 0)
+    rd v "${b}/voltage_now"
+    [[ "${v}" == 0 ]] && rd v "${b}/voltage_min_design"
+    rd now "${b}/energy_now"
+    rd fu "${b}/energy_full"
     if [[ "${fu}" == 0 ]]; then
-      now=$(( $(cat "${b}/charge_now" 2>/dev/null || echo 0) * v / 1000000 ))
-      fu=$(( $(cat "${b}/charge_full" 2>/dev/null || echo 0) * v / 1000000 ))
+      rd now "${b}/charge_now"; now=$(( now * v / 1000000 ))
+      rd fu "${b}/charge_full"; fu=$(( fu * v / 1000000 ))
     fi
-    st=$(cat "${b}/status" 2>/dev/null || echo "")
+    rd st "${b}/status" ""
     case "${st}" in
       Charging) charging=1 ;;
       Discharging) discharging=1 ;;
@@ -67,7 +71,9 @@ notify() {
   local urgency=$1 summary=$2 body=$3 keep=$4 args id
   args=(-p -u "${urgency}" -i battery-caution)
   (( notif_id > 0 )) && args+=(-r "${notif_id}")
-  id=$(notify-send "${args[@]}" "${summary}" "${pct}% — ${body}" 2>/dev/null)
+  echo "${summary}: ${pct}% — ${body}" # journalctl --user -u battery-notify
+  # fails if no notification server yet (login, qs restart): caller retries
+  id=$(notify-send "${args[@]}" "${summary}" "${pct}% — ${body}") || return 1
   if (( keep )); then notif_id=${id:-0}; else notif_id=0; fi
 }
 
@@ -75,8 +81,7 @@ last_nag=0 full_notified=0
 process_battery_state() {
   if (( full > 0 )); then
     if (( fully_charged )); then
-      if (( !full_notified )); then
-        notify normal "🔋 Battery full" "unplug your charger" 0
+      if (( !full_notified )) && notify normal "🔋 Battery full" "unplug your charger" 0; then
         full_notified=1
       fi
       notif_id=0
@@ -90,14 +95,12 @@ process_battery_state() {
     else
       gap=${NAG_SECS}
       (( pct <= CRIT_PCT )) && gap=${CRIT_SECS}
-      now_s=$(date +%s)
+      now_s=${EPOCHSECONDS}
       if (( last_nag == 0 || now_s - last_nag >= gap )); then
-        last_nag=${now_s}
-        if (( pct <= CRIT_PCT )); then
-          notify critical "🪫 Battery critical" "plug in your charger!" 1
-        else
-          notify critical "⚠️ Low battery" "plug in your charger!" 1
-        fi
+        title="⚠️ Low battery"
+        (( pct <= CRIT_PCT )) && title="🪫 Battery critical"
+        # only a shown nag restarts the gap; a failed one retries next poll
+        notify critical "${title}" "plug in your charger!" 1 && last_nag=${now_s}
       fi
     fi
   fi
@@ -105,8 +108,6 @@ process_battery_state() {
 
 main() {
   has_battery || exit 0
-  exec 9>"${LOCK}"
-  flock -n 9 || exit 0
 
   while :; do
     read_battery

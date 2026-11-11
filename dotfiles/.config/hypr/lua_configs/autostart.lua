@@ -1,4 +1,3 @@
-local SCRIPTS = os.getenv("HOME") .. "/.config/hypr/scripts"
 local QS = require("lua_configs.qs")
 
 -- cliphist, hypridle, hyprpolkitagent and battery-notify run as systemd user units
@@ -21,7 +20,7 @@ end
 hl.on("hyprland.start", function()
 	if not started_by_uwsm() then
 		hl.notification.create({
-			text = 'Started without uwsm: no clipboard history, idle lock, polkit or theme env. Log out and pick "Hyprland (uwsm-managed)".',
+			text = 'Started without uwsm: no clipboard history, idle lock, polkit, battery warnings or theme env. Log out and pick "Hyprland (uwsm-managed)".',
 			timeout = 30000,
 			icon = "warning",
 		})
