@@ -41,8 +41,8 @@ Scope {
     onBackSurfaceChanged: Surfaces.back = root.backSurface
 
     /**
-     * Low/full battery warnings come from ~/.config/hypr/scripts/autostart/
-     * battery-notify.sh, which outlives shell restarts; the island owns the
+     * Low/full battery warnings come from battery-notify.service
+     * (hypr/scripts/daemons/), which outlives shell restarts; the island owns the
      * notification server, so they arrive here as toasts.
      */
     function refresh() {

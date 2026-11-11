@@ -7,7 +7,7 @@ ConditionEnvironment=WAYLAND_DISPLAY
 
 [Service]
 Type=simple
-ExecStart=%h/.config/hypr/scripts/autostart/battery-notify.sh
+ExecStart=%h/.config/hypr/scripts/daemons/battery-notify.sh
 Restart=on-failure
 RestartSec=5s
 
