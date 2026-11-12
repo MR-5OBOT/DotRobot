@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Battery charge cap for the Dell Latitude 5450 (dell_laptop driver). No reboot needed;
+# the BIOS keeps the setting across reboots (and in Windows), so turn it back on after travel.
+#   on  = Custom mode, charge only between 75% and 80% (laptop docked / always plugged in)
+#   off = Standard mode, charge to 100% now (before travel)
+# Switches the mode instead of raising the 80 to 100: with Custom 75/100 a battery sitting at
+# 80% would not start charging until it dropped below 75.
+
+readonly START=75 END=80
+readonly bat=/sys/class/power_supply/BAT0
+
+mode() { grep -o '\[[A-Za-z]*\]' "$bat/charge_types" | tr -d '[]'; }
+
+write() { # file value; sudo only when the value changes
+  local cur
+  if [[ $1 == charge_types ]]; then cur=$(mode); else cur=$(<"$bat/$1"); fi
+  [[ $cur == "$2" ]] || echo "$2" | sudo tee "$bat/$1" >/dev/null
+}
+
+show() {
+  if [[ $(mode) == Custom ]]; then
+    echo "Cap ON: charges $(<"$bat/charge_control_start_threshold")% -> $(<"$bat/charge_control_end_threshold")% (battery now $(<"$bat/capacity")%)"
+  else
+    echo "Cap OFF: charging to 100% ($(mode) mode, battery now $(<"$bat/capacity")%)"
+  fi
+}
+
+cap_on() {
+  # The BIOS keeps end at least 5 above start, so write in the order that never breaks that
+  # (BIOS resets/updates can leave other values here).
+  if (($(<"$bat/charge_control_end_threshold") >= END)); then
+    write charge_control_start_threshold $START
+    write charge_control_end_threshold $END
+  else
+    write charge_control_end_threshold $END
+    write charge_control_start_threshold $START
+  fi
+  write charge_types Custom
+}
+
+[[ -e $bat/charge_types ]] || { echo "No Dell charge control on this machine (needs the dell_laptop driver)." >&2; exit 1; }
+
+case "${1:-status}" in
+  on) cap_on ;;
+  off) write charge_types Standard ;;
+  status) ;;
+  *) echo "usage: ${0##*/} [status | on | off]" >&2; exit 1 ;;
+esac
+show

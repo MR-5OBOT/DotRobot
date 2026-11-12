@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import "../Singletons"
 import "../components"
 
@@ -44,6 +45,30 @@ PillSurface {
     /** Active power-profiles-daemon profile, live from Battery. */
     readonly property string profile: Battery.profile
     readonly property var profileLabels: ({ "power-saver": "Power saver", "balanced": "Balanced", "performance": "Performance" })
+
+    /**
+     * Dell charge cap (dell-latitude-5450-charge-cap): Custom = capped at the
+     * start-end window, anything else charges to 100%. "" hides the chip on
+     * batteries without charge_types. sysfs never signals changes, so re-read
+     * on every open.
+     */
+    property string capMode: ""
+    property string capRange: ""
+    readonly property bool capOn: capMode === "Custom"
+    onOpenChanged: if (open) capProc.running = true
+
+    Process {
+        id: capProc
+        running: true
+        command: ["sh", "-c", "cd /sys/class/power_supply/BAT0 && grep -o '\\[[A-Za-z]*\\]' charge_types && cat charge_control_start_threshold charge_control_end_threshold"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var l = this.text.trim().split("\n");
+                root.capMode = l[0] ? l[0].replace(/[\[\]]/g, "") : "";
+                root.capRange = l.length > 2 ? l[1] + "–" + l[2] + "%" : "";
+            }
+        }
+    }
 
     Column {
         id: content
@@ -92,15 +117,45 @@ PillSurface {
             bottomPadding: 14 * root.s
             spacing: 9 * root.s
 
-            Text {
-                id: pctText
-                text: Battery.pct + "%"
-                color: Battery.low ? Theme.vermLit : (Battery.charging ? Theme.flameGlow : Theme.cream)
-                font.family: Theme.font
-                font.pixelSize: 46 * root.s
-                font.weight: Font.Bold
-                font.letterSpacing: -1 * root.s
-                font.features: { "tnum": 1 }
+            Item {
+                width: parent.width
+                height: pctText.implicitHeight
+
+                Text {
+                    id: pctText
+                    text: Battery.pct + "%"
+                    color: Battery.low ? Theme.vermLit : (Battery.charging ? Theme.flameGlow : Theme.cream)
+                    font.family: Theme.font
+                    font.pixelSize: 46 * root.s
+                    font.weight: Font.Bold
+                    font.letterSpacing: -1 * root.s
+                    font.features: { "tnum": 1 }
+                }
+
+                /** Charge-cap reminder: quiet when capped, lit when charging to 100%. */
+                Rectangle {
+                    visible: root.capMode.length > 0
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: capText.implicitWidth + 20 * root.s
+                    height: 26 * root.s
+                    radius: height / 2
+                    color: root.capOn ? "transparent" : Qt.alpha(Theme.vermLit, 0.12)
+                    border.width: 1
+                    border.color: root.capOn ? Theme.hair : Qt.alpha(Theme.vermLit, 0.6)
+
+                    Text {
+                        id: capText
+                        anchors.centerIn: parent
+                        text: root.capOn ? "Cap on · " + root.capRange : "Cap off · 100%"
+                        color: root.capOn ? Theme.dim : Theme.vermLit
+                        font.family: Theme.font
+                        font.pixelSize: 9.5 * root.s
+                        font.weight: Font.Bold
+                        font.capitalization: Font.AllUppercase
+                        font.letterSpacing: 1.1 * root.s
+                    }
+                }
             }
 
             Text {
