@@ -25,7 +25,7 @@ PanelWindow {
                     binds: [
                         ["Super + Return", "Terminal"],
                         ["Super + Space / Q", "App launcher / close window"],
-                        ["Super + D / B", "Dashboard / Bluetooth manager"],
+                        ["Super + D / B", "Dashboard / Battery"],
                         ["Super + I / Shift + I", "Network manager / Wi-Fi picker"],
                         ["Super + X / W", "Power / wallpapers"],
                         ["Super + V / N / T", "Clipboard / notifications / bar peek"],
