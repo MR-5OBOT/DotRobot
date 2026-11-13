@@ -11,7 +11,7 @@ local ISLAND = "qs ipc call island"
 
 -- Window Management
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
-hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
+hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 hl.bind(mainMod .. " + C", hl.dsp.window.center())
 hl.bind("ALT + Space", hl.dsp.window.float({ action = "toggle" }))
 -- lockscreen: pauses whatever is playing, then hyprlock (fingerprint unlock)
@@ -51,7 +51,7 @@ hl.bind("Print", hl.dsp.exec_cmd(RISHOT)) -- drag region or click a window
 hl.bind("SHIFT + Print", hl.dsp.exec_cmd(RISHOT .. " monitor")) -- whole output
 
 -- Keyboard clicking (wl-kbptr grid): g = left click, h = right, Enter = move only
-hl.bind(mainMod .. " + F", hl.dsp.exec_cmd("pkill -x wl-kbptr || wl-kbptr"))
+hl.bind(mainMod .. " + ALT + F", hl.dsp.exec_cmd("pkill -x wl-kbptr || wl-kbptr"))
 
 -- Volume & Brightness
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --inc"), { locked = true })

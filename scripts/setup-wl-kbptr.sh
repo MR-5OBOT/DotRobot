@@ -3,7 +3,7 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
-# wl-kbptr handles SUPER+F keyboard grid clicking.
+# wl-kbptr handles SUPER+ALT+F keyboard grid clicking.
 # Built from packages/arch/wl-kbptr (the AUR package without OpenCV), not the AUR.
 main() {
   require_arch
@@ -17,7 +17,7 @@ main() {
   cp "${PACKAGES_DIR}/wl-kbptr/PKGBUILD" "${build_dir}/"
   cd "${build_dir}"
   makepkg -si --needed
-  log "wl-kbptr installed; SUPER+F keyboard grid clicking"
+  log "wl-kbptr installed; SUPER+ALT+F keyboard grid clicking"
 }
 
 main "$@"
