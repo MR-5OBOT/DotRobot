@@ -1,0 +1,7 @@
+# Claude Code plugins. scripts/setup-claude.sh installs every line.
+# <plugin@marketplace> <marketplace GitHub repo>
+ponytail@ponytail DietrichGebert/ponytail
+
+# Not installed by the script:
+# Codex: ponytail, Ad Superpowers (~/.codex/config.toml)
+# OpenCode: opencode-antigravity-auth, superpowers (~/.config/opencode/opencode.jsonc)

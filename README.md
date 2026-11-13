@@ -32,4 +32,5 @@ Run these when needed; each one explains itself as it runs.
 | `scripts/setup-browser-shortcuts.py` | Helium shortcuts for Brovim; close Helium first, `--dry-run` previews |
 | `assets/presets/kdenlive-config/kdenlive-setup.sh` | Kdenlive theme and layouts |
 | `scripts/switch-from-wpa_supplicant-to-iwd.sh` | Switches the Wi-Fi backend to iwd; `revert` undoes it |
+| `scripts/setup-wifi-stability.sh` | Turns off Wi-Fi power saving and stops iwd autoconnect (fixes short drops); asks for sudo |
 | `sudo bash scripts/setup-grub-theme.sh` | Obsidian GRUB theme for the UKI + Windows setup; preview with `scripts/preview-grub-theme.sh` |
