@@ -33,11 +33,15 @@ hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("qs ipc call notifications toggle"))
 hl.bind(mainMod .. " + T", hl.dsp.exec_cmd(ISLAND .. ' peek ""'))
 hl.bind(mainMod .. " + equal", hl.dsp.exec_cmd("qs ipc call calc toggle"))
 hl.bind(mainMod .. " + slash", hl.dsp.exec_cmd("qs ipc call keymaps toggle")) -- keymap cheat sheet
+
 -- keyd on/off (its panic combo only stops it); hyprpolkitagent asks for the password
-hl.bind(mainMod .. " + ALT + K", hl.dsp.exec_cmd(
-	"if systemctl is-active -q keyd; then systemctl stop keyd; else systemctl start keyd; fi; "
-		.. 'notify-send -a keyd "keyd $(systemctl is-active keyd)"'
-))
+hl.bind(
+	mainMod .. " + ALT + K",
+	hl.dsp.exec_cmd(
+		"if systemctl is-active -q keyd; then systemctl stop keyd; else systemctl start keyd; fi; "
+			.. 'notify-send -a keyd "keyd $(systemctl is-active keyd)"'
+	)
+)
 hl.bind("XF86Calculator", hl.dsp.exec_cmd("qs ipc call calc toggle"))
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("hyprpicker -a -n"))
 
@@ -46,14 +50,8 @@ hl.bind(mainMod .. " + S", hl.dsp.exec_cmd(SCRIPT .. "/screenshot.sh"))
 hl.bind("Print", hl.dsp.exec_cmd(RISHOT)) -- drag region or click a window
 hl.bind("SHIFT + Print", hl.dsp.exec_cmd(RISHOT .. " monitor")) -- whole output
 
--- Keyboard clicking (wl-kbptr), Vimium-style; colors in ~/.config/wl-kbptr/config
--- labels only on things that can be pressed; nothing pressable = nothing opens
--- type label = press it (tmux: switch tab/pane, open link); same key or Esc closes;
--- browsers too (accessibility on via uwsm/env + browser flags)
-hl.bind(mainMod .. " + F", hl.dsp.exec_cmd(SCRIPT .. "/kbptr.py"))
--- grid over the whole screen, for spots SUPER+F can't label (tab group headers...):
--- type a tile's label, narrow with more letters, g = left click, h = right, Enter = move only
-hl.bind(mainMod .. " + ALT + F", hl.dsp.exec_cmd("pkill -x wl-kbptr || wl-kbptr"))
+-- Keyboard clicking (wl-kbptr grid): g = left click, h = right, Enter = move only
+hl.bind(mainMod .. " + F", hl.dsp.exec_cmd("pkill -x wl-kbptr || wl-kbptr"))
 
 -- Volume & Brightness
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --inc"), { locked = true })
@@ -81,8 +79,10 @@ hl.config({
 -- ponytail: nearest by centre, sideways counts double; use edge overlap if it misjumps.
 local STEP = { left = { -1, 0 }, right = { 1, 0 }, up = { 0, -1 }, down = { 0, 1 } }
 local function overlaps(a, b)
-	return a.at.x < b.at.x + b.size.x and b.at.x < a.at.x + a.size.x
-		and a.at.y < b.at.y + b.size.y and b.at.y < a.at.y + a.size.y
+	return a.at.x < b.at.x + b.size.x
+		and b.at.x < a.at.x + a.size.x
+		and a.at.y < b.at.y + b.size.y
+		and b.at.y < a.at.y + a.size.y
 end
 local function focusDir(dir)
 	return function()
@@ -102,8 +102,11 @@ local function focusDir(dir)
 				if ahead > 0 and (not bestScore or score < bestScore) then
 					best, bestScore = w, score
 				end
-				if w.floating ~= cur.floating and overlaps(w, cur)
-					and (not stacked or w.focus_history_id < stacked.focus_history_id) then
+				if
+					w.floating ~= cur.floating
+					and overlaps(w, cur)
+					and (not stacked or w.focus_history_id < stacked.focus_history_id)
+				then
 					stacked = w
 				end
 			end

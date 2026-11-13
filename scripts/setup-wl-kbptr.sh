@@ -3,7 +3,7 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
-# wl-kbptr draws the SUPER+F click labels (hypr/scripts/controls/kbptr.py).
+# wl-kbptr handles SUPER+F keyboard grid clicking.
 # Built from packages/arch/wl-kbptr (the AUR package without OpenCV), not the AUR.
 main() {
   require_arch
@@ -17,7 +17,7 @@ main() {
   cp "${PACKAGES_DIR}/wl-kbptr/PKGBUILD" "${build_dir}/"
   cd "${build_dir}"
   makepkg -si --needed
-  log "wl-kbptr installed; SUPER+F labels pressable things"
+  log "wl-kbptr installed; SUPER+F keyboard grid clicking"
 }
 
 main "$@"
