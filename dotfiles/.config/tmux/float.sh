@@ -10,7 +10,7 @@ if [ "$action" = attach ]; then
   created=false
 
   if ! tmux has-session -t "=$session" 2>/dev/null; then
-    size=$(stty size 2>/dev/null || echo "24 80")
+    size=$(stty size 2>/dev/null || echo "40 200")
     tmux new-session -d -s "$session" -c "$PWD" \
       -x "${size#* }" -y "${size% *}" 'sleep infinity' \; \
       set-option -t "=$session:" status off \; \
@@ -76,7 +76,7 @@ else
   parent=$(tmux display-message -p -t "$pane" '#{session_id}')
   cwd=$(tmux display-message -p -t "$pane" '#{pane_current_path}')
   view=$(tmux new-pane -A -P -F '#{pane_id}' -t "$pane" -c "$cwd" \
-    -x 68% -y 80% -X 16% -Y 10% \
+    -x 98% -y 96% -X 1% -Y 2% \
     -B single -T ' float ' \
     -S 'fg=#5B2A69' \
     sh "$0" attach "$session" "$parent")
