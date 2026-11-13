@@ -3,5 +3,6 @@
 ponytail@ponytail DietrichGebert/ponytail
 
 # Not installed by the script:
+# Skills: find-skills (npx skills add vercel-labs/skills; lands in ~/.agents/skills)
 # Codex: ponytail, Ad Superpowers (~/.codex/config.toml)
 # OpenCode: opencode-antigravity-auth, superpowers (~/.config/opencode/opencode.jsonc)
