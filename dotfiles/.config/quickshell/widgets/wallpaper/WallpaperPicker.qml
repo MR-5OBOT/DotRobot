@@ -20,6 +20,9 @@ Item {
     }
 
     readonly property string scriptDir: Quickshell.shellDir + "/widgets/scripts/wallpaper"   // DotRobot: vendored scripts
+    // DotRobot: fixed dirs (upstream's Caching.qml); indexer.py creates them
+    readonly property string cacheDir: Quickshell.env("HOME") + "/.cache/dotrobot/wallpaper"
+    readonly property string runDir: Quickshell.env("XDG_RUNTIME_DIR") + "/dotrobot/wallpaper"
     // DotRobot: upstream reads window.hostScreen from its own Main.qml;
     // the host window sets this instead
     property var hostScreen: null
@@ -323,7 +326,7 @@ Item {
     Process {
         id: indexDiskReader
         running: false
-        command: ["cat", Caching.getCacheDir("wallpaper") + "/current_index.json"]
+        command: ["cat", window.cacheDir + "/current_index.json"]
         stdout: StdioCollector {
             onStreamFinished: {
                 let trimmed = this.text ? this.text.trim() : "";
@@ -346,8 +349,8 @@ Item {
             "python3",
             window.scriptDir + "/indexer.py",
             window.srcDir,
-            Caching.getCacheDir("wallpaper"),
-            Caching.getRunDir("wallpaper")
+            window.cacheDir,
+            window.runDir
         ]
         stdout: StdioCollector {
             onStreamFinished: {

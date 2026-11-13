@@ -36,7 +36,6 @@ Item {
     property color textColor: "#cdd6f4"
 
     property bool action_highlight: false
-    property string clickSound: "reusables/clickbutton/click.wav"
     property int acceptedButtons: Qt.LeftButton
 
     signal clicked()
@@ -146,9 +145,6 @@ Item {
             btnPopAnim.start();
             root.flashOpacity = 0.15;
             btnFlashAnim.start();
-            if (typeof Sounds !== "undefined") {
-                Sounds.playSfx(root.clickSound);
-            }
             root.clicked();
             root.triggered();
         }

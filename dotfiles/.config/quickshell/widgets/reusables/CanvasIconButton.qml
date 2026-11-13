@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-import "../"
 
 Item {
     id: root
@@ -17,7 +16,6 @@ Item {
     property color textColor: "#11111b"
 
     property bool action_highlight: false
-    property string clickSound: "reusables/iconbutton/click.wav"
 
     property var paintCanvas: function(ctx, canvas) {}
 
@@ -94,9 +92,6 @@ Item {
                 btnPopAnim.start();
                 root.flashOpacity = 0.4;
                 btnFlashAnim.start();
-                if (typeof Sounds !== "undefined") {
-                    Sounds.playSfx(root.clickSound);
-                }
                 root.clicked();
                 root.triggered();
             }

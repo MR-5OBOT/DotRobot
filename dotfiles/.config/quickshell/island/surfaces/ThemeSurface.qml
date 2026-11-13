@@ -7,8 +7,8 @@ import "../Singletons"
 import "../components"
 
 /**
- * 色 THEME sub-surface: the theme switch (light or dark pill, dynamic
- * per-wallpaper, or a manually chosen hue) with the manual hue editor that
+ * 色 THEME sub-surface: the theme switch (dark pill, dynamic per-wallpaper
+ * accent, or a manually chosen hue) with the manual hue editor that
  * unfolds beneath it, and the wallpaper folder that feeds the rotation.
  * Reached from the Appearance index and folds back to it on the back chevron
  * or an empty click.
@@ -27,8 +27,8 @@ SettingsSurface {
     property string modeArg: Flags.manualDark ? "dark" : "light"
     property string satArg: String(Flags.manualSat)
 
-    /** Current theme key; legacy "static" reads as the dark pill. */
-    readonly property string themeMode: Flags.paletteMode === "static" ? "dark" : Flags.paletteMode
+    /** Current theme key; legacy "static" and the removed "light" read as dark. */
+    readonly property string themeMode: Flags.paletteMode === "dynamic" || Flags.paletteMode === "manual" ? Flags.paletteMode : "dark"
 
     readonly property color accentColor: Qt.hsla(Flags.manualHue / 360, Flags.manualSat, Flags.manualDark ? 0.5 : 0.62, 1)
     readonly property string currentHex: {
@@ -85,7 +85,7 @@ SettingsSurface {
     }
 
     rows: [
-        { item: paletteRow, kind: "seg", vals: ["light", "dark", "dynamic", "manual"], get: function () { return root.themeMode; }, set: function (v) { root.applyMode(v); } },
+        { item: paletteRow, kind: "seg", vals: ["dark", "dynamic", "manual"], get: function () { return root.themeMode; }, set: function (v) { root.applyMode(v); } },
         { item: wpDirRow, kind: "text", activate: function () {
             wpDirRow.editing = !wpDirRow.editing;
             if (wpDirRow.editing) {
@@ -118,7 +118,7 @@ SettingsSurface {
 
             SettingsSeg {
                 s: root.s
-                options: [{ label: "Light", value: "light" }, { label: "Dark", value: "dark" }, { label: "Dynamic", value: "dynamic" }, { label: "Manual", value: "manual" }]
+                options: [{ label: "Dark", value: "dark" }, { label: "Dynamic", value: "dynamic" }, { label: "Manual", value: "manual" }]
                 value: root.themeMode
                 onPicked: (v) => root.applyMode(v)
             }

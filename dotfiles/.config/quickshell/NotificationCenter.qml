@@ -72,7 +72,7 @@ PanelWindow {
             y: 16 * win.s
             width: Math.min(360 * win.s, win.width - 24 * win.s)
             height: win.height - 32 * win.s
-            color: Island.Theme.light ? "#f6f2ec" : "#0b0c10"
+            color: "#0b0c10"
             border.width: 1
             border.color: Island.Theme.frameBorder
             opacity: win.open ? 1 : 0

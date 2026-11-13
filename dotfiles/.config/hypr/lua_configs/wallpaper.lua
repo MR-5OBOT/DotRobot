@@ -7,13 +7,12 @@
 -- respawns awww (only if Hyprland really left one at alpha 0, so a fixed Hyprland
 -- costs nothing).
 local HEAL = os.getenv("HOME") .. "/.config/quickshell/island/scripts/wallpaper.sh heal"
--- layer namespace -> what `wallpaper.sh heal` restarts
-local WALL_LAYERS = { ["awww-daemon"] = "stills" }
+local NS = "awww-daemon"
 -- Kept in this Hyprland instance's runtime dir: `hyprctl reload` rebuilds this Lua
 -- state but must not forget a stuck surface, and a new session starts clean.
 local RUN, SIG = os.getenv("XDG_RUNTIME_DIR"), os.getenv("HYPRLAND_INSTANCE_SIGNATURE")
 local FILE = RUN and SIG and (RUN .. "/hypr/" .. SIG .. "/wallpaper-stale")
-local stale = {} -- layer address -> { mon = output name, ns = layer namespace }
+local stale = {} -- layer address -> output name
 local poll
 
 local function covered(mon)
@@ -26,21 +25,19 @@ local function save()
 	if not f then
 		return
 	end
-	for addr, s in pairs(stale) do
-		f:write(addr, "\t", s.mon, "\t", s.ns, "\n")
+	for addr, mon in pairs(stale) do
+		f:write(addr, "\t", mon, "\n")
 	end
 	f:close()
 end
 
 local function heal()
-	local owners, changed = {}, false
-	for addr, s in pairs(stale) do
-		local mon = hl.get_monitor(s.mon)
+	local respawn, changed = false, false
+	for addr, name in pairs(stale) do
+		local mon = hl.get_monitor(name)
 		if not mon or not covered(mon) then -- an output that is gone takes its surface with it
 			stale[addr], changed = nil, true
-			if mon and WALL_LAYERS[s.ns] then
-				owners[WALL_LAYERS[s.ns]] = true
-			end
+			respawn = respawn or mon ~= nil
 		end
 	end
 	if next(stale) == nil then
@@ -50,12 +47,8 @@ local function heal()
 		return
 	end
 	save()
-	local args = ""
-	for owner in pairs(owners) do
-		args = args .. " " .. owner
-	end
-	if args ~= "" then
-		hl.exec_cmd(HEAL .. args)
+	if respawn then
+		hl.exec_cmd(HEAL)
 	end
 end
 
@@ -67,8 +60,8 @@ local function arm()
 end
 
 hl.on("layer.opened", function(ls)
-	if WALL_LAYERS[ls.namespace] and ls.monitor and covered(ls.monitor) then
-		stale[ls.address] = { mon = ls.monitor.name, ns = ls.namespace }
+	if ls.namespace == NS and ls.monitor and covered(ls.monitor) then
+		stale[ls.address] = ls.monitor.name
 		save()
 		arm()
 	end
@@ -84,9 +77,9 @@ end)
 local f = FILE and io.open(FILE)
 if f then
 	for line in f:lines() do
-		local addr, mon, ns = line:match("^(%S+)\t(%S+)\t(%S+)$")
+		local addr, mon = line:match("^(%S+)\t(%S+)")
 		if addr then
-			stale[addr] = { mon = mon, ns = ns }
+			stale[addr] = mon
 		end
 	end
 	f:close()
