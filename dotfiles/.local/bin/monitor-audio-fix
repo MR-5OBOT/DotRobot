@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# The GS25F2A's speakers can go silent after a long no-signal stretch (screen off / suspend) even though the PC is
+# still sending HDMI audio. Toggling the monitor's own mute over DDC/CI wakes them; no need to pull the power cable.
+ddcutil --model GS25F2A setvcp 8D 01
+ddcutil --model GS25F2A setvcp 8D 02
