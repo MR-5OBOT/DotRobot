@@ -21,7 +21,10 @@ PanelWindow {
     property bool open: false
     readonly property int panelH: 650
 
-    visible: open
+    // slide progress, not window-size based (that loops): stay mapped until the slide-out ends
+    property real shown: open ? 1 : 0
+    Behavior on shown { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+    visible: open || shown > 0
     anchors { top: true; bottom: true; left: true; right: true }
     exclusiveZone: 0
     color: "transparent"
@@ -76,10 +79,7 @@ PanelWindow {
             height: win.panelH * f
 
             // slides out of the screen edge as it opens
-            transform: Translate {
-                y: win.open ? 0 : -holder.height
-                Behavior on y { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
-            }
+            transform: Translate { y: -(1 - win.shown) * holder.height }
 
             // Empty space in the strip closes the picker.
             MouseArea { anchors.fill: parent; onClicked: win.open = false }
@@ -91,7 +91,7 @@ PanelWindow {
                 Loader {
                     active: win.open || keepAlive.running || !Island.Flags.memorySaver
                     sourceComponent: WallpaperCarousel {
-                        visible: win.open
+                        visible: win.visible
                         onCloseRequested: win.open = false
                         hostScreen: win.screen
                         width: holder.width / holder.f

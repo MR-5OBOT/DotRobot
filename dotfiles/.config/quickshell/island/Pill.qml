@@ -652,17 +652,28 @@ Item {
     property string soulTarget: ""
     property int soulWsIndex: -1
 
-    Behavior on width { NumberAnimation { id: morphAnimW; duration: pill.hoverHop ? Motion.glide : Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
-    Behavior on height { NumberAnimation { id: morphAnimH; duration: pill.hoverHop ? Motion.glide : Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
-    Behavior on morphRadius { NumberAnimation { id: morphAnimR; duration: pill.hoverHop ? Motion.glide : Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
+    Behavior on width { NumberAnimation { duration: pill.hoverHop ? Motion.glide : Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
+    Behavior on height { NumberAnimation { duration: pill.hoverHop ? Motion.glide : Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
+    Behavior on morphRadius { NumberAnimation { duration: pill.hoverHop ? Motion.glide : Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
 
     /**
-     * True while any morph axis animates. The body's effect layer (live drop
-     * shadow) re-renders its offscreen buffer at every size step, on every
-     * monitor, so it is the top per-frame cost of a morph; dropping the shadow
-     * mid-flight and restoring it on settle keeps the morph cheap (issue #20).
+     * Drop shadow. One SDF quad that follows the body every frame without an
+     * offscreen render, so it stays on through morphs (the old MultiEffect
+     * layer re-rendered per size step and had to blink off, issue #20). Fades
+     * with the auto-hide slide so its blur tail never peeks below the edge.
      */
-    readonly property bool morphing: morphAnimW.running || morphAnimH.running || morphAnimR.running
+    RectangularShadow {
+        anchors.fill: body
+        offset: Qt.vector2d(0, 3 * pill.s)
+        blur: 22
+        color: Qt.rgba(0, 0, 0, Theme.shadowOpacity)
+        topLeftRadius: body.topLeftRadius
+        topRightRadius: body.topRightRadius
+        bottomLeftRadius: body.bottomLeftRadius
+        bottomRightRadius: body.bottomRightRadius
+        opacity: pill.hidden ? 0 : 1
+        Behavior on opacity { NumberAnimation { duration: Motion.morph } }
+    }
 
     Rectangle {
         id: body
@@ -687,21 +698,6 @@ Item {
             GradientStop { position: 0.0; color: Qt.alpha(Theme.cardTop, Flags.pillOpacity) }
             GradientStop { position: 1.0; color: Qt.alpha(Theme.cardBot, Flags.pillOpacity) }
         }
-
-        /**
-         * The live drop shadow keeps an offscreen render of the whole body on
-         * every monitor. Drag it off entirely while the pill is auto-hidden
-         * off-screen (nobody sees the shadow there) — the layer's FBO and the
-         * per-frame update only exist while the pill is actually visible.
-         */
-        layer.enabled: !pill.morphing && !pill.hidden
-        layer.effect: MultiEffect {
-            shadowEnabled: true
-            shadowColor: Qt.rgba(0, 0, 0, Theme.shadowOpacity)
-            shadowBlur: 0.7
-            shadowVerticalOffset: 3 * pill.s
-        }
-
     }
 
     /** Concave shoulders flaring the docked body into the screen's top edge. */

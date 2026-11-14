@@ -555,7 +555,7 @@ Item {
                 readonly property real headY: waveY(drawF)
 
                 Behavior on drawF {
-                    enabled: Math.abs(root.frac - stroke.lastFrac) < 0.02
+                    enabled: !root.dragging && Math.abs(root.frac - stroke.lastFrac) < 0.02
                     NumberAnimation { duration: Math.round(500 * Motion.mult); easing.type: Easing.Linear }
                 }
                 onTargetFChanged: Qt.callLater(() => { stroke.lastFrac = root.frac; })

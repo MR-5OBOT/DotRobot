@@ -19,7 +19,8 @@ PanelWindow {
     property int sel: 0
     onSelChanged: list.positionViewAtIndex(sel, ListView.Contain)
 
-    onOpenChanged: {
+    // reset on open only: clearing on close collapses the results before the card slides away
+    onOpenChanged: if (open) {
         query = "";
         sel = 0;
         input.text = "";
