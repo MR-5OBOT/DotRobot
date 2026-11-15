@@ -65,5 +65,6 @@ autoload -Uz edit-command-line
 zle -N edit-command-line
 bindkey -M vicmd v edit-command-line
 
-# Normal mode: no vi history search on /; Ctrl+R in typing mode does that.
+# Normal mode: no vi history search on / or ?; Ctrl+R in typing mode does that.
 bindkey -M vicmd '/' undefined-key
+bindkey -M vicmd '?' undefined-key
