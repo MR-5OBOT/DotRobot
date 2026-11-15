@@ -10,12 +10,9 @@ main() {
   require_arch
   [[ -r "${TEMPLATE}" ]] || die "Missing template: ${TEMPLATE}"
 
-  if [[ -e "${PACMAN_CONF}.dotrobot.bak" || -L "${PACMAN_CONF}.dotrobot.bak" ]]; then
-    log "Kept existing ${PACMAN_CONF}.dotrobot.bak"
-  else
-    sudo cp "${PACMAN_CONF}" "${PACMAN_CONF}.dotrobot.bak"
-    log "Saved ${PACMAN_CONF}.dotrobot.bak"
-  fi
+  # --update=none never overwrites the backup, so it stays the untouched original.
+  sudo cp --update=none "${PACMAN_CONF}" "${PACMAN_CONF}.dotrobot.bak"
+  log "Original saved as ${PACMAN_CONF}.dotrobot.bak"
   sudo install -m 644 "${TEMPLATE}" "${PACMAN_CONF}"
   log "Installed the pacman.conf template"
 }

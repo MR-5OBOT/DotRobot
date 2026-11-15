@@ -17,12 +17,9 @@ setup_os_prober_flag() {
     log "os-prober already enabled in ${GRUB_DEFAULT}"
     return 0
   fi
-  if [[ -e "${GRUB_DEFAULT}.dotrobot.bak" || -L "${GRUB_DEFAULT}.dotrobot.bak" ]]; then
-    log "Kept existing ${GRUB_DEFAULT}.dotrobot.bak"
-  else
-    sudo cp "${GRUB_DEFAULT}" "${GRUB_DEFAULT}.dotrobot.bak"
-    log "Saved ${GRUB_DEFAULT}.dotrobot.bak"
-  fi
+  # --update=none never overwrites the backup, so it stays the untouched original.
+  sudo cp --update=none "${GRUB_DEFAULT}" "${GRUB_DEFAULT}.dotrobot.bak"
+  log "Original saved as ${GRUB_DEFAULT}.dotrobot.bak"
   if grep -q '^GRUB_DISABLE_OS_PROBER=' "${GRUB_DEFAULT}"; then
     sudo sed -i 's/^GRUB_DISABLE_OS_PROBER=.*/GRUB_DISABLE_OS_PROBER=false/' "${GRUB_DEFAULT}"
   else
