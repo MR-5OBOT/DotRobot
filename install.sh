@@ -49,7 +49,7 @@ EOF
   run_step "Apply GTK/icon/cursor theme settings" "scripts/setup-gtk-theme.sh"
   run_step "Set zsh as the default shell" "scripts/setup-zsh.sh"
   run_step "Set up git + ssh" "scripts/setup-git-ssh.sh"
-  run_step "Set up login manager (ly or greetd + tuigreet)" "scripts/setup-login-manager.sh"
+  run_step "Set up ly login manager" "scripts/setup-ly.sh"
   run_step "Create XDG user directories" "scripts/setup-user-dirs.sh"
   # --yes: this prompt is the yes/no, so the script installs its plan without asking again.
   run_step "Install Steam + Proton (gaming)" "scripts/setup-steam.sh" --yes
