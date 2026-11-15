@@ -47,30 +47,10 @@ def parse_windows(raw_output):
             })
     return items
 
-def parse_sessions(raw_output):
-    items = []
-    for line in raw_output.strip().splitlines():
-        if not line:
-            continue
-        parts = line.split("|")
-        if len(parts) >= 3:
-            items.append({
-                "name": parts[0],
-                "active": parts[1] == "1",
-                "windows": parts[2],
-                "path": shorten_path(parts[3]) if len(parts) > 3 else ""
-            })
-    return items
-
 def get_windows():
     cmd = ["tmux", "list-windows", "-F", "#{window_index}|#{window_name}|#{window_active}|#{window_panes}|#{pane_current_path}|#{window_flags}"]
     res = subprocess.run(cmd, capture_output=True, text=True)
     return parse_windows(res.stdout)
-
-def get_sessions():
-    cmd = ["tmux", "list-sessions", "-F", "#{session_name}|#{session_attached}|#{session_windows}|#{session_path}"]
-    res = subprocess.run(cmd, capture_output=True, text=True)
-    return parse_sessions(res.stdout)
 
 # Color definitions (True color 24-bit ANSI)
 C_RESET = "\033[0m"
@@ -106,7 +86,7 @@ def get_key():
         return 'enter'
     return ch
 
-def render(items, selected_idx, scroll_offset, mode):
+def render(items, selected_idx, scroll_offset):
     try:
         cols, rows = os.get_terminal_size()
     except OSError:
@@ -142,18 +122,11 @@ def render(items, selected_idx, scroll_offset, mode):
             fitted_path = fit_path(it["path"], max_path_len)
 
             # Number / Index
-            if mode == "windows":
-                num_str = f"{C_FG_ACCENT if is_selected else C_FG_GRAY}{it['index']:>2}{C_RESET}{bg} "
-                name_str = f"{C_BOLD}{C_FG_WHITE}{it['name']:<14}{C_RESET}{bg} "
-                panes_num = int(it['panes']) if it['panes'].isdigit() else 1
-                pane_str = f"{C_FG_GRAY}{panes_num}p{C_RESET}{bg} " if panes_num > 1 else f"{C_FG_DARK_GRAY}1p{C_RESET}{bg} "
-                extra_str = f"{C_FG_GRAY}{fitted_path}{C_RESET}{bg}"
-            else:
-                num_str = f"{C_FG_ACCENT if is_selected else C_FG_GRAY}{item_idx + 1:>2}{C_RESET}{bg} "
-                name_str = f"{C_BOLD}{C_FG_WHITE}{it['name']:<14}{C_RESET}{bg} "
-                wins_num = int(it['windows']) if it['windows'].isdigit() else 1
-                pane_str = f"{C_FG_GRAY}{wins_num}w{C_RESET}{bg} "
-                extra_str = f"{C_FG_GRAY}{fitted_path}{C_RESET}{bg}"
+            num_str = f"{C_FG_ACCENT if is_selected else C_FG_GRAY}{it['index']:>2}{C_RESET}{bg} "
+            name_str = f"{C_BOLD}{C_FG_WHITE}{it['name']:<14}{C_RESET}{bg} "
+            panes_num = int(it['panes']) if it['panes'].isdigit() else 1
+            pane_str = f"{C_FG_GRAY}{panes_num}p{C_RESET}{bg} " if panes_num > 1 else f"{C_FG_DARK_GRAY}1p{C_RESET}{bg} "
+            extra_str = f"{C_FG_GRAY}{fitted_path}{C_RESET}{bg}"
 
             line_content = f"{bg}{rail}{marker}{num_str}{name_str}{pane_str}{extra_str}"
             buf.append(f"{line_content}\033[K{C_RESET}\r\n")
@@ -163,8 +136,8 @@ def render(items, selected_idx, scroll_offset, mode):
     sys.stdout.write("".join(buf))
     sys.stdout.flush()
 
-def run_interactive(mode):
-    items = get_windows() if mode == "windows" else get_sessions()
+def run_interactive():
+    items = get_windows()
     if not items:
         return
 
@@ -177,8 +150,7 @@ def run_interactive(mode):
 
     scroll_offset = 0
 
-    # Check for client & session passed from tmux
-    client = os.environ.get("TMUX_CLIENT")
+    # Session passed from tmux
     target_session = os.environ.get("TMUX_SESSION")
 
     fd = sys.stdin.fileno()
@@ -195,7 +167,7 @@ def run_interactive(mode):
                 rows = 24
             scroll_offset = calc_scroll(selected_idx, scroll_offset, rows)
 
-            render(items, selected_idx, scroll_offset, mode)
+            render(items, selected_idx, scroll_offset)
             key = get_key()
 
             if key in ('q', 'esc', '\x03'):  # 'q', Esc, Ctrl+C
@@ -210,38 +182,20 @@ def run_interactive(mode):
                 selected_idx = len(items) - 1
             elif key in ('enter', ' '):
                 chosen = items[selected_idx]
-                if mode == "windows":
-                    target = f"{target_session}:{chosen['index']}" if target_session else f":{chosen['index']}"
-                    subprocess.run(["tmux", "select-window", "-t", target])
-                else:
-                    cmd = ["tmux", "switch-client", "-t", chosen["name"]]
-                    if client:
-                        cmd = ["tmux", "switch-client", "-c", client, "-t", chosen["name"]]
-                    subprocess.run(cmd)
+                target = f"{target_session}:{chosen['index']}" if target_session else f":{chosen['index']}"
+                subprocess.run(["tmux", "select-window", "-t", target])
                 break
             elif key.isdigit():
-                target_digit = key
                 target_idx = None
-                if mode == "windows":
-                    for i, it in enumerate(items):
-                        if it["index"] == target_digit:
-                            target_idx = i
-                            break
-                else:
-                    digit_val = int(target_digit)
-                    if 1 <= digit_val <= len(items):
-                        target_idx = digit_val - 1
+                for i, it in enumerate(items):
+                    if it["index"] == key:
+                        target_idx = i
+                        break
 
                 if target_idx is not None:
                     chosen = items[target_idx]
-                    if mode == "windows":
-                        target = f"{target_session}:{chosen['index']}" if target_session else f":{chosen['index']}"
-                        subprocess.run(["tmux", "select-window", "-t", target])
-                    else:
-                        cmd = ["tmux", "switch-client", "-t", chosen["name"]]
-                        if client:
-                            cmd = ["tmux", "switch-client", "-c", client, "-t", chosen["name"]]
-                        subprocess.run(cmd)
+                    target = f"{target_session}:{chosen['index']}" if target_session else f":{chosen['index']}"
+                    subprocess.run(["tmux", "select-window", "-t", target])
                     break
     finally:
         # Restore cursor and terminal settings
@@ -250,18 +204,13 @@ def run_interactive(mode):
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
 def main():
-    mode = "windows"
-    if len(sys.argv) > 1 and sys.argv[1] in ("windows", "sessions"):
-        mode = sys.argv[1]
-
     if not sys.stdin.isatty():
         # Non-interactive invocation (e.g. tests or diagnostics)
-        items = get_windows() if mode == "windows" else get_sessions()
-        for it in items:
+        for it in get_windows():
             print(it)
         return
 
-    run_interactive(mode)
+    run_interactive()
 
 if __name__ == "__main__":
     main()
