@@ -8,25 +8,21 @@ set -euo pipefail
 # combination (Intel VMD + firmware forbidding OS ASPM control) and skips any laptop without it,
 # whatever the brand: not every Dell has it, and other makes can.
 #
-# Where the option goes, each one documented by its own tool, so updates keep honouring it:
-#   plain GRUB  one tagged line at the end of /etc/default/grub (then grub.cfg is rebuilt);
-#               /etc/default/grub.d/ would be tidier but is a distro patch, not upstream GRUB
-#   UKI         /etc/cmdline.d/dell-sleep.conf (then the UKI is rebuilt)
-# A boot that hangs with it on plain GRUB: press e on the entry, delete pcie_aspm=force, Ctrl+X.
+# Plain GRUB only: the option goes on one tagged line at the end of /etc/default/grub, the file
+# GRUB's manual documents (/etc/default/grub.d/ is a distro patch), then grub.cfg is rebuilt.
+# A boot that hangs with it: press e on the entry, delete pcie_aspm=force, Ctrl+X.
 
 readonly PARAM=pcie_aspm=force
-readonly ROOT=${DELL_SLEEP_FIX_ROOT:-} # tests point this at a fake /
+readonly ROOT=${SLEEP_FIX_ROOT:-} # tests point this at a fake /
 readonly GRUB_DEFAULT=${ROOT}/etc/default/grub
-readonly MARK="# dell-sleep-power-drain-fix"
-readonly UKI_DROPIN=${ROOT}/etc/cmdline.d/dell-sleep.conf
-readonly LEGACY=${ROOT}/etc/kernel/cmdline # where older versions of this script put it (UKI only)
+readonly MARK="# sleep-power-drain-fix"
 readonly SLEEP_SECS=60
 
 usage() {
   cat <<'EOF'
-usage: dell-sleep-power-drain-fix [status | test | on | off]
+usage: sleep-power-drain-fix [status | test | on | off]
 
-  status   boot setup, boot setting, running kernel, deep sleep since boot (default)
+  status   boot setting, running kernel, deep sleep since boot (default)
   test     60 s sleep test: did the SoC reach deep sleep (S0ix)?
   on       add pcie_aspm=force to the kernel options (reboot to apply)
   off      remove it again (reboot to apply)
@@ -34,7 +30,7 @@ EOF
 }
 
 die() {
-  printf 'dell-sleep-power-drain-fix: %s\n' "$*" >&2
+  printf 'sleep-power-drain-fix: %s\n' "$*" >&2
   exit 1
 }
 
@@ -53,49 +49,25 @@ needs_fix() {
   [[ -n ${flags// /} ]] && ((flags & 16))
 }
 
-# UKI when a mkinitcpio preset builds one; its options come from the cmdline files, not GRUB's.
-uses_uki() { grep -Eqs '^[[:space:]]*[a-z]+_uki=' "${ROOT}"/etc/mkinitcpio.d/*.preset; }
-
-# The file that holds the option on this setup.
-target() {
-  if uses_uki; then
-    echo "${UKI_DROPIN}"
-  elif [[ -f ${GRUB_DEFAULT} ]]; then
-    echo "${GRUB_DEFAULT}"
-  else
-    die "found neither a UKI preset nor /etc/default/grub; add ${PARAM} to your kernel options by hand"
-  fi
-}
-
-configured() {
-  local f
-  f=$(target) || exit 1
-  has_param "${f}" || { uses_uki && has_param "${LEGACY}"; }
-}
-
-rebuild() {
-  if uses_uki; then
-    sudo mkinitcpio -P
-  else
-    sudo grub-mkconfig -o /boot/grub/grub.cfg
+# A UKI boots with its own built-in options, so a GRUB edit would do nothing there.
+check_grub() {
+  if grep -Eqs '^[[:space:]]*[a-z]+_uki=' "${ROOT}"/etc/mkinitcpio.d/*.preset || [[ ! -f ${GRUB_DEFAULT} ]]; then
+    die "works only with plain GRUB; add ${PARAM} to your kernel options by hand"
   fi
 }
 
 status() {
-  local setup="plain GRUB" boot=off running=off
-  uses_uki && setup=UKI
-  configured && boot=on
+  local boot=off running=off
+  has_param "${GRUB_DEFAULT}" && boot=on
   has_param "${ROOT}/proc/cmdline" && running=on
-  echo "boot setup:            ${setup}"
   echo "boot setting:          ${boot}"
   echo "running kernel:        ${running}"
   echo "deep sleep since boot: $(($(hw_sleep_us) / 1000000))s (stays 0 while sleep is broken)"
 }
 
 on() {
-  local f
-  f=$(target)
-  if configured; then
+  check_grub
+  if has_param "${GRUB_DEFAULT}"; then
     echo "already on"
     return
   fi
@@ -103,36 +75,23 @@ on() {
     echo "skipped: this laptop doesn't have the problem this fixes (needs an SSD behind Intel VMD and firmware that forbids OS ASPM control)"
     return
   fi
-  if [[ ${f} == "${GRUB_DEFAULT}" ]]; then
-    # a file missing its last newline would glue our line onto its last one
-    [[ -z $(tail -c1 "${f}") ]] || echo | sudo tee -a "${f}" >/dev/null
-    # shellcheck disable=SC2016 # grub-mkconfig expands it when it sources /etc/default/grub
-    printf 'GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} %s" %s\n' "${PARAM}" "${MARK}" | sudo tee -a "${f}" >/dev/null
-  else
-    sudo mkdir -p "${f%/*}"
-    printf '%s\n' "${PARAM}" | sudo tee "${f}" >/dev/null
-  fi
-  rebuild
+  # a file missing its last newline would glue our line onto its last one
+  [[ -z $(tail -c1 "${GRUB_DEFAULT}") ]] || echo | sudo tee -a "${GRUB_DEFAULT}" >/dev/null
+  # shellcheck disable=SC2016 # grub-mkconfig expands it when it sources /etc/default/grub
+  printf 'GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} %s" %s\n' "${PARAM}" "${MARK}" | sudo tee -a "${GRUB_DEFAULT}" >/dev/null
+  sudo grub-mkconfig -o /boot/grub/grub.cfg
   echo "fix on: reboot to apply"
 }
 
 off() {
-  local f
-  f=$(target)
-  if ! configured; then
+  check_grub
+  if ! has_param "${GRUB_DEFAULT}"; then
     echo "already off"
     return
   fi
-  if [[ ${f} == "${GRUB_DEFAULT}" ]]; then
-    sudo sed -i "/${MARK}\$/d" "${f}"
-    has_param "${f}" && echo "warning: ${PARAM} is also set by hand in ${f}; remove it there too"
-  else
-    sudo rm -f "${f}"
-  fi
-  if uses_uki && has_param "${LEGACY}"; then
-    sudo sed -i "s/[[:space:]]*${PARAM}//" "${LEGACY}"
-  fi
-  rebuild
+  sudo sed -i "/${MARK}\$/d" "${GRUB_DEFAULT}"
+  has_param "${GRUB_DEFAULT}" && echo "warning: ${PARAM} is also set by hand in ${GRUB_DEFAULT}; remove it there too"
+  sudo grub-mkconfig -o /boot/grub/grub.cfg
   echo "fix off: reboot to apply"
 }
 
@@ -165,7 +124,7 @@ test_fix() {
       if has_param "${ROOT}/proc/cmdline"; then
         echo "FAIL: deep sleep is broken even with the fix running."
       else
-        echo "FAIL: deep sleep is broken. Turn the fix on (dell-sleep-power-drain-fix on), reboot, test again."
+        echo "FAIL: deep sleep is broken. Turn the fix on (sleep-power-drain-fix on), reboot, test again."
       fi
       ;;
   esac
