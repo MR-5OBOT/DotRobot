@@ -8,6 +8,8 @@ ZSH_COMPDUMP="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-${ZSH_VERSION}"
 mkdir -p "${ZSH_COMPDUMP:h}"
 
 # ---------- zinit + plugins ----------
+# A new machine's first shell downloads zinit itself, the way zinit's README does.
+[[ -r "$ZINIT_HOME/zinit.zsh" ]] || git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 if [[ -r "$ZINIT_HOME/zinit.zsh" ]]; then
   source "$ZINIT_HOME/zinit.zsh"
   zinit light zsh-users/zsh-completions
@@ -18,7 +20,7 @@ if [[ -r "$ZINIT_HOME/zinit.zsh" ]]; then
     zdharma-continuum/fast-syntax-highlighting
 else
   autoload -Uz compinit && compinit -d "$ZSH_COMPDUMP"
-  print -P "%F{yellow}zinit not installed. Run scripts/setup-shell-tools.sh for plugin bootstrap.%f"
+  print -P "%F{yellow}zinit could not be downloaded (offline?); plugins load in a new shell once it is.%f"
 fi
 
 # ---------- zoxide (smarter cd) ----------
