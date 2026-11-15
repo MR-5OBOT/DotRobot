@@ -105,7 +105,6 @@ PanelWindow {
                         ["Prefix + Ctrl + Z", "Zoom pane in / out"],
                         ["Prefix + X", "Close pane (asks first)"],
                         ["Prefix + Ctrl + L", "Clear the screen"],
-                        ["Prefix + O", "Floating terminal show / hide"],
                         ["Prefix + [", "Copy mode (vi keys, scroll back)"],
                         ["V / Y / X", "In copy mode: select / copy / cut"]
                     ]
@@ -118,7 +117,7 @@ PanelWindow {
                         ["Prefix + 1 … 9 / 0", "Go to window 1 … 9 / 10"],
                         ["Prefix + Space", "Last window"],
                         ["Prefix + Ctrl + N / P", "Next / previous window"],
-                        ["Prefix + W", "Pick a window"],
+                        ["Prefix + W", "Pick a session / window (Tab, arrows)"],
                         ["Prefix + S", "Save windows as the template (asks first)"],
                         ["Prefix + T", "Add the template's windows here"],
                         ["Prefix + Shift + R", "Rename window"],

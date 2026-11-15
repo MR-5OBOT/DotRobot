@@ -21,7 +21,7 @@ def q(s):
 
 
 def kids(node):
-    return [c for c in node["c"] if "z" not in c]  # "z" marks floating panes (the float)
+    return [c for c in node["c"] if "z" not in c]  # "z" marks tmux 3.8 floating panes
 
 
 def leaves(node):
@@ -54,9 +54,7 @@ def main():
                 tmux("list-panes", "-s", "-t", pane, "-F", "#{pane_id}\t#{pane_current_path}").splitlines())
     base = int(tmux("show", "-gwv", "pane-base-index"))
     out = []
-    # Linked windows are skipped: the float's backing window is linked in while it is shown.
-    for line in tmux("list-windows", "-t", pane, "-f", "#{!:#{window_linked}}",
-                     "-F", "#{window_layout}\t#{window_name}").splitlines():
+    for line in tmux("list-windows", "-t", pane, "-F", "#{window_layout}\t#{window_name}").splitlines():
         layout, name = line.split("\t", 1)
         root = json.loads(layout)["L"]
         out.append(f"new-window -n {q(name)} -c {q(dirs[leaves(root)[0]['I']])}")
