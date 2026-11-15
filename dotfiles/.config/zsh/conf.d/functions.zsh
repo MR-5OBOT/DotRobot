@@ -37,3 +37,12 @@ f() {
 
   [[ -n "$dir" ]] && cd "$dir"
 }
+
+# Plain `tmux` with no server running opens ~/.config/tmux/template.conf; anything else is stock tmux.
+tmux() {
+  if (( $# == 0 )) && ! command tmux has-session 2>/dev/null; then
+    command tmux start-server \; source-file ~/.config/tmux/template.conf \; attach
+  else
+    command tmux "$@"
+  fi
+}
