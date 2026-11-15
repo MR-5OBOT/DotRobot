@@ -14,7 +14,8 @@ import "island/components" as IslandUi
 PanelWindow {
     id: win
 
-    // One entry per tab; each tab is two columns of groups (keeps the card one width).
+    // One entry per tab; each tab is two columns of groups. Keep both columns
+    // the same height: move a bind to the shorter one when a column grows.
     readonly property var tabs: [
         {
             name: "Hyprland",
@@ -27,7 +28,6 @@ PanelWindow {
                         ["Super + Space", "App launcher"],
                         ["Super + D / B", "Dashboard / Battery"],
                         ["Super + I / Alt + I", "Network manager / Wi-Fi picker"],
-                        ["Super + Escape / W", "Power / wallpapers"],
                         ["Super + V / N / T", "Clipboard / notifications / bar peek"],
                         ["Super + = / /", "Calculator / this sheet"],
                         ["Super + P", "Pause everything playing / resume it"],
@@ -42,7 +42,7 @@ PanelWindow {
                 }],
                 [{
                     title: "HYPRLAND",
-                    note: "Windows & workspaces",
+                    note: "Windows, workspaces & system",
                     binds: [
                         ["Super + X", "Close window"],
                         ["Super + H J K L", "Focus left / down / up / right"],
@@ -52,10 +52,12 @@ PanelWindow {
                         ["Super + C", "Center window"],
                         ["Super + F", "Fullscreen"],
                         ["Super + Alt + Space", "Toggle floating"],
+                        ["Super + Escape / W", "Power / wallpapers"],
                         ["Super + Alt + L", "Lock screen"],
                         ["Super + 1 … 0", "Switch workspace 1 … 10"],
                         ["Super + Shift + 1 … 0", "Move window to workspace"],
-                        ["Super + Tab / Shift + Tab", "Focus / move window to next monitor"]
+                        ["Super + Tab", "Focus the next monitor"],
+                        ["Super + Shift + Tab", "Move window to the next monitor"]
                     ]
                 }]
             ]
@@ -70,8 +72,7 @@ PanelWindow {
                         ["Caps + H J K L", "Left / down / up / right"],
                         ["Caps + W / B", "Jump word right / left"],
                         ["Caps + U / D", "Page up / down"],
-                        ["Caps + 0", "Line start"],
-                        ["Caps + Shift + 4 ($)", "Line end"],
+                        ["Caps + 0 / Shift + 4", "Line start / end"],
                         ["Caps + - / =", "Volume down / up"],
                         ["Caps + Space", "Toggle microphone mute"],
                         ["Caps Lock", "Tap for normal Caps Lock"],
@@ -99,7 +100,7 @@ PanelWindow {
             columns: [
                 [{
                     title: "TMUX",
-                    note: "Panes · Prefix = Alt + Space, let go, then the key",
+                    note: "Panes & window navigation · Prefix = Alt + Space",
                     binds: [
                         ["Alt + H J K L", "Switch pane / nvim split (no prefix)"],
                         ["Prefix + | / -", "Split side by side / stacked"],
@@ -107,7 +108,10 @@ PanelWindow {
                         ["Prefix + Z", "Zoom pane in / out"],
                         ["Alt + X", "Close the nvim split, else the pane (asks)"],
                         ["Prefix + [", "Copy mode (vi keys, scroll back)"],
-                        ["V / Y / X", "In copy mode: select / copy / cut"]
+                        ["V / Y / X", "In copy mode: select / copy / cut"],
+                        ["Prefix + Space", "Last window"],
+                        ["Prefix + N / P", "Next / previous window"],
+                        ["Prefix + ?", "List every tmux key"]
                     ]
                 }],
                 [{
@@ -116,8 +120,6 @@ PanelWindow {
                     binds: [
                         ["Prefix + C", "New window"],
                         ["Prefix + 1 … 9 / 0", "Go to window 1 … 9 / 10"],
-                        ["Prefix + Space", "Last window"],
-                        ["Prefix + N / P", "Next / previous window"],
                         ["Prefix + W", "Pick a session / window (Tab, arrows)"],
                         ["Prefix + S", "Save windows as the template (asks first)"],
                         ["Prefix + T", "Add the template's windows here"],
@@ -145,7 +147,7 @@ PanelWindow {
                         ["u", "Undo"],
                         ["k / j", "Older / newer command"],
                         ["Ctrl + N / Ctrl + P", "Older / newer command"],
-                        ["/", "Search old commands, vim style"],
+                        ["D / C", "Delete / change to the end of the line"],
                         ["v", "Edit the command in nvim (:wq comes back)"]
                     ]
                 }],

@@ -64,3 +64,6 @@ add-zle-hook-widget line-init _vi_cursor
 autoload -Uz edit-command-line
 zle -N edit-command-line
 bindkey -M vicmd v edit-command-line
+
+# Normal mode: no vi history search on /; Ctrl+R in typing mode does that.
+bindkey -M vicmd '/' undefined-key
