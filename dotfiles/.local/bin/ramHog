@@ -9,15 +9,16 @@ printf "\n  ${BLD}%-20s %10s %8s  %s${RST}\n" "APP" "Total MiB" "Instances" "PID
 echo "  ──────────────────────────────────────────────────"
 
 # PIDs column lists only root processes: those whose parent is a different app
-ps -eo pid,ppid,comm,rss --no-headers \
-  | awk '{pid[NR]=$1; ppid[$1]=$2; comm[$1]=$3; sum[$3]+=$4; count[$3]++}
+# Name last and tab-separated after: names can hold spaces ("tmux: server")
+ps -eo pid=,ppid=,rss=,comm= \
+  | awk '{c=$4; for(i=5;i<=NF;i++) c=c" "$i; pid[NR]=$1; ppid[$1]=$2; comm[$1]=c; sum[c]+=$3; count[c]++}
          END {
            for(i=1;i<=NR;i++){p=pid[i]; c=comm[p]; if(comm[ppid[p]]!=c) roots[c]=roots[c] (roots[c] ? "," : "") p}
-           for(k in sum) printf "%s %d %d %s\n", k, sum[k], count[k], roots[k]
+           for(k in sum) printf "%s\t%d\t%d\t%s\n", k, sum[k], count[k], roots[k]
          }' \
-  | sort -k2 -rn \
+  | sort -t$'\t' -k2,2rn \
   | head -20 \
-  | while read name total_kb count pids; do
+  | while IFS=$'\t' read -r name total_kb count pids; do
       mb="$((total_kb / 1024)).$((total_kb % 1024 * 10 / 1024))"
       color=$GRN
       (( total_kb > 1000000 )) && color=$RED
