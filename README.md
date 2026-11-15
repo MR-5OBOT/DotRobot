@@ -31,7 +31,6 @@ Run these when needed; each one explains itself as it runs.
 | `sudo scripts/fix-hotspot.sh` | Starts the saved NetworkManager hotspot and opens UFW for it |
 | `scripts/setup-browser-shortcuts.py` | Helium shortcuts for Brovim; close Helium first, `--dry-run` previews |
 | `assets/presets/kdenlive-config/kdenlive-setup.sh` | Kdenlive theme and layouts |
-| `scripts/switch-from-wpa_supplicant-to-iwd.sh` | Switches the Wi-Fi backend to iwd; `revert` undoes it |
-| `scripts/setup-wifi-stability.sh` | Turns off Wi-Fi power saving and stops iwd autoconnect (fixes short drops); asks for sudo |
+| `scripts/setup-wifi-stability.sh` | Switches Wi-Fi to iwd, turns off power saving and lets NetworkManager pick networks (fixes short drops); asks for sudo |
 | `sudo bash scripts/setup-grub-theme.sh` | Obsidian GRUB theme for any GRUB install; preview with `scripts/preview-grub-theme.sh` |
 | `sleep-power-drain-fix on` | Adds `pcie_aspm=force` so sleep stops draining the battery on laptops with the SSD behind Intel VMD and firmware that forbids ASPM (like the Dell Latitude 5450); it checks this itself and skips other laptops. `off` undoes it, `test` checks deep sleep |

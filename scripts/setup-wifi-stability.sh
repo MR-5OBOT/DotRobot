@@ -2,7 +2,10 @@
 set -euo pipefail
 
 # setup-wifi-stability.sh
-# Turns off Wi-Fi power saving and lets NetworkManager (not iwd) pick networks.
+# Wi-Fi through iwd instead of wpa_supplicant, power saving off, and NetworkManager
+# (not iwd) picking networks: fixes short drops.
+# Undo: delete CONF_FILE, then `systemctl disable --now iwd`,
+# `systemctl unmask wpa_supplicant` and restart NetworkManager.
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
@@ -13,9 +16,9 @@ main() {
 
   local want
   want="$(cat <<'EOF'
-# NetworkManager drives autoconnect instead of iwd's signal ranking
-# (ignored when the backend is wpa_supplicant)
 [device]
+wifi.backend=iwd
+# NetworkManager drives autoconnect instead of iwd's signal ranking
 wifi.iwd.autoconnect=false
 
 # 0=default 1=ignore 2=disable 3=enable
@@ -29,12 +32,16 @@ EOF
     return 0
   fi
 
+  pacman_install iwd
   mkdir -p "$(dirname "${CONF_FILE}")"
   printf '%s\n' "${want}" > "${CONF_FILE}"
   log "Wrote ${CONF_FILE}"
+  # A running wpa_supplicant keeps fighting iwd over the Wi-Fi card until a reboot.
+  systemctl mask --now wpa_supplicant
+  systemctl enable --now iwd
   log "Restarting NetworkManager (Wi-Fi drops for a few seconds)..."
   systemctl restart NetworkManager
-  log "Done. Check with: NetworkManager --print-config | grep -E 'powersave|autoconnect'"
+  log "Done. Check with: NetworkManager --print-config | grep -E 'backend|powersave|autoconnect'"
 }
 
 main "$@"
