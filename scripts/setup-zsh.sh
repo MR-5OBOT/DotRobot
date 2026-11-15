@@ -4,12 +4,6 @@ set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
 ZSHENV_FILE="/etc/zsh/zshenv"
-ZSH_PACKAGES=(zsh neovim eza bat fd fzf zoxide starship ripgrep)
-
-install_packages() {
-  pacman_install "${ZSH_PACKAGES[@]}"
-  log "Installed zsh and dependencies: ${ZSH_PACKAGES[*]}"
-}
 
 configure_zdotdir() {
   # zsh sources /etc/zsh/zshenv before any user rc file, so relocating ZDOTDIR
@@ -48,7 +42,8 @@ set_default_shell() {
 
 main() {
   require_arch
-  install_packages
+  # eza, fzf, zoxide and the other tools the zsh config uses come with core.txt.
+  pacman_install zsh
   configure_zdotdir
   set_default_shell
 }
