@@ -16,12 +16,12 @@ It uses sample entries; it does not boot the installed operating systems.
 The footer shows navigation, Enter to boot, C for the GRUB console, E to edit
 the selected entry, and Escape to return from the console or editor.
 
-Setup expects the existing working `/boot/EFI/Linux/arch-linux.efi` UKI and a
-Windows entry from os-prober. It backs up settings and any previous Obsidian
-theme under `/root/grub-obsidian-backup.*`, validates a generated menu before
-replacing it, and preserves the existing kernel images and
-EFI loader. Rerunning updates the theme. A pacman hook keeps the duplicate
-traditional kernel generator disabled after GRUB updates.
+Setup works on any GRUB install: plain kernel entries or a UKI, with or without
+Windows. Its settings are tagged lines (`# obsidian-grub-theme`) at the end of
+`/etc/default/grub`, and the new menu replaces the old one only after it checks
+out. Rerunning updates the theme. To remove it, delete those lines and
+`/boot/grub/themes/obsidian`, then run `sudo grub-mkconfig -o /boot/grub/grub.cfg`
+(the script's header has the exact commands).
 
 Only the assets under this directory are copied to `/boot`. Apply setup again
 after changing them.

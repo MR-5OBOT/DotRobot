@@ -1,60 +1,41 @@
 #!/usr/bin/env bash
-set -Eeuo pipefail
+# Obsidian GRUB theme for any GRUB install: plain kernel entries or a UKI, with or without Windows.
+# Its settings are tagged lines at the end of /etc/default/grub, the file GRUB's manual documents
+# (/etc/default/grub.d/ is a distro patch that an update could drop). Later lines win, so they
+# override older theme settings above them. Undo:
+#   sudo sed -i '/# obsidian-grub-theme$/d' /etc/default/grub
+#   sudo rm -r /boot/grub/themes/obsidian && sudo grub-mkconfig -o /boot/grub/grub.cfg
+# Rerun after changing the theme assets.
+set -euo pipefail
 
 if (( EUID != 0 )); then
   printf 'Run: sudo bash %q\n' "$0" >&2
   exit 1
 fi
-source_dir=$(cd -- "$(dirname -- "$0")/../assets/grub/obsidian" && pwd)
-for file in /boot/EFI/Linux/arch-linux.efi "$source_dir/theme.txt" "$source_dir/mono.pf2" "$source_dir/title.pf2" "$source_dir/background.jpg" "$source_dir/frame.png"; do
-  [[ -s "$file" ]] || { printf "Missing or empty required file: %s\n" "$file" >&2; exit 1; }
-done
-[[ -x /etc/grub.d/15_uki ]] || { printf "Missing or non-executable: /etc/grub.d/15_uki\n" >&2; exit 1; }
+src=$(cd -- "$(dirname -- "$0")/../assets/grub/obsidian" && pwd)
+theme=/boot/grub/themes/obsidian
+conf=/etc/default/grub
+mark='# obsidian-grub-theme'
 
-backup=$(mktemp -d /root/grub-obsidian-backup.XXXXXXXX)
-cp -p /etc/default/grub /etc/grub.d/00_header /etc/grub.d/10_linux /boot/grub/grub.cfg "$backup/"
-if [[ -d /boot/grub/themes/obsidian ]]; then
-  cp -a /boot/grub/themes/obsidian "$backup/"
-fi
-if [[ -f /etc/pacman.d/hooks/05-grub-uki-only.hook ]]; then
-  cp -p /etc/pacman.d/hooks/05-grub-uki-only.hook "$backup/"
-fi
-candidate=$(mktemp /boot/grub/grub.cfg.obsidian.XXXXXXXX)
-rollback() {
-  trap - ERR INT TERM
-  cp -p "$backup/grub" /etc/default/grub
-  cp -p "$backup/00_header" /etc/grub.d/00_header
-  cp -p "$backup/10_linux" /etc/grub.d/10_linux
-  rm -f "$candidate" "$candidate.new" /etc/pacman.d/hooks/05-grub-uki-only.hook
-  rm -rf /boot/grub/themes/obsidian
-  if [[ -d "$backup/obsidian" ]]; then
-    cp -a "$backup/obsidian" /boot/grub/themes/
-  fi
-  if [[ -f "$backup/05-grub-uki-only.hook" ]]; then
-    cp -p "$backup/05-grub-uki-only.hook" /etc/pacman.d/hooks/
-  fi
-  printf 'Installation stopped; original settings restored. Backup: %s\n' "$backup" >&2
-  exit 1
-}
-trap rollback ERR INT TERM
+install -d "$theme"
+install -m 644 "$src/theme.txt" "$src"/*.pf2 "$src"/*.png "$src"/*.jpg "$theme/"
+sed -i "/$mark\$/d" "$conf"
+[[ -z $(tail -c1 "$conf") ]] || echo >>"$conf"
+# GRUB_DISABLE_BOOTNEXT: firmware "boot next" entries would crowd the themed menu.
+cat >>"$conf" <<EOF
+GRUB_THEME=$theme/theme.txt $mark
+GRUB_TERMINAL_OUTPUT=gfxterm $mark
+GRUB_GFXMODE=1920x1080,1280x720,1024x768,auto $mark
+GRUB_DISABLE_BOOTNEXT=true $mark
+EOF
 
-install -d /boot/grub/themes/obsidian /etc/pacman.d/hooks
-install -m 644 "$source_dir/theme.txt" "$source_dir"/*.pf2 "$source_dir"/*.png "$source_dir"/*.jpg /boot/grub/themes/obsidian/
-install -m 644 "$source_dir/05-grub-uki-only.hook" /etc/pacman.d/hooks/05-grub-uki-only.hook
-chmod a-x /etc/grub.d/10_linux
-sed -i '/^GRUB_THEME=/d; /^GRUB_BACKGROUND=/d; /^GRUB_DISABLE_BOOTNEXT=/d; /^GRUB_TERMINAL_OUTPUT=/d; /^GRUB_GFXMODE=/d; s/^GRUB_DEFAULT=.*/GRUB_DEFAULT=0/' /etc/default/grub
-printf '\nGRUB_THEME=/boot/grub/themes/obsidian/theme.txt\nGRUB_DISABLE_BOOTNEXT=true\nGRUB_TERMINAL_OUTPUT=gfxterm\nGRUB_GFXMODE=1920x1080,1280x720,1024x768,auto\n' >> /etc/default/grub
-
-grub-mkconfig -o "$candidate"
-grub-script-check "$candidate"
-grep -Eq '^[[:space:]]*uki([[:space:]]|$)' "$candidate" || { printf 'Generated menu has no UKI entry.\n' >&2; false; }
-grep -Fq 'Windows Boot Manager' "$candidate" || { printf 'Generated menu has no Windows Boot Manager entry.\n' >&2; false; }
-grep -Fq '/grub/themes/obsidian/theme.txt' "$candidate" || { printf 'Generated menu does not reference the Obsidian theme.\n' >&2; false; }
-if grep -Eq 'gnulinux-simple-|gnulinux-advanced-|efi-bootnext-' "$candidate"; then
-  printf 'Unexpected menu entries; keeping the existing menu.\n' >&2
-  false
-fi
-
-mv -f "$candidate" /boot/grub/grub.cfg
-trap - ERR INT TERM
-printf 'Obsidian installed. Working Arch and Windows entries retained.\nBackup: %s\n' "$backup"
+# Build the menu beside the live one and swap it in only if it is valid, boots something and loads the theme.
+new=$(mktemp /boot/grub/grub.cfg.XXXXXX)
+trap 'rm -f "$new"' EXIT
+grub-mkconfig -o "$new"
+grub-script-check "$new"
+grep -Eq '^[[:space:]]*(menuentry|uki)([[:space:]]|$)' "$new" || { echo "The new menu has no boot entry; kept the old one." >&2; exit 1; }
+# grub-mkconfig writes the path relative to its partition: /grub/... when /boot is its own partition
+grep -Fq "${theme#/boot}/theme.txt" "$new" || { echo "The new menu doesn't load the theme; kept the old one." >&2; exit 1; }
+mv -f "$new" /boot/grub/grub.cfg
+echo "Obsidian installed; reboot to see it."
