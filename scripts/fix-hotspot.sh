@@ -47,12 +47,6 @@ PY
 )
 read -r hotspot_address hotspot_network <<< "$network_details"
 
-uplink=$(ip -4 route get 1.1.1.1 | awk '{ for (i=1; i<NF; i++) if ($i == "dev") { print $(i+1); exit } }')
-if [[ -z "$uplink" || "$uplink" == "$wifi_device" ]]; then
-  printf 'No separate internet uplink was found. Stopping before changing firewall rules.\n' >&2
-  exit 1
-fi
-
 firewall_status=$(ufw status)
 if [[ "$firewall_status" != *'Status: active'* ]]; then
   printf 'UFW is not active. No firewall rules were changed.\n' >&2
@@ -68,10 +62,15 @@ ufw allow in on "$wifi_device" to 0.0.0.0/0 port 67 proto udp comment 'mr5obot h
 # Limit DNS access to clients on the hotspot subnet.
 ufw allow in on "$wifi_device" from "$hotspot_network" to "$hotspot_address" port 53 proto udp comment 'mr5obot hotspot DNS UDP'
 ufw allow in on "$wifi_device" from "$hotspot_network" to "$hotspot_address" port 53 proto tcp comment 'mr5obot hotspot DNS TCP'
-# Permit hotspot clients to use the current internet uplink.
-ufw route allow in on "$wifi_device" out on "$uplink" from "$hotspot_network" to any comment 'mr5obot hotspot internet'
+# Internet through whichever network the laptop uses (SIM, Ethernet, USB, VPN), but no way into the
+# private networks behind it (home LAN, VPN, carrier). Prepended, so no older allow rule skips them.
+for private in 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10; do
+  ufw route prepend reject in on "$wifi_device" to "$private" comment 'mr5obot hotspot no LAN or VPN'
+done
+ufw route allow in on "$wifi_device" from "$hotspot_network" to any comment 'mr5obot hotspot internet'
 
-printf '\nHotspot: %s (%s), internet uplink: %s\n' "$hotspot_address" "$hotspot_network" "$uplink"
+printf '\nHotspot: %s (%s)\n' "$hotspot_address" "$hotspot_network"
+ip -4 route get 1.1.1.1 >/dev/null 2>&1 || printf 'The laptop has no internet right now. Phones get it as soon as the laptop does.\n'
 nmcli -f GENERAL.STATE,GENERAL.CONNECTION,IP4.ADDRESS device show "$wifi_device"
 ufw status
 printf '\nRules applied. On your phone, forget %s and reconnect with the existing password.\n' "$ssid"
