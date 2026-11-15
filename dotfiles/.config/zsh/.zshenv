@@ -32,7 +32,6 @@ export STARSHIP_CONFIG="${ZDOTDIR:-$HOME/.config/zsh}/starship.toml"
 # `path` is tied to PATH; `typeset -U` keeps it free of duplicates.
 typeset -U path
 path=(
-  "$HOME/.opencode/bin"
   "$HOME/.local/bin"
   "$HOME/bin"
   "$HOME/.npm-global/bin"
