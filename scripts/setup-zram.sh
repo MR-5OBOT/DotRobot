@@ -4,7 +4,8 @@ set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
 # zram swap at half of RAM, at most 8 GiB (packages/arch/zram-generator.conf),
-# plus the swap settings that suit compressed swap (packages/arch/99-zram.conf).
+# plus the swap settings that suit compressed swap (packages/arch/99-zram.conf),
+# with zswap switched off (packages/arch/zswap-off.conf).
 # A running zram device keeps its old size until the next boot.
 main() {
   require_arch
@@ -14,6 +15,8 @@ main() {
   sudo systemctl daemon-reload
   sudo systemctl start dev-zram0.swap
   sudo sysctl -q -p /etc/sysctl.d/99-zram.conf
+  sudo install -Dm 644 "${PACKAGES_DIR}/zswap-off.conf" /etc/tmpfiles.d/zswap-off.conf
+  sudo systemd-tmpfiles --create /etc/tmpfiles.d/zswap-off.conf
   log "zram swap: $(swapon --show=NAME,SIZE --noheadings | grep zram || echo 'starts at next boot')"
 }
 
