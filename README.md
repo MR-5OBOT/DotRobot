@@ -34,4 +34,4 @@ Run these when needed; each one explains itself as it runs.
 | `scripts/switch-from-wpa_supplicant-to-iwd.sh` | Switches the Wi-Fi backend to iwd; `revert` undoes it |
 | `scripts/setup-wifi-stability.sh` | Turns off Wi-Fi power saving and stops iwd autoconnect (fixes short drops); asks for sudo |
 | `sudo bash scripts/setup-grub-theme.sh` | Obsidian GRUB theme for any GRUB install; preview with `scripts/preview-grub-theme.sh` |
-| `dell-sleep-power-drain-fix on` | Dell Latitude 5450 only: adds `pcie_aspm=force` so sleep stops draining the battery; `off` undoes it, `test` checks deep sleep. Skip on other laptops |
+| `dell-sleep-power-drain-fix on` | Adds `pcie_aspm=force` so sleep stops draining the battery on laptops with the SSD behind Intel VMD and firmware that forbids ASPM (like the Dell Latitude 5450); it checks this itself and skips other laptops. `off` undoes it, `test` checks deep sleep |
