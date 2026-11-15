@@ -144,6 +144,7 @@ PanelWindow {
                         ["x / dd / cc", "Delete char / clear line / retype line"],
                         ["u", "Undo"],
                         ["k / j", "Older / newer command"],
+                        ["Ctrl + N / Ctrl + P", "Older / newer command"],
                         ["/", "Search old commands, vim style"],
                         ["v", "Edit the command in nvim (:wq comes back)"]
                     ]
