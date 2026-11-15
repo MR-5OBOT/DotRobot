@@ -33,8 +33,8 @@ def calc_scroll(selected, offset, rows):
 def parse_windows(raw_output, current_session):
     """Each session as a row (index None), followed by its windows."""
     items = []
-    for line in raw_output.strip().splitlines():
-        parts = line.split("|")
+    for line in raw_output.splitlines():
+        parts = line.split("\t", 6)  # tab, not |: names and paths may contain |
         if len(parts) < 7:
             continue
         session = parts[0]
@@ -53,7 +53,8 @@ def parse_windows(raw_output, current_session):
 
 def get_windows(current_session):
     cmd = ["tmux", "list-windows", "-a", "-F",
-           "#{session_name}|#{session_windows}|#{window_index}|#{window_name}|#{window_active}|#{window_panes}|#{pane_current_path}"]
+           "\t".join(["#{session_name}", "#{session_windows}", "#{window_index}", "#{window_name}",
+                      "#{window_active}", "#{window_panes}", "#{pane_current_path}"])]
     res = subprocess.run(cmd, capture_output=True, text=True)
     return parse_windows(res.stdout, current_session)
 
