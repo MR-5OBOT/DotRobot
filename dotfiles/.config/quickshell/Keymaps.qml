@@ -106,7 +106,7 @@ PanelWindow {
                         ["Prefix + | / -", "Split side by side / stacked"],
                         ["Alt + Ctrl + H J K L", "Resize pane (no prefix, hold to repeat)"],
                         ["Prefix + Z", "Zoom pane in / out"],
-                        ["Alt + X", "Close the nvim split, else the pane (asks)"],
+                        ["Alt + X / Prefix + X", "Close nvim split / close pane (asks)"],
                         ["Prefix + [", "Copy mode (vi keys, scroll back)"],
                         ["V / Y / X", "In copy mode: select / copy / cut"],
                         ["Prefix + Space", "Last window"],
