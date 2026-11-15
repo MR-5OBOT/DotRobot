@@ -43,7 +43,6 @@ Singleton {
     }
     property alias reduceMotion: adapter.reduceMotion
     property alias manualHue: adapter.manualHue
-    property alias manualDark: adapter.manualDark
     property alias manualSat: adapter.manualSat
     property alias pillOpacity: adapter.pillOpacity
     property alias autoHide: adapter.autoHide
@@ -80,7 +79,6 @@ Singleton {
             property real uiScale: root.autoScale
             property bool reduceMotion: false
             property int manualHue: 30
-            property bool manualDark: true
             property real manualSat: 0.5
             property real pillOpacity: 1.0
             property bool autoHide: true

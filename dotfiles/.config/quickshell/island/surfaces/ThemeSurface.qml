@@ -13,9 +13,9 @@ import "../components"
  * Reached from the Appearance index and folds back to it on the back chevron
  * or an empty click.
  *
- * Manual palette mode reveals a rainbow hue strip and a dark/light choice; moving
- * either rebuilds the rice colour set from that hue through wallcolors.py --hue
- * debounced so a drag does not spawn a build per pixel.
+ * Manual palette mode reveals a rainbow hue strip; moving it rebuilds the
+ * accent from that hue through wallcolors.py --hue, debounced so a drag does
+ * not spawn a build per pixel.
  */
 SettingsSurface {
     id: root
@@ -24,13 +24,13 @@ SettingsSurface {
     implicitHeight: content.implicitHeight
 
     property string hueArg: String(Math.round(Flags.manualHue))
-    property string modeArg: Flags.manualDark ? "dark" : "light"
     property string satArg: String(Flags.manualSat)
 
     /** Current theme key; legacy "static" and the removed "light" read as dark. */
     readonly property string themeMode: Flags.paletteMode === "dynamic" || Flags.paletteMode === "manual" ? Flags.paletteMode : "dark"
 
-    readonly property color accentColor: Qt.hsla(Flags.manualHue / 360, Flags.manualSat, Flags.manualDark ? 0.5 : 0.62, 1)
+    // what wallcolors.py actually applied, so the swatch and hex never disagree with the bar
+    readonly property color accentColor: Dyn.primary
     readonly property string currentHex: {
         var c = accentColor;
         function h(x) { return ("0" + Math.round(x * 255).toString(16)).slice(-2); }
@@ -39,7 +39,6 @@ SettingsSurface {
 
     function applyManual() {
         hueArg = String(Math.round(Flags.manualHue));
-        modeArg = Flags.manualDark ? "dark" : "light";
         satArg = String(Flags.manualSat);
         applyTimer.restart();
     }
@@ -62,7 +61,7 @@ SettingsSurface {
     Process {
         id: paletteProc
         command: ["python3", Config.islandPath("scripts", "wallcolors.py"),
-            "--hue", root.hueArg, root.modeArg, root.satArg]
+            "--hue", root.hueArg, root.satArg]
     }
 
     Process {
@@ -126,10 +125,9 @@ SettingsSurface {
 
         /**
          * Manual hue editor, folded shut unless the palette is on Manual. Holds a
-         * rainbow strip with a draggable thumb, then a single line pairing a live
-         * accent swatch and its hex caption with the dark/light choice, and a hex
-         * input that drives both hue and saturation. The strip is mouse-driven and
-         * stays out of the keyboard row registry.
+         * rainbow strip with a draggable thumb, then a live accent swatch with its
+         * hex caption, and a hex input that drives both hue and saturation. The
+         * strip is mouse-driven and stays out of the keyboard row registry.
          */
         Item {
             id: manualSection
@@ -196,7 +194,7 @@ SettingsSurface {
 
                 Item {
                     width: parent.width
-                    height: Math.max(34 * root.s, toneSeg.implicitHeight)
+                    height: 34 * root.s
 
                     Rectangle {
                         id: accentSwatch
@@ -213,8 +211,7 @@ SettingsSurface {
                     Column {
                         anchors.left: accentSwatch.right
                         anchors.leftMargin: 12 * root.s
-                        anchors.right: toneSeg.left
-                        anchors.rightMargin: 12 * root.s
+                        anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: 3 * root.s
 
@@ -226,7 +223,7 @@ SettingsSurface {
                             font.weight: Font.DemiBold
                         }
                         Text {
-                            text: root.currentHex + " · " + (Flags.manualDark ? "dark" : "light")
+                            text: root.currentHex
                             color: Theme.faint
                             font.family: Theme.font
                             font.pixelSize: 10.5 * root.s
@@ -234,16 +231,6 @@ SettingsSurface {
                             elide: Text.ElideRight
                             width: parent.width
                         }
-                    }
-
-                    SettingsSeg {
-                        id: toneSeg
-                        anchors.right: parent.right
-                        anchors.verticalCenter: parent.verticalCenter
-                        s: root.s
-                        options: [{ label: "Dark", value: true }, { label: "Light", value: false }]
-                        value: Flags.manualDark
-                        onPicked: (v) => { Flags.manualDark = v; root.applyManual(); }
                     }
                 }
 
