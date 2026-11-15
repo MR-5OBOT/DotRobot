@@ -13,8 +13,7 @@ set -euo pipefail
 # A boot that hangs with it: press e on the entry, delete pcie_aspm=force, Ctrl+X.
 
 readonly PARAM=pcie_aspm=force
-readonly ROOT=${SLEEP_FIX_ROOT:-} # tests point this at a fake /
-readonly GRUB_DEFAULT=${ROOT}/etc/default/grub
+readonly GRUB_DEFAULT=/etc/default/grub
 readonly MARK="# sleep-power-drain-fix"
 readonly SLEEP_SECS=60
 
@@ -37,21 +36,21 @@ die() {
 # Ignores commented-out lines, so a disabled "#GRUB_CMDLINE...pcie_aspm=force" doesn't count.
 has_param() { grep -sv '^[[:space:]]*#' "$1" | grep -qw -- "${PARAM}"; }
 
-hw_sleep_us() { cat "${ROOT}/sys/power/suspend_stats/total_hw_sleep" 2>/dev/null || echo 0; }
+hw_sleep_us() { cat "/sys/power/suspend_stats/total_hw_sleep" 2>/dev/null || echo 0; }
 
 # Does this laptop have the problem? An SSD bound to Intel VMD, and firmware whose FADT sets
 # ACPI_FADT_NO_ASPM: bit 4 of the IA-PC boot flags, a 16-bit field at byte 109 (ACPI spec layout,
 # so kernel updates can't move it). The table is root-only, hence sudo.
 needs_fix() {
   local flags
-  compgen -G "${ROOT}/sys/bus/pci/drivers/vmd/*:*" >/dev/null || return 1
-  flags=$(sudo od -An -tu2 -j109 -N2 "${ROOT}/sys/firmware/acpi/tables/FACP" 2>/dev/null) || return 1
+  compgen -G "/sys/bus/pci/drivers/vmd/*:*" >/dev/null || return 1
+  flags=$(sudo od -An -tu2 -j109 -N2 "/sys/firmware/acpi/tables/FACP" 2>/dev/null) || return 1
   [[ -n ${flags// /} ]] && ((flags & 16))
 }
 
 # A UKI boots with its own built-in options, so a GRUB edit would do nothing there.
 check_grub() {
-  if grep -Eqs '^[[:space:]]*[a-z]+_uki=' "${ROOT}"/etc/mkinitcpio.d/*.preset || [[ ! -f ${GRUB_DEFAULT} ]]; then
+  if grep -Eqs '^[[:space:]]*[a-z]+_uki=' /etc/mkinitcpio.d/*.preset || [[ ! -f ${GRUB_DEFAULT} ]]; then
     die "works only with plain GRUB; add ${PARAM} to your kernel options by hand"
   fi
 }
@@ -59,7 +58,7 @@ check_grub() {
 status() {
   local boot=off running=off
   has_param "${GRUB_DEFAULT}" && boot=on
-  has_param "${ROOT}/proc/cmdline" && running=on
+  has_param "/proc/cmdline" && running=on
   echo "boot setting:          ${boot}"
   echo "running kernel:        ${running}"
   echo "deep sleep since boot: $(($(hw_sleep_us) / 1000000))s (stays 0 while sleep is broken)"
@@ -101,7 +100,7 @@ off() {
 sleep_test() {
   local start before after
   echo "Sleeping ${SLEEP_SECS}s: the screen goes black and wakes by itself. Don't close the lid."
-  echo 1 | sudo tee "${ROOT}/sys/module/intel_pmc_core/parameters/warn_on_s0ix_failures" >/dev/null 2>&1 || true
+  echo 1 | sudo tee "/sys/module/intel_pmc_core/parameters/warn_on_s0ix_failures" >/dev/null 2>&1 || true
   before=$(hw_sleep_us)
   start=$(date +%s)
   if ! sudo rtcwake -m freeze -s "${SLEEP_SECS}" >/dev/null; then
@@ -121,7 +120,7 @@ test_fix() {
   case ${rc} in
     0) echo "PASS: deep sleep works." ;;
     1)
-      if has_param "${ROOT}/proc/cmdline"; then
+      if has_param "/proc/cmdline"; then
         echo "FAIL: deep sleep is broken even with the fix running."
       else
         echo "FAIL: deep sleep is broken. Turn the fix on (sleep-power-drain-fix on), reboot, test again."
