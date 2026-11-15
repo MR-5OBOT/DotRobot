@@ -75,7 +75,6 @@ hl.config({
 -- (0.57). So find the nearest window that way ourselves and use it when the hop starts
 -- or ends on a float; tile to tile stays Hyprland's. If nothing is that way (no window,
 -- no monitor), switch between a tile and the float stacked on it (last focused first).
--- Check: lua scripts/test-focus-dir.lua
 -- ponytail: nearest by centre, sideways counts double; use edge overlap if it misjumps.
 local STEP = { left = { -1, 0 }, right = { 1, 0 }, up = { 0, -1 }, down = { 0, 1 } }
 local function overlaps(a, b)

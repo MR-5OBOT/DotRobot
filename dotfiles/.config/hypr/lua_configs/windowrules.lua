@@ -73,8 +73,6 @@ hl.window_rule({
 
 local float_classes = {
 	"Tk",
-	"nm-connection-editor",
-	"blueman-manager",
 	"file-roller",
 	"qt5ct",
 }
