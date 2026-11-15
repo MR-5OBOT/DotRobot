@@ -8,12 +8,39 @@ bindkey -M viins '^H' backward-delete-char   # Ctrl-H same
 bindkey '^ ' autosuggest-accept              # Ctrl-Space accepts suggestion
 bindkey '\ef' forward-word                   # Alt-f jumps a word forward
 
+# zinit binds Alt+Shift+Q to its symbol browser when it loads; an empty key
+# turns that off (keybindings.zsh runs before plugins.zsh).
+zstyle ':zinit:browse-symbol' key ''
+
 # Alt+H/J/K/L/X/Space belong to tmux. Without tmux they'd arrive as Esc+key and silently
 # drop you into normal mode running that key, so here they do nothing.
 for m in viins vicmd; do for k in h j k l x ' '; do bindkey -M $m "\e$k" undefined-key; done; done
 
+# Ctrl+D clears the whole line. Ctrl+U no longer does; Ctrl+W still deletes a
+# word back. Ctrl+G's completion listing and Ctrl+K's literal ^K are off.
+bindkey -M viins '^D' kill-whole-line
+bindkey -M viins '^U' undefined-key
+bindkey -M viins '^W' vi-backward-kill-word
+bindkey -M viins '^G' undefined-key
+bindkey -M viins '^K' undefined-key
+
+# Ctrl+V pastes the Wayland clipboard. Ctrl+Shift+V is kitty's paste; the CSI-u
+# form covers terminals that forward it as a key instead. Ctrl+Q's literal-next
+# is off.
+_paste_clipboard() {
+  local text
+  text=$(wl-paste --no-newline 2>/dev/null) || return
+  LBUFFER+=$text
+}
+zle -N _paste_clipboard
+bindkey -M viins '^V' _paste_clipboard
+bindkey -M viins '^[[86;5u' _paste_clipboard
+bindkey -M viins '^Q' undefined-key
+
 # Caps+W/B (keyd sends Ctrl+Right/Left) jump words, Caps+0/4 (Home/End) jump to line
-# start/end. Home/End arrive as ^[[H/^[[F in bare kitty but ^[[1~/^[[4~ inside tmux.
+# start/end. Keeping the Ctrl+arrow bindings also keeps physical Ctrl+arrows working;
+# zsh cannot tell the two apart. Home/End arrive as ^[[H/^[[F in bare kitty but
+# ^[[1~/^[[4~ inside tmux.
 bindkey -M viins '^[[1;5C' forward-word
 bindkey -M viins '^[[1;5D' backward-word
 for k in '^[[H' '^[[1~'; do bindkey -M viins $k beginning-of-line; done

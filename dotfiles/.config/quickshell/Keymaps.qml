@@ -156,6 +156,9 @@ PanelWindow {
                         ["Tab", "Complete with a fuzzy menu (fzf-tab)"],
                         ["Ctrl + Space", "Accept the whole grey suggestion"],
                         ["Alt + F", "Accept the next word of the grey suggestion"],
+                        ["Ctrl + D / Ctrl + W", "Delete line / delete word back"],
+                        ["Ctrl + V / Ctrl + Shift + V", "Paste"],
+                        ["Ctrl + L", "Clear the screen"],
                         ["Caps + W / B", "Jump word right / left"],
                         ["Caps + 0", "Line start"],
                         ["Caps + Shift + 4 ($)", "Line end"]
