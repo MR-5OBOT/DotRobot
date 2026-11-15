@@ -97,16 +97,32 @@ fetch_release_asset() {
   FETCHED_ASSET="${dest}"
 }
 
-# The first install of an installer run does the full upgrade; later ones only
-# add packages. install.sh sets DOTROBOT_SYNC_STAMP. A script run on its own
-# always upgrades first, so it never installs against a stale package database.
+# Does nothing when every package is already installed, so callers need no check
+# of their own. Otherwise the first install of an installer run does the full
+# upgrade; later ones only add packages. install.sh sets DOTROBOT_SYNC_STAMP. A
+# script run on its own always upgrades first, so it never installs against a
+# stale package database.
 pacman_install() {
+  pacman -T "$@" >/dev/null && return 0
   if [[ -n "${DOTROBOT_SYNC_STAMP:-}" && -e "${DOTROBOT_SYNC_STAMP}" ]]; then
     sudo pacman -S --needed --noconfirm "$@"
   else
     sudo pacman -Syu --needed --noconfirm "$@" || return
     [[ -z "${DOTROBOT_SYNC_STAMP:-}" ]] || touch "${DOTROBOT_SYNC_STAMP}"
   fi
+}
+
+# PCI vendor IDs of this machine's GPUs (display controllers), one per line:
+# 0x8086 Intel, 0x1002 AMD, 0x10de NVIDIA.
+gpu_vendors() {
+  local device class vendor
+  for device in /sys/bus/pci/devices/*; do
+    [[ -r ${device}/class && -r ${device}/vendor ]] || continue
+    read -r class <"${device}/class"
+    [[ ${class} == 0x03* ]] || continue
+    read -r vendor <"${device}/vendor"
+    printf '%s\n' "${vendor,,}"
+  done | sort -u
 }
 
 read_package_file() {

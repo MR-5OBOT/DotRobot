@@ -9,7 +9,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 # A running zram device keeps its old size until the next boot.
 main() {
   require_arch
-  pacman -Qq zram-generator >/dev/null 2>&1 || pacman_install zram-generator
+  pacman_install zram-generator
   sudo install -Dm 644 "${PACKAGES_DIR}/zram-generator.conf" /etc/systemd/zram-generator.conf
   sudo install -Dm 644 "${PACKAGES_DIR}/99-zram.conf" /etc/sysctl.d/99-zram.conf
   sudo systemctl daemon-reload

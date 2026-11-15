@@ -12,7 +12,7 @@ readonly TARGET="/etc/keyd/default.conf"
 main() {
   require_arch
   [[ -r "${CONF}" ]] || die "Missing ${CONF}"
-  pacman -Qq keyd >/dev/null 2>&1 || pacman_install keyd
+  pacman_install keyd
   keyd check "${CONF}" || die "keyd rejected ${CONF}; kept the current config"
   sudo install -Dm 644 "${CONF}" "${TARGET}"
   # restart, not `keyd reload`: keyd 2.6.0 segfaulted seconds after a reload,

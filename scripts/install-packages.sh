@@ -11,7 +11,6 @@ Groups:
   core
   desktop
   aur
-  all
 EOF
 }
 
@@ -23,20 +22,10 @@ cpu_microcode_package() {
   esac
 }
 
-gpu_video_package() {
-  case "${1,,}" in
-    0x8086) printf '%s\n' intel-media-driver vpl-gpu-rt ;;
-    0x1002) printf '%s\n' mesa ;;
-    *) return 1 ;;
-  esac
-}
-
 install_repo_group() {
   local group="$1"
-  local vendor microcode device class package
-  local nvidia_gpu=0
+  local vendor microcode
   local -a packages
-  local -A gpu_packages=()
   mapfile -t packages < <(read_package_file "${PACKAGES_DIR}/${group}.txt")
   [[ ${#packages[@]} -gt 0 ]] || return 0
 
@@ -48,23 +37,13 @@ install_repo_group() {
       warn "Unknown CPU vendor '${vendor:-missing}'; skipped CPU microcode"
     fi
 
-    for device in /sys/bus/pci/devices/*; do
-      [[ -r ${device}/class && -r ${device}/vendor ]] || continue
-      read -r class <"${device}/class"
-      [[ ${class} == 0x03* ]] || continue
-      read -r vendor <"${device}/vendor"
-      if package="$(gpu_video_package "${vendor}")"; then
-        for package in ${package}; do
-          gpu_packages["${package}"]=1
-        done
-      elif [[ ${vendor,,} == 0x10de ]]; then
-        nvidia_gpu=1
-      fi
+    for vendor in $(gpu_vendors); do
+      case "${vendor}" in
+        0x8086) packages+=(intel-media-driver vpl-gpu-rt) ;;
+        0x1002) packages+=(mesa) ;;
+        0x10de) warn "Nvidia GPU detected; install the driver matching its GPU and kernel manually" ;;
+      esac
     done
-    for package in "${!gpu_packages[@]}"; do
-      packages+=("${package}")
-    done
-    (( nvidia_gpu == 0 )) || warn "Nvidia GPU detected; install the driver matching its GPU and kernel manually"
   fi
 
   log "Installing ${group} packages"
@@ -72,6 +51,7 @@ install_repo_group() {
 }
 
 install_aur_group() {
+  local -a packages
   mapfile -t packages < <(read_package_file "${PACKAGES_DIR}/aur.txt")
   [[ ${#packages[@]} -gt 0 ]] || return 0
   command -v paru >/dev/null 2>&1 || die "paru is required for AUR packages. Run scripts/setup-aur-helper.sh first."
@@ -91,11 +71,6 @@ main() {
     case "${group}" in
       core|desktop) install_repo_group "${group}" ;;
       aur) install_aur_group ;;
-      all)
-        install_repo_group core
-        install_repo_group desktop
-        install_aur_group
-        ;;
       *)
         usage
         die "Unknown group: ${group}"

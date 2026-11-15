@@ -26,7 +26,7 @@ setup_fibocom_unlock() (
     log "Dell DW5825e / Fibocom FM101R-GL needs its vendor FCC unlock helper."
     prompt_step "Set up and enable Fibocom unlock support (no firmware flashing)" || return 0
     if ! pacman -Qq fibocom-fm101r-unlock >/dev/null 2>&1; then
-      pacman -Qq base-devel curl >/dev/null 2>&1 || pacman_install base-devel curl
+      pacman_install base-devel curl
       build_dir="$(mktemp -d)"
       trap 'rm -rf -- "${build_dir}"' EXIT
       cp "${PACKAGES_DIR}/fibocom-fm101r-unlock/"* "${build_dir}/"
