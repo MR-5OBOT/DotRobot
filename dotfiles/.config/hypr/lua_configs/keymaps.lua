@@ -1,4 +1,5 @@
 -- Keymaps
+-- Super = system: + SHIFT moves, + CTRL resizes, + ALT extras. Alt alone belongs to apps (tmux, nvim, Brovim).
 
 local mainMod = "SUPER"
 local SCRIPTS = os.getenv("HOME") .. "/.config/hypr/scripts"
@@ -10,10 +11,10 @@ local QS = require("lua_configs.qs")
 local ISLAND = "qs ipc call island"
 
 -- Window Management
-hl.bind(mainMod .. " + Q", hl.dsp.window.close())
+hl.bind(mainMod .. " + X", hl.dsp.window.close())
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 hl.bind(mainMod .. " + C", hl.dsp.window.center())
-hl.bind("ALT + Space", hl.dsp.window.float({ action = "toggle" }))
+hl.bind(mainMod .. " + ALT + Space", hl.dsp.window.float({ action = "toggle" }))
 -- lockscreen: pauses whatever is playing, then hyprlock (fingerprint unlock)
 local LOCK = os.getenv("HOME") .. "/.config/quickshell/island/scripts/lock.sh"
 hl.bind(mainMod .. " + ALT + L", hl.dsp.exec_cmd(LOCK))
@@ -25,9 +26,9 @@ hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("qs ipc call launcher toggle"))
 hl.bind(mainMod .. " + D", hl.dsp.exec_cmd(ISLAND .. ' home ""')) -- dashboard
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(ISLAND .. ' battery ""')) -- battery
 hl.bind(mainMod .. " + I", hl.dsp.exec_cmd("kitty --class nmtui -e nmtui")) -- network manager (tui)
-hl.bind(mainMod .. " + SHIFT + I", hl.dsp.exec_cmd("kitty --class nmtui -e nmtui connect")) -- direct wifi connection picker
-hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("pkill -x qs; " .. QS)) -- restart quickshell (island included)
-hl.bind(mainMod .. " + X", hl.dsp.exec_cmd(ISLAND .. ' power ""'))
+hl.bind(mainMod .. " + ALT + I", hl.dsp.exec_cmd("kitty --class nmtui -e nmtui connect")) -- direct wifi connection picker
+hl.bind(mainMod .. " + ALT + N", hl.dsp.exec_cmd("pkill -x qs; " .. QS)) -- restart quickshell (island included)
+hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd(ISLAND .. ' power ""'))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("qs ipc call wallpicker toggle"))
 hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("qs ipc call clipboard toggle"))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("qs ipc call notifications toggle"))
@@ -44,7 +45,7 @@ hl.bind(
 	)
 )
 hl.bind("XF86Calculator", hl.dsp.exec_cmd("qs ipc call calc toggle"))
-hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("hyprpicker -a -n"))
+hl.bind(mainMod .. " + ALT + C", hl.dsp.exec_cmd("hyprpicker -a -n"))
 
 -- Screenshots
 hl.bind(mainMod .. " + S", hl.dsp.exec_cmd(SCRIPT .. "/screenshot.sh"))
@@ -61,9 +62,11 @@ hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --toggle-mic")
 hl.bind("XF86AudioMute", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --toggle"), { locked = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(SCRIPT .. "/brightness.sh --dec"), { locked = true })
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd(SCRIPT .. "/brightness.sh --inc"), { locked = true })
+-- pauses everything playing; the next press resumes those players
+hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("qs ipc call media toggle"))
 
 -- Power profile picker: tap to move down the list, Enter to apply
-hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd(POWERPROFILE .. " menu"))
+hl.bind(mainMod .. " + ALT + P", hl.dsp.exec_cmd(POWERPROFILE .. " menu"))
 
 -- Focus Navigation
 hl.config({
@@ -147,7 +150,7 @@ end
 hl.bind(mainMod .. " + 0", hl.dsp.focus({ workspace = 10 }))
 hl.bind(mainMod .. " + SHIFT + 0", hl.dsp.window.move({ workspace = 10 }))
 
--- Monitors: O (the letter, not 0) jumps to the other screen, SHIFT + O carries the
+-- Monitors: Tab jumps to the other screen, SHIFT + Tab carries the
 -- active window there (onto whatever workspace that screen is showing). SHIFT + H/L
 -- also cross over at the edge. Each switch flashes a Hyprland notification rather
 -- than an island toast, which would pile up in the notification history.
@@ -161,12 +164,12 @@ end
 local function label(m)
 	return m.name:match("^eDP") and "Laptop" or "Monitor"
 end
-hl.bind(mainMod .. " + O", function()
+hl.bind(mainMod .. " + Tab", function()
 	local m = hl.get_monitor("+1")
 	hl.dispatch(hl.dsp.focus({ monitor = m.name }))
 	toast("Focus → " .. label(m))
 end)
-hl.bind(mainMod .. " + SHIFT + O", function()
+hl.bind(mainMod .. " + SHIFT + Tab", function()
 	if not hl.get_active_window() then
 		return
 	end

@@ -3,7 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Services.Mpris
-import Quickshell.Hyprland
+import Quickshell.Io
 
 /**
  * The one now-playing source the pill views read: Home's now-playing card, the source
@@ -394,22 +394,23 @@ Singleton {
         xhr.send();
     }
 
-    GlobalShortcut {
-        appid: "quickshell"
-        name: "mediaToggle"
-        description: "Play or pause the active media player"
-        onPressed: { var a = root.active; if (a && a.canTogglePlaying) a.togglePlaying(); }
-    }
-    GlobalShortcut {
-        appid: "quickshell"
-        name: "mediaNext"
-        description: "Skip to the next track"
-        onPressed: { var a = root.active; if (a && a.canGoNext) a.next(); }
-    }
-    GlobalShortcut {
-        appid: "quickshell"
-        name: "mediaPrev"
-        description: "Skip to the previous track"
-        onPressed: { var a = root.active; if (a && a.canGoPrevious) a.previous(); }
+    // Super+P: pause everything playing; the next press resumes exactly those (else the active player).
+    // Kept off the IpcHandler, which would try to publish it over IPC.
+    property var held: []
+    IpcHandler {
+        target: "media"
+        function toggle(): void {
+            var playing = root.list.filter(p => p.isPlaying && p.canPause);
+            if (playing.length > 0) {
+                playing.forEach(p => p.pause());
+                root.held = playing;
+                return;
+            }
+            var back = root.held.filter(p => root.list.indexOf(p) >= 0 && p.canPlay);
+            root.held = [];
+            if (back.length === 0 && root.active && root.active.canPlay)
+                back = [root.active];
+            back.forEach(p => p.play());
+        }
     }
 }

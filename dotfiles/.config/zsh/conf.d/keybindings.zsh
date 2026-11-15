@@ -1,12 +1,16 @@
 # Keybindings (vi mode).
 
 bindkey -v
-export KEYTIMEOUT=5
+export KEYTIMEOUT=1 # 10 ms: Alt+key still reads as one key, but a fast Esc then key doesn't
 
 bindkey -M viins '^?' backward-delete-char   # Backspace past insert point
 bindkey -M viins '^H' backward-delete-char   # Ctrl-H same
 bindkey '^ ' autosuggest-accept              # Ctrl-Space accepts suggestion
 bindkey '\ef' forward-word                   # Alt-f jumps a word forward
+
+# Alt+H/J/K/L/X/Space belong to tmux. Without tmux they'd arrive as Esc+key and silently
+# drop you into normal mode running that key, so here they do nothing.
+for m in viins vicmd; do for k in h j k l x ' '; do bindkey -M $m "\e$k" undefined-key; done; done
 
 # Caps+W/B (keyd sends Ctrl+Right/Left) jump words, Caps+0/4 (Home/End) jump to line
 # start/end. Home/End arrive as ^[[H/^[[F in bare kitty but ^[[1~/^[[4~ inside tmux.

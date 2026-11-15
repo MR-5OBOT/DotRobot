@@ -21,17 +21,18 @@ PanelWindow {
             columns: [
                 [{
                     title: "HYPRLAND",
-                    note: "Apps & tools · Super = Win key",
+                    note: "Super = system · Shift moves · Ctrl resizes · Alt extras",
                     binds: [
-                        ["Super + Return", "Terminal"],
-                        ["Super + Space / Q", "App launcher / close window"],
+                        ["Super + Return / Z", "Terminal / float terminal"],
+                        ["Super + Space", "App launcher"],
                         ["Super + D / B", "Dashboard / Battery"],
-                        ["Super + I / Shift + I", "Network manager / Wi-Fi picker"],
-                        ["Super + X / W", "Power / wallpapers"],
+                        ["Super + I / Alt + I", "Network manager / Wi-Fi picker"],
+                        ["Super + Escape / W", "Power / wallpapers"],
                         ["Super + V / N / T", "Clipboard / notifications / bar peek"],
                         ["Super + = / /", "Calculator / this sheet"],
-                        ["Super + Shift + N", "Restart Quickshell"],
-                        ["Super + Shift + C / P", "Pick colour / power profile"],
+                        ["Super + P", "Pause everything playing / resume it"],
+                        ["Super + Alt + N", "Restart Quickshell"],
+                        ["Super + Alt + C / P", "Pick colour / power profile"],
                         ["Super + Alt + F", "Click anywhere (grid, g = click)"],
                         ["Super + S", "Quick fullscreen copy"],
                         ["Print / Shift + Print", "Screenshot region / monitor (rishot)"],
@@ -43,17 +44,18 @@ PanelWindow {
                     title: "HYPRLAND",
                     note: "Windows & workspaces",
                     binds: [
+                        ["Super + X", "Close window"],
                         ["Super + H J K L", "Focus left / down / up / right"],
                         ["Super + Shift + H J K L", "Move window (crosses to the other screen)"],
                         ["Super + Ctrl + H J K L", "Resize window"],
                         ["Super + mouse drag", "Left: move · right: resize"],
                         ["Super + C", "Center window"],
                         ["Super + F", "Fullscreen"],
-                        ["Alt + Space", "Toggle floating"],
+                        ["Super + Alt + Space", "Toggle floating"],
                         ["Super + Alt + L", "Lock screen"],
                         ["Super + 1 … 0", "Switch workspace 1 … 10"],
                         ["Super + Shift + 1 … 0", "Move window to workspace"],
-                        ["Super + O / Shift + O", "Focus / move window to next monitor"]
+                        ["Super + Tab / Shift + Tab", "Focus / move window to next monitor"]
                     ]
                 }]
             ]
@@ -97,14 +99,13 @@ PanelWindow {
             columns: [
                 [{
                     title: "TMUX",
-                    note: "Panes · Prefix = Ctrl + Space, let go, then the key",
+                    note: "Panes · Prefix = Alt + Space, let go, then the key",
                     binds: [
-                        ["Ctrl + H J K L", "Switch pane / nvim split (no prefix)"],
+                        ["Alt + H J K L", "Switch pane / nvim split (no prefix)"],
                         ["Prefix + | / -", "Split side by side / stacked"],
-                        ["Prefix + Shift + H J K L", "Resize pane (tap again to repeat)"],
-                        ["Prefix + Ctrl + Z", "Zoom pane in / out"],
-                        ["Prefix + X", "Close pane (asks first)"],
-                        ["Prefix + Ctrl + L", "Clear the screen"],
+                        ["Alt + Ctrl + H J K L", "Resize pane (no prefix, hold to repeat)"],
+                        ["Prefix + Z", "Zoom pane in / out"],
+                        ["Alt + X", "Close the nvim split, else the pane (asks)"],
                         ["Prefix + [", "Copy mode (vi keys, scroll back)"],
                         ["V / Y / X", "In copy mode: select / copy / cut"]
                     ]
@@ -116,7 +117,7 @@ PanelWindow {
                         ["Prefix + C", "New window"],
                         ["Prefix + 1 … 9 / 0", "Go to window 1 … 9 / 10"],
                         ["Prefix + Space", "Last window"],
-                        ["Prefix + Ctrl + N / P", "Next / previous window"],
+                        ["Prefix + N / P", "Next / previous window"],
                         ["Prefix + W", "Pick a session / window (Tab, arrows)"],
                         ["Prefix + S", "Save windows as the template (asks first)"],
                         ["Prefix + T", "Add the template's windows here"],
@@ -153,6 +154,7 @@ PanelWindow {
                     binds: [
                         ["Ctrl + R", "Fuzzy search old commands (fzf)"],
                         ["Tab", "Complete with a fuzzy menu (fzf-tab)"],
+                        ["Ctrl + Space", "Accept the whole grey suggestion"],
                         ["Alt + F", "Accept the next word of the grey suggestion"],
                         ["Caps + W / B", "Jump word right / left"],
                         ["Caps + 0", "Line start"],

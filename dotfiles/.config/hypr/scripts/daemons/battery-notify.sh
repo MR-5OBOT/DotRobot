@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Low-battery notifier. Used to live inside quickshell's Battery.qml; split out
-# so the warning keeps running across a qs restart (Super+Shift+N reloads the
+# so the warning keeps running across a qs restart (Super+Alt+N reloads the
 # bar constantly). The island (repo island/) owns the notification server and draws
 # the toast -- this decides when one is due.
 #

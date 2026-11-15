@@ -24,7 +24,7 @@ It is one part of the quickshell config in `dotfiles/.config/quickshell`: the to
 
 ## Launch
 
-`hypr/lua_configs/autostart.lua` starts `qs` (with jemalloc decay options, so memory stays near the live working set); Super+Shift+N restarts it. Nothing in the island writes into this folder: its state lives under `~/.local/state/island`.
+`hypr/lua_configs/autostart.lua` starts `qs` (with jemalloc decay options, so memory stays near the live working set); Super+Alt+N restarts it. Nothing in the island writes into this folder: its state lives under `~/.local/state/island`.
 
 ## IPC
 
