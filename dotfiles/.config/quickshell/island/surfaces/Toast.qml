@@ -139,6 +139,7 @@ Item {
             Text {
                 width: parent.width - (root.critical ? 13 * root.s : 0)
                 text: root.notif.summary
+                textFormat: Text.PlainText // titles come from other apps and websites: never parse them as HTML
                 color: Theme.cream
                 font.family: Theme.font
                 font.pixelSize: 11.5 * root.s

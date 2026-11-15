@@ -28,6 +28,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         x: Math.round(root.scrollX)
         text: root.text
+        textFormat: Text.PlainText // media titles come from players and websites: never parse them as HTML
         color: root.color
         renderType: Text.NativeRendering
         font.family: Theme.font
