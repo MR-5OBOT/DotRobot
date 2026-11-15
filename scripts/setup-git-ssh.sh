@@ -3,7 +3,6 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
-KEY_PATH="${HOME}/.ssh/id_ed25519"
 LOCAL_GIT_CONFIG="${HOME}/.config/git/local.conf"
 
 configure_git_identity() {
@@ -24,87 +23,6 @@ configure_git_identity() {
   log "git identity: ${git_name} <${git_email}>"
 }
 
-ensure_key() {
-  local ssh_dir public_key
-  ssh_dir="$(dirname "${KEY_PATH}")"
-
-  mkdir -p "${ssh_dir}"
-  chmod 700 "${ssh_dir}"
-
-  if [[ -f "${KEY_PATH}" ]]; then
-    log "SSH key already exists at ${KEY_PATH}"
-  else
-    ssh-keygen -t ed25519 -C "$(git config --global --includes --get user.email)" -f "${KEY_PATH}"
-    log "Generated ${KEY_PATH}"
-  fi
-
-  if [[ ! -s "${KEY_PATH}.pub" ]]; then
-    public_key="$(ssh-keygen -y -f "${KEY_PATH}")" || die "Could not recover the public key from ${KEY_PATH}."
-    printf '%s\n' "${public_key}" >"${KEY_PATH}.pub"
-    log "Rebuilt missing public key ${KEY_PATH}.pub"
-  fi
-
-  chmod 600 "${KEY_PATH}"
-  chmod 644 "${KEY_PATH}.pub"
-}
-
-github_uses_key() {
-  local option path ssh_config
-
-  ssh_config="$(ssh -G github.com 2>/dev/null)" || return 1
-  while read -r option path _; do
-    [[ "${option}" == "identityfile" ]] || continue
-    [[ "${path}" == "${KEY_PATH}" || "${path}" == "~/${KEY_PATH#"${HOME}/"}" ]] && return 0
-  done <<<"${ssh_config}"
-  return 1
-}
-
-ensure_ssh_config() {
-  local ssh_config="${HOME}/.ssh/config"
-
-  touch "${ssh_config}"
-  chmod 600 "${ssh_config}"
-
-  if grep -qiE '^[[:space:]]*Host[[:space:]]+github\.com([[:space:]]|$)' "${ssh_config}"; then
-    if github_uses_key; then
-      log "github.com already uses ${KEY_PATH}"
-    else
-      warn "Could not verify ${KEY_PATH} in the effective github.com SSH config."
-      warn "If authentication fails, add 'IdentityFile ${KEY_PATH}' inside that Host block."
-    fi
-    return 0
-  fi
-
-  cat >>"${ssh_config}" <<EOF
-
-Host github.com
-  HostName github.com
-  User git
-  IdentityFile ${KEY_PATH}
-  IdentitiesOnly yes
-  AddKeysToAgent yes
-EOF
-  log "Added github.com entry to ${ssh_config}"
-}
-
-load_key_into_agent() {
-  local status=0
-
-  # ssh-add exits 2 when it cannot reach an agent at all, 1 when the agent is
-  # simply empty.
-  ssh-add -l >/dev/null 2>&1 || status=$?
-  if ((status == 2)); then
-    warn "No ssh-agent reachable; skipping ssh-add. SSH may prompt for the key passphrase when needed."
-    return 0
-  fi
-
-  if ssh-add "${KEY_PATH}"; then
-    log "Key loaded into the ssh-agent"
-  else
-    warn "Could not add ${KEY_PATH} to the ssh-agent"
-  fi
-}
-
 github_auth_ok() {
   local output status=0
 
@@ -114,75 +32,24 @@ github_auth_ok() {
   [[ "${output}" == *"successfully authenticated"* ]]
 }
 
-ensure_gh() {
-  if command -v gh >/dev/null 2>&1; then
-    return 0
-  fi
-  log "Installing github-cli"
-  pacman_install github-cli
-}
-
-gh_login() {
-  if gh auth status --hostname github.com >/dev/null 2>&1; then
-    log "gh is already authenticated"
-    return 0
-  fi
-
-  printf '\nLogging in to GitHub. In a bare tty pick "Login with a web browser"\n'
-  printf 'and type the one-time code at https://github.com/login/device\n\n'
-
-  # admin:public_key up front so the upload below needs no second round trip;
-  # the key is generated above, so gh should not offer to make another.
-  gh auth login \
-    --hostname github.com \
-    --git-protocol ssh \
-    --scopes admin:public_key \
-    --skip-ssh-key
-}
-
-upload_key() {
-  local title
-  title="dotrobot-$(hostname)"
-
-  if gh ssh-key add "${KEY_PATH}.pub" --title "${title}" --type authentication; then
-    log "Uploaded ${KEY_PATH}.pub to GitHub as '${title}'"
-  else
-    warn "gh could not upload the key; it may already be registered"
-  fi
-}
-
+# gh's own login makes ~/.ssh/id_ed25519 when there is none and uploads it.
 authorize_key() {
   if github_auth_ok; then
-    log "GitHub already accepts ${KEY_PATH}"
+    log "GitHub already accepts your SSH key"
     return 0
   fi
 
-  if ensure_gh && gh_login; then
-    upload_key
-    if github_auth_ok; then
-      log "GitHub authentication succeeded"
-      return 0
-    fi
-    warn "The key reached GitHub but authentication still fails."
-  else
-    warn "gh is unavailable; falling back to adding the key by hand."
+  pacman_install github-cli || return 1
+  if gh auth status --hostname github.com >/dev/null 2>&1; then
+    warn "gh is logged in, but GitHub refuses your SSH key. Upload it, then re-run:"
+    warn "  gh auth refresh -s admin:public_key && gh ssh-key add ~/.ssh/id_ed25519.pub"
+    return 1
   fi
 
-  # Last resort: gh could not be installed, the login was aborted, or the
-  # upload was refused.
-  printf '\nAdd this key by hand at https://github.com/settings/ssh/new\n'
-  printf 'Copy it, never retype it: one wrong character fails exactly like a missing key.\n\n'
-  cat "${KEY_PATH}.pub"
-  printf '\n'
-
-  while true; do
-    prompt_step "Added the key on GitHub? Check the connection now" || return 1
-    if github_auth_ok; then
-      log "GitHub authentication succeeded"
-      return 0
-    fi
-    warn "GitHub still refuses the key."
-  done
+  printf '\nLogging in to GitHub: answer yes to the SSH key question. In a bare tty pick\n'
+  printf '"Login with a web browser" and type the one-time code at https://github.com/login/device\n\n'
+  gh auth login --hostname github.com --git-protocol ssh || return 1
+  github_auth_ok
 }
 
 use_ssh_remote() {
@@ -237,9 +104,6 @@ main() {
   touch "${LOCAL_GIT_CONFIG}"
 
   configure_git_identity
-  ensure_key
-  ensure_ssh_config
-  load_key_into_agent
 
   if authorize_key; then
     use_ssh_remote
