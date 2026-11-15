@@ -20,6 +20,7 @@ hl.bind(mainMod .. " + ALT + L", hl.dsp.exec_cmd(LOCK))
 
 -- Application Launchers
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd("uwsm app -- kitty"))
+hl.bind(mainMod .. " + Z", hl.dsp.exec_cmd("uwsm app -- kitten quick-access-terminal")) -- shared float terminal (toggle)
 hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("qs ipc call launcher toggle"))
 hl.bind(mainMod .. " + D", hl.dsp.exec_cmd(ISLAND .. ' home ""')) -- dashboard
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(ISLAND .. ' battery ""')) -- battery
