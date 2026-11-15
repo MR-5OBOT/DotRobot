@@ -191,36 +191,17 @@ Singleton {
 
     /** Resolve coordinates through GeoClue (IP lookup as the fallback). */
     function locate() {
-        if (root.needed && !geoclueProc.running && !locationDelay.running) {
-            agentProc.running = true;
-            locationDelay.start();
-        }
-    }
-
-    Process {
-        id: agentProc
-        // Linux PR_SET_PDEATHSIG stops our agent even if Quickshell crashes.
-        command: ["sh", "-c", "a=/usr/lib/geoclue-2.0/demos/agent; [ -x \"$a\" ] && ! pgrep -f \"^$a\" >/dev/null || exit 0; "
-            + "exec python3 -c 'import ctypes, os, signal, sys\n"
-            + "parent = os.getppid()\n"
-            + "if parent <= 1 or ctypes.CDLL(None).prctl(1, signal.SIGTERM) != 0 or os.getppid() != parent:\n"
-            + "    sys.exit(1)\n"
-            + "os.execv(sys.argv[1], sys.argv[1:])' \"$a\" >/dev/null 2>&1"]
-    }
-
-    Timer {
-        id: locationDelay
-        interval: 1000
-        onTriggered: geoclueProc.running = true
+        if (root.needed && !geoclueProc.running)
+            geoclueProc.running = true;
     }
 
     /**
      * Precise location through GeoClue, the system location service: it looks the
      * wifi networks in range up itself. The where-am-i demo client prints every fix
      * it gets before its timeout and the most accurate one wins. GeoClue only
-     * answers clients an agent authorises, so the demo agent (whitelisted in
-     * geoclue.conf) is started first when none is running. No fix at all, or no
-     * GeoClue installed, falls back to the IP lookup.
+     * answers clients an agent authorises; the geoclue package autostarts its demo
+     * agent with the session. No fix at all, or no GeoClue installed, falls back
+     * to the IP lookup.
      */
     Process {
         id: geoclueProc
@@ -231,7 +212,6 @@ Singleton {
             "/^Latitude/ { lat = $2 + 0 } /^Longitude/ { lon = $2 + 0 } " +
             "/^Accuracy/ { acc = $2 + 0; if (best == \"\" || acc < best) { best = acc; blat = lat; blon = lon } } " +
             "END { if (best != \"\") printf \"%.6f %.6f %d\\n\", blat, blon, best }'"]
-        onExited: agentProc.running = false
         stdout: StdioCollector {
             onStreamFinished: {
                 var f = this.text.trim().split(/\s+/);

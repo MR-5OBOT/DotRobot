@@ -40,7 +40,7 @@ Handlers: `home`, `mixer`, `calendar`, `power`, `link`, `battery`, `sysmon`, `pe
 
 ## Precise location (GeoClue)
 
-GeoClue needs an agent to authorise requests; the island starts GeoClue's demo agent itself. If the default wifi database does not know your area, point GeoClue at another one:
+GeoClue needs an agent to authorise requests; the geoclue package autostarts its demo agent with the uwsm session. If the default wifi database does not know your area, point GeoClue at another one:
 
 ```sh
 sudo pacman -S geoclue

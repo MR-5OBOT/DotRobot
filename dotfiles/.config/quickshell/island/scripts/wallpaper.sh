@@ -110,7 +110,7 @@ palette_update() {
 # Hyprland 0.57 leaves a wallpaper layer that mapped under a fullscreen window at
 # alpha 0. hypr/lua_configs/wallpaper.lua runs `heal` once its screen is uncovered.
 # heal acts only while Hyprland really holds an awww layer at alpha 0, so a fixed
-# Hyprland never pays for a restart; `respawn` always restarts.
+# Hyprland never pays for a restart.
 stuck() {
     hyprctl layers -j | jq -e --arg ns "$1" '[.[].levels[][] | select(.namespace == $ns and .alpha == 0)] | length > 0' >/dev/null
 }
@@ -139,8 +139,8 @@ respawn_stills() {
     trap - EXIT
 }
 
-if [ "${1:-}" = "respawn" ] || [ "${1:-}" = "heal" ]; then
-    if [ "$1" = respawn ] || stuck awww-daemon; then respawn_stills; fi
+if [ "${1:-}" = "heal" ]; then
+    if stuck awww-daemon; then respawn_stills; fi
     exit 0
 fi
 

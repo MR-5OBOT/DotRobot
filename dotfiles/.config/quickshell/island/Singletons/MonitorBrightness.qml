@@ -17,7 +17,6 @@ Singleton {
      * List of detected external DDC monitors: [{ bus, label, connector }]
      */
     property var monitors: []
-    property bool busy: false
 
     function detect() {
         if (!ddcDetect.running)
@@ -54,10 +53,8 @@ Singleton {
         id: ddcDetect
         command: ["sh", "-c", "command -v ddcutil >/dev/null 2>&1 || exit 0; ddcutil detect --brief"]
         running: false
-        onStarted: root.busy = true
         stdout: StdioCollector {
             onStreamFinished: {
-                root.busy = false;
                 var mons = [];
                 var blocks = this.text.split(/\bDisplay \d+/);
                 for (var i = 0; i < blocks.length; i++) {
@@ -83,7 +80,6 @@ Singleton {
                 root.monitors = mons;
             }
         }
-        onExited: root.busy = false
     }
 
     Component.onCompleted: detect()
