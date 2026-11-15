@@ -28,14 +28,6 @@ set_key() {
   local value="$2"
 
   [[ -n "${value}" ]] || { warn "No value for ${key} in settings.ini, leaving it"; return 0; }
-
-  local current
-  current="$("${gsettings_cmd[@]}" get "${SCHEMA}" "${key}")"
-  if [[ "${current}" == "'${value}'" || "${current}" == "${value}" ]]; then
-    log "${key} already ${value}"
-    return 0
-  fi
-
   "${gsettings_cmd[@]}" set "${SCHEMA}" "${key}" "${value}"
   log "Set ${key} = ${value}"
 }
