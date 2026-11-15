@@ -27,5 +27,3 @@ alias szshrc="source ${ZDOTDIR:-$HOME/.config/zsh}/.zshrc"
 # ---------- Misc ----------
 alias hypr-start="uwsm start -e -D Hyprland hyprland.desktop"  # uwsm/systemd-managed session from TTY
 alias quick-wifi-scan='sudo nmcli dev wifi rescan && nmcli dev wifi list'
-
-alias ventoy="ventoy-launch"   # ~/.local/bin/ventoy-launch

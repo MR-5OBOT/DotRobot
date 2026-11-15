@@ -5,5 +5,4 @@ helium-browser-bin
 obs-backgroundremoval
 odin4-cli
 open-tv-bin
-ventoy-bin
 vesktop-bin
