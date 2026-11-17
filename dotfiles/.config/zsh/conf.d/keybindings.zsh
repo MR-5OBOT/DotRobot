@@ -13,8 +13,11 @@ bindkey '\ef' forward-word                   # Alt-f jumps a word forward
 zstyle ':zinit:browse-symbol' key ''
 
 # Alt+H/J/K/L/X/Space belong to tmux. Without tmux they'd arrive as Esc+key and silently
-# drop you into normal mode running that key, so here they do nothing.
-for m in viins vicmd; do for k in h j k l x ' '; do bindkey -M $m "\e$k" undefined-key; done; done
+# drop you into normal mode running that key, so here they do nothing. A real no-op
+# widget: binding an Esc sequence to undefined-key stores nothing and leaves it unbound.
+_ignore_key() { :; }
+zle -N _ignore_key
+for m in viins vicmd; do for k in h j k l x ' '; do bindkey -M $m "\e$k" _ignore_key; done; done
 
 # Ctrl+D clears the whole line and never exits the shell (on an empty line it used to,
 # closing the tmux pane unasked): type exit instead. Ctrl+U no longer clears; Ctrl+W
@@ -50,10 +53,7 @@ for m in viins vicmd; do
   for k in '^[[F' '^[[4~'; do bindkey -M $m $k end-of-line; done
 done
 # Caps+U/D/G/Shift+G (PageUp/PageDown/Ctrl+Home/Ctrl+End) scroll in tmux or kitty, not here.
-# Unbound, their Esc dropped zsh into normal mode and ran the rest as vi commands. A real
-# no-op widget, since binding to undefined-key stores nothing and leaves them unbound.
-_ignore_key() { :; }
-zle -N _ignore_key
+# Unbound, their Esc dropped zsh into normal mode and ran the rest as vi commands.
 for m in viins vicmd; do for k in '^[[5~' '^[[6~' '^[[1;5H' '^[[1;5F'; do bindkey -M $m $k _ignore_key; done; done
 
 # Ctrl+R: fuzzy search old commands (vi mode had reset it to "redisplay"). Only fzf's
