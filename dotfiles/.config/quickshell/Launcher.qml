@@ -48,7 +48,9 @@ PanelWindow {
     function launch() {
         const app = matches[sel];
         if (app) {
-            Quickshell.execDetached(["uwsm", "app", "--", app.id + ".desktop"]);
+            // uwsm rejects entry IDs outside [A-Za-z0-9_.-] (e.g. spaces): run those by their Exec instead
+            const validId = /^[A-Za-z0-9_][A-Za-z0-9_.-]*$/.test(app.id);
+            Quickshell.execDetached(["uwsm", "app", "--", ...(validId ? [app.id + ".desktop"] : app.command)]);
             BarState.launcherOpen = false;
         }
     }
