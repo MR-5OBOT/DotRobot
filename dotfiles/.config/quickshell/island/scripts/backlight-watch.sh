@@ -7,18 +7,9 @@ dir="/sys/class/backlight/$dev"
 max=$(cat "$dir/max_brightness")
 [[ "$max" =~ ^[0-9]+$ && "$max" -gt 0 ]] || exit 1
 
-tmp=$(mktemp -d)
-mkfifo "$tmp/events"
-udevadm monitor --subsystem-match=backlight > "$tmp/events" &
-watcher=$!
-
-cleanup() {
-    kill "$watcher" 2>/dev/null || true
-    wait "$watcher" 2>/dev/null || true
-    rm -rf "$tmp"
-}
-trap cleanup EXIT
-trap 'exit 0' TERM INT
+# This bash can die without running traps (SIGKILL, SIGPIPE), which orphaned udevadm and leaked fifo dirs;
+# pdeathsig ties udevadm to it unconditionally, and process substitution needs no temp files.
+exec 3< <(exec setpriv --pdeathsig TERM udevadm monitor --subsystem-match=backlight)
 
 read_brightness() {
     local value
@@ -31,4 +22,4 @@ while IFS= read -r line; do
     case "$line" in
         KERNEL*"/$dev (backlight)") read_brightness ;;
     esac
-done < "$tmp/events"
+done <&3
