@@ -21,16 +21,8 @@ Item {
     property real s: 1
     property var barWindow
 
-    /**
-     * StatusNotifier items shown in the tray. nm-applet stays: its icon and menu
-     * are the shell's Wi-Fi UI. blueman is hidden, since Home's Bluetooth button
-     * already opens blueman-manager. Matching runs across id, title and tooltip so
-     * applet renames stay covered.
-     */
-    readonly property var trayItems: SystemTray.items.values.filter(function (it) {
-        var key = ((it.id || "") + " " + (it.title || "") + " " + (it.tooltipTitle || "")).toLowerCase();
-        return !/(blueman|bluetooth[- ]?manager)/.test(key);
-    })
+    // Every StatusNotifier item: nm-applet is the shell's Wi-Fi UI, blueman-tray its Bluetooth UI.
+    readonly property var trayItems: SystemTray.items.values
 
     visible: tray.trayItems.length > 0
     implicitWidth: visible ? row.implicitWidth : 0

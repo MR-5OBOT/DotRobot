@@ -264,7 +264,6 @@ PillSurface {
                 RailBtn { glyph: "mixer";     tip: "Mixer";     onActivated: root.requestSurface("mixer") }
                 RailBtn { glyph: "calendar";  tip: "Calendar";  onActivated: root.requestSurface("calendar") }
                 RailBtn { glyph: "inbox";     tip: "Notifications"; onActivated: root.requestSurface("link") }
-                RailBtn { glyph: "bluetooth"; tip: "Bluetooth"; onActivated: { root.requestClose(); Quickshell.execDetached(["uwsm", "app", "--", "blueman-manager"]); } }
                 RailBtn {
                     glyph: "battery"
                     battery: true
