@@ -27,9 +27,8 @@ bindkey -M viins '^U' undefined-key
 bindkey -M viins '^W' vi-backward-kill-word
 bindkey -M viins '^K' undefined-key
 
-# Ctrl+V pastes the Wayland clipboard. Ctrl+Shift+V is kitty's paste; the CSI-u
-# form covers terminals that forward it as a key instead. Ctrl+Q's literal-next
-# is off.
+# Ctrl+V pastes the Wayland clipboard (Ctrl+Shift+V is kitty's own paste, it never
+# reaches zsh). Ctrl+Q's literal-next is off.
 _paste_clipboard() {
   local text
   text=$(wl-paste --no-newline 2>/dev/null) || return
@@ -37,7 +36,6 @@ _paste_clipboard() {
 }
 zle -N _paste_clipboard
 bindkey -M viins '^V' _paste_clipboard
-bindkey -M viins '^[[86;5u' _paste_clipboard
 bindkey -M viins '^Q' undefined-key
 
 # Caps+W/B (keyd sends Ctrl+Right/Left) jump words, Caps+0/4 (Home/End) jump to line
