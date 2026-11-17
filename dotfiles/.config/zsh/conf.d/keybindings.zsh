@@ -16,12 +16,15 @@ zstyle ':zinit:browse-symbol' key ''
 # drop you into normal mode running that key, so here they do nothing.
 for m in viins vicmd; do for k in h j k l x ' '; do bindkey -M $m "\e$k" undefined-key; done; done
 
-# Ctrl+D clears the whole line. Ctrl+U no longer does; Ctrl+W still deletes a
-# word back. Ctrl+G's completion listing and Ctrl+K's literal ^K are off.
-bindkey -M viins '^D' kill-whole-line
+# Ctrl+D clears the whole line and never exits the shell (on an empty line it used to,
+# closing the tmux pane unasked): type exit instead. Ctrl+U no longer clears; Ctrl+W
+# still deletes a word back. Ctrl+G's completion listing and Ctrl+K's literal ^K are off.
+setopt IGNORE_EOF
+_clear_line() { zle kill-whole-line; } # function widget: IGNORE_EOF stays silent on an empty line
+zle -N _clear_line
+for m in viins vicmd; do bindkey -M $m '^D' _clear_line; bindkey -M $m '^G' undefined-key; done
 bindkey -M viins '^U' undefined-key
 bindkey -M viins '^W' vi-backward-kill-word
-bindkey -M viins '^G' undefined-key
 bindkey -M viins '^K' undefined-key
 
 # Ctrl+V pastes the Wayland clipboard. Ctrl+Shift+V is kitty's paste; the CSI-u
