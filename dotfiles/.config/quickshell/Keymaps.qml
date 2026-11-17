@@ -70,11 +70,11 @@ PanelWindow {
                     note: "Hold Caps Lock · works everywhere, even the TTY",
                     binds: [
                         ["Caps + H J K L", "Left / down / up / right"],
-                        ["Caps + W / B", "Jump word right / left"],
-                        ["Caps + U / D", "Page up / down"],
+                        ["Caps + W / B", "Next word / word back"],
+                        ["Caps + U / D", "Scroll up / down"],
+                        ["Caps + G / Shift + G", "Top / bottom"],
                         ["Caps + 0 / Shift + 4", "Line start / end"],
-                        ["Caps + - / =", "Volume down / up"],
-                        ["Caps + Space", "Toggle microphone mute"],
+                        ["Caps + - / = / Space", "Volume down / up, toggle mic mute"],
                         ["Caps Lock", "Tap for normal Caps Lock"],
                         ["Super + Alt + K", "Turn keyd on / off"]
                     ]
@@ -107,7 +107,7 @@ PanelWindow {
                         ["Alt + Ctrl + H J K L", "Resize pane (no prefix, hold to repeat)"],
                         ["Prefix + Z", "Zoom pane in / out"],
                         ["Alt + X / Prefix + X", "Close nvim split / close pane (asks)"],
-                        ["Prefix + [", "Copy mode (vi keys, scroll back)"],
+                        ["Prefix + [ / Caps + U", "Copy mode (vi keys, scroll back)"],
                         ["V / Y / X", "In copy mode: select / copy / cut"],
                         ["Prefix + Space", "Last window"],
                         ["Prefix + N / P", "Next / previous window"],
@@ -162,7 +162,7 @@ PanelWindow {
                         ["Ctrl + D / Ctrl + W", "Delete line / delete word back"],
                         ["Ctrl + V / Ctrl + Shift + V", "Paste"],
                         ["Ctrl + L", "Clear the screen"],
-                        ["Caps + W / B", "Jump word right / left"],
+                        ["Caps + W / B", "Next word / word back"],
                         ["Caps + 0", "Line start"],
                         ["Caps + Shift + 4 ($)", "Line end"]
                     ]

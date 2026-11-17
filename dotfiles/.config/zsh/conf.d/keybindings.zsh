@@ -41,11 +41,20 @@ bindkey -M viins '^Q' undefined-key
 # Caps+W/B (keyd sends Ctrl+Right/Left) jump words, Caps+0/4 (Home/End) jump to line
 # start/end. Keeping the Ctrl+arrow bindings also keeps physical Ctrl+arrows working;
 # zsh cannot tell the two apart. Home/End arrive as ^[[H/^[[F in bare kitty but
-# ^[[1~/^[[4~ inside tmux.
-bindkey -M viins '^[[1;5C' forward-word
-bindkey -M viins '^[[1;5D' backward-word
-for k in '^[[H' '^[[1~'; do bindkey -M viins $k beginning-of-line; done
-for k in '^[[F' '^[[4~'; do bindkey -M viins $k end-of-line; done
+# ^[[1~/^[[4~ inside tmux. Normal mode too: unbound there, the Esc ran the rest as vi
+# commands (Ctrl+Right's "5C" wiped the line).
+for m in viins vicmd; do
+  bindkey -M $m '^[[1;5C' forward-word
+  bindkey -M $m '^[[1;5D' backward-word
+  for k in '^[[H' '^[[1~'; do bindkey -M $m $k beginning-of-line; done
+  for k in '^[[F' '^[[4~'; do bindkey -M $m $k end-of-line; done
+done
+# Caps+U/D/G/Shift+G (PageUp/PageDown/Ctrl+Home/Ctrl+End) scroll in tmux or kitty, not here.
+# Unbound, their Esc dropped zsh into normal mode and ran the rest as vi commands. A real
+# no-op widget, since binding to undefined-key stores nothing and leaves them unbound.
+_ignore_key() { :; }
+zle -N _ignore_key
+for m in viins vicmd; do for k in '^[[5~' '^[[6~' '^[[1;5H' '^[[1;5F'; do bindkey -M $m $k _ignore_key; done; done
 
 # Ctrl+R: fuzzy search old commands (vi mode had reset it to "redisplay"). Only fzf's
 # key bindings, not its completion.zsh (would fight fzf-tab over Tab). Empty vars turn
