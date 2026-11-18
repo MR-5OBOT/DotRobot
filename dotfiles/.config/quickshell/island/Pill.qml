@@ -84,7 +84,10 @@ Item {
         onTriggered: pill.retractSurface = ""
     }
 
-    Component.onCompleted: Surfaces.register(pill)
+    Component.onCompleted: {
+        Surfaces.register(pill);
+        if (waveWanted) Cava.viewers++;
+    }
 
     property bool hovered: false
     /**
@@ -697,6 +700,59 @@ Item {
         gradient: Gradient {
             GradientStop { position: 0.0; color: Qt.alpha(Theme.cardTop, Flags.pillOpacity) }
             GradientStop { position: 1.0; color: Qt.alpha(Theme.cardBot, Flags.pillOpacity) }
+        }
+    }
+
+    /**
+     * Music wave: while something plays, the collapsed notch's bottom edge swells
+     * with Cava's spectrum, tapering to nothing at the rounded corners, traced by
+     * an accent line. When auto-hide tucks the notch away the wave stays behind,
+     * hanging from the screen's top edge. Each pill that shows it holds a Cava
+     * viewer ref, so cava stops under fullscreen and open surfaces.
+     */
+    readonly property bool waveWanted: (mode === "rest" || mode === "hover") && opacity > 0
+    onWaveWantedChanged: Cava.viewers += waveWanted ? 1 : -1
+    Component.onDestruction: if (waveWanted) Cava.viewers--
+
+    Shape {
+        id: wave
+        readonly property real depth: 16 * pill.s
+        // Cancels the hide slide's topGap (same timing as Island's Translate) so the hidden wave lands on the screen edge.
+        property real hideShift: pill.hidden && pill.barWindow ? pill.barWindow.topGap : 0
+        Behavior on hideShift { NumberAnimation { duration: Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
+        readonly property string curve: {
+            const l = Cava.levels, n = l.length, w = width;
+            if (n < 2 || w <= 0) return "";
+            const pts = [[0, 1]];
+            for (let i = 0; i < n; i++) {
+                const t = (i + 0.5) / n;
+                pts.push([t * w, 1 + l[i] * depth * Math.sqrt(Math.sin(Math.PI * t))]);
+            }
+            pts.push([w, 1]);
+            // Quadratic curve through the midpoints of the spectrum, sqrt(sin) envelope keeps it wide but pins both ends to the edge.
+            let d = "";
+            for (let i = 1; i < pts.length - 1; i++)
+                d += ` Q${pts[i][0]} ${pts[i][1]} ${(pts[i][0] + pts[i + 1][0]) / 2} ${(pts[i][1] + pts[i + 1][1]) / 2}`;
+            return d + ` L${w} 1`;
+        }
+        x: pill.morphRadius
+        y: body.height - 1 + hideShift // 1px overlap hides the antialiased seam against the body
+        width: body.width - 2 * pill.morphRadius
+        height: depth + 1
+        visible: pill.waveWanted && curve.length > 0
+        preferredRendererType: Shape.CurveRenderer
+
+        ShapePath {
+            fillColor: Qt.alpha(Theme.cardBot, Flags.pillOpacity)
+            strokeWidth: -1
+            PathSvg { path: wave.curve.length ? "M0 0 L0 1" + wave.curve + ` L${wave.width} 0 Z` : "" }
+        }
+        ShapePath {
+            fillColor: "transparent"
+            strokeColor: Theme.vermLit
+            strokeWidth: 1.5 * pill.s
+            capStyle: ShapePath.RoundCap
+            PathSvg { path: wave.curve.length ? "M0 1" + wave.curve : "" }
         }
     }
 
