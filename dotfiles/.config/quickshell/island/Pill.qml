@@ -703,9 +703,19 @@ Item {
         }
     }
 
+    /** Concave shoulders flaring the docked body into the screen's top edge. */
+    NotchEars {
+        id: ears
+        anchors.top: parent.top
+        width: parent.width
+        r: 14 * pill.s
+        color: Qt.alpha(Theme.cardTop, Flags.pillOpacity)
+        opacity: body.topFlat
+    }
+
     /**
      * Music wave: while something plays, the collapsed notch's whole outline
-     * (sides, rounded corners, bottom) swells with Cava's spectrum, traced by an
+     * (ears, sides, rounded corners, bottom) swells with Cava's spectrum, traced by an
      * accent line. When auto-hide tucks the notch away only the bottom wave stays
      * behind, hanging from the screen's top edge. Each pill that shows it holds a
      * Cava viewer ref, so cava stops under fullscreen and open surfaces.
@@ -724,24 +734,33 @@ Item {
         /**
          * Open SVG path pushed outward from the pill's outline by the spectrum
          * (mirrored, so bass sits mid-bottom and highs climb the sides). Shown:
-         * the whole U, eased flat only where the sides meet the screen edge.
+         * screen edge to screen edge round both ears and the whole U, eased flat
+         * only where the ears meet the screen edge. Drawn over the ears so they
+         * never cover the line.
          * Hidden: just the flat bottom with a sqrt(sin) envelope.
          */
         readonly property string edge: {
             const l = Cava.levels, n = l.length, w = width, h = height, r = pill.morphRadius;
             if (n < 2 || w <= 2 * r) return "";
-            const full = !pill.hidden, side = full ? Math.max(0, h - r) : 0, arc = full ? Math.PI * r / 2 : 0;
-            const L = 2 * side + 2 * arc + (w - 2 * r);
-            const base = (s) => { // [x, y, outward nx, ny] at arc length s along the outline
+            const full = !pill.hidden, e = full ? ears.r : 0, ear = Math.PI * e / 2;
+            const side = full ? Math.max(0, h - r - e) : 0, arc = full ? Math.PI * r / 2 : 0;
+            const L = 2 * ear + 2 * side + 2 * arc + (w - 2 * r);
+            const base = (s) => { // [x, y, outward nx, ny, max push] at arc length s along the outline
                 if (!full) return [r + s, h, 0, 1];
-                if (s < side) return [0, s, -1, 0];
+                // Ears are concave (centre outside the pill): the normal points at the centre, and pushing past it would loop the line.
+                if (s < ear) { const a = -Math.PI / 2 + s / e; return [-e + e * Math.cos(a), e + e * Math.sin(a), -Math.cos(a), -Math.sin(a), 0.8 * e]; }
+                s -= ear;
+                if (s < side) return [0, e + s, -1, 0];
                 s -= side;
                 if (s < arc) { const a = Math.PI - s / r; return [r + r * Math.cos(a), h - r + r * Math.sin(a), Math.cos(a), Math.sin(a)]; }
                 s -= arc;
                 if (s < w - 2 * r) return [r + s, h, 0, 1];
                 s -= w - 2 * r;
                 if (s < arc) { const a = Math.PI / 2 - s / r; return [w - r + r * Math.cos(a), h - r + r * Math.sin(a), Math.cos(a), Math.sin(a)]; }
-                return [w, h - r - (s - arc), 1, 0];
+                s -= arc;
+                if (s < side) return [w, h - r - s, 1, 0];
+                const a = Math.PI + (s - side) / e;
+                return [w + e + e * Math.cos(a), e + e * Math.sin(a), -Math.cos(a), -Math.sin(a), 0.8 * e];
             };
             const m = Math.max(n, Math.round(L / (5 * pill.s)));
             const pts = [];
@@ -749,7 +768,7 @@ Item {
                 const s = L * i / m, t = i / m, f = t * (n - 1), k = Math.min(n - 2, Math.floor(f));
                 const lv = l[k] + (l[k + 1] - l[k]) * (f - k);
                 const env = full ? Math.min(1, Math.min(s, L - s) / (6 * pill.s)) : Math.sqrt(Math.sin(Math.PI * t));
-                const b = base(s), d = lv * depth * env;
+                const b = base(s), d = Math.min(lv * depth * env, b[4] ?? Infinity);
                 pts.push([b[0] + b[2] * d, b[1] + b[3] * d]);
             }
             // Quadratic curve through the midpoints of the samples.
@@ -778,15 +797,6 @@ Item {
             capStyle: ShapePath.RoundCap
             PathSvg { path: wave.edge }
         }
-    }
-
-    /** Concave shoulders flaring the docked body into the screen's top edge. */
-    NotchEars {
-        anchors.top: parent.top
-        width: parent.width
-        r: 14 * pill.s
-        color: Qt.alpha(Theme.cardTop, Flags.pillOpacity)
-        opacity: body.topFlat
     }
 
     /**
