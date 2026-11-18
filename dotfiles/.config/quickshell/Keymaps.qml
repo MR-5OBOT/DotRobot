@@ -36,6 +36,7 @@ PanelWindow {
                         ["Super + Alt + F", "Click anywhere (grid, g = click)"],
                         ["Super + S", "Quick fullscreen copy"],
                         ["Print / Shift + Print", "Screenshot region / monitor (rishot)"],
+                        ["Super + Shift + S", "Screenshot region or window (rishot)"],
                         ["Mouse side buttons", "Mic mute / screenshot"],
                         ["Media keys", "Volume, mic and brightness"]
                     ]
