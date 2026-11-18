@@ -704,11 +704,11 @@ Item {
     }
 
     /**
-     * Music wave: while something plays, the collapsed notch's bottom edge swells
-     * with Cava's spectrum, tapering to nothing at the rounded corners, traced by
-     * an accent line. When auto-hide tucks the notch away the wave stays behind,
-     * hanging from the screen's top edge. Each pill that shows it holds a Cava
-     * viewer ref, so cava stops under fullscreen and open surfaces.
+     * Music wave: while something plays, the collapsed notch's whole outline
+     * (sides, rounded corners, bottom) swells with Cava's spectrum, traced by an
+     * accent line. When auto-hide tucks the notch away only the bottom wave stays
+     * behind, hanging from the screen's top edge. Each pill that shows it holds a
+     * Cava viewer ref, so cava stops under fullscreen and open surfaces.
      */
     readonly property bool waveWanted: (mode === "rest" || mode === "hover") && opacity > 0
     onWaveWantedChanged: Cava.viewers += waveWanted ? 1 : -1
@@ -720,39 +720,63 @@ Item {
         // Cancels the hide slide's topGap (same timing as Island's Translate) so the hidden wave lands on the screen edge.
         property real hideShift: pill.hidden && pill.barWindow ? pill.barWindow.topGap : 0
         Behavior on hideShift { NumberAnimation { duration: Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
-        readonly property string curve: {
-            const l = Cava.levels, n = l.length, w = width;
-            if (n < 2 || w <= 0) return "";
-            const pts = [[0, 1]];
-            for (let i = 0; i < n; i++) {
-                const t = (i + 0.5) / n;
-                pts.push([t * w, 1 + l[i] * depth * Math.sqrt(Math.sin(Math.PI * t))]);
+
+        /**
+         * Open SVG path pushed outward from the pill's outline by the spectrum
+         * (mirrored, so bass sits mid-bottom and highs climb the sides). Shown:
+         * the whole U, eased flat only where the sides meet the screen edge.
+         * Hidden: just the flat bottom with a sqrt(sin) envelope.
+         */
+        readonly property string edge: {
+            const l = Cava.levels, n = l.length, w = width, h = height, r = pill.morphRadius;
+            if (n < 2 || w <= 2 * r) return "";
+            const full = !pill.hidden, side = full ? Math.max(0, h - r) : 0, arc = full ? Math.PI * r / 2 : 0;
+            const L = 2 * side + 2 * arc + (w - 2 * r);
+            const base = (s) => { // [x, y, outward nx, ny] at arc length s along the outline
+                if (!full) return [r + s, h, 0, 1];
+                if (s < side) return [0, s, -1, 0];
+                s -= side;
+                if (s < arc) { const a = Math.PI - s / r; return [r + r * Math.cos(a), h - r + r * Math.sin(a), Math.cos(a), Math.sin(a)]; }
+                s -= arc;
+                if (s < w - 2 * r) return [r + s, h, 0, 1];
+                s -= w - 2 * r;
+                if (s < arc) { const a = Math.PI / 2 - s / r; return [w - r + r * Math.cos(a), h - r + r * Math.sin(a), Math.cos(a), Math.sin(a)]; }
+                return [w, h - r - (s - arc), 1, 0];
+            };
+            const m = Math.max(n, Math.round(L / (5 * pill.s)));
+            const pts = [];
+            for (let i = 0; i <= m; i++) {
+                const s = L * i / m, t = i / m, f = t * (n - 1), k = Math.min(n - 2, Math.floor(f));
+                const lv = l[k] + (l[k + 1] - l[k]) * (f - k);
+                const env = full ? Math.min(1, Math.min(s, L - s) / (6 * pill.s)) : Math.sqrt(Math.sin(Math.PI * t));
+                const b = base(s), d = lv * depth * env;
+                pts.push([b[0] + b[2] * d, b[1] + b[3] * d]);
             }
-            pts.push([w, 1]);
-            // Quadratic curve through the midpoints of the spectrum, sqrt(sin) envelope keeps it wide but pins both ends to the edge.
-            let d = "";
-            for (let i = 1; i < pts.length - 1; i++)
-                d += ` Q${pts[i][0]} ${pts[i][1]} ${(pts[i][0] + pts[i + 1][0]) / 2} ${(pts[i][1] + pts[i + 1][1]) / 2}`;
-            return d + ` L${w} 1`;
+            // Quadratic curve through the midpoints of the samples.
+            let p = `M${pts[0][0]} ${pts[0][1]}`;
+            for (let i = 1; i < m; i++)
+                p += ` Q${pts[i][0]} ${pts[i][1]} ${(pts[i][0] + pts[i + 1][0]) / 2} ${(pts[i][1] + pts[i + 1][1]) / 2}`;
+            return p + ` L${pts[m][0]} ${pts[m][1]}`;
         }
-        x: pill.morphRadius
-        y: body.height - 1 + hideShift // 1px overlap hides the antialiased seam against the body
-        width: body.width - 2 * pill.morphRadius
-        height: depth + 1
-        visible: pill.waveWanted && curve.length > 0
+        y: hideShift
+        width: body.width
+        height: body.height
+        visible: pill.waveWanted && edge.length > 0
         preferredRendererType: Shape.CurveRenderer
 
         ShapePath {
+            // Closing the shown U along the top fills back over the body, so no seam shows.
+            // shortcut: that overlap reads darker on a translucent pill (pillOpacity < 1); fill only the band if that matters.
             fillColor: Qt.alpha(Theme.cardBot, Flags.pillOpacity)
             strokeWidth: -1
-            PathSvg { path: wave.curve.length ? "M0 0 L0 1" + wave.curve + ` L${wave.width} 0 Z` : "" }
+            PathSvg { path: wave.edge.length ? wave.edge + " Z" : "" }
         }
         ShapePath {
             fillColor: "transparent"
             strokeColor: Theme.vermLit
             strokeWidth: 1.5 * pill.s
             capStyle: ShapePath.RoundCap
-            PathSvg { path: wave.curve.length ? "M0 1" + wave.curve : "" }
+            PathSvg { path: wave.edge }
         }
     }
 
