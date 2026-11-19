@@ -10,8 +10,6 @@ cava
 cliphist
 ddcutil
 dnsmasq
-docker
-docker-compose
 dolphin
 dolphin-plugins
 ffmpegthumbnailer
@@ -32,7 +30,6 @@ hyprpicker
 hyprpolkitagent
 hyprshutdown
 imagemagick
-imv
 iw
 jq
 kdenlive
@@ -54,7 +51,6 @@ pipewire-alsa
 pipewire-jack
 pipewire-pulse
 power-profiles-daemon
-qalculate-gtk
 qbittorrent
 qt5ct
 qt5-wayland
@@ -65,8 +61,6 @@ scrcpy
 slurp
 sound-theme-freedesktop
 superfile
-synfigstudio
-tecla
 telegram-desktop
 thermald
 tk
@@ -75,16 +69,13 @@ ttf-iosevkaterm-nerd
 ttf-material-symbols-variable
 ufw
 uwsm
-visidata
 webp-pixbuf-loader
-wev
 wine
 wiremix
 wireplumber
 wl-clipboard
 xdg-desktop-portal-gtk
 xdg-desktop-portal-hyprland
-xorg-xrandr
 yt-dlp
 zathura
 zathura-pdf-mupdf
