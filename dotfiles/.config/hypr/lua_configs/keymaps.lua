@@ -51,7 +51,6 @@ hl.bind(mainMod .. " + ALT + C", hl.dsp.exec_cmd("hyprpicker -a -n"))
 hl.bind(mainMod .. " + S", hl.dsp.exec_cmd(SCRIPT .. "/screenshot.sh"))
 hl.bind("Print", hl.dsp.exec_cmd(RISHOT)) -- drag region or click a window
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd(RISHOT)) -- same, Windows-style snip
-hl.bind("SHIFT + Print", hl.dsp.exec_cmd(RISHOT .. " monitor")) -- whole output
 
 -- Keyboard clicking (wl-kbptr grid): g = left click, h = right, Enter = move only
 hl.bind(mainMod .. " + ALT + F", hl.dsp.exec_cmd("pkill -x wl-kbptr || wl-kbptr"))
