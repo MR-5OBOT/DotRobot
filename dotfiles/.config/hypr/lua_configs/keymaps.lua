@@ -54,6 +54,8 @@ hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd(RISHOT)) -- same, Windows-sty
 
 -- Keyboard clicking (wl-kbptr grid): g = left click, h = right, Enter = move only
 hl.bind(mainMod .. " + ALT + F", hl.dsp.exec_cmd("pkill -x wl-kbptr || wl-kbptr"))
+-- Split mode: arrows halve the area, g/h/b = left/right/middle click, Enter = move only, Backspace = undo
+hl.bind(mainMod .. " + SHIFT + F", hl.dsp.exec_cmd("pkill -x wl-kbptr || wl-kbptr -o modes=split"))
 
 -- Volume & Brightness
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --inc"), { locked = true })

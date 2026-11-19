@@ -1,18 +1,27 @@
-# wl-kbptr: Super+Alt+F grid clicking (default green theme)
+# wl-kbptr: Super+Alt+F grid clicking, Super+Shift+F split (dark purple/blue theme)
 # Full defaults: wl-kbptr --help-config
+# Area fills stay low-alpha (~0x33-0x44) so the screen under the grid stays visible
 
 [mode_tile]
-label_color=#fffd
-label_select_color=#fd0d
-unselectable_bg_color=#2226
-selectable_bg_color=#0304
-selectable_border_color=#040c
+label_color=#7efd
+label_select_color=#ff79c6
+label_font_family=Fira Sans ExtraBold
+unselectable_bg_color=#05050a66
+selectable_bg_color=#1a0f3a44
+selectable_border_color=#3a2f8acc
 
 [mode_bisect]
-label_color=#fffd
-unselectable_bg_color=#2226
-even_area_bg_color=#0304
-even_area_border_color=#0408
-odd_area_bg_color=#0034
-odd_area_border_color=#0048
+label_color=#7efd
+unselectable_bg_color=#05050a66
+even_area_bg_color=#220f4033
+even_area_border_color=#4a2f8a99
+odd_area_bg_color=#0f1a4033
+odd_area_border_color=#2f448a99
 history_border_color=#3339
+
+[mode_split]
+pointer_color=#a070ffdd
+bg_color=#05050a66
+area_bg_color=#0f0f2433
+vertical_color=#2f4fbfcc
+horizontal_color=#5f2fbfcc
