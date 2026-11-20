@@ -101,7 +101,7 @@ PanelWindow {
             columns: [
                 [{
                     title: "KITTY",
-                    note: "Panes & copy mode · Prefix = Alt + Space",
+                    note: "Panes & copy mode · Prefix = Alt + Space (tab names turn purple)",
                     binds: [
                         ["Alt + H J K L", "Switch pane / nvim split (no prefix)"],
                         ["Prefix + | / -", "Split side by side / stacked"],
@@ -109,6 +109,7 @@ PanelWindow {
                         ["Prefix + Z", "Zoom pane in / out (tab shows Z)"],
                         ["Alt + X", "Close pane, whatever runs in it (asks)"],
                         ["Prefix + [", "Copy mode: the screen in nvim, at the cursor"],
+                        ["Prefix + Y", "Copy the last command's output"],
                         ["/ / V / Y / Q", "In copy mode: search / select / copy + close / quit"],
                         ["Prefix + ?", "Search every kitty key and action"],
                         ["Prefix + Alt + Space", "Send Alt + Space to the program"]
