@@ -14,8 +14,7 @@ import "island/components" as IslandUi
 PanelWindow {
     id: win
 
-    // One entry per tab; each tab is two columns of groups. Keep both columns
-    // the same height: move a bind to the shorter one when a column grows.
+    // One entry per tab; each tab is two columns of groups.
     readonly property var tabs: [
         {
             name: "Hyprland",
@@ -35,10 +34,7 @@ PanelWindow {
                         ["Super + Alt + C / P", "Pick colour / power profile"],
                         ["Super + Alt + F", "Click anywhere (grid, g = click)"],
                         ["Super + S", "Quick fullscreen copy"],
-                        ["Print / Shift + Print", "Screenshot region / monitor (rishot)"],
-                        ["Super + Shift + S", "Screenshot region or window (rishot)"],
-                        ["Mouse side buttons", "Mic mute / screenshot"],
-                        ["Media keys", "Volume, mic and brightness"]
+                        ["Print", "Screenshot region or window (rishot)"]
                     ]
                 }],
                 [{
@@ -74,9 +70,8 @@ PanelWindow {
                         ["Caps + W / B", "Next word / word back"],
                         ["Caps + U / D", "Scroll up / down"],
                         ["Caps + G / Shift + G", "Top / bottom"],
-                        ["Caps + 0 / Shift + 4", "Line start / end"],
+                        ["Caps + 0 / $", "Line start / end"],
                         ["Caps + - / = / Space", "Volume down / up, toggle mic mute"],
-                        ["Caps Lock", "Tap for normal Caps Lock"],
                         ["Super + Alt + K", "Turn keyd on / off"]
                     ]
                 }],
@@ -124,8 +119,7 @@ PanelWindow {
                         ["Prefix + Space", "Last tab"],
                         ["Prefix + Shift + R", "Rename tab"],
                         ["Prefix + G", "Lazygit in a new tab"],
-                        ["Prefix + R", "Reload kitty config"],
-                        ["Caps + U / D", "Scroll back / forward 20 lines"]
+                        ["Prefix + R", "Reload kitty config"]
                     ]
                 }]
             ]
@@ -179,11 +173,8 @@ PanelWindow {
                         ["w / b / e", "Word right / left / to its end"],
                         ["0 / $", "Line start / end"],
                         ["x / dd / cc", "Delete char / clear line / retype line"],
-                        ["y / d + motion", "Copy / cut to the clipboard (yw, dw, yy, dd…)"],
-                        ["u", "Undo"],
-                        ["k / j", "Older / newer command (also Ctrl + P / N)"],
-                        ["D / C", "Cut (to clipboard) / change to the end of the line"],
-                        ["v", "Edit the command in nvim (:wq comes back)"]
+                        ["y / d + motion", "Copy / cut (yw, dw, yy, dd…)"],
+                        ["u / k / j", "Undo / older / newer command"]
                     ]
                 }],
                 [{
@@ -191,12 +182,10 @@ PanelWindow {
                     note: "While typing (bar cursor)",
                     binds: [
                         ["Ctrl + R", "Fuzzy search old commands (fzf)"],
-                        ["Tab", "Complete with a fuzzy menu (fzf-tab)"],
                         ["Ctrl + Space", "Accept the whole grey suggestion"],
                         ["Alt + F", "Accept the next word of the grey suggestion"],
                         ["Ctrl + D / Ctrl + W", "Delete line / delete word back"],
-                        ["Ctrl + V / Ctrl + Shift + V", "Paste"],
-                        ["Ctrl + L", "Clear the screen"]
+                        ["Ctrl + V", "Paste"]
                     ]
                 }]
             ]
@@ -220,7 +209,10 @@ PanelWindow {
     color: "transparent"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.namespace: "quickshell-keymaps"
-    WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    // OnDemand, not Exclusive: the focus grab below already keeps the keys here. An exclusive
+    // layer stops Hyprland tracking the focused window, so closing after a workspace switch
+    // refocused a window on the old workspace and jumped back to it.
+    WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
     HyprlandFocusGrab {
         active: win.open
