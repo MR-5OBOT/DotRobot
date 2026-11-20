@@ -196,10 +196,7 @@ PanelWindow {
                         ["Alt + F", "Accept the next word of the grey suggestion"],
                         ["Ctrl + D / Ctrl + W", "Delete line / delete word back"],
                         ["Ctrl + V / Ctrl + Shift + V", "Paste"],
-                        ["Ctrl + L", "Clear the screen"],
-                        ["Caps + W / B", "Next word / word back"],
-                        ["Caps + 0", "Line start"],
-                        ["Caps + Shift + 4 ($)", "Line end"]
+                        ["Ctrl + L", "Clear the screen"]
                     ]
                 }]
             ]
