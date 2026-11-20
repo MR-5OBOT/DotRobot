@@ -30,7 +30,7 @@ hl.window_rule({
 	match = { class = "(?i)^(org.kde.dolphin|dolphin)$" },
 	float = true,
 	center = true,
-	size = "700 600",
+	size = "700 480",
 })
 hl.window_rule({
 	match = { class = "hyprland-share-picker" },
