@@ -5,7 +5,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
 # Claude Code reads its user config from CLAUDE_CONFIG_DIR, falling back to ~/.claude.
 CLAUDE_DIR="${CLAUDE_CONFIG_DIR:-${HOME}/.claude}"
-CLAUDE_DOTFILES="${DOTFILES_DIR}/.claude"
+CLAUDE_DOTFILES="${DOTFILES_DIR}/agents"
 SETTINGS_FILE="${CLAUDE_DIR}/settings.json"
 STATUSLINE_SCRIPT="statusline-command.sh"
 
@@ -70,10 +70,30 @@ install_plugins() {
   done < <(read_package_file "${CLAUDE_DOTFILES}/plugins.txt")
 }
 
+# Codex installs from the same plugins.txt and reads the same ponytail config.json.
+# Both codex commands are no-ops when already done, so no installed check.
+install_codex_plugins() {
+  local plugin repo
+
+  if ! command -v codex >/dev/null 2>&1; then
+    warn "codex not found; install it, then re-run $0 for Codex plugins"
+    return 0
+  fi
+  while read -r plugin repo; do
+    codex plugin marketplace add "${repo}" </dev/null >/dev/null || { warn "Codex: could not add marketplace ${repo}"; continue; }
+    if codex plugin add "${plugin}" </dev/null >/dev/null; then
+      log "Codex plugin ${plugin} installed; trust its hooks once with /hooks in codex"
+    else
+      warn "Codex: could not install plugin ${plugin}"
+    fi
+  done < <(read_package_file "${CLAUDE_DOTFILES}/plugins.txt")
+}
+
 main() {
   set_statusline
   link_ponytail_config
   install_plugins
+  install_codex_plugins
 }
 
 if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
