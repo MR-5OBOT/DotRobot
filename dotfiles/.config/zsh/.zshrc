@@ -5,6 +5,15 @@
 ZDOTDIR="${ZDOTDIR:-$HOME/.config/zsh}"
 export ZINIT_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/zinit/zinit.git"
 
+# kitty shell integration (clean prompt redraw when a pane resizes, click to move the
+# cursor in the command). kitty can't load it itself here: /etc/zsh/zshenv resets the
+# ZDOTDIR kitty injects. Options come from kitty.conf's shell_integration; not in tmux.
+if [[ -n $KITTY_INSTALLATION_DIR && -n $KITTY_SHELL_INTEGRATION && -z $TMUX ]]; then
+  autoload -Uz -- "$KITTY_INSTALLATION_DIR"/shell-integration/zsh/kitty-integration
+  kitty-integration
+  unfunction kitty-integration
+fi
+
 # Load sections in order: options -> completion styles -> the rest, with
 # plugins last (zinit runs compinit, so completion styles must precede it).
 for _frag in options completion aliases functions keybindings plugins; do

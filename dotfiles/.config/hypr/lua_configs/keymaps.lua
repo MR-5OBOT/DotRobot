@@ -1,5 +1,5 @@
 -- Keymaps
--- Super = system: + SHIFT moves, + CTRL resizes, + ALT extras. Alt alone belongs to apps (tmux, nvim, Brovim).
+-- Super = system: + SHIFT moves, + CTRL resizes, + ALT extras. Alt alone belongs to apps (kitty, tmux, nvim, Brovim).
 
 local mainMod = "SUPER"
 local SCRIPTS = os.getenv("HOME") .. "/.config/hypr/scripts"

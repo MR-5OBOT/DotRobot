@@ -12,15 +12,16 @@ bindkey '\ef' forward-word                   # Alt-f jumps a word forward
 # turns that off (keybindings.zsh runs before plugins.zsh).
 zstyle ':zinit:browse-symbol' key ''
 
-# Alt+H/J/K/L/X/Space belong to tmux. Without tmux they'd arrive as Esc+key and silently
-# drop you into normal mode running that key, so here they do nothing. A real no-op
-# widget: binding an Esc sequence to undefined-key stores nothing and leaves it unbound.
+# Alt+H/J/K/L/X/Space belong to kitty (workflow.conf), tmux or nvim. Any that reach
+# zsh would arrive as Esc+key and silently drop you into normal mode running that key, so
+# here they do nothing. A real no-op widget: binding an Esc sequence to undefined-key
+# stores nothing and leaves it unbound.
 _ignore_key() { :; }
 zle -N _ignore_key
 for m in viins vicmd; do for k in h j k l x ' '; do bindkey -M $m "\e$k" _ignore_key; done; done
 
 # Ctrl+D clears the whole line and never exits the shell (on an empty line it used to,
-# closing the tmux pane unasked): type exit instead. Ctrl+U no longer clears; Ctrl+W
+# closing the pane unasked): type exit instead. Ctrl+U no longer clears; Ctrl+W
 # still deletes a word back. Ctrl+G's completion listing and Ctrl+K's literal ^K are off.
 setopt IGNORE_EOF
 _clear_line() { zle kill-whole-line; } # function widget: IGNORE_EOF stays silent on an empty line
@@ -74,6 +75,13 @@ add-zle-hook-widget line-init _vi_cursor
 autoload -Uz edit-command-line
 zle -N edit-command-line
 bindkey -M vicmd v edit-command-line
+
+# Normal mode y / d (and Y / D) also copy to the clipboard: cut or copy part of the command
+# you're typing (tmux copy mode's x did this before kitty). x and c stay zsh-only, so a
+# one-character fix doesn't overwrite the clipboard.
+_clip_cut() { zle .$WIDGET && print -rn -- "$CUTBUFFER" | wl-copy 2>/dev/null; }
+for w in vi-yank vi-yank-whole-line vi-delete vi-kill-eol; do zle -N $w _clip_cut; done
+unset w
 
 # Normal mode: no vi history search on / or ?; Ctrl+R in typing mode does that.
 bindkey -M vicmd '/' undefined-key

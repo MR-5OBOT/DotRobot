@@ -8,7 +8,7 @@ import "island/components" as IslandUi
 
 // Keymap cheat sheet: `qs ipc call keymaps toggle` (SUPER + /). A pure-black
 // top-edge notch; closes on Esc, the × button, or a click anywhere outside it.
-// Tabs (Hyprland, keyd, tmux, zsh): Tab / Shift+Tab cycle them, or click one. Add a
+// Tabs (Hyprland, keyd, kitty, tmux, zsh): Tab / Shift+Tab cycle them, or click one. Add a
 // tool by appending a tab to `tabs`. In a bind's keys, " + " and " / " between key
 // names draw as separators and everything else as a keycap.
 PanelWindow {
@@ -97,6 +97,39 @@ PanelWindow {
             ]
         },
         {
+            name: "kitty",
+            columns: [
+                [{
+                    title: "KITTY",
+                    note: "Panes & copy mode · Prefix = Alt + Space",
+                    binds: [
+                        ["Alt + H J K L", "Switch pane / nvim split (no prefix)"],
+                        ["Prefix + | / -", "Split side by side / stacked"],
+                        ["Alt + Ctrl + H J K L", "Resize pane (no prefix)"],
+                        ["Prefix + Z", "Zoom pane in / out (tab shows Z)"],
+                        ["Alt + X", "Close pane, whatever runs in it (asks)"],
+                        ["Prefix + [", "Copy mode: the screen in nvim, at the cursor"],
+                        ["/ / V / Y / Q", "In copy mode: search / select / copy + close / quit"],
+                        ["Prefix + ?", "Search every kitty key and action"],
+                        ["Prefix + Alt + Space", "Send Alt + Space to the program"]
+                    ]
+                }],
+                [{
+                    title: "KITTY",
+                    note: "Tabs (tmux's windows)",
+                    binds: [
+                        ["Prefix + C", "New tab"],
+                        ["Prefix + 1 … 9 / 0", "Go to tab 1 … 9 / 10"],
+                        ["Prefix + Space", "Last tab"],
+                        ["Prefix + Shift + R", "Rename tab"],
+                        ["Prefix + G", "Lazygit in a new tab"],
+                        ["Prefix + R", "Reload kitty config"],
+                        ["Caps + U / D", "Scroll back / forward 20 lines"]
+                    ]
+                }]
+            ]
+        },
+        {
             name: "tmux",
             columns: [
                 [{
@@ -145,10 +178,10 @@ PanelWindow {
                         ["w / b / e", "Word right / left / to its end"],
                         ["0 / $", "Line start / end"],
                         ["x / dd / cc", "Delete char / clear line / retype line"],
+                        ["y / d + motion", "Copy / cut to the clipboard (yw, dw, yy, dd…)"],
                         ["u", "Undo"],
-                        ["k / j", "Older / newer command"],
-                        ["Ctrl + P / Ctrl + N", "Older / newer command"],
-                        ["D / C", "Delete / change to the end of the line"],
+                        ["k / j", "Older / newer command (also Ctrl + P / N)"],
+                        ["D / C", "Cut (to clipboard) / change to the end of the line"],
                         ["v", "Edit the command in nvim (:wq comes back)"]
                     ]
                 }],
