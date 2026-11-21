@@ -232,7 +232,7 @@ function handleKey(e: KeyboardEvent) {
     const qs = quickSwitcher();
     if (qs) return onSwitcherKey(e, qs);
 
-    if (e.isComposing || e.repeat && !/^[jk]$|^<C-[dufbey]>$/.test(keyName(e) ?? "")) {
+    if (e.isComposing || e.repeat && !/^[jk]$|^<C-[du]>$/.test(keyName(e) ?? "")) {
         if (helpOpen() || pending) consume(e);
         return;
     }
