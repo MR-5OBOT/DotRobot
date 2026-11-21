@@ -56,7 +56,10 @@ main() {
     ' "${STATE_FILE}" "${dist}"
     log "Vesktop loads Vencord from ${dist}"
   fi
-  log "Turn on VimCord in Settings > Plugins, then press ? in Discord for its keys"
+  # Vencord's settings.json isn't in the repo (plugins can keep tokens there), so these are clicked once by hand
+  log "Once, in Discord: Settings > Themes: turn on mr5obot-theme.css"
+  log "Settings > Plugins: turn on VimCord, then in its settings: TUI style off, Colors: Discord's own colors,"
+  log "  Hide servers on, Hide header off. Press ? in Discord for its keys"
 }
 
 main "$@"
