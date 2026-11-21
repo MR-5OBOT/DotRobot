@@ -99,15 +99,6 @@ export function endVisual() {
     paint();
 }
 
-/** o in visual mode: jump to the other end of the selection */
-export function swapEnds() {
-    if (!anchorId || !cursorId) return;
-    [anchorId, cursorId] = [cursorId, anchorId];
-    paint();
-    const el = elOf(cursorId);
-    if (el) scrollTo(el, "nearest");
-}
-
 /** the selected messages, oldest first, from Discord's store so a selection scrolled partly off screen still counts */
 export function selected(): Message[] {
     if (!anchorId || !cursorId) return [];

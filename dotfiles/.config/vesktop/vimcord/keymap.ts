@@ -189,8 +189,6 @@ export const bindings: Binding[] = [
     { keys: "G", group: "Moving", desc: "Bottom (newest message)", run: () => panes.edge(true) },
     { keys: "<C-d>", group: "Moving", desc: "Half page down", run: () => panes.page(0.5) },
     { keys: "<C-u>", group: "Moving", desc: "Half page up", run: () => panes.page(-0.5) },
-    { keys: "<C-f>", group: "Moving", desc: "Page down", run: () => panes.page(1) },
-    { keys: "<C-b>", group: "Moving", desc: "Page up", run: () => panes.page(-1) },
     { keys: "<C-e>", group: "Moving", desc: "Scroll down a line", in: "messages", run: () => cursor.scrollLines(1) },
     { keys: "<C-y>", group: "Moving", desc: "Scroll up a line", in: "messages", run: () => cursor.scrollLines(-1) },
     // on the Friends page, H/L switch tabs instead
@@ -227,8 +225,6 @@ export const bindings: Binding[] = [
         })
     },
     { keys: "u", group: "Message", desc: "Mark unread from here", in: "messages", run: onMessage(m => void markUnread(m)) },
-    // in a list, o opens like Enter
-    { keys: "o", group: "Message", desc: "Open the first link", run: () => panes.inList() ? panes.open() : openLink() },
     {
         keys: "gu", group: "Message", desc: "Profile (author, or the highlighted member/friend/DM)", run: () => {
             if (!panes.inList()) return onMessage(m => {
@@ -254,8 +250,6 @@ export const bindings: Binding[] = [
     { keys: "[u", group: "Going places", desc: "Previous unread channel", run: () => keybind("UNREAD_PREV") },
     { keys: "]m", group: "Going places", desc: "Next channel with a mention", run: () => keybind("MENTION_CHANNEL_NEXT") },
     { keys: "[m", group: "Going places", desc: "Previous channel with a mention", run: () => keybind("MENTION_CHANNEL_PREV") },
-    { keys: "<C-o>", group: "Going places", desc: "Back", run: () => keybind("NAVIGATE_BACK") },
-    { keys: "<C-i>", group: "Going places", desc: "Forward", run: () => keybind("NAVIGATE_FORWARD") },
     { keys: "gi", group: "Going places", desc: "First unread message", run: () => keybind("JUMP_TO_FIRST_UNREAD") },
     { keys: "<Space><Space>", group: "Going places", desc: "Quick switcher", run: () => keybind("QUICKSWITCHER_SHOW") },
     { keys: "<Space>f", group: "Going places", desc: "Quick switcher", run: () => keybind("QUICKSWITCHER_SHOW") },

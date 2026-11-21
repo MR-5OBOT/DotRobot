@@ -33,7 +33,7 @@ Then enable **VimCord** in Vencord's plugin settings and restart Discord. To upd
 | `1` `2` `3` `4` | focus servers, channels, messages (or friends), members (or a DM's profile, or Active Now) |
 | `Tab` / `Shift-Tab` | next / previous pane (wraps around) |
 | `h` / `l`, `Ctrl-h` / `Ctrl-l` | pane to the left / right |
-| `Enter` `o` | open the highlighted server, channel, member or friend |
+| `Enter` | open the highlighted server, channel, member or friend |
 | `/` | in the channels or servers pane: fuzzy-find in it |
 | `Space e` / `Space m` | hide / show channels, members |
 | `Space u` | UI toggles: `e` channels, `m` members, `s` servers, `h` channel header, `z` zoom |
@@ -52,7 +52,7 @@ window. GIFs in the message under the cursor play as if hovered. On the Friends 
 |---|---|
 | `j` / `k` | down / up (messages, or the focused list) |
 | `gg` / `G` | top / bottom |
-| `Ctrl-d` `Ctrl-u` `Ctrl-f` `Ctrl-b` | half page / page |
+| `Ctrl-d` `Ctrl-u` | half page down / up |
 | `Ctrl-e` / `Ctrl-y` | scroll a line |
 | `H` `M` `L`, `zz` `zt` `zb` | screen top/middle/bottom, center/top/bottom the message |
 | `gd` | go to the message this one replies to |
@@ -65,7 +65,7 @@ window. GIFs in the message under the cursor play as if hovered. On the Friends 
 | `yy` `yl` `yi` | copy text, link, ID |
 | `+` | react |
 | `p` `f` `t` `u` | pin, forward, open/start thread, mark unread |
-| `o`, `gu` | open its first link, author's profile (in a list: the member, friend or DM's profile) |
+| `gu` | open the author's profile (in a list: the member, friend or DM's profile) |
 | `Enter` | play its video or voice message (again to pause), or else open its first link |
 
 | Going places | |
@@ -73,9 +73,8 @@ window. GIFs in the message under the cursor play as if hovered. On the Friends 
 | `J` / `K` | next / previous channel |
 | `gt` / `gT` | next / previous server |
 | `]u` `[u`, `]m` `[m` | next / previous unread channel, channel with a mention |
-| `Ctrl-o` / `Ctrl-i` | back / forward |
 | `gi` | first unread message |
-| `Space Space`, `Space f` | quick switcher (`Ctrl-j`/`k` to move; `Esc` for `j`/`k`, `Enter`, `i` to type again) |
+| `Space Space`, `Space f` | quick switcher (`Ctrl-j`/`k` to move, `Enter` opens, `Esc` closes) |
 | `/`, `Space s s` / `Space s g` | search this channel / everywhere |
 | ``Space ` `` | previous server |
 

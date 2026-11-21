@@ -52,8 +52,8 @@ function update() {
 
 const schedule = () => void (frame ||= requestAnimationFrame(update));
 
-// Discord's quick switcher (Space Space): typing filters, Ctrl-j/k or Ctrl-n/p move; Esc leaves the box for
-// hjkl mode (j/k move, Enter opens, i or / types again, Esc closes) instead of closing it
+// Discord's quick switcher (Space Space): typing filters, Ctrl-j/k or Ctrl-n/p move, Esc closes. If focus leaves
+// the box some other way (a click), hjkl mode: j/k move, Enter opens, i or / types again, Esc closes
 function quickSwitcher() {
     const input = document.querySelector<HTMLInputElement>('[class*="quickswitcher_"] input[aria-controls]');
     const list = input && document.getElementById(input.getAttribute("aria-controls")!);
@@ -80,11 +80,11 @@ function onSwitcherKey(e: KeyboardEvent, qs: HTMLInputElement) {
     const up = k === "<C-k>" || k === "<C-p>" || !typing && (k === "k" || e.key === "ArrowUp");
     if (down || up) return consume(e), sendKey(qs, down ? "ArrowDown" : "ArrowUp", down ? 40 : 38);
     if (typing) {
-        if (k === "<Esc>") consume(e), qs.blur();
+        if (k === "<Esc>") consume(e), sendKey(qs, "Escape", 27);
         return;
     }
     consume(e);
-    if (k === "<CR>" || k === "l" || k === "o") sendKey(qs, "Enter", 13);
+    if (k === "<CR>" || k === "l") sendKey(qs, "Enter", 13);
     else if (k === "i" || k === "a" || k === "/") qs.focus();
     else if (k === "<Esc>" || k === "q") sendKey(qs, "Escape", 27);
 }
@@ -253,8 +253,8 @@ function handleKey(e: KeyboardEvent) {
         }
         else if (k === "j" || k === "<C-e>") scrollHelp(40);
         else if (k === "k" || k === "<C-y>") scrollHelp(-40);
-        else if (k === "<C-d>" || k === "<C-f>") scrollHelp(300);
-        else if (k === "<C-u>" || k === "<C-b>") scrollHelp(-300);
+        else if (k === "<C-d>") scrollHelp(300);
+        else if (k === "<C-u>") scrollHelp(-300);
         return;
     }
 
@@ -288,7 +288,6 @@ function handleKey(e: KeyboardEvent) {
     if (cursor.visual() && !pending) {
         if (key === "y") return consume(e), yankSelection();
         if (key === "d") return consume(e), deleteSelection();
-        if (key === "o") return consume(e), cursor.swapEnds();
         if (key === "v" || key === "V") return consume(e), cursor.endVisual();
     }
 

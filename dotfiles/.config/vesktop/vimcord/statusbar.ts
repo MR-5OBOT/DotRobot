@@ -20,7 +20,7 @@ let last = "";
 const HINTS: Record<string, string[][]> = {
     messages: [["j/k", "move"], ["r", "reply"], ["e", "edit"], ["+", "react"], ["i", "type"], ["h/l", "panes"], ["␣", "leader"], ["?", "help"]],
     list: [["j/k", "move"], ["⏎", "open"], ["esc", "back"], ["h/l", "panes"], ["?", "help"]],
-    VISUAL: [["j/k", "extend"], ["y", "copy"], ["d", "delete"], ["o", "other end"], ["esc", "cancel"]],
+    VISUAL: [["j/k", "extend"], ["y", "copy"], ["d", "delete"],["esc", "cancel"]],
     INSERT: [["esc", "normal"], ["⏎", "send"], ["^j/^k", "suggestions"]],
     SWITCHER: [["j/k", "move"], ["⏎", "open"], ["i", "type"], ["esc", "close"]],
     POPUP: [["esc", "close"], ["keys go to Discord", ""]],
