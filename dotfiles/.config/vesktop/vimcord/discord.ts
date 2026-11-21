@@ -15,8 +15,9 @@ import { ChannelStore, ComponentDispatch, FluxDispatcher, MediaEngineStore, Mess
 export const logger = new Logger("VimCord");
 
 // Discord's keybind table: { SERVER_NEXT: { binds: ["mod+alt+down", ...], action(event, combo) }, ... }
+// Two tables match the first three; only the full one also has search, pins, inbox and upload.
 const Keybinds: Record<string, { binds: string[]; action?(e: any, combo: string): unknown; }> =
-    findLazy(m => m?.SERVER_NEXT?.action && m?.CHANNEL_NEXT?.action && m?.QUICKSWITCHER_SHOW?.action);
+    findLazy(m => m?.SERVER_NEXT?.action && m?.CHANNEL_NEXT?.action && m?.QUICKSWITCHER_SHOW?.action && m?.FOCUS_SEARCH?.action);
 
 // the helpers behind Discord's own message shortcuts (keyboard mode's r/e/p/backspace...). They take
 // (channel, message, event) and read event.shiftKey the way Discord's shortcuts do: shift skips the confirm on

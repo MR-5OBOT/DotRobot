@@ -208,7 +208,8 @@ function keyName(e: KeyboardEvent): string | null {
     if (e.metaKey || e.altKey) return null;
     const k = e.key;
     if (k === "Escape") return "<Esc>";
-    if (e.ctrlKey) return k.length === 1 ? `<C-${k.toLowerCase()}>` : null;
+    // Ctrl+Shift combos stay Discord's and Vesktop's (devtools, deafen, search everywhere)
+    if (e.ctrlKey) return k.length === 1 && !e.shiftKey ? `<C-${k.toLowerCase()}>` : null;
     if (k === " ") return "<Space>";
     if (k === "Enter") return "<CR>";
     if (k === "Tab") return e.shiftKey ? "<S-Tab>" : "<Tab>";
