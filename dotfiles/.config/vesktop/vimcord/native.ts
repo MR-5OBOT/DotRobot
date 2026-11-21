@@ -7,8 +7,8 @@
 // Reads the terminal's colors and font for the nvim look, the way nvim gets them: Omarchy's current theme
 // (colors.toml, or alacritty.toml in older themes), else the terminal's own config (Ghostty, Alacritty, Kitty).
 
-import { BrowserWindow, IpcMainInvokeEvent } from "electron";
 import { execFile } from "child_process";
+import { BrowserWindow, IpcMainInvokeEvent } from "electron";
 import { readFile, unlink, writeFile } from "fs/promises";
 import { homedir, tmpdir } from "os";
 import { join } from "path";

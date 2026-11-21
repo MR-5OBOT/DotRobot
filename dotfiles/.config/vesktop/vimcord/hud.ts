@@ -59,9 +59,9 @@ export function toggleHelp() {
     for (const [group, bs] of groups) {
         const sec = cols.appendChild(el("section", ""));
         sec.append(el("h3", "", group));
-        // one row per sheet label or description (j/k: Down / up; gi/␣ur)
+        // same description twice (gi/␣ur): one row
         const merged = new Map<string, string[]>();
-        for (const b of bs) merged.set(b.sheet ?? b.desc, [...(merged.get(b.sheet ?? b.desc) ?? []), b.keys]);
+        for (const b of bs) merged.set(b.desc, [...(merged.get(b.desc) ?? []), b.keys]);
         for (const [desc, keys] of merged) {
             const row = sec.appendChild(el("div", "vimcord-help-row"));
             const ks = row.appendChild(el("span", "vimcord-help-keys"));
