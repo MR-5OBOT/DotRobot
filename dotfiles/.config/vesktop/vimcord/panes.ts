@@ -234,7 +234,7 @@ export function focus(id: PaneId) {
     requestAnimationFrame(pick);
 }
 
-/** Ctrl-h / Ctrl-l: the pane to the left/right */
+/** h / l: the pane to the left/right */
 export function step(dir: 1 | -1) {
     const i = order.indexOf(focused);
     focus(order[Math.max(0, Math.min(order.length - 1, i + dir))]);

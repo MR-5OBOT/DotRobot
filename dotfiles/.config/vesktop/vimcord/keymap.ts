@@ -36,11 +36,9 @@ export const prefixNames: Record<string, string> = {
     "[": "prev",
     "]": "next",
     "<Space>": "leader",
-    "<Space>w": "window",
     "<Space>u": "ui",
     "<Space>s": "search",
     "<Space>v": "voice",
-    "<C-w>": "window",
 };
 
 const HAS_THREAD = 1 << 5;
@@ -167,8 +165,6 @@ export const bindings: Binding[] = [
     { keys: "<S-Tab>", group: "Panes", desc: "Previous pane (wraps around)", run: () => panes.cycle(-1) },
     { keys: "h", group: "Panes", desc: "Pane to the left", run: () => panes.step(-1) },
     { keys: "l", group: "Panes", desc: "Pane to the right", run: () => panes.step(1) },
-    { keys: "<C-h>", group: "Panes", desc: "Pane to the left", run: () => panes.step(-1) },
-    { keys: "<C-l>", group: "Panes", desc: "Pane to the right", run: () => panes.step(1) },
     // on a message, Enter plays its video or voice message, or opens its link
     { keys: "<CR>", group: "Panes", desc: "Open (server, channel, member, friend; a message's video, voice message or link)", run: () => panes.inList() ? panes.open() : openOrPlay() },
     { keys: "<Space>e", group: "Panes", desc: "Hide / show channels", run: () => toggle("hideChannels") },
@@ -177,10 +173,7 @@ export const bindings: Binding[] = [
     { keys: "<Space>um", group: "Panes", desc: "Hide / show members", run: toggleMembers },
     { keys: "<Space>us", group: "Panes", desc: "Hide / show servers", run: () => toggle("hideServers") },
     { keys: "<Space>uh", group: "Panes", desc: "Hide / show the channel header (pins, search)", run: () => toggle("hideHeader") },
-    { keys: "<Space>uz", group: "Panes", desc: "Zoom: only the chat and header (again to undo)", run: panes.toggleZoom },
     { keys: "<Space>z", group: "Panes", desc: "Zoom: only the chat and header (again to undo)", run: panes.toggleZoom },
-    { keys: "<C-w>o", group: "Panes", desc: "Zoom: only the chat and header (again to undo)", run: panes.toggleZoom },
-    { keys: "<Space>wm", group: "Panes", desc: "Zoom: only the chat and header (again to undo)", run: panes.toggleZoom },
 
     // moving: the message cursor, or the highlight in a list pane
     { keys: "j", group: "Moving", desc: "Down", run: () => panes.move(1) },
