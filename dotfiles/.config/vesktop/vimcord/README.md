@@ -46,15 +46,13 @@ Discord's menus (right-click, or a card's menu in Active Now), `j`/`k`/`h`/`l` m
 
 A hidden pane shows while it's focused, and a hidden channel or member list (or DM profile) comes out when the mouse
 goes to its edge of the window. The channel and member lists (and a DM's profile) hide on their own in a narrow
-window. GIFs in the message under the cursor play as if hovered. On the Friends page, pane 3 is the friends list: `j`/`k` move, `Enter` opens the DM, `H`/`L` switch tabs, and pane 4 is the Active Now cards: `Enter` opens a card's menu (message, join voice, profiles).
+window. GIFs in the message under the cursor play as if hovered. On the Friends page, pane 3 is the friends list: `j`/`k` move, `Enter` opens the DM, and pane 4 is the Active Now cards: `Enter` opens a card's menu (message, join voice, profiles).
 
 | Moving | |
 |---|---|
 | `j` / `k` | down / up (messages, or the focused list) |
 | `gg` / `G` | top / bottom |
 | `Ctrl-d` `Ctrl-u` | half page down / up |
-| `Ctrl-e` / `Ctrl-y` | scroll a line |
-| `H` `M` `L`, `zz` `zt` `zb` | screen top/middle/bottom, center/top/bottom the message |
 | `gd` | go to the message this one replies to |
 
 | On the message under the cursor | |

@@ -170,7 +170,7 @@ function onProfileKey(e: KeyboardEvent, profile: HTMLElement) {
         return;
     }
     if (k === "<CR>" && current) return consume(e), current.click();
-    const scroll = { "<C-d>": 300, "<C-u>": -300, "<C-e>": 40, "<C-y>": -40 }[k ?? ""];
+    const scroll = { "<C-d>": 300, "<C-u>": -300 }[k ?? ""];
     if (scroll) return consume(e), panes.scrollable(profile)?.scrollBy({ top: scroll });
     if (k === "H" || k === "L") {
         consume(e);
@@ -251,8 +251,8 @@ function handleKey(e: KeyboardEvent) {
             closeHelp();
             searchKeys("");
         }
-        else if (k === "j" || k === "<C-e>") scrollHelp(40);
-        else if (k === "k" || k === "<C-y>") scrollHelp(-40);
+        else if (k === "j") scrollHelp(40);
+        else if (k === "k") scrollHelp(-40);
         else if (k === "<C-d>") scrollHelp(300);
         else if (k === "<C-u>") scrollHelp(-300);
         return;

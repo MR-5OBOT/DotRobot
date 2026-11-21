@@ -182,15 +182,6 @@ export const bindings: Binding[] = [
     { keys: "G", group: "Moving", desc: "Bottom (newest message)", run: () => panes.edge(true) },
     { keys: "<C-d>", group: "Moving", desc: "Half page down", run: () => panes.page(0.5) },
     { keys: "<C-u>", group: "Moving", desc: "Half page up", run: () => panes.page(-0.5) },
-    { keys: "<C-e>", group: "Moving", desc: "Scroll down a line", in: "messages", run: () => cursor.scrollLines(1) },
-    { keys: "<C-y>", group: "Moving", desc: "Scroll up a line", in: "messages", run: () => cursor.scrollLines(-1) },
-    // on the Friends page, H/L switch tabs instead
-    { keys: "H", group: "Moving", desc: "Top of screen (Friends: previous tab)", in: "messages", run: () => panes.onFriends() ? panes.tab(-1) : cursor.screen("top") },
-    { keys: "M", group: "Moving", desc: "Middle of screen", in: "messages", run: () => cursor.screen("middle") },
-    { keys: "L", group: "Moving", desc: "Bottom of screen (Friends: next tab)", in: "messages", run: () => panes.onFriends() ? panes.tab(1) : cursor.screen("bottom") },
-    { keys: "zz", group: "Moving", desc: "Center the message", in: "messages", run: () => cursor.align("center") },
-    { keys: "zt", group: "Moving", desc: "Message to top", in: "messages", run: () => cursor.align("top") },
-    { keys: "zb", group: "Moving", desc: "Message to bottom", in: "messages", run: () => cursor.align("bottom") },
     {
         keys: "gd", group: "Moving", desc: "Go to the replied-to message", in: "messages", run: onMessage(m => {
             const ref = m.messageReference;

@@ -7,7 +7,7 @@
 // Panes, lazygit style: 1 servers, 2 channels, 3 messages, 4 members. The focused pane gets j/k/gg/G/Enter; the
 // messages pane is the message cursor (cursor.ts), the others are a highlighted item in Discord's own list. A pane
 // that's hidden shows while it's focused ("peeks") and hides again when focus leaves it. On the Friends page there's
-// no chat, so the messages pane is a list too: the friends, with H/L for the tabs (Online, All, Pending...).
+// no chat, so the messages pane is a list too: the friends.
 
 import { ChannelStore, SelectedChannelStore, SelectedGuildStore } from "@webpack/common";
 
@@ -282,16 +282,7 @@ export function page(fraction: number) {
     move(Math.round(box * fraction / h) || Math.sign(fraction));
 }
 
-/** H / L on the Friends page: the previous / next tab, wrapping around */
-export function tab(dir: 1 | -1) {
-    const tabs = [...friendsTabs()?.querySelectorAll<HTMLElement>('[role="tab"]') ?? []];
-    if (!tabs.length) return;
-    const i = tabs.findIndex(t => t.getAttribute("aria-selected") === "true");
-    tabs[(i + dir + tabs.length) % tabs.length].click();
-    delete highlighted.messages;
-}
-
-/** Enter / l / o in a list pane: what clicking the item does, then on to the next pane where that makes sense */
+/** Enter in a list pane: what clicking the item does, then on to the next pane where that makes sense */
 export function open() {
     const pane = activeList();
     const el = pane && find(pane, highlighted[focused]);

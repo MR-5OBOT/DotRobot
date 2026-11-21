@@ -218,33 +218,6 @@ export function page(fraction: number) {
     });
 }
 
-/** Ctrl-e/y: scroll a line without moving the cursor, unless it would leave the screen. */
-export function scrollLines(n: number) {
-    const v = viewport();
-    if (!v) return;
-    v.s.scrollTop += n * 40;
-    if (!cursorId) return;
-    requestAnimationFrame(() => {
-        const vis = visibleItems();
-        const el = elOf(cursorId!);
-        if (!el || vis.includes(el) || !vis.length) return;
-        set(n > 0 ? vis[0] : vis.at(-1), false);
-    });
-}
-
-export function align(how: "center" | "top" | "bottom") {
-    ensure();
-    const el = cursorId ? elOf(cursorId) : null;
-    if (el) scrollTo(el, how);
-}
-
-/** H/M/L: top, middle or bottom message on screen. */
-export function screen(where: "top" | "middle" | "bottom") {
-    const vis = visibleItems();
-    if (!vis.length) return;
-    set(where === "top" ? vis[0] : where === "bottom" ? vis.at(-1) : vis[Math.floor((vis.length - 1) / 2)]);
-}
-
 /** Moves to a message by id, jumping Discord there first if it isn't loaded (replies to old messages). */
 export function goTo(channelId: string, messageId: string) {
     const el = elOf(messageId);
