@@ -32,12 +32,12 @@ Then enable **VimCord** in Vencord's plugin settings and restart Discord. To upd
 |---|---|
 | `1` `2` `3` `4` | focus servers, channels, messages (or friends), members (or a DM's profile, or Active Now) |
 | `Tab` / `Shift-Tab` | next / previous pane (wraps around) |
-| `Ctrl-h` / `Ctrl-l` | pane to the left / right |
-| `Enter` `l` `o` | open the highlighted server, channel, member or friend |
+| `h` / `l`, `Ctrl-h` / `Ctrl-l` | pane to the left / right |
+| `Enter` `o` | open the highlighted server, channel, member or friend |
 | `/` | in the channels or servers pane: fuzzy-find in it |
 | `Space e` / `Space m` | hide / show channels, members |
 | `Space u` | UI toggles: `e` channels, `m` members, `s` servers, `h` channel header, `z` zoom |
-| `Space z`, `Ctrl-w o` | zoom: only the chat |
+| `Space z`, `Ctrl-w o` | zoom: only the chat and header (`Space u h` hides the header too) |
 
 In an open profile, `j`/`k`/`h`/`l` move over its buttons, links and servers (`Enter` clicks), `Ctrl-h`/`Ctrl-l` jump
 between its two columns, `Ctrl-d`/`Ctrl-u` scroll, `Tab` works as in
