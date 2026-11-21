@@ -36,7 +36,9 @@ main() {
   grep -q VimCord dist/vencordDesktopRenderer.js || die "vimcord is missing from the Vencord build"
 
   local dist="${VENCORD_DIR}/dist"
-  if pgrep -x vesktop >/dev/null; then
+  if [[ $(node -p 'try { require(process.argv[1]).vencordDir } catch { "" }' "${STATE_FILE}") == "${dist}" ]]; then
+    log "Vesktop already loads Vencord from ${dist}; restart Vesktop to use this build"
+  elif pgrep -x vesktop >/dev/null; then
     # Vesktop rewrites state.json when it quits, so an edit made now would be lost.
     warn "Vesktop is open: pick ${dist} in Settings > Vesktop > Developer Options > Vencord Location, or close it and re-run"
   else
