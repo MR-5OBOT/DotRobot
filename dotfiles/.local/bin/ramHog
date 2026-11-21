@@ -4,14 +4,20 @@ BLD='\033[1m'; RST='\033[0m'
 GRN='\033[0;32m'; YEL='\033[0;33m'; RED='\033[0;31m'
 
 echo
-echo -e "${BLD}── RAM by Application (all instances summed) ────────${RST}"
+echo -e "${BLD}── RAM by Application (PSS, all instances summed) ───${RST}"
 printf "\n  ${BLD}%-20s %10s %8s  %s${RST}\n" "APP" "Total MiB" "Instances" "PIDs"
 echo "  ──────────────────────────────────────────────────"
 
 # PIDs column lists only root processes: those whose parent is a different app
 # Name last and tab-separated after: names can hold spaces ("tmux: server")
+# PSS splits shared pages between the processes using them; summed RSS counts them
+# once per process (helium: 9.9 GiB RSS vs 4.8 GiB PSS). Root procs fall back to RSS.
 ps -eo pid=,ppid=,rss=,comm= \
-  | awk '{c=$4; for(i=5;i<=NF;i++) c=c" "$i; pid[NR]=$1; ppid[$1]=$2; comm[$1]=c; sum[c]+=$3; count[c]++}
+  | awk '{c=$4; for(i=5;i<=NF;i++) c=c" "$i
+          kb=$3; f="/proc/"$1"/smaps_rollup"
+          while ((getline l < f) > 0) if (l ~ /^Pss:/) {split(l, a, " "); kb=a[2]; break}
+          close(f)
+          pid[NR]=$1; ppid[$1]=$2; comm[$1]=c; sum[c]+=kb; count[c]++}
          END {
            for(i=1;i<=NR;i++){p=pid[i]; c=comm[p]; if(comm[ppid[p]]!=c) roots[c]=roots[c] (roots[c] ? "," : "") p}
            for(k in sum) printf "%s\t%d\t%d\t%s\n", k, sum[k], count[k], roots[k]
