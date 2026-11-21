@@ -361,12 +361,6 @@
     background: var(--vc-section);
 }
 
-.vimcord-bar-where {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
 .vimcord-bar-fill {
     flex: 1;
     padding: 0 !important;

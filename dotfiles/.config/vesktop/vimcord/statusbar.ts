@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-// The bottom bar, lualine style: the mode, the focused pane, where you are, keys typed so far, and hints for what
-// you can press here. It sits under Discord, which shrinks to make room.
+// The bottom bar, lualine style: the mode, the focused pane, keys typed so far, and hints for what you can press
+// here (the channel is already in Discord's header). It sits under Discord, which shrinks to make room.
 
 import { ChannelStore, GuildStore, MediaEngineStore, RTCConnectionStore, SelectedChannelStore } from "@webpack/common";
 
@@ -18,8 +18,8 @@ let bar: HTMLElement | null = null;
 let last = "";
 
 const HINTS: Record<string, string[][]> = {
-    messages: [["j/k", "move"], ["r", "reply"], ["e", "edit"], ["+", "react"], ["i", "type"], ["1-4", "panes"], ["␣", "leader"], ["?", "help"]],
-    list: [["j/k", "move"], ["⏎", "open"], ["esc", "back"], ["1-4", "panes"], ["?", "help"]],
+    messages: [["j/k", "move"], ["r", "reply"], ["e", "edit"], ["+", "react"], ["i", "type"], ["h/l", "panes"], ["␣", "leader"], ["?", "help"]],
+    list: [["j/k", "move"], ["⏎", "open"], ["esc", "back"], ["h/l", "panes"], ["?", "help"]],
     VISUAL: [["j/k", "extend"], ["y", "copy"], ["d", "delete"], ["o", "other end"], ["esc", "cancel"]],
     INSERT: [["esc", "normal"], ["⏎", "send"], ["^j/^k", "suggestions"]],
     SWITCHER: [["j/k", "move"], ["⏎", "open"], ["i", "type"], ["esc", "close"]],
@@ -65,7 +65,6 @@ export function render(m: Mode, pane: PaneId, pending: string, hints: boolean) {
     span("vimcord-bar-mode", m === "SWITCHER" ? "NORMAL" : m);
     if (m === "NORMAL" || m === "VISUAL") span("vimcord-bar-pane", pane);
     if (m === "SWITCHER") span("vimcord-bar-pane", "switcher");
-    span("vimcord-bar-where", where());
     span("vimcord-bar-fill", "");
     if (pending) span("vimcord-bar-pending", pending.replaceAll("<Space>", "␣"));
     for (const [cls, text] of v) span(cls, text);
