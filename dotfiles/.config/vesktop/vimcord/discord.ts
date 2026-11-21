@@ -100,12 +100,26 @@ export async function markUnread(message: Message) {
     }
 }
 
+/** Discord mounts a message's button bar, which holds the emoji picker, only once the message has been hovered or
+ * focused. A focus in and straight back out mounts it without moving focus or leaving the bar showing. */
 export function openReactionPicker(message: Message) {
+    const article = document.getElementById(`chat-messages-${message.channel_id}-${message.id}`)?.querySelector('[role="article"]');
+    article?.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    article?.dispatchEvent(new FocusEvent("focusout", { bubbles: true }));
     ComponentDispatch.dispatchKeyed("TOGGLE_REACTION_POPOUT", message.id, { emojiPicker: true });
 }
 
 export function focusComposer() {
     ComponentDispatch.dispatchToLastSubscribed("TEXTAREA_FOCUS");
+}
+
+/** Alt-z: starts the message over: no text, reply or attachments, through Discord's own clear actions */
+export function clearComposer() {
+    const channelId = SelectedChannelStore.getChannelId();
+    ComponentDispatch.dispatchToLastSubscribed("CLEAR_TEXT");
+    FluxDispatcher.dispatch({ type: "DELETE_PENDING_REPLY", channelId });
+    // draftType 0: the channel's own message box (not a thread or poll draft)
+    FluxDispatcher.dispatch({ type: "UPLOAD_ATTACHMENT_CLEAR_ALL_FILES", channelId, draftType: 0 });
 }
 
 export function scrollToPresent() {

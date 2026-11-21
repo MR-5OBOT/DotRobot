@@ -25,6 +25,7 @@ Then enable **VimCord** in Vencord's plugin settings and restart Discord. To upd
 - **INSERT**: typing in a text box (`i`, `r` get you there). `Esc` always goes back to NORMAL, keeping your draft.
 - **VISUAL**: `v` selects messages; move to extend, then `y` copies them or `d` deletes them (asks once).
 - In NORMAL, each `Esc` backs out of one thing: keys typed so far, visual mode, a list pane, a pending reply, then marks the channel read.
+- `Alt-z`, in NORMAL or INSERT, starts the message over: it clears the text, the reply and any attachments.
 
 ## Keys
 
@@ -92,6 +93,9 @@ Two settings (Settings → Plugins → VimCord), in any combination:
   - **Your theme** (default): **nvim's own highlight groups**. vimcord runs nvim headless with your config (about 0.4s, and only when your terminal's palette changes) and copies lualine's mode colors, CursorLine, Visual, FloatBorder and which-key's colors. Without nvim, your terminal's palette stands in: Omarchy's current theme (`~/.config/omarchy/current/theme/colors.toml`), else Ghostty (following `config-file` includes), Alacritty or Kitty, re-read every few seconds so switching Omarchy themes switches Discord's too. With no theme anywhere, it's Discord's own colors.
   - **A fixed theme**: Tokyo Night, Catppuccin Mocha, Gruvbox, Nord, Rosé Pine or Kanagawa, with their nvim colorschemes' mode and highlight colors.
   - **Discord's own colors**.
+
+Names in the chat and the member list get a color per person, like IRC: yours keeps one blue, everyone else gets
+the theme's green, yellow or purple.
 
 With a Nerd Font, the bar gets powerline arrows. The window's own buttons are hidden (a setting brings them back).
 

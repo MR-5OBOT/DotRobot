@@ -8,11 +8,12 @@ import definePlugin from "@utils/types";
 import { AccessibilityStore, FluxDispatcher, PendingReplyStore, SelectedChannelStore } from "@webpack/common";
 
 import * as cursor from "./cursor";
-import { keybind, logger } from "./discord";
+import { clearComposer, keybind, logger } from "./discord";
 import { closeHelp, helpOpen, hideWhichKey, scrollHelp, showWhichKey, toggleHelp } from "./hud";
 import { byKeys, deleteSelection, isPrefix, searchKeys, yankSelection } from "./keymap";
 import * as look from "./look";
 import { isEditable, mode, somethingOpen } from "./mode";
+import { listNameColor, messageNameColor, patches } from "./names";
 import * as panes from "./panes";
 import * as picker from "./picker";
 import { applyHidden, applyLook, onResize, setOnSettingsChange, settings } from "./settings";
@@ -258,6 +259,12 @@ function handleKey(e: KeyboardEvent) {
         return;
     }
 
+    // Alt-z, typing or not: start the message over. Behind a popup it's the popup's
+    if (e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey && e.key === "z" && !somethingOpen()) {
+        consume(e);
+        return clearComposer();
+    }
+
     const target = document.activeElement;
     if (isEditable(target)) return onInsertKey(e, target);
     const menu = document.querySelector<HTMLElement>('[role="menu"]');
@@ -395,6 +402,9 @@ export default definePlugin({
     tags: ["Shortcuts", "Chat"],
     settings,
     managedStyle,
+    patches,
+    messageNameColor,
+    listNameColor,
 
     start() {
         cursor.setScrollOff(settings.store.scrollOff);
