@@ -288,7 +288,7 @@ function handleKey(e: KeyboardEvent) {
     if (cursor.visual() && !pending) {
         if (key === "y") return consume(e), yankSelection();
         if (key === "d") return consume(e), deleteSelection();
-        if (key === "v" || key === "V") return consume(e), cursor.endVisual();
+        if (key === "v") return consume(e), cursor.endVisual();
     }
 
     // Enter on a focused button or link in the chat (Tab navigation, or one just clicked) is Discord's: it clicks it

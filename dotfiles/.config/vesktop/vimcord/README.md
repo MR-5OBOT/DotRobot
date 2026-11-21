@@ -69,9 +69,7 @@ window. GIFs in the message under the cursor play as if hovered. On the Friends 
 | Going places | |
 |---|---|
 | `J` / `K` | next / previous channel |
-| `gt` / `gT` | next / previous server |
-| `]u` `[u`, `]m` `[m` | next / previous unread channel, channel with a mention |
-| `gi` | first unread message |
+| `gi`, `Space u r` | first unread message |
 | `Space Space`, `Space f` | quick switcher (`Ctrl-j`/`k` to move, `Enter` opens, `Esc` closes) |
 | `/`, `Space s s` / `Space s g` | search this channel / everywhere |
 | ``Space ` `` | previous server |
