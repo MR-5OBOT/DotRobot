@@ -85,7 +85,7 @@ function onSwitcherKey(e: KeyboardEvent, qs: HTMLInputElement) {
     }
     consume(e);
     if (k === "<CR>" || k === "l") sendKey(qs, "Enter", 13);
-    else if (k === "i" || k === "a" || k === "/") qs.focus();
+    else if (k === "i" || k === "/") qs.focus();
     else if (k === "<Esc>" || k === "q") sendKey(qs, "Escape", 27);
 }
 
@@ -177,7 +177,7 @@ function onProfileKey(e: KeyboardEvent, profile: HTMLElement) {
         const tabs = [...profile.querySelectorAll<HTMLElement>('[role="tab"]')];
         const i = tabs.findIndex(t => t.getAttribute("aria-selected") === "true");
         if (tabs.length) tabs[(i + (k === "L" ? 1 : -1) + tabs.length) % tabs.length].click();
-    } else if (k === "i" || k === "a") {
+    } else if (k === "i") {
         consume(e);
         profile.querySelector<HTMLElement>('[role="textbox"], textarea, input[type="text"]')?.focus();
     } else if (k === "q") {

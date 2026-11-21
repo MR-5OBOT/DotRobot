@@ -60,7 +60,7 @@ export function toggleHelp() {
     for (const [group, bs] of groups) {
         const sec = cols.appendChild(el("section", ""));
         sec.append(el("h3", "", group));
-        // same description twice (i/a, ␣␣/␣f): one row
+        // same description twice (gi/␣ur): one row
         const merged = new Map<string, string[]>();
         for (const b of bs) merged.set(b.desc, [...(merged.get(b.desc) ?? []), b.keys]);
         for (const [desc, keys] of merged) {

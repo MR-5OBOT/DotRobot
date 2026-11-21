@@ -22,7 +22,7 @@ Then enable **VimCord** in Vencord's plugin settings and restart Discord. To upd
 ## Modes
 
 - **NORMAL**: vimcord has the keyboard. The message cursor is always on screen.
-- **INSERT**: typing in a text box (`i`, `a`, `r` get you there). `Esc` always goes back to NORMAL, keeping your draft.
+- **INSERT**: typing in a text box (`i`, `r` get you there). `Esc` always goes back to NORMAL, keeping your draft.
 - **VISUAL**: `v` selects messages; move to extend, then `y` copies them or `d` deletes them (asks once).
 - In NORMAL, each `Esc` backs out of one thing: keys typed so far, visual mode, a list pane, a pending reply, then marks the channel read.
 
@@ -81,7 +81,7 @@ window. GIFs in the message under the cursor play as if hovered. On the Friends 
 | `Space v c` | camera |
 | `Space v v` / `Space v x` | go to your voice channel / disconnect |
 
-Plus `Space p` pins, `Space i` or `Space n` inbox (mentions, unreads, notifications), `Space a` attach a file, `Space r` mark server read.
+Plus `Space p` pins, `Space i` inbox (mentions, unreads, notifications), `Space a` attach a file, `Space r` mark server read.
 
 ## The look
 

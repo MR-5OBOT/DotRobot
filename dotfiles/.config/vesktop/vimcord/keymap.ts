@@ -233,10 +233,8 @@ export const bindings: Binding[] = [
 
     // everything else
     { keys: "i", group: "Other", desc: "Type a message", insert: true, run: focusComposer },
-    { keys: "a", group: "Other", desc: "Type a message", insert: true, run: focusComposer },
     { keys: "<Space>p", group: "Other", desc: "Pinned messages", run: () => keybind("TOGGLE_CHANNEL_PINS") },
     { keys: "<Space>i", group: "Other", desc: "Inbox: mentions, unreads, notifications", run: () => keybind("TOGGLE_INBOX") },
-    { keys: "<Space>n", group: "Other", desc: "Inbox: mentions, unreads, notifications", run: () => keybind("TOGGLE_INBOX") },
     { keys: "<Space>a", group: "Other", desc: "Attach a file", run: () => keybind("UPLOAD_FILE") },
 
     // voice
