@@ -37,6 +37,7 @@ EOF
   run_step "Install desktop packages" "scripts/install-packages.sh" desktop
   run_step "Install paru (AUR helper)" "scripts/setup-aur-helper.sh"
   run_step "Install AUR packages" "scripts/install-packages.sh" aur
+  run_step "Build Vencord with vimcord (vim keys in Vesktop)" "scripts/setup-vesktop-vim.sh"
   run_step "Build wl-kbptr (SUPER+ALT+F keyboard clicking)" "scripts/setup-wl-kbptr.sh"
   run_step "Set up Flatpak + Flathub" "scripts/setup-flatpak.sh"
   run_step "Link dotfiles into \$HOME" "scripts/link-dotfiles.sh"

@@ -28,6 +28,7 @@ Run these when needed; each one explains itself as it runs.
 | Script | What it does |
 |---|---|
 | `scripts/setup-mobile-broadband.sh` | Cellular modem and carrier APN, including the Dell DW5825e FCC unlock (also offered by the installer) |
+| `scripts/setup-vesktop-vim.sh` | Vim keys in Vesktop: builds Vencord with the vimcord plugin; re-run to update (also offered by the installer) |
 | `sudo scripts/fix-hotspot.sh` | Starts the saved NetworkManager hotspot and opens UFW for it |
 | `deno run -A helium/setup.js` (in the brovim repo) | Helium shortcuts for Brovim, from brovim's `helium/shortcuts.json`; close Helium first |
 | `assets/presets/kdenlive-config/kdenlive-setup.sh` | Kdenlive theme and layouts |
