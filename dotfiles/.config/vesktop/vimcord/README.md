@@ -71,7 +71,7 @@ window. GIFs in the message under the cursor play as if hovered. On the Friends 
 | `J` / `K` | next / previous channel |
 | `gi`, `Space u r` | first unread message |
 | `Space Space` | quick switcher (`Ctrl-j`/`k` to move, `Enter` opens, `Esc` closes) |
-| `/`, `Space s s` / `Space s g` | search this channel / everywhere |
+| `/` / `Space s g` | search this channel / everywhere |
 
 | Voice | |
 |---|---|
