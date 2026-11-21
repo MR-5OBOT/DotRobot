@@ -20,6 +20,8 @@ export interface Binding {
     keys: string;
     desc: string;
     group: string;
+    /** its row on the ? sheet; bindings with the same one share a row (j and k: "Down / up") */
+    sheet?: string;
     /** only does something with this kind of pane focused: the messages, or a list (servers, channels, members) */
     in?: "messages" | "lists";
     /** puts you in the message box to type */
@@ -155,31 +157,31 @@ function search() {
 
 export const bindings: Binding[] = [
     // panes
-    { keys: "1", group: "Panes", desc: "Servers", run: () => panes.focus("servers") },
-    { keys: "2", group: "Panes", desc: "Channels", run: () => panes.focus("channels") },
-    { keys: "3", group: "Panes", desc: "Messages", run: () => panes.focus("messages") },
-    { keys: "4", group: "Panes", desc: "Members", run: () => panes.focus("members") },
-    { keys: "<Tab>", group: "Panes", desc: "Next pane (wraps around)", run: () => panes.cycle(1) },
-    { keys: "<S-Tab>", group: "Panes", desc: "Previous pane (wraps around)", run: () => panes.cycle(-1) },
-    { keys: "h", group: "Panes", desc: "Pane to the left", run: () => panes.step(-1) },
-    { keys: "l", group: "Panes", desc: "Pane to the right", run: () => panes.step(1) },
+    { keys: "1", group: "Panes", desc: "Servers", sheet: "Servers · channels · messages · members", run: () => panes.focus("servers") },
+    { keys: "2", group: "Panes", desc: "Channels", sheet: "Servers · channels · messages · members", run: () => panes.focus("channels") },
+    { keys: "3", group: "Panes", desc: "Messages", sheet: "Servers · channels · messages · members", run: () => panes.focus("messages") },
+    { keys: "4", group: "Panes", desc: "Members", sheet: "Servers · channels · messages · members", run: () => panes.focus("members") },
+    { keys: "h", group: "Panes", desc: "Pane to the left", sheet: "Pane left / right", run: () => panes.step(-1) },
+    { keys: "l", group: "Panes", desc: "Pane to the right", sheet: "Pane left / right", run: () => panes.step(1) },
+    { keys: "<Tab>", group: "Panes", desc: "Next pane (wraps around)", sheet: "Next / previous pane", run: () => panes.cycle(1) },
+    { keys: "<S-Tab>", group: "Panes", desc: "Previous pane (wraps around)", sheet: "Next / previous pane", run: () => panes.cycle(-1) },
     // on a message, Enter plays its video or voice message, or opens its link
-    { keys: "<CR>", group: "Panes", desc: "Open (server, channel, member, friend; a message's video, voice message or link)", run: () => panes.inList() ? panes.open() : openOrPlay() },
-    { keys: "<Space>e", group: "Panes", desc: "Hide / show channels", run: () => toggle("hideChannels") },
-    { keys: "<Space>m", group: "Panes", desc: "Hide / show members", run: toggleMembers },
-    { keys: "<Space>ue", group: "Panes", desc: "Hide / show channels", run: () => toggle("hideChannels") },
-    { keys: "<Space>um", group: "Panes", desc: "Hide / show members", run: toggleMembers },
-    { keys: "<Space>us", group: "Panes", desc: "Hide / show servers", run: () => toggle("hideServers") },
-    { keys: "<Space>uh", group: "Panes", desc: "Hide / show the channel header (pins, search)", run: () => toggle("hideHeader") },
-    { keys: "<Space>z", group: "Panes", desc: "Zoom: only the chat and header (again to undo)", run: panes.toggleZoom },
+    { keys: "<CR>", group: "Panes", desc: "Open (server, channel, member, friend; a message's video, voice message or link)", sheet: "Open; on a message: its video, voice message or link", run: () => panes.inList() ? panes.open() : openOrPlay() },
+    { keys: "<Space>e", group: "Layout", desc: "Hide / show channels", run: () => toggle("hideChannels") },
+    { keys: "<Space>m", group: "Layout", desc: "Hide / show members", run: toggleMembers },
+    { keys: "<Space>ue", group: "Layout", desc: "Hide / show channels", run: () => toggle("hideChannels") },
+    { keys: "<Space>um", group: "Layout", desc: "Hide / show members", run: toggleMembers },
+    { keys: "<Space>us", group: "Layout", desc: "Hide / show servers", run: () => toggle("hideServers") },
+    { keys: "<Space>uh", group: "Layout", desc: "Hide / show the channel header (pins, search)", run: () => toggle("hideHeader") },
+    { keys: "<Space>z", group: "Layout", desc: "Zoom: only the chat and header (again to undo)", run: panes.toggleZoom },
 
     // moving: the message cursor, or the highlight in a list pane
-    { keys: "j", group: "Moving", desc: "Down", run: () => panes.move(1) },
-    { keys: "k", group: "Moving", desc: "Up", run: () => panes.move(-1) },
-    { keys: "gg", group: "Moving", desc: "Top (oldest loaded message)", run: () => panes.edge(false) },
-    { keys: "G", group: "Moving", desc: "Bottom (newest message)", run: () => panes.edge(true) },
-    { keys: "<C-d>", group: "Moving", desc: "Half page down", run: () => panes.page(0.5) },
-    { keys: "<C-u>", group: "Moving", desc: "Half page up", run: () => panes.page(-0.5) },
+    { keys: "j", group: "Moving", desc: "Down", sheet: "Down / up", run: () => panes.move(1) },
+    { keys: "k", group: "Moving", desc: "Up", sheet: "Down / up", run: () => panes.move(-1) },
+    { keys: "gg", group: "Moving", desc: "Top (oldest loaded message)", sheet: "Top / bottom", run: () => panes.edge(false) },
+    { keys: "G", group: "Moving", desc: "Bottom (newest message)", sheet: "Top / bottom", run: () => panes.edge(true) },
+    { keys: "<C-d>", group: "Moving", desc: "Half page down", sheet: "Half page down / up", run: () => panes.page(0.5) },
+    { keys: "<C-u>", group: "Moving", desc: "Half page up", sheet: "Half page down / up", run: () => panes.page(-0.5) },
     {
         keys: "gd", group: "Moving", desc: "Go to the replied-to message", in: "messages", run: onMessage(m => {
             const ref = m.messageReference;
@@ -189,8 +191,8 @@ export const bindings: Binding[] = [
     },
 
     // acting on the message under the cursor
-    { keys: "r", group: "Message", desc: "Reply", in: "messages", insert: true, run: onMessage(m => messageShortcut("reply", m)) },
-    { keys: "R", group: "Message", desc: "Reply without ping", in: "messages", insert: true, run: onMessage(m => messageShortcut("reply", m, true)) },
+    { keys: "r", group: "Message", desc: "Reply", sheet: "Reply / without ping", in: "messages", insert: true, run: onMessage(m => messageShortcut("reply", m)) },
+    { keys: "R", group: "Message", desc: "Reply without ping", sheet: "Reply / without ping", in: "messages", insert: true, run: onMessage(m => messageShortcut("reply", m, true)) },
     {
         keys: "e", group: "Message", desc: "Edit (your own)", in: "messages", run: onMessage(m => {
             if (own(m)) messageShortcut("edit", m);
@@ -198,17 +200,17 @@ export const bindings: Binding[] = [
         })
     },
     { keys: "dd", group: "Message", desc: "Delete (asks first)", in: "messages", run: onMessage(m => messageShortcut("delete", m)) },
-    { keys: "+", group: "Message", desc: "Add reaction", in: "messages", run: onMessage(openReactionPicker) },
-    { keys: "p", group: "Message", desc: "Pin / unpin (asks first)", in: "messages", run: onMessage(m => messageShortcut("pin", m)) },
-    { keys: "f", group: "Message", desc: "Forward", in: "messages", run: onMessage(m => messageShortcut("forward", m)) },
+    { keys: "+", group: "Message", desc: "Add reaction", sheet: "React · pin · forward", in: "messages", run: onMessage(openReactionPicker) },
+    { keys: "p", group: "Message", desc: "Pin / unpin (asks first)", sheet: "React · pin · forward", in: "messages", run: onMessage(m => messageShortcut("pin", m)) },
+    { keys: "f", group: "Message", desc: "Forward", sheet: "React · pin · forward", in: "messages", run: onMessage(m => messageShortcut("forward", m)) },
     {
-        keys: "t", group: "Message", desc: "Open thread (or start one)", in: "messages", run: onMessage(m => {
+        keys: "t", group: "Message", desc: "Open thread (or start one)", sheet: "Thread · mark unread · profile", in: "messages", run: onMessage(m => {
             messageShortcut(m.hasFlag(HAS_THREAD) ? "openThread" : "createThread", m);
         })
     },
-    { keys: "u", group: "Message", desc: "Mark unread from here", in: "messages", run: onMessage(m => void markUnread(m)) },
+    { keys: "u", group: "Message", desc: "Mark unread from here", sheet: "Thread · mark unread · profile", in: "messages", run: onMessage(m => void markUnread(m)) },
     {
-        keys: "gu", group: "Message", desc: "Profile (author, or the highlighted member/friend/DM)", run: () => {
+        keys: "gu", group: "Message", desc: "Profile (author, or the highlighted member/friend/DM)", sheet: "Thread · mark unread · profile", run: () => {
             if (!panes.inList()) return onMessage(m => {
                 openUserProfileModal({ userId: m.author.id, guildId: SelectedGuildStore.getGuildId(), channelId: m.channel_id, messageId: m.id });
             })();
@@ -217,35 +219,35 @@ export const bindings: Binding[] = [
             else toast("no one to show here");
         }
     },
-    { keys: "yy", group: "Message", desc: "Copy text", in: "messages", run: onMessage(m => copyWithToast(readable(m.content), "Copied message text")) },
-    { keys: "yl", group: "Message", desc: "Copy link", in: "messages", run: onMessage(m => copyWithToast(link(m), "Copied message link")) },
-    { keys: "yi", group: "Message", desc: "Copy ID", in: "messages", run: onMessage(m => copyWithToast(m.id, "Copied message ID")) },
+    { keys: "yy", group: "Copy", desc: "Copy text", sheet: "Text · link · ID", in: "messages", run: onMessage(m => copyWithToast(readable(m.content), "Copied message text")) },
+    { keys: "yl", group: "Copy", desc: "Copy link", sheet: "Text · link · ID", in: "messages", run: onMessage(m => copyWithToast(link(m), "Copied message link")) },
+    { keys: "yi", group: "Copy", desc: "Copy ID", sheet: "Text · link · ID", in: "messages", run: onMessage(m => copyWithToast(m.id, "Copied message ID")) },
     { keys: "v", group: "Message", desc: "Visual mode: select messages (then y or d)", in: "messages", run: cursor.startVisual },
 
     // going places
-    { keys: "J", group: "Going places", desc: "Next channel", run: () => keybind("CHANNEL_NEXT") },
-    { keys: "K", group: "Going places", desc: "Previous channel", run: () => keybind("CHANNEL_PREV") },
+    { keys: "J", group: "Going places", desc: "Next channel", sheet: "Next / previous channel", run: () => keybind("CHANNEL_NEXT") },
+    { keys: "K", group: "Going places", desc: "Previous channel", sheet: "Next / previous channel", run: () => keybind("CHANNEL_PREV") },
     { keys: "gi", group: "Going places", desc: "First unread message", run: () => keybind("JUMP_TO_FIRST_UNREAD") },
     { keys: "<Space>ur", group: "Going places", desc: "First unread message", run: () => keybind("JUMP_TO_FIRST_UNREAD") },
     { keys: "<Space><Space>", group: "Going places", desc: "Quick switcher", run: () => keybind("QUICKSWITCHER_SHOW") },
-    { keys: "/", group: "Going places", desc: "Search: messages, or the focused channel/server list", run: search },
-    { keys: "<Space>sg", group: "Going places", desc: "Search messages everywhere", run: () => keybind("FOCUS_SEARCH", "mod+shift+f") },
+    { keys: "/", group: "Going places", desc: "Search: messages, or the focused channel/server list", sheet: "Search here / everywhere", run: search },
+    { keys: "<Space>sg", group: "Going places", desc: "Search messages everywhere", sheet: "Search here / everywhere", run: () => keybind("FOCUS_SEARCH", "mod+shift+f") },
+
+    // voice
+    { keys: "c", group: "Voice", desc: "Call this DM (rings them)", sheet: "Call this DM / without ringing", run: () => startCall(true) },
+    { keys: "C", group: "Voice", desc: "Call this DM without ringing", sheet: "Call this DM / without ringing", run: () => startCall(false) },
+    { keys: "<Space>vm", group: "Voice", desc: "Mute / unmute", sheet: "Mute / deafen", run: () => keybind("TOGGLE_MUTE") },
+    { keys: "<Space>vd", group: "Voice", desc: "Deafen / undeafen", sheet: "Mute / deafen", run: () => keybind("TOGGLE_DEAFEN") },
+    { keys: "<Space>vs", group: "Voice", desc: "Stream: share screen / stop", sheet: "Share screen / camera", run: toggleStream },
+    { keys: "<Space>vc", group: "Voice", desc: "Camera on / off", sheet: "Share screen / camera", run: toggleCamera },
+    { keys: "<Space>vv", group: "Voice", desc: "Go to the voice channel you're in", sheet: "Go to your voice channel / disconnect", run: () => keybind("RETURN_TO_AUDIO_CHANNEL") },
+    { keys: "<Space>vx", group: "Voice", desc: "Disconnect", sheet: "Go to your voice channel / disconnect", run: disconnectVoice },
 
     // everything else
     { keys: "i", group: "Other", desc: "Type a message", insert: true, run: focusComposer },
     { keys: "<Space>p", group: "Other", desc: "Pinned messages", run: () => keybind("TOGGLE_CHANNEL_PINS") },
     { keys: "<Space>i", group: "Other", desc: "Inbox: mentions, unreads, notifications", run: () => keybind("TOGGLE_INBOX") },
     { keys: "<Space>a", group: "Other", desc: "Attach a file", run: () => keybind("UPLOAD_FILE") },
-
-    // voice
-    { keys: "c", group: "Voice", desc: "Call this DM (rings them)", run: () => startCall(true) },
-    { keys: "C", group: "Voice", desc: "Call this DM without ringing", run: () => startCall(false) },
-    { keys: "<Space>vm", group: "Voice", desc: "Mute / unmute", run: () => keybind("TOGGLE_MUTE") },
-    { keys: "<Space>vd", group: "Voice", desc: "Deafen / undeafen", run: () => keybind("TOGGLE_DEAFEN") },
-    { keys: "<Space>vs", group: "Voice", desc: "Stream: share screen / stop", run: toggleStream },
-    { keys: "<Space>vc", group: "Voice", desc: "Camera on / off", run: toggleCamera },
-    { keys: "<Space>vv", group: "Voice", desc: "Go to the voice channel you're in", run: () => keybind("RETURN_TO_AUDIO_CHANNEL") },
-    { keys: "<Space>vx", group: "Voice", desc: "Disconnect", run: disconnectVoice },
     { keys: "<Space>r", group: "Other", desc: "Mark server read", run: () => keybind("MARK_SERVER_READ") },
 ];
 

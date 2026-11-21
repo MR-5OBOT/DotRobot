@@ -52,7 +52,6 @@ export function toggleHelp() {
     help = document.body.appendChild(el("div", "vimcord-help"));
     const sheet = help.appendChild(el("fieldset", "vimcord-float vimcord-help-sheet"));
     sheet.append(el("legend", "", " vimcord "));
-    sheet.append(el("p", "vimcord-help-sub", "h/l (or 1-4) move between panes; j/k and friends move in the focused one. v starts selecting messages: move to extend, then y copies or d deletes them. Esc always means normal mode: in a text box it leaves it (keeping the draft); in normal mode each press backs out of one thing (keys typed, visual mode, a list pane, a reply), then marks the channel read. In a text box, Ctrl-n/p or Ctrl-j/k move through suggestions."));
 
     const groups = new Map<string, typeof bindings>();
     for (const b of bindings) groups.set(b.group, [...(groups.get(b.group) ?? []), b]);
@@ -60,9 +59,9 @@ export function toggleHelp() {
     for (const [group, bs] of groups) {
         const sec = cols.appendChild(el("section", ""));
         sec.append(el("h3", "", group));
-        // same description twice (gi/␣ur): one row
+        // one row per sheet label or description (j/k: Down / up; gi/␣ur)
         const merged = new Map<string, string[]>();
-        for (const b of bs) merged.set(b.desc, [...(merged.get(b.desc) ?? []), b.keys]);
+        for (const b of bs) merged.set(b.sheet ?? b.desc, [...(merged.get(b.sheet ?? b.desc) ?? []), b.keys]);
         for (const [desc, keys] of merged) {
             const row = sec.appendChild(el("div", "vimcord-help-row"));
             const ks = row.appendChild(el("span", "vimcord-help-keys"));
