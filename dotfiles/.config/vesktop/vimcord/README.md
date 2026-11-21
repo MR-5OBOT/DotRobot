@@ -66,7 +66,7 @@ window. GIFs in the message under the cursor play as if hovered. On the Friends 
 | `+` | react |
 | `p` `f` `t` `u` | pin, forward, open/start thread, mark unread |
 | `o`, `gu` | open its first link, author's profile (in a list: the member, friend or DM's profile) |
-| `Enter` | play its video (again to pause), or else open its first link |
+| `Enter` | play its video or voice message (again to pause), or else open its first link |
 
 | Going places | |
 |---|---|

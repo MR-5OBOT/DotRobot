@@ -10,7 +10,7 @@ import { Alerts, ChannelStore, MessageActions, openUserProfileModal, Permissions
 
 import * as cursor from "./cursor";
 import { disconnectVoice, focusComposer, keybind, markUnread, messageShortcut, openReactionPicker, startCall, toast, toggleCamera, toggleMembers, toggleStream } from "./discord";
-import { hasVideo, playVideo } from "./media";
+import { hasAudio, hasVideo, playAudio, playVideo } from "./media";
 import * as panes from "./panes";
 import * as picker from "./picker";
 import { settings } from "./settings";
@@ -77,7 +77,7 @@ const openLink = onMessage(m => {
 // Enter on a message plays its video (again to pause), or else opens its link like o
 const openOrPlay = onMessage(m => {
     const li = cursor.currentEl();
-    if (!(li && hasVideo(m) && playVideo(li))) openLink();
+    if (!(li && (hasVideo(m) && playVideo(li) || hasAudio(m) && playAudio(li)))) openLink();
 });
 
 function toggle(key: "hideChannels" | "hideServers" | "hideHeader") {
@@ -169,8 +169,8 @@ export const bindings: Binding[] = [
     { keys: "l", group: "Panes", desc: "Pane to the right", run: () => panes.step(1) },
     { keys: "<C-h>", group: "Panes", desc: "Pane to the left", run: () => panes.step(-1) },
     { keys: "<C-l>", group: "Panes", desc: "Pane to the right", run: () => panes.step(1) },
-    // on a message, Enter plays its video or opens its link
-    { keys: "<CR>", group: "Panes", desc: "Open (server, channel, member, friend; a message's video or link)", run: () => panes.inList() ? panes.open() : openOrPlay() },
+    // on a message, Enter plays its video or voice message, or opens its link
+    { keys: "<CR>", group: "Panes", desc: "Open (server, channel, member, friend; a message's video, voice message or link)", run: () => panes.inList() ? panes.open() : openOrPlay() },
     { keys: "<Space>e", group: "Panes", desc: "Hide / show channels", run: () => toggle("hideChannels") },
     { keys: "<Space>m", group: "Panes", desc: "Hide / show members", run: toggleMembers },
     { keys: "<Space>ue", group: "Panes", desc: "Hide / show channels", run: () => toggle("hideChannels") },

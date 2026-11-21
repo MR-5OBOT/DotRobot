@@ -62,3 +62,19 @@ export function playVideo(li: HTMLElement) {
     play.click();
     return true;
 }
+
+/** whether the message has audio to play: a voice message or an uploaded audio file */
+export const hasAudio = (m: Message) => m.attachments?.some(a => a.content_type?.startsWith("audio/"));
+
+/** Enter on a voice message or audio file: presses its play button (again to pause). Returns false if there's none
+ * on screen. The aria-label is translated, so a class with "play" in it is the fallback for other languages. */
+export function playAudio(li: HTMLElement) {
+    const acc = li.querySelector<HTMLElement>('[id^="message-accessories-"]');
+    if (!acc) return false;
+    const button = [...acc.querySelectorAll<HTMLElement>('button, [role="button"]')]
+        .find(b => /^(play|pause)$/i.test(b.getAttribute("aria-label") ?? ""))
+        ?? acc.querySelector<HTMLElement>(':is(button, [role="button"])[class*="play" i]');
+    if (!button) return false;
+    button.click();
+    return true;
+}
