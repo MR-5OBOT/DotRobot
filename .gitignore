@@ -5,6 +5,7 @@ dotfiles/.config/zsh/.zcompdump*
 # Safety net: Vesktop's session (Discord token) lives in ~/.config/vesktop, never here
 dotfiles/.config/vesktop/*
 !dotfiles/.config/vesktop/themes/
+!dotfiles/.config/vesktop/vimcord/
 
 # superfile drops its bundled themes + default hotkeys in on first launch
 dotfiles/.config/superfile/theme/*

@@ -4,11 +4,12 @@ set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
 # Vim keys in Vesktop: Vencord built from source with the vimcord userplugin,
-# because Vencord only runs plugins compiled into it. Re-run to update.
+# because Vencord only runs plugins compiled into it. Re-run after editing
+# dotfiles/.config/vesktop/vimcord, or to update Vencord.
 # Vencord follows upstream, since an old build breaks when Discord updates.
-# vimcord stays on a commit that was read first: a plugin can reach the Discord
-# login token, so bump VIMCORD_COMMIT only after reading the new code.
-VIMCORD_COMMIT=6c4f10bfaf4e6a29be85937158caa1a15793e8fd
+# vimcord is our own copy (from github.com/RyanAHayden/vimcord at 6c4f10b): a
+# plugin can reach the Discord login token, so upstream changes come in only
+# after reading them.
 VENCORD_DIR="${XDG_DATA_HOME:-${HOME}/.local/share}/vencord"
 STATE_FILE="${XDG_CONFIG_HOME:-${HOME}/.config}/vesktop/state.json"
 
@@ -22,10 +23,12 @@ main() {
     git clone --depth 1 https://github.com/Vendicated/Vencord "${VENCORD_DIR}"
   fi
 
+  # A copy, not a link: the build follows links back to this repo, where
+  # Vencord's @api/@utils import paths don't resolve.
   local plugin="${VENCORD_DIR}/src/userplugins/vimcord"
-  [[ -d ${plugin}/.git ]] || git clone https://github.com/RyanAHayden/vimcord "${plugin}"
-  git -C "${plugin}" cat-file -e "${VIMCORD_COMMIT}^{commit}" 2>/dev/null || git -C "${plugin}" fetch origin
-  git -C "${plugin}" -c advice.detachedHead=false checkout -q "${VIMCORD_COMMIT}"
+  rm -rf -- "${plugin}"
+  mkdir -p "${plugin%/*}"
+  cp -r "${DOTFILES_DIR}/.config/vesktop/vimcord" "${plugin}"
 
   cd "${VENCORD_DIR}"
   # Vencord pins its pnpm version in package.json; npx runs that one, no global pnpm needed.

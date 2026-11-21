@@ -44,8 +44,9 @@ main() {
   setup_home_filter
   link_children "${DOTFILES_DIR}/.config" "${HOME}/.config" vesktop systemd
   # Vesktop keeps the Discord session (login token) in ~/.config/vesktop, so that
-  # stays a real directory and only themes/ comes from the repo.
-  link_children "${DOTFILES_DIR}/.config/vesktop" "${HOME}/.config/vesktop"
+  # stays a real directory and only themes/ comes from the repo. vimcord/ is
+  # plugin source that setup-vesktop-vim.sh builds, not a config to link.
+  link_children "${DOTFILES_DIR}/.config/vesktop" "${HOME}/.config/vesktop" vimcord
   # systemd keeps its enable links (*.wants/) in ~/.config/systemd/user, so it
   # stays a real directory and only the repo's unit files are linked in.
   link_children "${DOTFILES_DIR}/.config/systemd/user" "${HOME}/.config/systemd/user"
