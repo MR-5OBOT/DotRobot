@@ -16,7 +16,7 @@ import * as picker from "./picker";
 import { settings } from "./settings";
 
 export interface Binding {
-    /** keys in vim notation: "gg", "<C-d>", "<Space>f" */
+    /** keys in vim notation: "gg", "<C-d>", "<Space>e" */
     keys: string;
     desc: string;
     group: string;
@@ -228,8 +228,6 @@ export const bindings: Binding[] = [
     { keys: "gi", group: "Going places", desc: "First unread message", run: () => keybind("JUMP_TO_FIRST_UNREAD") },
     { keys: "<Space>ur", group: "Going places", desc: "First unread message", run: () => keybind("JUMP_TO_FIRST_UNREAD") },
     { keys: "<Space><Space>", group: "Going places", desc: "Quick switcher", run: () => keybind("QUICKSWITCHER_SHOW") },
-    { keys: "<Space>f", group: "Going places", desc: "Quick switcher", run: () => keybind("QUICKSWITCHER_SHOW") },
-    { keys: "<Space>`", group: "Going places", desc: "Previous server (toggle)", run: () => keybind("TOGGLE_PREVIOUS_GUILD") },
     { keys: "/", group: "Going places", desc: "Search: messages, or the focused channel/server list", run: search },
     { keys: "<Space>sg", group: "Going places", desc: "Search messages everywhere", run: () => keybind("FOCUS_SEARCH", "mod+shift+f") },
     { keys: "<Space>ss", group: "Going places", desc: "Search messages in this channel", run: () => keybind("FOCUS_SEARCH", "mod+f") },
