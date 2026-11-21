@@ -230,7 +230,6 @@ export const bindings: Binding[] = [
     { keys: "<Space><Space>", group: "Going places", desc: "Quick switcher", run: () => keybind("QUICKSWITCHER_SHOW") },
     { keys: "/", group: "Going places", desc: "Search: messages, or the focused channel/server list", run: search },
     { keys: "<Space>sg", group: "Going places", desc: "Search messages everywhere", run: () => keybind("FOCUS_SEARCH", "mod+shift+f") },
-    { keys: "<Space>sk", group: "Going places", desc: "Search keybindings", run: () => searchKeys("") },
 
     // everything else
     { keys: "i", group: "Other", desc: "Type a message", insert: true, run: focusComposer },

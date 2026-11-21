@@ -81,7 +81,7 @@ window. GIFs in the message under the cursor play as if hovered. On the Friends 
 | `Space v c` | camera |
 | `Space v v` / `Space v x` | go to your voice channel / disconnect |
 
-Plus `Space p` pins, `Space i` or `Space n` inbox (mentions, unreads, notifications), `Space a` attach a file, `Space r` mark server read, `Space s k` search keys.
+Plus `Space p` pins, `Space i` or `Space n` inbox (mentions, unreads, notifications), `Space a` attach a file, `Space r` mark server read.
 
 ## The look
 
