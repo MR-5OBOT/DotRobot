@@ -276,6 +276,14 @@ Singleton {
         root.popups = [];
     }
 
+    /** Drop one app's pending popups (inbox untouched); true if any were up. */
+    function dropPopups(app) {
+        var keep = root.popups.filter(function(p) { return p.appName !== app; });
+        var hit = keep.length < root.popups.length;
+        root.popups = keep;
+        return hit;
+    }
+
     /**
      * Bind the history-snapshot handler to a notification's `closed` signal, and
      * the re-toast handler to its replacement, once.

@@ -49,4 +49,6 @@ mkdir -p "$rundir" 2>/dev/null || rundir="/tmp"
 lock="$rundir/rishot.lock"
 exec 9>"$lock"
 flock -n 9 || { echo "rishot: already running" >&2; exit 0; }
+# Keep the previous shot's toast out of the frozen frame; 0.5s lets the notch slide it away.
+[ "$(qs ipc call island dropToasts rishot 2>/dev/null)" = true ] && sleep 0.5 || true
 exec env RISHOT_MODE="$mode" qs -p "$dir"

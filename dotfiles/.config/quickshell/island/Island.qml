@@ -196,6 +196,9 @@ Scope {
         function peek(mon: string): void { root.peek(mon); }
         function hide(): void { root.close(); }
 
+        /** Screenshot tools call this before capturing so their own last toast is not in the shot. */
+        function dropToasts(app: string): bool { return Notifs.dropPopups(app); }
+
         /**
          * Memory saver door: drop every closed surface on every monitor right
          * away, regardless of how much of its 30s tail is left. The open
