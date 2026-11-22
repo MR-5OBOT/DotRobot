@@ -13,7 +13,7 @@ It is one part of the quickshell config in `dotfiles/.config/quickshell`: the to
 - **Music wave** — while something plays, the notch's whole outline (sides, corners, bottom) ripples with the music (cava spectrum, bass mid-bottom) under an accent line; with auto-hide the bottom wave alone hangs from the screen's top edge. cava only runs while music plays and a notch shows the wave.
 - **Panels** — calendar with events and reminders, mixer (volume, mic, brightness), battery with power-profile button, system monitor with a speed test, notification inbox and toasts, power menu, settings (display incl. keep-awake).
 - **Notifications** — Super+N toggles the notification center on the right of the focused screen. Notifications stack by app with the app icon beside each title; hover to expand, or click the icon to keep a stack expanded. Right-click an app icon to clear its notifications. Cards retain images, actions, unread markers and critical alerts. Dismiss one card or clear the inbox; Escape or clicking outside closes it. The island still owns the notification server and its 3-second toasts (criticals stay until dismissed).
-- **Weather** — Open-Meteo forecast on Home's clock card. Location comes from GeoClue (wifi networks in range) and falls back to an IP lookup.
+- **Weather** — Open-Meteo forecast on Home's clock card. Location (city level) comes from one HTTPS IP lookup (ipinfo.io).
 - **Colours** — surfaces stay black and neutral grey; the accent follows the current wallpaper.
 - **Monitors** — the focused screen owns hotkey panels and volume/brightness flashes. Widget clearance is tracked per screen. Shared Hyprland IPC state handles focus changes and display hotplug even when Quickshell's monitor model is empty.
 
@@ -21,7 +21,7 @@ It is one part of the quickshell config in `dotfiles/.config/quickshell`: the to
 
 - Hyprland and Quickshell 0.3+
 - `upower`, `bluez`, NetworkManager (`nmcli`), `jq`, ImageMagick (`magick`), `awww`, `brightnessctl`, `cliphist` + `wl-clipboard`
-- Optional: `power-profiles-daemon` (power profiles), `geoclue` (precise weather location), `cava` (music wave)
+- Optional: `power-profiles-daemon` (power profiles), `cava` (music wave)
 
 ## Launch
 
@@ -35,20 +35,9 @@ Target `island`; the first argument is the monitor (`""` = focused).
 qs ipc call island calendar ""
 ```
 
-Handlers: `home`, `mixer`, `calendar`, `power`, `link`, `battery`, `sysmon`, `peek`, `hide`, `page`, `nav`. The shell's widgets have their own targets: `qs ipc call launcher|clipboard|wallpicker toggle`.
+Handlers: `home`, `mixer`, `calendar`, `power`, `battery`, `sysmon`, `peek`, `hide`, `dropToasts`, `page` (any surface by name, for testing). The shell's widgets have their own targets: `qs ipc call launcher|clipboard|wallpicker toggle`.
 
-`qs ipc call notifications toggle` opens the notification center; `notifications hide` closes it. The island's `link`, `page "" link` and `nav "" link` routes open the same panel.
-
-## Precise location (GeoClue)
-
-GeoClue needs an agent to authorise requests; the geoclue package autostarts its demo agent with the uwsm session. If the default wifi database does not know your area, point GeoClue at another one:
-
-```sh
-sudo pacman -S geoclue
-printf '[wifi]\nurl=https://api.positon.xyz/v1/geolocate?key=56aba903-ae67-4f26-919b-15288b44bda9\n' | sudo tee /etc/geoclue/conf.d/90-positon.conf
-```
-
-Check with `/usr/lib/geoclue-2.0/demos/where-am-i -t 30`; an accuracy of a few dozen metres means wifi location works.
+`qs ipc call notifications toggle` opens the notification center; `notifications hide` closes it. Home's inbox button opens the same panel.
 
 ## State and cache
 

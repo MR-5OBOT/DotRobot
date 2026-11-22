@@ -6,9 +6,8 @@ import Quickshell.Io
 /**
  * Live weather for Home's clock card, served by Open-Meteo with no API key.
  * Location resolves once and is cached so a restart never re-hits the network for
- * coordinates: GeoClue locates the machine from the wifi networks in range (the
- * keyless ip-api lookup covers a missing GeoClue) and OpenStreetMap names the
- * spot. Once coordinates are known the forecast runs immediately and then every
+ * coordinates: one keyless HTTPS lookup (ipinfo.io) gives the city and its
+ * coordinates from this machine's IP. Once coordinates are known the forecast runs immediately and then every
  * 20 minutes, exposing the current conditions plus a 5-day daily strip.
  *
  * Everything is async through `Process` + `curl`, mirroring how Sysmon and Devices
@@ -146,7 +145,7 @@ Singleton {
 
     /**
      * First weather demand arms the network path (loads fresh data on hover). The
-     * cached spot renders at once; a fresh GeoClue fix is taken each session
+     * cached spot renders at once; a fresh lookup is taken each session
      * too, since a laptop moves between them.
      */
     onNeededChanged: {
@@ -189,71 +188,10 @@ Singleton {
         printErrors: false
     }
 
-    /** Resolve coordinates through GeoClue (IP lookup as the fallback). */
+    /** Resolve coordinates and the city name from this machine's IP (city-level is all a forecast grid needs). */
     function locate() {
-        if (root.needed && !geoclueProc.running)
-            geoclueProc.running = true;
-    }
-
-    /**
-     * Precise location through GeoClue, the system location service: it looks the
-     * wifi networks in range up itself. The where-am-i demo client prints every fix
-     * it gets before its timeout and the most accurate one wins. GeoClue only
-     * answers clients an agent authorises; the geoclue package autostarts its demo
-     * agent with the session. No fix at all, or no GeoClue installed, falls back
-     * to the IP lookup.
-     */
-    Process {
-        id: geoclueProc
-        command: ["sh", "-c",
-            "w=/usr/lib/geoclue-2.0/demos/where-am-i; " +
-            "[ -x \"$w\" ] || exit 0; " +
-            "timeout 40 \"$w\" -t 30 -a 8 2>/dev/null | awk -F': *' '" +
-            "/^Latitude/ { lat = $2 + 0 } /^Longitude/ { lon = $2 + 0 } " +
-            "/^Accuracy/ { acc = $2 + 0; if (best == \"\" || acc < best) { best = acc; blat = lat; blon = lon } } " +
-            "END { if (best != \"\") printf \"%.6f %.6f %d\\n\", blat, blon, best }'"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var f = this.text.trim().split(/\s+/);
-                var lat = parseFloat(f[0]);
-                var lon = parseFloat(f[1]);
-                if (f.length < 3 || isNaN(lat) || isNaN(lon)) {
-                    if (!root.located)
-                        ipProc.running = true;
-                    return;
-                }
-                root.lat = lat;
-                root.lon = lon;
-                root.located = true;
-                root.writeLoc();
-                root.fetchWeather();
-                placeProc.running = true;
-            }
-        }
-    }
-
-    /** Names a GeoClue fix (which carries no place name) with one OpenStreetMap lookup. */
-    Process {
-        id: placeProc
-        command: ["curl", "-s", "--max-time", "8", "-G", "-A", "island-weather/1.0 (quickshell)",
-            "https://nominatim.openstreetmap.org/reverse",
-            "--data-urlencode", "lat=" + root.lat,
-            "--data-urlencode", "lon=" + root.lon,
-            "--data-urlencode", "format=jsonv2",
-            "--data-urlencode", "zoom=10",
-            "--data-urlencode", "accept-language=en"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                try {
-                    var a = JSON.parse(this.text).address || {};
-                    var name = a.town || a.city || a.village || a.municipality || a.county || "";
-                    if (name.length > 0) {
-                        root.city = name;
-                        root.writeLoc();
-                    }
-                } catch (e) {}
-            }
-        }
+        if (root.needed && !ipProc.running)
+            ipProc.running = true;
     }
 
     /** Re-locate hourly, in case the laptop moved. */
@@ -266,15 +204,16 @@ Singleton {
 
     Process {
         id: ipProc
-        command: ["curl", "-s", "--max-time", "8", "http://ip-api.com/json?fields=lat,lon,city"]
+        command: ["curl", "-s", "--max-time", "8", "https://ipinfo.io/json"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try {
                     var d = JSON.parse(this.text);
-                    if (typeof d.lat === "number" && typeof d.lon === "number") {
+                    var ll = String(d.loc || "").split(",").map(Number);   // "lat,lon"
+                    if (ll.length === 2 && !isNaN(ll[0]) && !isNaN(ll[1])) {
                         root.city = d.city || "";
-                        root.lat = d.lat;
-                        root.lon = d.lon;
+                        root.lat = ll[0];
+                        root.lon = ll[1];
                         root.located = true;
                         root.writeLoc();
                         root.fetchWeather();

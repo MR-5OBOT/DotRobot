@@ -50,7 +50,7 @@ Scope {
     Component.onCompleted: {
         refresh();
         void Events.events;   // singletons load lazily; calendar reminders must run with the calendar closed
-        void Walls.shown;     // same for the wallpaper file watcher
+        void Walls.shown;     // same: the wallpaper picker reads what each screen shows the moment it opens
         Surfaces.host = root;
     }
 
@@ -186,7 +186,6 @@ Scope {
         function mixer(mon: string): void { root.toggleSurface(mon, "mixer"); }
         function calendar(mon: string): void { root.toggleSurface(mon, "calendar"); }
         function power(mon: string): void { root.toggleSurface(mon, "power"); }
-        function link(mon: string): void { root.toggleSurface(mon, "link"); }
         function battery(mon: string): void { root.toggleSurface(mon, "battery"); }
         function sysmon(mon: string): void { root.toggleSurface(mon, "sysmon"); }
         function peek(mon: string): void { root.peek(mon); }
@@ -195,15 +194,8 @@ Scope {
         /** Screenshot tools call this before capturing so their own last toast is not in the shot. */
         function dropToasts(app: string): bool { return Notifs.dropPopups(app); }
 
-        /** Opens any surface by name, settings sub-pages included; dev and scripting door. */
+        /** Opens any surface by name; the dev and testing door. */
         function page(mon: string, name: string): void { root.toggleSurface(mon, name); }
-
-        /**
-         * Same, but as a navigation: the surface that was open becomes the back
-         * target, so the chevron walks back to it. This is the door the island's
-         * own rail uses; `page` stays the direct, no-history open.
-         */
-        function nav(mon: string, name: string): void { root.navigate(mon, name); }
     }
 
     /**

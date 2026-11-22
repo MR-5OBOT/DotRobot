@@ -49,33 +49,6 @@ Singleton {
         onFileChanged: reload()
     }
 
-    /**
-     * awww decodes a still once at set time, so a file overwritten in place (an
-     * editor exporting over the same name) kept its old pixels on screen. Every
-     * shown still is watched and re-applied to the outputs showing it; one save
-     * fires several change events (truncate, write), so they settle first.
-     */
-    Instantiator {
-        model: [...new Set(root.shown.map(e => e[1]))]
-        delegate: FileView {
-            required property string modelData
-            path: modelData
-            preload: false
-            watchChanges: true
-            printErrors: false
-            onFileChanged: settle.restart()
-            property Timer settle: Timer { interval: 500; onTriggered: root.reapply(modelData) }
-        }
-    }
-
-    function reapply(path) {
-        var outs = root.shown.filter(e => e[1] === path).map(e => e[0]);
-        if (outs.length === root.shown.length)
-            apply(path);
-        else
-            outs.forEach(o => apply(path, o));
-    }
-
     Process {
         id: applyProc
         onExited: function(code) {
