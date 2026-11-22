@@ -16,7 +16,6 @@ Singleton {
     property alias keepAwake: adapter.keepAwake
     property alias time12h: adapter.time12h
     property alias clockSeconds: adapter.clockSeconds
-    property alias paletteMode: adapter.paletteMode
     property alias wallpaperDir: adapter.wallpaperDir
     property alias wallpaperFit: adapter.wallpaperFit
     property alias uiScale: adapter.uiScale
@@ -42,8 +41,6 @@ Singleton {
         return best;
     }
     property alias reduceMotion: adapter.reduceMotion
-    property alias manualHue: adapter.manualHue
-    property alias manualSat: adapter.manualSat
     property alias pillOpacity: adapter.pillOpacity
     property alias autoHide: adapter.autoHide
     property alias topGap: adapter.topGap
@@ -71,15 +68,12 @@ Singleton {
             property bool keepAwake: false
             property bool time12h: false
             property bool clockSeconds: false
-            property string paletteMode: "static"
             /** Explicit wallpaper folder override. Empty means ~/Pictures/wallpapers. Lives in user state so an in-app update never clobbers a custom folder. */
             property string wallpaperDir: ""
             /** Wallpaper scaling read by wallpaper.sh: awww --resize "no" (center), "crop" (cover), "fit" (contain) or "stretch". */
             property string wallpaperFit: "crop"
             property real uiScale: root.autoScale
             property bool reduceMotion: false
-            property int manualHue: 30
-            property real manualSat: 0.5
             property real pillOpacity: 1.0
             property bool autoHide: true
             /** Top margin as a fraction of the shipped 8px. 0 sits the pill flush to the screen edge. */

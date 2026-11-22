@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate the island accent from a wallpaper (or a manual hue) for Quickshell.
+Generate the island accent from a wallpaper for Quickshell.
 One histogram pass yields the area-dominant chromatic hue (binned by hue family
 so a small vivid accent never hijacks the theme), which tints a light accent
 ramp in HSL that stands out on the black pill. An achromatic wallpaper drops to
@@ -53,19 +53,13 @@ def tint(hue, sat, light):
 def main():
     if len(sys.argv) < 2:
         return 1
-    if sys.argv[1] == "--hue":
-        hue = (float(sys.argv[2]) % 360) / 360.0
-        sat = float(sys.argv[3]) if len(sys.argv) > 3 else 0.5
-        sat = max(0.0, min(1.0, sat))
-        chromatic = sat > 0.02
-    else:
-        wallpaper = sys.argv[1]
-        if not Path(wallpaper).is_file():
-            return 0
-        hue, sat = analyze(wallpaper)
-        chromatic = hue is not None
-        if not chromatic:
-            hue, sat = 0.09, 0.0
+    wallpaper = sys.argv[1]
+    if not Path(wallpaper).is_file():
+        return 0
+    hue, sat = analyze(wallpaper)
+    chromatic = hue is not None
+    if not chromatic:
+        hue, sat = 0.09, 0.0
     CACHE.mkdir(parents=True, exist_ok=True)
 
     acc_sat = min(max(sat, 0.30) + 0.12, 0.82) if chromatic else 0.05

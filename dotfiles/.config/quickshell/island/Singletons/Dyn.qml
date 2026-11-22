@@ -6,9 +6,8 @@ import Quickshell.Io
 /**
  * Live wallpaper-derived accent. wallcolors.py writes a small colour JSON on
  * every wallpaper change and this singleton watches it, so the tokens update
- * the moment the wallpaper does. Theme reads these only while the dynamic or
- * manual palette is on; otherwise its curated hex wins. Defaults are a warm
- * fallback so a missing file still yields a usable accent.
+ * the moment the wallpaper does. Theme builds its accent ramp from these.
+ * Defaults are a warm fallback so a missing file still yields a usable accent.
  */
 Singleton {
     id: root

@@ -85,10 +85,10 @@ apply_visual() {
 }
 
 # The palette follows the focused monitor: whatever hangs there drives wallcolors,
-# the global state file and the global still, so the Settings dynamic re-run
-# and the picker's current marker stay coherent with what the user looks at.
+# the global state file and the global still, so the accent and the picker's
+# current marker stay coherent with what the user looks at.
 palette_update() {
-    local pmode focused pic mh ms
+    local focused pic
     focused=$(focused_output)
     pic=""
     [ -n "$focused" ] && pic=$(map_get "$focused")
@@ -96,15 +96,8 @@ palette_update() {
     [ -n "$pic" ] && [ -f "$pic" ] || return 0
     mkdir -p "$(dirname "$STATE")"
     printf '%s\n' "$pic" > "$STATE"
-    pmode=$(jq -r '.paletteMode // "static"' "$flags_file" 2>/dev/null || echo static)
     mkdir -p "$(dirname "$WLOG")"
-    if [ "$pmode" = "manual" ]; then
-        mh=$(jq -r '.manualHue // 30' "$flags_file" 2>/dev/null || echo 30)
-        ms=$(jq -r '.manualSat // 0.5' "$flags_file" 2>/dev/null || echo 0.5)
-        python3 "$(dirname "$0")/wallcolors.py" --hue "$mh" "$ms" >>"$WLOG" 2>&1 || true
-    else
-        python3 "$(dirname "$0")/wallcolors.py" "$pic" >>"$WLOG" 2>&1 || true
-    fi
+    python3 "$(dirname "$0")/wallcolors.py" "$pic" >>"$WLOG" 2>&1 || true
 }
 
 # Hyprland 0.57 leaves a wallpaper layer that mapped under a fullscreen window at
