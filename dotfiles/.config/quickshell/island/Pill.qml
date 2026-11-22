@@ -28,41 +28,15 @@ Item {
     property var barWindow
     property string surface: ""
 
-    /**
-     * Tail retention: a closed surface keeps its object tree alive until its
-     * own countdown elapses so a quick return is still instant. Every closed
-     * surface is tracked by name in `closedAt` and swept independently, so
-     * closing one never extends another's tail. When memory saver is on each
-     * surface gets a tiered cooldown (heavy/thirsty surfaces evict sooner);
-     * when off, closed surfaces stay resident for the whole session and only
-     * the explicit `unloadAll` IPC drops them.
-     */
     property string prevSurface: ""
 
-    /**
-     * Idle (ms) before a closed surface is unloaded, keyed by surface name,
-     * scaled from the Flags.unloadSec base (`unloadS` here). The heaviest
-     * surface (mixer) keeps the shortest tail; everything else gets one 60s
-     * reset for quick re-toggles before it is reclaimed, so a session that
-     * touched every surface returns near boot RSS within a couple of minutes.
-     */
-    readonly property real unloadS: (Flags.memorySaver ? Math.max(10, Flags.unloadSec) : 1e12)
-    readonly property var unloadIdleMs: ({
-        mixer:       unloadS * 1000,
-        default:     unloadS * 2 * 1000
-    })
+    /** How long a closed surface stays built so a quick reopen is instant: 2 × Flags.unloadSec (60 s by default); 0 = memory saver off, never dropped. */
+    readonly property int unloadMs: Flags.memorySaver ? Math.max(10, Flags.unloadSec) * 2000 : 0
 
-    /**
-     * Every surface that has stopped being open, keyed by surface name, with
-     * the epoch ms it closed. `surfaceItem` drops the entry when the surface
-     * reopens (that *is* the "reset the clock and wait again" of the tail);
-     * the sweep timer unloads each entry once its own tier has elapsed.
-     */
-    property var closedAt: ({})
+    /** The surface on screen: the open one, or the one still sliding away. Its Loader must stay built. */
+    readonly property string liveSurface: surface.length > 0 ? surface : retractSurface
 
     onSurfaceChanged: {
-        if (pill.prevSurface.length > 0 && pill.prevSurface !== pill.surface)
-            pill.scheduleUnload(pill.prevSurface);
         if (pill.surface.length === 0 && pill.prevSurface.length > 0) {
             pill.retractSurface = pill.prevSurface;
             retractTimer.restart();
@@ -84,10 +58,7 @@ Item {
         onTriggered: pill.retractSurface = ""
     }
 
-    Component.onCompleted: {
-        Surfaces.register(pill);
-        if (waveWanted) Cava.viewers++;
-    }
+    Component.onCompleted: if (waveWanted) Cava.viewers++
 
     property bool hovered: false
     /**
@@ -248,31 +219,8 @@ Item {
     readonly property real restCorner: 18 * s
     readonly property real openCorner: 22 * s
 
-    /**
-     * Latch-once lazy load. Every surface sleeps in an inactive Loader until its
-     * first open; the size and ame thunks below resolve items through here by
-     * surface name. The ordering is the trick: flip `active` before any read of
-     * the loader, so the calling binding never has the loader registered as a
-     * dep when the flip fires mid-evaluation (that read-then-write would be a
-     * binding loop). The write is idempotent and the Loader loads synchronously,
-     * so a first open reads the real implicitHeight in the same evaluation and
-     * the morph target is exact. When a surface leaves, scheduleUnload starts
-     * its own tail; opening it again before the tail fires cancels the drop, so
-     * only surfaces that stay closed actually unload.
-     */
-    function surfaceItem(name) {
-        if (!pill.loaders[name])
-            return null;
-        const ld = pill.loaders[name]();
-        if (!ld)
-            return null;
-        ld.active = true;
-        // Only an open surface cancels its tail: while auto-hide slides a just-closed
-        // surface away, `mode` still sizes it through here, and that must not keep it.
-        if (name === pill.surface)
-            pill.cancelUnload(name);
-        return ld.item;
-    }
+    /** A loaded surface's height, 0 while its Loader is still empty (the first open fills it in the same frame). */
+    function itemH(ld) { return ld.item ? ld.item.implicitHeight : 0; }
 
     /**
      * Single source of truth for every morphing surface, keyed by its `surface`
@@ -284,138 +232,43 @@ Item {
      * no parallel ternary chains to keep in lockstep.
      */
     readonly property var surfaces: ({
-        home:      { size: () => { surfaceItem("home"); return Qt.size(homeW, homeH); }, ame: () => surfaceItem("home") },
-        calendar:  { size: () => { const it = surfaceItem("calendar"); return Qt.size((it.implicitWidth > 0 ? it.implicitWidth : 282 * calendarS) + 36 * calendarS, it.implicitHeight + 32 * calendarS); }, ame: () => surfaceItem("calendar") },
-        power:     { size: () => { surfaceItem("power"); return Qt.size(powerW, powerH); }, ame: () => surfaceItem("power") },
-        mixer:     { size: () => Qt.size(93 * Math.max(4, surfaceItem("mixer").faderCount) * s, mixerH), ame: () => surfaceItem("mixer") },
-        battery:   { size: () => Qt.size(batteryW, surfaceItem("battery").implicitHeight + 26 * s), ame: () => surfaceItem("battery") },
-        sysmon:    { size: () => Qt.size(sysmonW, surfaceItem("sysmon").implicitHeight + 33 * s), ame: () => surfaceItem("sysmon") },
-        display:    { size: () => Qt.size(settingsW, surfaceItem("display").implicitHeight + 29 * s), ame: () => surfaceItem("display") },
-        theme:      { size: () => Qt.size(settingsW, surfaceItem("theme").implicitHeight + 29 * s), ame: () => surfaceItem("theme") }
+        home:     { size: () => Qt.size(homeW, homeH), ame: () => ldHome.item },
+        calendar: { size: () => Qt.size((ldCalendar.item && ldCalendar.item.implicitWidth > 0 ? ldCalendar.item.implicitWidth : 282 * calendarS) + 36 * calendarS, itemH(ldCalendar) + 32 * calendarS), ame: () => ldCalendar.item },
+        power:    { size: () => Qt.size(powerW, powerH), ame: () => ldPower.item },
+        mixer:    { size: () => Qt.size(93 * Math.max(4, ldMixer.item ? ldMixer.item.faderCount : 0) * s, mixerH), ame: () => ldMixer.item },
+        battery:  { size: () => Qt.size(batteryW, itemH(ldBattery) + 26 * s), ame: () => ldBattery.item },
+        sysmon:   { size: () => Qt.size(sysmonW, itemH(ldSysmon) + 33 * s), ame: () => ldSysmon.item },
+        display:  { size: () => Qt.size(settingsW, itemH(ldDisplay) + 29 * s), ame: () => ldDisplay.item },
+        theme:    { size: () => Qt.size(settingsW, itemH(ldTheme) + 29 * s), ame: () => ldTheme.item }
     })
 
     /**
-     * Loader lookup by surface name, as thunks so the map never pins a loader
-     * before it is built. The unload machinery keeps every closed surface
-     * resident for its own tiered countdown, then drops it — so opening a
-     * surface pays its build cost once, and re-opening within the tail is
-     * instant.
+     * A surface's Loader: built when it opens, kept for keepMs after it closes,
+     * then dropped (keepMs 0 keeps it). Handlers rather than an `active:` binding,
+     * so a close can never drop and rebuild it in the gap before the timer starts.
      */
-    readonly property var loaders: ({
-        home:       () => ldHome,
-        calendar:   () => ldCalendar,
-        power:      () => ldPower,
-        mixer:      () => ldMixer,
-        battery:    () => ldBattery,
-        sysmon:     () => ldSysmon,
-        display:    () => ldDisplay,
-        theme:      () => ldTheme
-    })
-
-    /**
-     * Arm a closed surface's own tail. Only surfaces that are actually loaded
-     * are tracked, so a name can never sit in the map pointing at an inactive
-     * loader. Reopening the surface before the tail elapses has already called
-     * cancelUnload by the time this could re-fire, so the countdown restarts
-     * on the next close — "open again before its tier elapses, stay alive".
-     */
-    function scheduleUnload(name) {
-        if (!name || !pill.loaders[name])
-            return;
-        const ld = pill.loaders[name]();
-        if (!ld || !ld.active)
-            return;
-        pill.closedAt[name] = Date.now();
-        sweepTimer.start();
-    }
-
-    function cancelUnload(name) {
-        if (!name)
-            return;
-        delete pill.closedAt[name];
-        if (Object.keys(pill.closedAt).length === 0)
-            sweepTimer.stop();
-    }
-
-    /**
-     * This surface's own idle window, from the tier map by surface name.
-     * Loaders not actually defined (typo'd or removed names) fall through to
-     * the full default so they never evict accidentally early.
-     */
-    function idleFor(name) {
-        var v = pill.unloadIdleMs[name];
-        if (v === undefined)
-            v = pill.unloadIdleMs.default;
-        return v;
-    }
-
-    /**
-     * Periodic sweep. Each closed surface carries its own timestamp, so every
-     * one is dropped independently once its own tier has elapsed; unloading one
-     * never shortens or lengthens another's countdown.
-     */
-    Timer {
-        id: sweepTimer
-        interval: 5000
-        repeat: true
-        running: false
-        onTriggered: {
-            var now = Date.now();
-            var names = Object.keys(pill.closedAt);
-            var keeps = false;
-            var dropped = false;
-            for (var i = 0; i < names.length; i++) {
-                var name = names[i];
-                if (now - pill.closedAt[name] >= pill.idleFor(name)) {
-                    const fn = pill.loaders[name];
-                    const ld = fn ? fn() : null;
-                    if (ld && ld.active) {
-                        ld.active = false;
-                        dropped = true;
-                    }
-                    delete pill.closedAt[name];
-                } else {
-                    keeps = true;
-                }
+    component SurfaceLoader: Loader {
+        id: sl
+        required property string name
+        required property string live
+        required property int keepMs
+        readonly property bool shown: live === name
+        active: false
+        anchors.fill: parent
+        onShownChanged: {
+            if (shown) {
+                tail.stop();
+                active = true;
+            } else {
+                tail.restart();
             }
-            if (dropped)
-                Qt.callLater(pill.reapJs);
-            if (!keeps)
-                sweepTimer.stop();
         }
-    }
-
-    /**
-     * Detached JS models/closures outlive a Loader teardown until the engine's
-     * next major collection. A GC right after an eviction reclaims those
-     * wrappers up-front instead of piling into a later spike. Guarded because
-     * the `gc` global is not available in every JS environment.
-     */
-    function reapJs() {
-        if (typeof gc === "function")
-            gc();
-    }
-
-    /**
-     * Drop every closed surface now, regardless of how much of its tail is
-     * left. The open surface is never in `closedAt`, so it is untouched. This
-     * is what the unloadAll IPC routes to every pill.
-     */
-    function unloadClosedSurfaces() {
-        var names = Object.keys(pill.closedAt);
-        var dropped = false;
-        for (var i = 0; i < names.length; i++) {
-            const fn = pill.loaders[names[i]];
-            const ld = fn ? fn() : null;
-            if (ld && ld.active) {
-                ld.active = false;
-                dropped = true;
-            }
-            delete pill.closedAt[names[i]];
+        onKeepMsChanged: if (!shown && active) tail.restart()   // memory saver turned on: start dropping already-closed ones
+        Timer {
+            id: tail
+            interval: sl.keepMs
+            onTriggered: if (!sl.shown && sl.keepMs > 0) sl.active = false
         }
-        sweepTimer.stop();
-        if (dropped)
-            Qt.callLater(pill.reapJs);
     }
 
     readonly property string mode: dragActive ? "dragOver"
@@ -1246,13 +1099,9 @@ Item {
     }
 
     /**
-     * Morphing surfaces, one tail-unloaded Loader each (see surfaceItem). Eager,
-     * they dominated startup and per-monitor RAM; now a surface is built
-     * synchronously on its first open, kept for one private tiered countdown
-     * after it stops being open, then dropped — so nothing is retained for surfaces
-     * the user never opens, and closed ones don't linger past their own tail. Each
-     * loader fills the pill so the PillSurface inside anchors exactly as it did as a
-     * direct child.
+     * Morphing surfaces, one SurfaceLoader each: nothing is built for a surface
+     * you never open, and a closed one is dropped after unloadMs. Each loader
+     * fills the pill so the PillSurface inside anchors as a direct child would.
      */
 
     /**
@@ -1288,10 +1137,11 @@ Item {
         }
     }
 
-    Loader {
+    SurfaceLoader {
         id: ldHome
-        active: false
-        anchors.fill: parent
+        name: "home"
+        live: pill.liveSurface
+        keepMs: pill.unloadMs
         sourceComponent: Home {
             s: pill.s
             open: pill.homeOpen
@@ -1303,10 +1153,11 @@ Item {
         }
     }
 
-    Loader {
+    SurfaceLoader {
         id: ldMixer
-        active: false
-        anchors.fill: parent
+        name: "mixer"
+        live: pill.liveSurface
+        keepMs: pill.unloadMs
         sourceComponent: Mixer {
             s: pill.s
             open: pill.mixerOpen
@@ -1314,10 +1165,11 @@ Item {
         }
     }
 
-    Loader {
+    SurfaceLoader {
         id: ldCalendar
-        active: false
-        anchors.fill: parent
+        name: "calendar"
+        live: pill.liveSurface
+        keepMs: pill.unloadMs
         sourceComponent: Calendar {
             s: pill.calendarS
             open: pill.calendarOpen
@@ -1325,10 +1177,11 @@ Item {
         }
     }
 
-    Loader {
+    SurfaceLoader {
         id: ldPower
-        active: false
-        anchors.fill: parent
+        name: "power"
+        live: pill.liveSurface
+        keepMs: pill.unloadMs
         sourceComponent: Power {
             s: pill.s
             open: pill.powerOpen
@@ -1337,10 +1190,11 @@ Item {
         }
     }
 
-    Loader {
+    SurfaceLoader {
         id: ldBattery
-        active: false
-        anchors.fill: parent
+        name: "battery"
+        live: pill.liveSurface
+        keepMs: pill.unloadMs
         sourceComponent: BatterySurface {
             s: pill.s
             open: pill.batteryOpen
@@ -1349,10 +1203,11 @@ Item {
         }
     }
 
-    Loader {
+    SurfaceLoader {
         id: ldSysmon
-        active: false
-        anchors.fill: parent
+        name: "sysmon"
+        live: pill.liveSurface
+        keepMs: pill.unloadMs
         sourceComponent: SysmonSurface {
             s: pill.s
             open: pill.sysmonOpen
@@ -1361,10 +1216,11 @@ Item {
         }
     }
 
-    Loader {
+    SurfaceLoader {
         id: ldDisplay
-        active: false
-        anchors.fill: parent
+        name: "display"
+        live: pill.liveSurface
+        keepMs: pill.unloadMs
         sourceComponent: DisplaySurface {
             s: pill.s * pill.settingsScale
             open: pill.displayOpen
@@ -1374,10 +1230,11 @@ Item {
         }
     }
 
-    Loader {
+    SurfaceLoader {
         id: ldTheme
-        active: false
-        anchors.fill: parent
+        name: "theme"
+        live: pill.liveSurface
+        keepMs: pill.unloadMs
         sourceComponent: ThemeSurface {
             s: pill.s * pill.settingsScale
             open: pill.themeOpen

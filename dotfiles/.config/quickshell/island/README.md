@@ -35,7 +35,7 @@ Target `island`; the first argument is the monitor (`""` = focused).
 qs ipc call island calendar ""
 ```
 
-Handlers: `home`, `mixer`, `calendar`, `power`, `link`, `battery`, `sysmon`, `peek`, `hide`, `unloadAll`, `page`, `nav`. The shell's widgets have their own targets: `qs ipc call launcher|clipboard|wallpicker toggle`.
+Handlers: `home`, `mixer`, `calendar`, `power`, `link`, `battery`, `sysmon`, `peek`, `hide`, `page`, `nav`. The shell's widgets have their own targets: `qs ipc call launcher|clipboard|wallpicker toggle`.
 
 `qs ipc call notifications toggle` opens the notification center; `notifications hide` closes it. The island's `link`, `page "" link` and `nav "" link` routes open the same panel.
 

@@ -199,13 +199,6 @@ Scope {
         /** Screenshot tools call this before capturing so their own last toast is not in the shot. */
         function dropToasts(app: string): bool { return Notifs.dropPopups(app); }
 
-        /**
-         * Memory saver door: drop every closed surface on every monitor right
-         * away, regardless of how much of its 30s tail is left. The open
-         * surface is never touched; reopening a dropped surface rebuilds it.
-         */
-        function unloadAll(): void { Surfaces.unloadClosed(); }
-
         /** Opens any surface by name, settings sub-pages included; dev and scripting door. */
         function page(mon: string, name: string): void { root.toggleSurface(mon, name); }
 

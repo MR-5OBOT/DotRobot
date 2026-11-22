@@ -86,9 +86,9 @@ Singleton {
             property real topGap: 1.0
             /** Pill-to-window band as a fraction of the shipped 12px. 0 tucks the windows flush under the pill. */
             property real appGap: 1.0
-            /** Drop closed surfaces after their own idle tier instead of holding them in RAM all session. */
+            /** Drop closed surfaces after a while instead of holding them in RAM all session. */
             property bool memorySaver: true
-            /** Wallpaper-tier idle in seconds when memorySaver is on; the other tiers scale off it. */
+            /** With memorySaver on, a closed surface is dropped after 2 × this many seconds (Pill.qml unloadMs). */
             property real unloadSec: 30
         }
     }
