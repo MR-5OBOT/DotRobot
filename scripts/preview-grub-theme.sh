@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Preview-only tools are kept off the package lists; install them on demand.
+command -v qemu-system-x86_64 >/dev/null && command -v xorriso >/dev/null && [[ -f /usr/share/edk2/x64/OVMF_CODE.4m.fd ]] ||
+  { echo "needs: sudo pacman -S --asdeps qemu-system-x86 edk2-ovmf libisoburn" >&2; exit 1; }
+
 theme=$(cd -- "$(dirname -- "$0")/../assets/grub/obsidian" && pwd)
 [[ -s "$theme/background.jpg" && -s "$theme/frame.png" ]]
 preview=$(mktemp -d /tmp/obsidian-preview.XXXXXXXX)
