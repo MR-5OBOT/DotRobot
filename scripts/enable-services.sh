@@ -5,7 +5,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 
 # Services needed by the desktop are automatic. Hardware/features the user may
 # not use are opt-in so running the installer does not silently start them.
-DEFAULT_UNITS=(NetworkManager.service power-profiles-daemon.service paccache.timer)
+DEFAULT_UNITS=(NetworkManager.service power-profiles-daemon.service paccache.timer fstrim.timer)
 OPTIONAL_UNITS=(bluetooth.service thermald.service)
 # Session daemons as user units: uwsm starts them with the Hyprland session,
 # systemd restarts them on a crash, and `journalctl --user -u <name>` has logs.
