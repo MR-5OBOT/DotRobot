@@ -23,7 +23,6 @@ PORT=5555
 MAX_SCAN_JOBS=32
 STATE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/scrcpy-wifi"
 STATE_FILE="$STATE_DIR/last"
-NET_CLASS="${NET_CLASS:-/sys/class/net}"
 
 # Quality defaults — tweak to taste, or override per-run via CLI args.
 SCRCPY_OPTS=(--max-size 1920 --max-fps 60 --video-bit-rate 8M --turn-screen-off)
@@ -54,7 +53,7 @@ scan_bases() {
         fi
     fi
 
-    for net in "$NET_CLASS"/*; do
+    for net in /sys/class/net/*; do
         [[ -e "$net/device" ]] || continue
         iface="${net##*/}"
         while read -r addr; do
@@ -163,6 +162,4 @@ log "Connected: $DEVICE"
 exec scrcpy -s "$DEVICE" "${SCRCPY_OPTS[@]}" "$@"
 }
 
-if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
-    main "$@"
-fi
+main "$@"

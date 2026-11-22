@@ -251,6 +251,4 @@ main() {
   connect_profile
 }
 
-if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
-  main "$@"
-fi
+main "$@"

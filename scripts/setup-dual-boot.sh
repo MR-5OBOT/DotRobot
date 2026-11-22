@@ -45,6 +45,4 @@ main() {
   log "Done. If Windows uses BitLocker, have the recovery key ready: https://aka.ms/myrecoverykey"
 }
 
-if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
-  main "$@"
-fi
+main "$@"

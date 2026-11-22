@@ -17,6 +17,4 @@ main() {
   log "Installed the pacman.conf template"
 }
 
-if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
-  main "$@"
-fi
+main "$@"

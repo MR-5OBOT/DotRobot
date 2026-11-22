@@ -9,58 +9,34 @@
 
 set -uo pipefail
 
-POWER_SUPPLY_DIR="${POWER_SUPPLY_DIR:-/sys/class/power_supply}"
 LOW_PCT=20          # start warning at or under this
 CRIT_PCT=10         # tighten the nag at or under this
 NAG_SECS=300        # 5 min while 11-20%
 CRIT_SECS=60        # 1 min at or under CRIT_PCT
 POLL_SECS=10
 
-pct=0 full=0 charging=0 fully_charged=0
+pct=0 present=0 charging=0 fully_charged=0
 
 has_battery() {
-  local battery
-  for battery in "${POWER_SUPPLY_DIR}"/BAT*; do
-    [[ -d "${battery}" ]] && return 0
-  done
-  return 1
+  compgen -G "/sys/class/power_supply/BAT*" >/dev/null
 }
 
-# rd VAR FILE [default]: read one sysfs value with no fork (polled every 10s);
-# a missing file gives the default, 0 unless set.
-rd() { read -r "$1" 2>/dev/null < "$2" || printf -v "$1" '%s' "${3-0}"; }
-
-# Kernels expose one of two unit families: energy_*/power_now (uWh/uW, the
-# ThinkPad) or charge_*/current_now (uAh/uA, the Dell). Scale charge units by
-# voltage so both end up as energy, then sum across every BAT.
+# Same source as the bar: UPower's display device, which already combines every
+# battery and both kernel unit families. One upower call per poll.
 read_battery() {
-  local b n=0 f=0 v now fu st batteries=0 full_batteries=0 discharging=0
-  charging=0
-  fully_charged=0
-  for b in "${POWER_SUPPLY_DIR}"/BAT*; do
-    [[ -d "${b}" ]] || continue
-    batteries=$(( batteries + 1 ))
-    rd v "${b}/voltage_now"
-    [[ "${v}" == 0 ]] && rd v "${b}/voltage_min_design"
-    rd now "${b}/energy_now"
-    rd fu "${b}/energy_full"
-    if [[ "${fu}" == 0 ]]; then
-      rd now "${b}/charge_now"; now=$(( now * v / 1000000 ))
-      rd fu "${b}/charge_full"; fu=$(( fu * v / 1000000 ))
-    fi
-    rd st "${b}/status" ""
-    case "${st}" in
-      Charging) charging=1 ;;
-      Discharging) discharging=1 ;;
-      Full) full_batteries=$(( full_batteries + 1 )) ;;
-    esac
-    n=$(( n + now )); f=$(( f + fu ))
-  done
-  full=${f}
-  pct=$(( f > 0 ? (n * 100 + f / 2) / f : 0 ))   # round, like the old Math.round
-  if (( batteries > 0 && (full_batteries == batteries || (pct >= 100 && !charging && !discharging)) )); then
+  local state
+  read -r present state pct < <(LC_ALL=C upower -i /org/freedesktop/UPower/devices/DisplayDevice 2>/dev/null | awk '
+    $1 == "present:" { present = ($2 == "yes") }
+    $1 == "state:" { state = $2 }
+    $1 == "percentage:" { pct = int($2 + 0.5) }
+    END { printf "%d %s %d\n", present, (state == "" ? "unknown" : state), pct }')
+  charging=0 fully_charged=0
+  [[ ${state} == charging ]] && charging=1
+  # Full: UPower says so, or 100% while neither charging nor discharging.
+  if [[ ${state} == fully-charged ]] || { (( pct >= 100 )) && [[ ${state} != charging && ${state} != discharging ]]; }; then
     fully_charged=1
   fi
+  return 0
 }
 
 # notify-send -p hands back the freedesktop id and -r reuses it, so repeats
@@ -79,7 +55,7 @@ notify() {
 
 last_nag=0 full_notified=0
 process_battery_state() {
-  if (( full > 0 )); then
+  if (( present )); then
     if (( fully_charged )); then
       if (( !full_notified )) && notify normal "🔋 Battery full" "unplug your charger" 0; then
         full_notified=1
@@ -116,6 +92,4 @@ main() {
   done
 }
 
-if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
-  main "$@"
-fi
+main "$@"
