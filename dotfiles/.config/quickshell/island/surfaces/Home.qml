@@ -106,7 +106,7 @@ PillSurface {
         precision: SystemClock.Minutes
     }
 
-    readonly property string hhmm: Qt.formatDateTime(clock.date, Flags.time12h ? "h:mm AP" : "HH:mm")
+    readonly property string hhmm: Qt.formatDateTime(clock.date, "HH:mm")
     readonly property string dateLine: Qt.formatDateTime(clock.date, "dddd, yyyy-MM-dd")
 
     // ---- quick toggles -----------------------------------------------------

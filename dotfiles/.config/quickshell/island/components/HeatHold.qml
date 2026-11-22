@@ -62,6 +62,6 @@ Item {
         target: root
         property: "hold"
         to: 0
-        duration: Math.round(180 * Motion.mult)
+        duration: 180
     }
 }

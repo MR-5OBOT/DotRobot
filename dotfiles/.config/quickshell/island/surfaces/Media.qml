@@ -556,7 +556,7 @@ Item {
 
                 Behavior on drawF {
                     enabled: !root.dragging && Math.abs(root.frac - stroke.lastFrac) < 0.02
-                    NumberAnimation { duration: Math.round(500 * Motion.mult); easing.type: Easing.Linear }
+                    NumberAnimation { duration: 500; easing.type: Easing.Linear }
                 }
                 onTargetFChanged: Qt.callLater(() => { stroke.lastFrac = root.frac; })
 

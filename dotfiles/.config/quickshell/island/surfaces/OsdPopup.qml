@@ -55,8 +55,8 @@ Item {
         topRightRadius: popup.workspace ? 22 * s : 22 * s * (1 - topFlat)
         bottomLeftRadius: popup.workspace ? 0 : 22 * s
         gradient: Gradient {
-            GradientStop { position: 0.0; color: Qt.alpha(Theme.cardTop, Flags.pillOpacity) }
-            GradientStop { position: 1.0; color: Qt.alpha(Theme.cardBot, Flags.pillOpacity) }
+            GradientStop { position: 0.0; color: Theme.cardTop }
+            GradientStop { position: 1.0; color: Theme.cardBot }
         }
 
         layer.enabled: true
@@ -73,7 +73,7 @@ Item {
         anchors.top: parent.top
         width: parent.width
         r: 14 * popup.s
-        color: Qt.alpha(Theme.cardTop, Flags.pillOpacity)
+        color: Theme.cardTop
         opacity: popup.workspace ? 0 : popup.topFlat
     }
 

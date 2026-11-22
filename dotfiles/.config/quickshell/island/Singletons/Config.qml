@@ -11,10 +11,8 @@ import Quickshell
 Singleton {
     id: root
 
-    // The picker and drag-and-drop must save/read the same collection: the folder
-    // set in island Settings, else ~/Pictures/wallpapers.
-    readonly property string wallpaperDir: Flags.wallpaperDir
-        || (Quickshell.env("HOME") + "/Pictures/wallpapers")
+    // The picker and drag-and-drop save/read the same collection.
+    readonly property string wallpaperDir: Quickshell.env("HOME") + "/Pictures/wallpapers"
 
     /** Absolute filesystem path of the quickshell project folder (parent of Singletons/). */
     readonly property string configDir: {

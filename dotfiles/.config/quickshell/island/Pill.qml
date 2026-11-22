@@ -30,8 +30,8 @@ Item {
 
     property string prevSurface: ""
 
-    /** How long a closed surface stays built so a quick reopen is instant: 2 × Flags.unloadSec (60 s by default); 0 = memory saver off, never dropped. */
-    readonly property int unloadMs: Flags.memorySaver ? Math.max(10, Flags.unloadSec) * 2000 : 0
+    /** How long a closed surface stays built so a quick reopen is instant; 0 = memory saver off, never dropped. */
+    readonly property int unloadMs: Flags.memorySaver ? 60000 : 0
 
     /** The surface on screen: the open one, or the one still sliding away. Its Loader must stay built. */
     readonly property string liveSurface: surface.length > 0 ? surface : retractSurface
@@ -83,8 +83,7 @@ Item {
     readonly property bool batteryOpen: surface === "battery"
     readonly property bool sysmonOpen: surface === "sysmon"
     readonly property bool displayOpen: surface === "display"
-    readonly property bool themeOpen: surface === "theme"
-    readonly property bool settingsLike: displayOpen || themeOpen
+    readonly property bool settingsLike: displayOpen
 
     readonly property bool surfaceOpen: surface.length > 0
     property bool hoverLatch: false
@@ -125,12 +124,12 @@ Item {
     readonly property bool monFocused: Monitors.focusedName === pill.screenName
 
     /**
-     * Auto-hide mode retracts as soon as this monitor loses focus, even if the
+     * The pill retracts as soon as this monitor loses focus, even if the
      * cursor is still over the strip or pill: a click only expands the pill
      * temporarily, so focus loss (or cursor exit, via graceTimer) is what
-     * releases the latch. Outside auto-hide the pill's pin still holds.
+     * releases the latch.
      */
-    onMonFocusedChanged: if (!monFocused && Flags.autoHide) {
+    onMonFocusedChanged: if (!monFocused) {
         revealSession = false;
         hoverLatch = false;
     }
@@ -155,32 +154,9 @@ Item {
      * (with its 350ms grace) is what keeps the pill up while the cursor is near
      * it, so a cursor sitting on the strip's edge cannot bounce it.
      */
-    readonly property bool hidden: Flags.autoHide && !revealSession && !expanded && !dragActive
+    readonly property bool hidden: !revealSession && !expanded && !dragActive
         && !transientLive
 
-    /**
-     * The special workspace shown on this pill's monitor, surfaced as a plain word
-     * in place of the clock so it is obvious you are looking at the minimized stash
-     * or the private space rather than your real desktop. Empty in the normal case.
-     */
-    readonly property string specialView: {
-        var ms = Monitors.list;
-        for (var i = 0; i < ms.length; i++) {
-            if (ms[i] && ms[i].name === pill.screenName) {
-                var o = ms[i];
-                var sw = (o && o.specialWorkspace) ? o.specialWorkspace.name : "";
-                if (sw && sw.indexOf("special:") === 0) {
-                    var id = sw.slice("special:".length);
-                    if (id === "minimized") return "Minimized";
-                    if (id === "private") return "Private";
-                    if (id === "stash") return "Stash";
-                    return id.charAt(0).toUpperCase() + id.slice(1);
-                }
-                return "";
-            }
-        }
-        return "";
-    }
     readonly property bool toastActive: Notifs.popups.length > 0
     /** Set by Island.qml from the OSD popup that sits beside the pill. */
     property bool osdActive: false
@@ -194,8 +170,6 @@ Item {
      */
     onOsdActiveChanged: if (osdActive && toastActive && !Notifs.toastCritical) Notifs.clearPopups()
 
-    readonly property real restW: 160 * s
-    readonly property real restH: 38 * s
 
     readonly property real hoverPad: 20 * s
     readonly property real hoverW: hoverRow.implicitWidth + 2 * hoverPad
@@ -238,8 +212,7 @@ Item {
         mixer:    { size: () => Qt.size(93 * Math.max(4, ldMixer.item ? ldMixer.item.faderCount : 0) * s, mixerH), ame: () => ldMixer.item },
         battery:  { size: () => Qt.size(batteryW, itemH(ldBattery) + 26 * s), ame: () => ldBattery.item },
         sysmon:   { size: () => Qt.size(sysmonW, itemH(ldSysmon) + 33 * s), ame: () => ldSysmon.item },
-        display:  { size: () => Qt.size(settingsW, itemH(ldDisplay) + 29 * s), ame: () => ldDisplay.item },
-        theme:    { size: () => Qt.size(settingsW, itemH(ldTheme) + 29 * s), ame: () => ldTheme.item }
+        display:  { size: () => Qt.size(settingsW, itemH(ldDisplay) + 29 * s), ame: () => ldDisplay.item }
     })
 
     /**
@@ -274,10 +247,9 @@ Item {
     readonly property string mode: dragActive ? "dragOver"
         : (surfaceOpen && surfaces[surface] !== undefined ? surface
         : (hidden && surfaces[retractSurface] !== undefined ? retractSurface
-        : (toastActive && !held ? "toast"
-        // Auto-hide only ever shows the pill while revealed, so it rests as the hover
-        // card: reveal and retract slide that card in and out, never the old rest face.
-        : ((expanded || Flags.autoHide) ? "hover" : "rest"))))
+        // The pill only ever shows while revealed, so it rests as the hover card:
+        // reveal and retract slide that card in and out.
+        : (toastActive && !held ? "toast" : "hover")))
 
     /**
      * Wallpaper drop state: hover -> saving -> done, or bad/fail for rejected drops.
@@ -306,17 +278,9 @@ Item {
             ldMixer.item.moveFocus(dir);
     }
 
-    /**
-     * Resolve which settings-family surface owns keyboard row navigation right
-     * now: Display or Theme. Returns null
-     * when none of them is open.
-     */
+    /** The open settings surface that owns keyboard row navigation (Display), or null. */
     function rowNavSurface() {
-        if (pill.displayOpen)
-            return ldDisplay.item;
-        if (pill.themeOpen)
-            return ldTheme.item;
-        return null;
+        return pill.displayOpen ? ldDisplay.item : null;
     }
 
     /**
@@ -355,16 +319,8 @@ Item {
         return true;
     }
 
-    /**
-     * Step the open surface back one level when its header bar is clicked: the
-     * theme sub-surface returns to Display, and Display or any other surface
-     * dismisses to the hover pill. Empty space in the body never triggers this.
-     */
+    /** The open surface's header bar was clicked: dismiss to the hover pill. Empty space in the body never triggers this. */
     function surfaceBack() {
-        if (pill.themeOpen) {
-            pill.requestSurface("display");
-            return;
-        }
         pill.requestClose();
     }
 
@@ -406,9 +362,7 @@ Item {
         id: clock
         readonly property var loc: Qt.locale("en_US")
         readonly property var now: sysClock.date
-        readonly property string timeFormat: (Flags.time12h ? "h:mm" : "HH:mm")
-            + (Flags.clockSeconds ? ":ss" : "")
-            + (Flags.time12h ? " AP" : "")
+        readonly property string timeFormat: "HH:mm" + (Flags.clockSeconds ? ":ss" : "")
         readonly property string hhmm: Qt.formatTime(now, timeFormat)
         readonly property string date: loc.toString(now, "ddd d MMM")
         readonly property string weekday: loc.toString(now, "ddd")
@@ -428,7 +382,7 @@ Item {
         }
     }
 
-    property real morphRadius: (mode === "rest" || mode === "hover") ? restCorner : openCorner
+    property real morphRadius: mode === "hover" ? restCorner : openCorner
 
     /**
      * Target geometry for the non-surface morph modes. Surface sizes come from
@@ -440,13 +394,10 @@ Item {
      * fixed width and sizes its height to the notification.
      */
     readonly property var modeSize: ({
-        toast: () => Qt.size(toastW, toastLoader.item ? toastLoader.item.implicitHeight + 24 * s : restH),
+        toast: () => Qt.size(toastW, toastLoader.item ? toastLoader.item.implicitHeight + 24 * s : hoverH),
         hover: () => Qt.size(hoverW, hoverH),
         dragOver:    () => Qt.size(dragOverW, dragOverH)
     })
-
-    /** The pill's resting size: the date + time row plus padding. */
-    readonly property size restSize: Qt.size(Math.max(restW, restRow.implicitWidth + 36 * s), restH)
 
     readonly property size targetSize: {
         const sf = surfaces[mode];
@@ -454,10 +405,7 @@ Item {
             const z = sf.size();
             return Qt.size(z.width, z.height + Surfaces.pad * s);
         }
-        const f = modeSize[mode];
-        if (f)
-            return f();
-        return restSize;
+        return (modeSize[mode] || modeSize.hover)();
     }
     readonly property real targetW: targetSize.width
     readonly property real targetH: targetSize.height
@@ -486,18 +434,7 @@ Item {
     readonly property bool hoverArrived: mode === "hover" && morphCloseness > 0.55
     onHoverArrivedChanged: if (hoverArrived) hoverSoulGate = true
 
-    /**
-     * Rest and hover sit a few dozen pixels apart, so the 420ms morph is nearly
-     * all settle tail on that hop and reads sluggish. Both endpoints in the
-     * rest/hover pair get the shorter glide; every real surface morph keeps the
-     * full duration.
-     */
-    property string lastMode: "rest"
-    property bool hoverHop: false
-
     onModeChanged: {
-        hoverHop = (mode === "hover" || mode === "rest") && (lastMode === "hover" || lastMode === "rest");
-        lastMode = mode;
         if (mode !== "hover") {
             hoverSoulGate = false;
             soulTarget = "";
@@ -508,9 +445,9 @@ Item {
     property string soulTarget: ""
     property int soulWsIndex: -1
 
-    Behavior on width { NumberAnimation { duration: pill.hoverHop ? Motion.glide : Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
-    Behavior on height { NumberAnimation { duration: pill.hoverHop ? Motion.glide : Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
-    Behavior on morphRadius { NumberAnimation { duration: pill.hoverHop ? Motion.glide : Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
+    Behavior on width { NumberAnimation { duration: Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
+    Behavior on height { NumberAnimation { duration: Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
+    Behavior on morphRadius { NumberAnimation { duration: Motion.morph; easing.type: Motion.easeMorph; easing.bezierCurve: Motion.morphCurve } }
 
     /**
      * Drop shadow. One SDF quad that follows the body every frame without an
@@ -551,8 +488,8 @@ Item {
         bottomLeftRadius: pill.morphRadius
         bottomRightRadius: pill.morphRadius
         gradient: Gradient {
-            GradientStop { position: 0.0; color: Qt.alpha(Theme.cardTop, Flags.pillOpacity) }
-            GradientStop { position: 1.0; color: Qt.alpha(Theme.cardBot, Flags.pillOpacity) }
+            GradientStop { position: 0.0; color: Theme.cardTop }
+            GradientStop { position: 1.0; color: Theme.cardBot }
         }
     }
 
@@ -562,7 +499,7 @@ Item {
         anchors.top: parent.top
         width: parent.width
         r: 14 * pill.s
-        color: Qt.alpha(Theme.cardTop, Flags.pillOpacity)
+        color: Theme.cardTop
         opacity: body.topFlat
     }
 
@@ -573,7 +510,7 @@ Item {
      * behind, hanging from the screen's top edge. Each pill that shows it holds a
      * Cava viewer ref, so cava stops under fullscreen and open surfaces.
      */
-    readonly property bool waveWanted: (mode === "rest" || mode === "hover") && opacity > 0
+    readonly property bool waveWanted: mode === "hover" && opacity > 0
     onWaveWantedChanged: Cava.viewers += waveWanted ? 1 : -1
     Component.onDestruction: if (waveWanted) Cava.viewers--
 
@@ -638,8 +575,7 @@ Item {
 
         ShapePath {
             // Closing the shown U along the top fills back over the body, so no seam shows.
-            // shortcut: that overlap reads darker on a translucent pill (pillOpacity < 1); fill only the band if that matters.
-            fillColor: Qt.alpha(Theme.cardBot, Flags.pillOpacity)
+            fillColor: Theme.cardBot
             strokeWidth: -1
             PathSvg { path: wave.edge.length ? wave.edge + " Z" : "" }
         }
@@ -653,14 +589,10 @@ Item {
     }
 
     /**
-     * Rest anchor for Ame: the left end of the date + time row. The idle outline
-     * condenses into the bead here before it moves.
+     * Rest anchor for Ame: where a centred date + time line starts (the hover
+     * clock's width). The idle outline condenses into the bead here before it moves.
      */
-    readonly property point wakePoint: {
-        void pill.width;
-        void pill.height;
-        return restRow.mapToItem(pill, 0, restRow.height / 2);
-    }
+    readonly property point wakePoint: Qt.point((pill.width - hoverClock.implicitWidth) / 2, pill.height / 2)
 
     /**
      * Bead target while hovered. soulTarget is a sticky key written by the hover
@@ -709,7 +641,7 @@ Item {
 
     onHoveredChanged: {
         if (hovered) {
-            if (Flags.autoHide && !revealSession && !expanded && !surfaceOpen) {
+            if (!revealSession && !expanded && !surfaceOpen) {
                 revealSession = true;
                 revealTimer.stop();
             }
@@ -990,48 +922,6 @@ Item {
     }
 
     Item {
-        id: rest
-        anchors.fill: parent
-        opacity: pill.mode !== "rest" ? 0 : Math.pow(pill.morphCloseness, 1.5)
-        visible: opacity > 0.01
-        Behavior on opacity { NumberAnimation { duration: pill.mode === "rest" ? Motion.fast : Math.round(260 * Motion.mult) } }
-
-        Row {
-            id: restRow
-            anchors.centerIn: parent
-            spacing: 9 * pill.s
-            Text {
-                visible: pill.specialView === ""
-                anchors.verticalCenter: parent.verticalCenter
-                text: clock.date
-                color: Theme.dim
-                font.family: Theme.font
-                font.pixelSize: 11 * pill.s
-                font.weight: Font.DemiBold
-            }
-            Text {
-                visible: pill.specialView === ""
-                anchors.verticalCenter: parent.verticalCenter
-                text: clock.hhmm
-                color: Theme.cream
-                font.family: Theme.font
-                font.pixelSize: 16 * pill.s
-                font.weight: Font.DemiBold
-                font.features: { "tnum": 1 }
-            }
-            Text {
-                visible: pill.specialView !== ""
-                anchors.verticalCenter: parent.verticalCenter
-                text: pill.specialView
-                color: Theme.cream
-                font.family: Theme.font
-                font.pixelSize: 16 * pill.s
-                font.weight: Font.DemiBold
-            }
-        }
-    }
-
-    Item {
         id: hover
         anchors.fill: parent
         opacity: pill.mode === "hover" ? Math.pow(pill.morphCloseness, 1.2) : 0
@@ -1070,7 +960,6 @@ Item {
                 width: hoverClock.implicitWidth
                 height: hoverClock.implicitHeight
 
-                // Same date + time line as the "classic" rest pill.
                 Row {
                     id: hoverClock
                     anchors.centerIn: parent
@@ -1224,20 +1113,6 @@ Item {
         sourceComponent: DisplaySurface {
             s: pill.s * pill.settingsScale
             open: pill.displayOpen
-            morphCloseness: pill.morphCloseness
-            onRequestClose: pill.requestClose()
-            onRequestSurface: (name) => pill.requestSurface(name)
-        }
-    }
-
-    SurfaceLoader {
-        id: ldTheme
-        name: "theme"
-        live: pill.liveSurface
-        keepMs: pill.unloadMs
-        sourceComponent: ThemeSurface {
-            s: pill.s * pill.settingsScale
-            open: pill.themeOpen
             morphCloseness: pill.morphCloseness
             onRequestClose: pill.requestClose()
             onRequestSurface: (name) => pill.requestSurface(name)

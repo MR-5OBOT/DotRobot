@@ -8,18 +8,14 @@ import "surfaces"
 
 /**
  * The island: one component of the single qs process, loaded by the main
- * quickshell shell.qml. Each monitor carries two layer-shell windows:
+ * quickshell shell.qml. Each monitor carries one `overlay`: a full-screen
+ * transparent Overlay layer hosting the single morphing pill anchored at
+ * top-centre. The pill auto-hides off the top edge, never moves windows and is
+ * never re-parented; it just grows in place, so every surface grows out of the
+ * notch instead of popping up as a separate panel.
  *
- *  - `reserve` is a zero-content strip that only claims an exclusive zone the
- *    height of the rest pill, so tiled windows always sit below the pill even
- *    while it is expanded or a surface is open.
- *  - `overlay` is a full-screen transparent Overlay layer hosting the single
- *    morphing pill anchored at top-centre. The pill never moves windows and is
- *    never re-parented; it just grows in place, so every surface grows out of
- *    the rest pill instead of popping up as a separate panel.
- *
- * Input is routed by the window mask. While the pill is collapsed the mask is
- * the pill rect only, so the rest of the screen clicks through to windows.
+ * Input is routed by the window mask. While the pill is hidden the mask is a
+ * thin reveal strip at the top edge, so the rest of the screen clicks through.
  * While the pill is expanded (hovered/pinned) or a surface is open the mask is
  * cleared so the whole layer catches clicks. A backdrop press dismisses, and
  * keyboard focus is taken on demand so Escape closes the open surface.
@@ -210,42 +206,6 @@ Scope {
         function nav(mon: string, name: string): void { root.navigate(mon, name); }
     }
 
-    Variants {
-        model: Quickshell.screens
-
-        PanelWindow {
-            id: reserve
-            required property var modelData
-            readonly property real s: modelData ? (modelData.height / 1080) * Flags.uiScale : 1
-            readonly property real topGap: 8 * Flags.topGap * s
-            /**
-             * Reserved-band ceiling with auto-hide off. A full-footprint reserve
-             * (hover 58, quick-record 76) cost too much window space, so this is
-             * just the resting face plus the transient OSD ring (44): the flashes
-             * that actually cover windows (workspace/volume/brightness/record)
-             * stay clear, while the cursor-driven hover (58) may still dip past
-             * the band by a few pixels.
-             */
-            readonly property real restFaceH: 44 * s
-
-            /** Trimming the reserved band below the pill's bottom lets windows climb, so App gap sets the pill-to-window air without touching the desktop gaps_out. */
-            readonly property real reservedH: Math.max(0, restFaceH + topGap - 12 * (1 - Flags.appGap) * s)
-
-
-            screen: modelData
-            color: "transparent"
-            exclusionMode: ExclusionMode.Normal
-            exclusiveZone: Flags.autoHide ? 0 : reservedH
-            aboveWindows: true
-
-            anchors { top: true; left: true; right: true }
-            implicitHeight: Flags.autoHide ? 0 : reservedH
-
-            mask: emptyReserve
-            Region { id: emptyReserve }
-        }
-    }
-
     /**
      * The overlay windows, and where the toast hangs while it is dropped below a
      * widget notch (empty otherwise). shell.qml hands both to the widgets: they
@@ -268,7 +228,7 @@ Scope {
             id: overlay
             required property var modelData
             readonly property real s: modelData ? (modelData.height / 1080) * Flags.uiScale : 1
-            readonly property real topGap: 8 * Flags.topGap * s
+            readonly property real topGap: 8 * s
             readonly property string surface: root.openMon === modelData.name ? root.openSurface : ""
             readonly property bool surfaceOpen: surface.length > 0
             readonly property bool modal: surfaceOpen || pill.held
@@ -317,7 +277,7 @@ Scope {
 
             anchors { top: true; left: true; right: true; bottom: true }
 
-            mask: (monFullscreen && !pill.transientLive) ? hiddenRegion : (modal ? fullRegion : (Flags.autoHide ? (pill.revealSession || pill.transientLive ? revealPillRegion : (pill.expanded ? pillRegion : revealRegion)) : pillRegion))
+            mask: (monFullscreen && !pill.transientLive) ? hiddenRegion : (modal ? fullRegion : (pill.revealSession || pill.transientLive ? revealPillRegion : (pill.expanded ? pillRegion : revealRegion)))
             Region { id: hiddenRegion }
 
             /**
@@ -391,19 +351,6 @@ Scope {
                     } else if (!inside) {
                         pill.pinned = false;
                         root.peekMon = "";
-                    }
-                }
-            }
-
-            Connections {
-                target: Flags
-                function onAutoHideChanged() {
-                    if (!Flags.autoHide) {
-                        pill.revealSession = false;
-                        pill.hovered = false;
-                        pill.hoverLatch = false;
-                    } else {
-                        pill.pinned = false;
                     }
                 }
             }
@@ -509,7 +456,7 @@ Scope {
                     height: 8 * overlay.s
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.top: parent.top
-                    enabled: Flags.autoHide && !pill.surfaceOpen && !pill.dropBusy
+                    enabled: !pill.surfaceOpen && !pill.dropBusy
                     visible: enabled
                     keys: ["text/uri-list"]
                     onEntered: (drag) => {

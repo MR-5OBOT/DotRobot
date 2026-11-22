@@ -250,7 +250,7 @@ Item {
         property: "prog"
         from: 0
         to: 1
-        duration: root.quickFlight ? Math.round(460 * Motion.mult) : Motion.shapeshift
+        duration: root.quickFlight ? 460 : Motion.shapeshift
         easing.type: Easing.Linear
     }
 
@@ -269,7 +269,7 @@ Item {
         property: "remnant"
         from: 1
         to: 0
-        duration: Math.round(350 * Motion.mult)
+        duration: 350
         easing.type: Easing.OutCubic
     }
 

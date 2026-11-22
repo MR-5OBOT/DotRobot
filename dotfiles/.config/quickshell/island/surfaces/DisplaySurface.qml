@@ -6,9 +6,8 @@ import "../Singletons"
 import "../components"
 
 /**
- * 時 DISPLAY settings: UI scale, the 12/24h clock and running seconds, plus
- * general shell behaviour: reduced motion, auto-hide, keep-awake (blocks lock,
- * screen-off and sleep) and memory saver. Opened by the cog; an empty click
+ * 時 DISPLAY settings: UI scale and running clock seconds, plus keep-awake
+ * (blocks lock, screen-off and sleep) and memory saver. Opened by the cog; an empty click
  * closes it.
  */
 SettingsSurface {
@@ -19,10 +18,7 @@ SettingsSurface {
 
     rows: [
         { item: scaleRow, kind: "seg", vals: [1.0, 1.15, 1.3, 1.5], get: function () { return Flags.uiScale; }, set: function (v) { Flags.uiScale = v; } },
-        { item: timeRow, kind: "seg", vals: [false, true], get: function () { return Flags.time12h; }, set: function (v) { Flags.time12h = v; } },
         { item: secRow, kind: "toggle", get: function () { return Flags.clockSeconds; }, set: function (v) { Flags.clockSeconds = v; } },
-        { item: motionRow, kind: "toggle", get: function () { return Flags.reduceMotion; }, set: function (v) { Flags.reduceMotion = v; } },
-        { item: autoHideRow, kind: "toggle", get: function () { return Flags.autoHide; }, set: function (v) { Flags.autoHide = v; } },
         { item: awakeRow, kind: "toggle", get: function () { return Flags.keepAwake; }, set: function (v) { Flags.keepAwake = v; } },
         { item: saverRow, kind: "toggle", get: function () { return Flags.memorySaver; }, set: function (v) { Flags.memorySaver = v; } }
     ]
@@ -57,20 +53,6 @@ SettingsSurface {
         }
 
         SettingsRow {
-            id: timeRow
-            surface: root
-            name: "Time format"
-            icon: "clock"
-
-            SettingsSeg {
-                s: root.s
-                options: [{ label: "24H", value: false }, { label: "12H", value: true }]
-                value: Flags.time12h
-                onPicked: (v) => Flags.time12h = v
-            }
-        }
-
-        SettingsRow {
             id: secRow
             surface: root
             name: "Clock seconds"
@@ -80,32 +62,6 @@ SettingsSurface {
                 s: root.s
                 on: Flags.clockSeconds
                 onToggled: Flags.clockSeconds = !Flags.clockSeconds
-            }
-        }
-
-        SettingsRow {
-            id: motionRow
-            surface: root
-            name: "Reduce motion"
-            icon: "waves"
-
-            LinkToggle {
-                s: root.s
-                on: Flags.reduceMotion
-                onToggled: Flags.reduceMotion = !Flags.reduceMotion
-            }
-        }
-
-        SettingsRow {
-            id: autoHideRow
-            surface: root
-            name: "Auto hide"
-            icon: "eye-off"
-
-            LinkToggle {
-                s: root.s
-                on: Flags.autoHide
-                onToggled: Flags.autoHide = !Flags.autoHide
             }
         }
 

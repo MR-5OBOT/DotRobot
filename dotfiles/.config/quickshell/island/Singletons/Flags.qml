@@ -5,8 +5,8 @@ import Quickshell.Io
 
 /**
  * Shared session flags persisted to a small JSON file and watched for external
- * change, so every surface (and wallpaper.sh) reads and writes the same
- * Do-Not-Disturb, Keep-Awake and appearance state. Toggling in one surface
+ * change, so every surface reads and writes the same Do-Not-Disturb, Keep-Awake
+ * and appearance state. Toggling in one surface
  * updates the others on the next file event, and the state survives a restart.
  */
 Singleton {
@@ -14,10 +14,7 @@ Singleton {
 
     property alias dnd: adapter.dnd
     property alias keepAwake: adapter.keepAwake
-    property alias time12h: adapter.time12h
     property alias clockSeconds: adapter.clockSeconds
-    property alias wallpaperDir: adapter.wallpaperDir
-    property alias wallpaperFit: adapter.wallpaperFit
     property alias uiScale: adapter.uiScale
 
     /**
@@ -40,13 +37,7 @@ Singleton {
                 best = steps[i];
         return best;
     }
-    property alias reduceMotion: adapter.reduceMotion
-    property alias pillOpacity: adapter.pillOpacity
-    property alias autoHide: adapter.autoHide
-    property alias topGap: adapter.topGap
-    property alias appGap: adapter.appGap
     property alias memorySaver: adapter.memorySaver
-    property alias unloadSec: adapter.unloadSec
 
     FileView {
         id: file
@@ -66,24 +57,10 @@ Singleton {
             id: adapter
             property bool dnd: false
             property bool keepAwake: false
-            property bool time12h: false
             property bool clockSeconds: false
-            /** Explicit wallpaper folder override. Empty means ~/Pictures/wallpapers. Lives in user state so an in-app update never clobbers a custom folder. */
-            property string wallpaperDir: ""
-            /** Wallpaper scaling read by wallpaper.sh: awww --resize "no" (center), "crop" (cover), "fit" (contain) or "stretch". */
-            property string wallpaperFit: "crop"
             property real uiScale: root.autoScale
-            property bool reduceMotion: false
-            property real pillOpacity: 1.0
-            property bool autoHide: true
-            /** Top margin as a fraction of the shipped 8px. 0 sits the pill flush to the screen edge. */
-            property real topGap: 1.0
-            /** Pill-to-window band as a fraction of the shipped 12px. 0 tucks the windows flush under the pill. */
-            property real appGap: 1.0
-            /** Drop closed surfaces after a while instead of holding them in RAM all session. */
+            /** Drop closed surfaces 60 s after they close instead of holding them in RAM all session. */
             property bool memorySaver: true
-            /** With memorySaver on, a closed surface is dropped after 2 × this many seconds (Pill.qml unloadMs). */
-            property real unloadSec: 30
         }
     }
 }

@@ -3,9 +3,7 @@
 # regenerate the island palette from it.
 set -euo pipefail
 
-flags_file="${XDG_STATE_HOME:-$HOME/.local/state}/island/flags.json"
-FIT=$(jq -r '.wallpaperFit // "crop"' "$flags_file" 2>/dev/null || echo crop)
-case "$FIT" in no|crop|fit|stretch) ;; *) FIT=crop ;; esac
+FIT=crop # awww --resize: fill the screen, cropping the overflow
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper"
 MAP="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-map"
 STILL="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-still.png"
