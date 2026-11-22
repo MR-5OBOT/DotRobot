@@ -723,7 +723,7 @@ Item {
         }
         var next = pill.wallpaperQueue.shift();
         pill.dragName = pill.dropLabel([next]);
-        wallpaperDropProc.command = ["python3", Config.islandPath("scripts", "wallpaper-drop.py"), next, Config.wallpaperDir];
+        wallpaperDropProc.command = ["python3", Quickshell.shellPath("island/scripts/wallpaper-drop.py"), next, Config.wallpaperDir];
         wallpaperDropProc.running = true;
     }
 

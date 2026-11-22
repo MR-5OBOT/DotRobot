@@ -48,7 +48,7 @@ PillSurface {
     amePoint: Qt.point(heatX, heatY)
 
     readonly property var actions: [
-        { key: "lock",     glyph: "lock",     label: "Lock",     confirm: false, argv: [Config.islandPath("scripts", "lock.sh")] },
+        { key: "lock",     glyph: "lock",     label: "Lock",     confirm: false, argv: [Quickshell.shellPath("island/scripts/lock.sh")] },
         { key: "logout",   glyph: "logout",   label: "Logout",   confirm: true,  argv: ["uwsm", "stop"] },
         { key: "suspend",  glyph: "suspend",  label: "Sleep",    confirm: false, argv: ["systemctl", "suspend"] },
         { key: "reboot",   glyph: "reboot",   label: "Restart",  confirm: true,  argv: ["hyprshutdown", "-t", "Restarting...", "--post-cmd", "systemctl reboot"] },

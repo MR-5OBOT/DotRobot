@@ -44,7 +44,7 @@ Singleton {
     Process {
         id: monitor
         // setpriv: a killed or crashed qs sends the watcher TERM, so it never outlives the shell
-        command: ["setpriv", "--pdeathsig", "TERM", "bash", Config.islandPath("scripts", "backlight-watch.sh")]
+        command: ["setpriv", "--pdeathsig", "TERM", "bash", Quickshell.shellPath("island/scripts/backlight-watch.sh")]
         running: true
         stdout: SplitParser {
             onRead: (line) => {

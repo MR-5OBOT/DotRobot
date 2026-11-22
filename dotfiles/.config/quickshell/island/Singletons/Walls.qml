@@ -16,7 +16,7 @@ Singleton {
     id: root
 
     readonly property string wpDir: Config.wallpaperDir
-    readonly property string setScript: Config.islandPath("scripts", "wallpaper.sh")
+    readonly property string setScript: Quickshell.shellPath("island/scripts/wallpaper.sh")
 
     property var queuedApplies: []
     property string activePath: ""
