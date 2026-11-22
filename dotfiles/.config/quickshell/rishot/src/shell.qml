@@ -125,18 +125,15 @@ ShellRoot {
         && overlays.every(w => w.captureReady)
     property int captureFails: 0
 
-    readonly property string mode: Quickshell.env("RISHOT_MODE") === "monitor" ? "monitor" : "region"
     readonly property string homeDir: Quickshell.env("HOME") || "/tmp"
     readonly property string tmpDir: Quickshell.env("XDG_RUNTIME_DIR") || "/tmp"
-    readonly property string shotsDir: Quickshell.env("RISHOT_SAVEDIR")
-        || (Quickshell.env("XDG_PICTURES_DIR")
+    readonly property string shotsDir: (Quickshell.env("XDG_PICTURES_DIR")
             ? Quickshell.env("XDG_PICTURES_DIR") + "/Screenshots"
             : homeDir + "/Pictures/Screenshots")
-    readonly property string uploadEndpoint: Quickshell.env("RISHOT_UPLOAD")
-        || "https://litterbox.catbox.moe/resources/internals/api.php"
+    readonly property string uploadEndpoint: "https://litterbox.catbox.moe/resources/internals/api.php"
 
     // Hyprland uses screencopy; grim is the fallback if no frame arrives.
-    property string captureBackend: Quickshell.env("RISHOT_CAPTURE") === "image" ? "image" : "screencopy"
+    property string captureBackend: "screencopy"
     property bool fellBack: false
     readonly property real captureScale: {
         var s = Quickshell.screens, m = 1;
@@ -354,31 +351,14 @@ ShellRoot {
         }
         return best ? { x: best.x, y: best.y, w: best.w, h: best.h } : null;
     }
-    function monitorAt(gx, gy) {
-        var scr = Quickshell.screens;
-        for (var i = 0; i < scr.length; i++) {
-            var s = scr[i];
-            if (gx >= s.x && gx < s.x + s.width && gy >= s.y && gy < s.y + s.height)
-                return { x: s.x, y: s.y, w: s.width, h: s.height };
-        }
-        return null;
-    }
-    function selectMonitor(gx, gy) {
-        var m = monitorAt(gx, gy);
-        if (!m) return;
-        globalSel = m;
-        phase = "editing";
-        hoverWindow = null;
-    }
     function pointerHover(gx, gy) {
         if (phase !== "selecting") { if (hoverWindow !== null) hoverWindow = null; return; }
-        hoverWindow = mode === "monitor" ? monitorAt(gx, gy) : windowAt(gx, gy);
+        hoverWindow = windowAt(gx, gy);
     }
     function pointerPressed(gx, gy) {
         if (resizing !== null) return;
         if (phase === "selecting") {
-            if (mode === "monitor") selectMonitor(gx, gy);
-            else beginSelection(gx, gy);
+            beginSelection(gx, gy);
         }
         else if (activeTool === "select") beginSelect(gx, gy);
         else beginDraw(gx, gy);

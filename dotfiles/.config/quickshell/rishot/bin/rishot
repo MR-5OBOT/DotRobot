@@ -1,36 +1,8 @@
 #!/bin/sh
-# rishot - Wayland screenshot + annotation overlay (Quickshell).
-# Launches the overlay on the current output set (bound in hypr keymaps.lua).
-# Region mode also lets you click a single window to grab it.
+# rishot - Wayland screenshot + annotation overlay (Quickshell), bound in hypr keymaps.lua.
+# Drag a region, or click a single window to grab it.
 
 set -eu
-
-usage() {
-	cat <<'EOF'
-rishot - screenshot + annotate
-
-usage: rishot [mode]
-
-modes:
-  (none), region   drag a region, or click a window to grab it (default)
-  monitor          click a monitor to grab the whole output
-
-options:
-  -h, --help       show this help
-
-env:
-  RISHOT_UPLOAD      override the upload endpoint (https form-post target)
-  RISHOT_SAVEDIR     override the auto-save directory
-EOF
-}
-
-mode=region
-case "${1:-}" in
-	monitor | --monitor | -m) mode=monitor ;;
-	region | --region | -r | "") mode=region ;;
-	-h | --help) usage; exit 0 ;;
-	*) printf 'rishot: unknown argument: %s\n' "$1" >&2; usage >&2; exit 2 ;;
-esac
 
 dir="$(dirname "$(readlink -f "$0")")/../src"
 
@@ -51,4 +23,4 @@ exec 9>"$lock"
 flock -n 9 || { echo "rishot: already running" >&2; exit 0; }
 # Keep the previous shot's toast out of the frozen frame; 0.5s lets the notch slide it away.
 [ "$(qs ipc call island dropToasts rishot 2>/dev/null)" = true ] && sleep 0.5 || true
-exec env RISHOT_MODE="$mode" qs -p "$dir"
+exec qs -p "$dir"
