@@ -11,12 +11,11 @@ import * as cursor from "./cursor";
 import { clearComposer, keybind, logger } from "./discord";
 import { closeHelp, helpOpen, hideWhichKey, scrollHelp, showWhichKey, toggleHelp } from "./hud";
 import { byKeys, deleteSelection, isPrefix, searchKeys, yankSelection } from "./keymap";
-import * as look from "./look";
 import { isEditable, mode, somethingOpen } from "./mode";
 import { listNameColor, messageNameColor, patches } from "./names";
 import * as panes from "./panes";
 import * as picker from "./picker";
-import { applyHidden, applyLook, onResize, setOnSettingsChange, settings } from "./settings";
+import { applyHidden, onResize, setOnSettingsChange, settings, windowButtons } from "./settings";
 import * as statusbar from "./statusbar";
 import managedStyle from "./style.css?managed";
 
@@ -408,8 +407,7 @@ export default definePlugin({
 
     start() {
         cursor.setScrollOff(settings.store.scrollOff);
-        applyLook();
-        look.windowButtons(!settings.store.hideWindowButtons);
+        windowButtons(!settings.store.hideWindowButtons);
         keyboardModeOff();
         panes.setOnChange(schedule);
         setOnSettingsChange(schedule);
@@ -442,8 +440,7 @@ export default definePlugin({
         cursor.clear();
         panes.clear();
         statusbar.remove();
-        look.disable();
-        look.windowButtons(true);
+        windowButtons(true);
         document.body.classList.remove("vimcord-insert", "vimcord-visual", "vimcord-has-bar");
     },
 

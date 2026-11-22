@@ -58,8 +58,8 @@ main() {
   fi
   # Vencord's settings.json isn't in the repo (plugins can keep tokens there), so these are clicked once by hand
   log "Once, in Discord: Settings > Themes: turn on mr5obot-theme.css"
-  log "Settings > Plugins: turn on VimCord, then in its settings: TUI style off, Colors: Discord's own colors,"
-  log "  Hide servers on, Hide header off. Press ? in Discord for its keys"
+  log "Settings > Plugins: turn on VimCord, then in its settings: Hide servers on, Hide header off."
+  log "Press ? in Discord for its keys"
 }
 
 main "$@"

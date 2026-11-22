@@ -5,22 +5,23 @@
  */
 
 import { definePluginSettings } from "@api/Settings";
-import { OptionType } from "@utils/types";
+import { OptionType, PluginNative } from "@utils/types";
 
 import * as cursor from "./cursor";
-import * as look from "./look";
+import { logger } from "./discord";
 import * as panes from "./panes";
+
+const Native = VencordNative.pluginHelpers.VimCord as PluginNative<typeof import("./native")>;
 
 function applyHidden() {
     panes.setHidden({ servers: settings.store.hideServers, channels: settings.store.hideChannels });
     document.body.classList.toggle("vimcord-hide-header", settings.store.hideHeader);
 }
 
-export function applyLook() {
-    const { tuiStyle, colors, colorsFile, font } = settings.store;
-    // Discord's layout in Discord's colors: nothing to restyle (vimcord's own pieces follow Discord's variables)
-    if (!tuiStyle && colors === "discord") look.disable();
-    else look.enable({ tui: tuiStyle, colors: colors ?? "auto", colorsFile, font });
+/** hides or shows the window's own buttons: macOS's traffic lights natively, Windows/Linux's (Discord's) with CSS */
+export function windowButtons(visible: boolean) {
+    document.body.classList.toggle("vimcord-hide-winbuttons", !visible);
+    if (navigator.platform.startsWith("Mac")) Native.setWindowButtons(visible).catch(e => logger.error("window buttons", e));
 }
 
 export function onResize() {
@@ -32,34 +33,6 @@ let onSettingsChange = () => { };
 export const setOnSettingsChange = (fn: () => void) => void (onSettingsChange = fn);
 
 export const settings = definePluginSettings({
-    tuiStyle: {
-        type: OptionType.BOOLEAN,
-        description: "TUI style: system24's bordered, labelled panels like a terminal app. Off keeps Discord's layout (the bar, popups and keys stay)",
-        default: true,
-        onChange: () => applyLook(),
-    },
-    colors: {
-        type: OptionType.SELECT,
-        description: "Colors: your theme (nvim's colors, else your terminal's or Omarchy's), a fixed theme, or Discord's own",
-        options: [
-            { label: "Your theme (nvim / terminal / Omarchy)", value: "auto", default: true },
-            ...look.themeOptions,
-            { label: "Discord's own colors", value: "discord" },
-        ],
-        onChange: () => applyLook(),
-    },
-    colorsFile: {
-        type: OptionType.STRING,
-        description: "With \"Your theme\": the colors file to read. Empty: Omarchy's current theme, else your Ghostty, Alacritty or Kitty config. Or a path to a colors.toml, alacritty.toml, ghostty or kitty config",
-        default: "",
-        onChange: () => applyLook(),
-    },
-    font: {
-        type: OptionType.STRING,
-        description: "Font for the TUI style and themed colors. Empty: your terminal's",
-        default: "",
-        onChange: () => applyLook(),
-    },
     hideChannels: {
         type: OptionType.BOOLEAN,
         description: "Hide the channel list (Space e). Pressing 2 shows it while it's focused",
@@ -82,7 +55,7 @@ export const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         description: "Hide the window's close/minimize/maximize buttons (macOS traffic lights too); close with the keyboard instead",
         default: true,
-        onChange: (v: boolean) => look.windowButtons(!v),
+        onChange: (v: boolean) => windowButtons(!v),
     },
     autoHideWidth: {
         type: OptionType.NUMBER,

@@ -1,5 +1,4 @@
-/* vimcord's colors. Without the nvim look they follow Discord's (or your theme's) variables; the look (look.ts)
-   sets them from your terminal's palette. */
+/* vimcord's colors follow Discord's (or your theme's) variables. */
 :root {
     --vc-font: var(--font-code, monospace);
     --vc-bg: var(--background-base-lowest, var(--background-tertiary, #111214));
@@ -380,39 +379,6 @@
 .vimcord-bar-hints b {
     font-weight: 400;
     color: var(--vc-key);
-}
-
-/* with a Nerd Font, lualine's powerline arrows between the sections */
-.vimcord-nerd .vimcord-bar-mode,
-.vimcord-nerd .vimcord-bar-pane {
-    position: relative;
-    margin-right: 10px;
-}
-
-.vimcord-nerd .vimcord-bar-mode::after,
-.vimcord-nerd .vimcord-bar-pane::after {
-    content: "\e0b0";
-    position: absolute;
-    right: -10px;
-    width: 10px;
-    color: var(--vc-mode);
-    background: var(--vc-section);
-    line-height: 22px;
-}
-
-.vimcord-nerd .vimcord-bar-pane::after {
-    color: var(--vc-section);
-    background: var(--vc-bar-bg);
-}
-
-/* the mode bar's color on the panes too, as nvim shows which window has focus */
-.vimcord-look.vimcord-insert [class*="channelTextArea"]:focus-within {
-    outline: 1px solid var(--vc-insert);
-    outline-offset: -1px;
-}
-
-.vimcord-nerd .vimcord-bar:is([data-mode="insert"], [data-mode="popup"]) .vimcord-bar-mode::after {
-    background: var(--vc-bar-bg);
 }
 
 /* the channel header, hidden but still there (so its search can take focus and show it while in use). No :has() in
