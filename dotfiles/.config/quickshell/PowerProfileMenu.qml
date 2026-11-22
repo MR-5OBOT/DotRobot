@@ -8,8 +8,8 @@ import "widgets"
 import "island/Singletons" as Island
 import "island/components" as IslandUi
 
-// Power-profile picker: `qs ipc call powerprofile cycle` (SUPER+SHIFT+P via
-// `powerprofile menu`) opens the card on the active profile, and each further
+// Power-profile picker: `qs ipc call powerprofile cycle` (SUPER+ALT+P) opens
+// the card on the active profile, and each further
 // press moves the highlight on. Nothing switches until you pick — Enter or a
 // click applies, Esc cancels. Rows are MenuRow.qml;
 // the card is a top-edge notch in the island's style, also opened from its battery panel.

@@ -5,7 +5,6 @@ local mainMod = "SUPER"
 local SCRIPTS = os.getenv("HOME") .. "/.config/hypr/scripts"
 local SCRIPT = SCRIPTS .. "/controls"
 local RISHOT = os.getenv("HOME") .. "/.config/quickshell/rishot/bin/rishot"
-local POWERPROFILE = os.getenv("HOME") .. "/.local/bin/powerprofile"
 local QS = require("lua_configs.qs")
 -- the island bar lives inside the main quickshell config (quickshell/island/)
 local ISLAND = "qs ipc call island"
@@ -68,7 +67,7 @@ hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd(SCRIPT .. "/brightness.sh --inc")
 hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("qs ipc call media toggle"))
 
 -- Power profile picker: tap to move down the list, Enter to apply
-hl.bind(mainMod .. " + ALT + P", hl.dsp.exec_cmd(POWERPROFILE .. " menu"))
+hl.bind(mainMod .. " + ALT + P", hl.dsp.exec_cmd("qs ipc call powerprofile cycle"))
 
 -- Focus Navigation
 hl.config({
