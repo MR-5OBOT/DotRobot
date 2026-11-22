@@ -27,7 +27,7 @@ hl.on("hyprland.start", function()
 	end
 
 	-- Daemons
-	hl.exec_cmd("awww-daemon") -- paints the wallpaper; qs only picks it
+	-- starts awww-daemon (paints the wallpaper; qs only picks it) and sets the first-login default
 	hl.exec_cmd(os.getenv("HOME") .. "/.config/quickshell/island/scripts/wallpaper.sh restore")
 	-- one quickshell: the island bar (owns notifications) + launcher, clipboard, menus.
 	hl.exec_cmd(QS)

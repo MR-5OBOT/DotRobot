@@ -10,15 +10,13 @@ STILL="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-still.png"
 WLOG="${XDG_STATE_HOME:-$HOME/.local/state}/island/wallcolors.log"
 DEFAULT_WALL="$HOME/Pictures/wallpapers/mr5obot-prpl.jpg"
 
+# The only place awww-daemon is started (login runs `restore`), so two can never race.
 ensure_daemon() {
     awww query >/dev/null 2>&1 && return 0
-    local attempt i
-    for attempt in 1 2 3 4 5; do
-        awww-daemon >/dev/null 2>&1 &
-        for i in $(seq 1 15); do
-            awww query >/dev/null 2>&1 && return 0
-            sleep 0.2
-        done
+    awww-daemon >/dev/null 2>&1 &
+    for _ in $(seq 1 15); do
+        awww query >/dev/null 2>&1 && return 0
+        sleep 0.2
     done
     return 1
 }
@@ -135,8 +133,9 @@ if [ "${1:-}" = "heal" ]; then
     exit 0
 fi
 
-# awww brings back its own last images; only a first login has nothing to restore.
+# Login: start awww, which brings back its own last images; only a first login has nothing to restore.
 if [ "${1:-}" = "restore" ]; then
+    ensure_daemon || exit 1
     [ -s "$MAP" ] && exit 0
     for _ in {1..20}; do
         [ -n "$(outputs || true)" ] && exec bash "$0" set "$DEFAULT_WALL"
