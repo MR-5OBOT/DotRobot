@@ -25,7 +25,6 @@ for suffix in '' _vertical; do
     "$dir/kdenlive-layout${suffix}.json" > "$temp_dir/mr5obot-preset${suffix}.json"
 done
 
-# The launcher (org.kde.kdenlive.desktop) is linked by scripts/link-dotfiles.sh.
 sources=("$theme" "$temp_dir/mr5obot-preset.json" "$temp_dir/mr5obot-preset_vertical.json")
 targets=("$data_dir/color-schemes/mr5obot-kdenlive-theme.colors" \
   "$data_dir/kdenlive/layouts/mr5obot-preset.json" "$data_dir/kdenlive/layouts/mr5obot-preset_vertical.json")
