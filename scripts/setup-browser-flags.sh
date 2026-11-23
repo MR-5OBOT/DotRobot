@@ -45,7 +45,9 @@ main() {
 
   [[ -f "${FLAGS_FILE}" ]] || die "Missing ${FLAGS_FILE}"
   [[ -f "${HELIUM_FLAGS_FILE}" ]] || die "Missing ${HELIUM_FLAGS_FILE}"
-  if ! vainfo 2>/dev/null | grep -q VAEntrypointVLD; then
+  if ! command -v vainfo >/dev/null 2>&1; then
+    log "vainfo (libva-utils) is not installed; skipped the VA-API driver check"
+  elif ! vainfo 2>/dev/null | grep -q VAEntrypointVLD; then
     warn "vainfo reports no VA-API decode profiles; install your GPU's VA-API driver or the flags have nothing to use"
   fi
 
