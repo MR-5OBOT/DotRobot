@@ -10,13 +10,18 @@ STILL="${XDG_STATE_HOME:-$HOME/.local/state}/island-wallpaper-still.png"
 WLOG="${XDG_STATE_HOME:-$HOME/.local/state}/island/wallcolors.log"
 DEFAULT_WALL="$HOME/Pictures/wallpapers/mr5obot-prpl.jpg"
 
-# The only place awww-daemon is started (login runs `restore`), so two can never race.
+# The only place awww-daemon is started (login runs `restore`), so autostart and
+# this script never race. A launch gets 3 s to answer; up to 5 launches, in case
+# the first is slow or dies at login.
 ensure_daemon() {
+    local attempt
     awww query >/dev/null 2>&1 && return 0
-    awww-daemon >/dev/null 2>&1 &
-    for _ in $(seq 1 15); do
-        awww query >/dev/null 2>&1 && return 0
-        sleep 0.2
+    for attempt in 1 2 3 4 5; do
+        awww-daemon >/dev/null 2>&1 &
+        for _ in $(seq 1 15); do
+            awww query >/dev/null 2>&1 && return 0
+            sleep 0.2
+        done
     done
     return 1
 }
