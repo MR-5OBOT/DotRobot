@@ -98,18 +98,11 @@ fetch_release_asset() {
 }
 
 # Does nothing when every package is already installed, so callers need no check
-# of their own. Otherwise the first install of an installer run does the full
-# upgrade; later ones only add packages. install.sh sets DOTROBOT_SYNC_STAMP. A
-# script run on its own always upgrades first, so it never installs against a
-# stale package database.
+# of their own. Otherwise it upgrades first (-Syu), so it never installs against
+# a stale package database; after the first step that refresh is quick.
 pacman_install() {
   pacman -T "$@" >/dev/null && return 0
-  if [[ -n "${DOTROBOT_SYNC_STAMP:-}" && -e "${DOTROBOT_SYNC_STAMP}" ]]; then
-    sudo pacman -S --needed --noconfirm "$@"
-  else
-    sudo pacman -Syu --needed --noconfirm "$@" || return
-    [[ -z "${DOTROBOT_SYNC_STAMP:-}" ]] || touch "${DOTROBOT_SYNC_STAMP}"
-  fi
+  sudo pacman -Syu --needed --noconfirm "$@"
 }
 
 # PCI vendor IDs of this machine's GPUs (display controllers), one per line:

@@ -22,10 +22,6 @@ main() {
   [[ $EUID -eq 0 ]] && die "Run as your normal user; the installer uses sudo when needed."
   command -v sudo >/dev/null 2>&1 || die "sudo is required. Install it as root with: pacman -Syu sudo"
   sudo -v || die "Your user is not allowed to use sudo. Configure sudo first."
-  # One full upgrade per run: the first package step syncs, later ones only add.
-  DOTROBOT_SYNC_STAMP="$(mktemp -d)/synced"
-  export DOTROBOT_SYNC_STAMP
-  trap 'rm -rf -- "${DOTROBOT_SYNC_STAMP%/*}"' EXIT
 
   cat <<'EOF'
 DotRobot Arch setup
@@ -41,7 +37,6 @@ EOF
   run_step "Build wl-kbptr (SUPER+ALT+F keyboard clicking)" "scripts/setup-wl-kbptr.sh"
   run_step "Link dotfiles into \$HOME" "scripts/link-dotfiles.sh"
   run_step "Enable system services" "scripts/enable-services.sh"
-  run_step "Set up SIM/mobile broadband (modem machines only)" "scripts/setup-mobile-broadband.sh"
   run_step "Set up zram sized for this machine" "scripts/setup-zram.sh"
   run_step "Show Windows in the GRUB menu (os-prober, dual boot only)" "scripts/setup-dual-boot.sh"
   run_step "Set up keyd key remapping" "scripts/setup-keyd.sh"
