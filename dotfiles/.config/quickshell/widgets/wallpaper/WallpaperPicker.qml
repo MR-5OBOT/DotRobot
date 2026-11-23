@@ -173,18 +173,12 @@ Item {
         return selected.join(",");
     }
 
-    function setWallpaperOnMonitors(targetFile, transition) {
+    // DotRobot: straight to island's backend (wallpaper.sh), "all" or each picked output.
+    function setWallpaperOnMonitors(targetFile) {
         let outputs = window.getMonitorOutputs();
-        if (outputs === "none") return;
-
-        if (outputs === "all") {
-            Wallpaper.setWallpaper("all", targetFile, transition);
-        } else {
-            let monArr = outputs.split(",");
-            for (let i = 0; i < monArr.length; i++) {
-                Wallpaper.setWallpaper(monArr[i], targetFile, transition);
-            }
-        }
+        if (outputs === "none" || !targetFile) return;
+        for (const out of outputs === "all" ? ["all"] : outputs.split(","))
+            Island.Walls.apply(targetFile, out);
     }
 
     function applyWallpaper(safeFileName) {
@@ -201,7 +195,7 @@ Item {
 
         let lookup = window.thumbLookup[safeFileName] || window.thumbLookup[window.getCleanBaseName(safeFileName)] || {};
         let finalPath = lookup.filePath || (window.srcDir + "/" + realFileName);
-        window.setWallpaperOnMonitors(finalPath, "fade");
+        window.setWallpaperOnMonitors(finalPath);
     }
 
     function refreshForDisplay() {

@@ -17,9 +17,9 @@ Only what that popup references is kept (the side bar is gone). Changed from ups
 - `wallpaper/WallpaperPicker.qml` — scripts resolve inside `widgets/scripts`,
   and `masterWindow.screen` (an id from upstream's Main.qml) became a
   `hostScreen` property the host window sets.
-- `singletons/theme/Wallpaper.qml` — only set/get remain: it reads what each
-  screen shows from island's `Walls`, and its apply signal is bridged to the
-  same backend by `../WallpaperPanel.qml`; awww paints the wallpaper. Upstream's
+- `singletons/theme/Wallpaper.qml` — only get remains: it reads what each
+  screen shows from island's `Walls`. The picker applies a wallpaper by calling
+  island's `Walls.apply` directly; awww paints it. Upstream's set signal,
   playback, clear and IPC calls were dropped.
 - `scripts/` — the local wallpaper indexer; monitor names come from `hyprctl` directly.
 - `qmldir`, `wallpaper/qmldir` — trimmed to the vendored files.

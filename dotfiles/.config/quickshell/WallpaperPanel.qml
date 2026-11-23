@@ -3,17 +3,14 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
-import "widgets" as Widgets
 import "widgets/wallpaper"
 import "island/Singletons" as Island
 
 // Host for serpantinum's wallpaper picker (widgets/wallpaper/WallpaperPicker.qml,
 // AGPL-3.0 — see widgets/README.md). Upstream registers it full width, 650 tall,
 // anchored centre-left, and pairs it with its own WallpaperEngine that paints
-// the wallpaper. That engine is not vendored: the picker asks its Wallpaper
-// singleton to apply; this bridges that signal to island's wallpaper backend.
-// serp is imported under a namespace because its state singleton is also
-// called Wallpaper, which would clash with this shell's Wallpaper.qml.
+// the wallpaper. That engine is not vendored: the picker calls island's
+// wallpaper backend (Island.Walls.apply) itself.
 // Here it hangs from the top edge like the island's panels, on a transparent background.
 // Toggle with:  qs ipc call wallpicker toggle
 PanelWindow {
@@ -44,14 +41,6 @@ PanelWindow {
     // close; a cold open then decodes its previews again (~2s of blank cards).
     onOpenChanged: if (!open) keepAlive.restart()
     Timer { id: keepAlive; interval: 60000 }
-
-    Connections {
-        target: Widgets.Wallpaper
-        function onWallpaperChanged(screenName, path, transition) {
-            if (path && path.length > 0)
-                Island.Walls.apply(path, screenName);
-        }
-    }
 
     HyprlandFocusGrab {
         active: win.open

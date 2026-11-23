@@ -2,16 +2,9 @@ pragma Singleton
 import QtQuick
 import "../../../island/Singletons" as Island
 
-// DotRobot: the picker's wallpaper state. ../../../WallpaperPanel.qml bridges
-// wallpaperChanged to island's backend; what each screen shows is island's
-// Walls.shown (wallpaper.sh's per-output map).
+// DotRobot: what each screen shows, from island's Walls.shown (wallpaper.sh's
+// per-output map). The picker applies through Island.Walls.apply directly.
 QtObject {
-    signal wallpaperChanged(string screenName, string path, string transition)
-
-    function setWallpaper(screenName: string, path: string, transition: string): void {
-        wallpaperChanged(screenName, path, transition ? transition : "fade");
-    }
-
     /** File name shown on screenName, else on the first mapped screen. */
     function getWallpaper(screenName: string): string {
         const shown = Island.Walls.shown;
