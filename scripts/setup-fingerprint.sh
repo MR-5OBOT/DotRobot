@@ -7,11 +7,6 @@
 # hyprlock needs no PAM changes - it talks to fprintd over D-Bus. The
 # relevant config already lives in dotfiles/.config/hypr/hyprlock.conf
 # (auth.fingerprint block); this script only verifies it is present.
-#
-#   ./setup-fingerprint.sh              # interactive
-#   ./setup-fingerprint.sh --sudo       # also add the sudo PAM rule
-#   ./setup-fingerprint.sh --no-sudo    # skip sudo entirely
-#   ./setup-fingerprint.sh --finger left-index-finger
 
 set -uo pipefail
 
@@ -22,18 +17,6 @@ set +e
 PAM_SUDO=/etc/pam.d/sudo
 HYPRLOCK_CONF="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprlock.conf"
 FINGER=right-index-finger
-WANT_SUDO=ask
-
-while [[ $# -gt 0 ]]; do
-    case "$1" in
-        --sudo)    WANT_SUDO=yes ;;
-        --no-sudo) WANT_SUDO=no ;;
-        --finger)  FINGER="${2:?--finger needs a value}"; shift ;;
-        -h|--help) sed -n '2,15p' "$0" | sed 's/^# \?//'; exit 0 ;;
-        *)         die "unknown argument: $1" ;;
-    esac
-    shift
-done
 
 command -v pacman >/dev/null || die "this script targets Arch (pacman not found)"
 [[ $EUID -eq 0 ]] && die "run as your normal user, not root - enrollment is per-user"
@@ -117,10 +100,8 @@ EOF
 fi
 
 # ------------------------------------------------------------------ 7. sudo
-if [[ "$WANT_SUDO" == ask ]]; then
-    read -rp "Use fingerprint for sudo too? [y/N] " reply
-    [[ "$reply" =~ ^[Yy] ]] && WANT_SUDO=yes || WANT_SUDO=no
-fi
+read -rp "Use fingerprint for sudo too? [y/N] " reply
+[[ "$reply" =~ ^[Yy] ]] && WANT_SUDO=yes || WANT_SUDO=no
 
 if [[ "$WANT_SUDO" == yes ]]; then
     log "Adding pam_fprintd to $PAM_SUDO"
