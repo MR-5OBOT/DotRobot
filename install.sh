@@ -46,6 +46,7 @@ EOF
   run_step "Show Windows in the GRUB menu (os-prober, dual boot only)" "scripts/setup-dual-boot.sh"
   run_step "Set up keyd key remapping" "scripts/setup-keyd.sh"
   run_step "Link browser video flags and enable Brovim on Helium browser pages" "scripts/setup-browser-flags.sh"
+  run_step "Choose the default browser (zathura opens PDFs)" "scripts/setup-default-apps.sh"
   run_step "Apply GTK/icon/cursor theme settings" "scripts/setup-gtk-theme.sh"
   run_step "Set zsh as the default shell" "scripts/setup-zsh.sh"
   run_step "Set up git + ssh" "scripts/setup-git-ssh.sh"
