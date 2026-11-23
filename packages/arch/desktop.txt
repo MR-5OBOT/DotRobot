@@ -14,13 +14,11 @@ ffmpegthumbnailer
 file-roller
 geoclue
 gimp
-glow
 grim
 gst-plugin-pipewire
 gtk4
 gvfs
 gvfs-mtp
-gvfs-smb
 hypridle
 hyprland
 hyprlock
@@ -51,8 +49,6 @@ pipewire-jack
 pipewire-pulse
 power-profiles-daemon
 qbittorrent
-qt5ct
-qt5-wayland
 qt6ct
 qt6-wayland
 quickshell
@@ -63,7 +59,6 @@ sound-theme-freedesktop
 superfile
 telegram-desktop
 thermald
-tk
 ttf-fira-sans
 ttf-iosevkaterm-nerd
 ttf-material-symbols-variable

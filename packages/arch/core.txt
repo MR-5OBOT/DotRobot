@@ -5,7 +5,6 @@ base-devel
 bat
 chafa
 curl
-dmidecode
 dosfstools
 efibootmgr
 eza
@@ -18,14 +17,12 @@ github-cli
 jdk21-openjdk
 lazygit
 less
-libva-utils
 linux
 linux-firmware
 linux-headers
 man-db
 man-pages
 mkinitcpio
-mtools
 nano
 neovim
 noto-fonts
@@ -46,7 +43,6 @@ unrar
 unzip
 usbutils
 uv
-vim
 wget
 wireless-regdb
 xdg-user-dirs
