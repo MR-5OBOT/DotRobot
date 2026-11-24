@@ -332,6 +332,23 @@ Scope {
                 height: overlay.height
             }
 
+            /** A light accent blink over the whole screen per new toast; skipped under fullscreen so video is never flashed. */
+            Rectangle {
+                id: blink
+                anchors.fill: parent
+                color: Theme.vermLit
+                opacity: 0
+                Connections {
+                    target: Notifs
+                    function onToasted() { if (!overlay.monFullscreen) blinkAnim.restart(); }
+                }
+                SequentialAnimation {
+                    id: blinkAnim
+                    NumberAnimation { target: blink; property: "opacity"; to: 0.08; duration: 120; easing.type: Easing.OutQuad }
+                    NumberAnimation { target: blink; property: "opacity"; to: 0; duration: 450; easing.type: Easing.InQuad }
+                }
+            }
+
             MouseArea {
                 anchors.fill: parent
                 enabled: overlay.modal

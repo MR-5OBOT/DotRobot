@@ -15,6 +15,9 @@ Singleton {
     property var expireAt: ({})
     property var hookedIds: ({})
 
+    /** A toast just went up (Do Not Disturb already applied). */
+    signal toasted()
+
     /**
      * Arrival times, read state and history across QS reloads: the server keeps
      * the notifications themselves (keepOnReload), but this singleton restarts
@@ -253,6 +256,7 @@ Singleton {
         e[n.id] = Date.now() + 3000;
         root.expireAt = e;
         root.popups = root.popups.concat([n]).slice(-3);
+        root.toasted();
     }
 
     /** Drop every non-critical popup whose deadline has passed (50ms slack for timer jitter). */
