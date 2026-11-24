@@ -11,7 +11,8 @@
 
 import { Message } from "@vencord/discord-types";
 
-const MEDIA = '[id^="message-accessories-"] :is(img, video)';
+// not emoji: hovering a reaction pops its "reacted by" tooltip
+const MEDIA = '[id^="message-accessories-"] :is(img, video):not(.emoji)';
 
 let hovered: { li: HTMLElement; media: HTMLElement[]; } | null = null;
 
