@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
+import Quickshell.Services.SystemTray
 import "Singletons"
 import "surfaces"
 
@@ -22,6 +23,9 @@ import "surfaces"
  */
 Scope {
     id: root
+
+    // start the tray host with the bar, not when Home first opens: an app that finds no tray at launch never retries
+    readonly property var trayItems: SystemTray.items
 
     property string openMon: ""
     property string openSurface: ""
