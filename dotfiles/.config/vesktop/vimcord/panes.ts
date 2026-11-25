@@ -234,6 +234,12 @@ export function focus(id: PaneId) {
     requestAnimationFrame(pick);
 }
 
+/** J / K opened another server or channel: the highlight starts over on it, like a fresh focus */
+export function follow() {
+    delete highlighted[focused];
+    focus(focused);
+}
+
 /** h / l: the pane to the left/right */
 export function step(dir: 1 | -1) {
     const i = order.indexOf(focused);

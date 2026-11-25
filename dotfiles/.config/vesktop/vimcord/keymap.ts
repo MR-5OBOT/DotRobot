@@ -152,6 +152,13 @@ function search() {
     else keybind("FOCUS_SEARCH", "mod+f");
 }
 
+// J / K: the next or previous server in the servers pane, else channel; a focused list's highlight follows
+function nextOpen(dir: "NEXT" | "PREV") {
+    const p = panes.current();
+    keybind(p === "servers" ? `SERVER_${dir}` : `CHANNEL_${dir}`);
+    if (p === "servers" || p === "channels") panes.follow();
+}
+
 export const bindings: Binding[] = [
     // panes
     { keys: "1", group: "Panes", desc: "Servers", run: () => panes.focus("servers") },
@@ -222,8 +229,8 @@ export const bindings: Binding[] = [
     { keys: "v", group: "Message", desc: "Select (then y / d)", in: "messages", run: cursor.startVisual },
 
     // going places
-    { keys: "J", group: "Going places", desc: "Next channel", run: () => keybind("CHANNEL_NEXT") },
-    { keys: "K", group: "Going places", desc: "Previous channel", run: () => keybind("CHANNEL_PREV") },
+    { keys: "J", group: "Going places", desc: "Next channel / server", run: () => nextOpen("NEXT") },
+    { keys: "K", group: "Going places", desc: "Previous channel / server", run: () => nextOpen("PREV") },
     { keys: "gi", group: "Going places", desc: "First unread", run: () => keybind("JUMP_TO_FIRST_UNREAD") },
     { keys: "<Space>ur", group: "Going places", desc: "First unread", run: () => keybind("JUMP_TO_FIRST_UNREAD") },
     { keys: "<Space><Space>", group: "Going places", desc: "Quick switcher", run: () => keybind("QUICKSWITCHER_SHOW") },
