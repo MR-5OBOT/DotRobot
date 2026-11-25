@@ -25,7 +25,7 @@ hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("qs ipc call launcher toggle"))
 hl.bind(mainMod .. " + D", hl.dsp.exec_cmd(ISLAND .. ' home ""')) -- dashboard
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(ISLAND .. ' battery ""')) -- battery
 hl.bind(mainMod .. " + I", hl.dsp.exec_cmd("kitty --class nmtui -e nmtui")) -- network manager (tui)
-hl.bind(mainMod .. " + ALT + I", hl.dsp.exec_cmd("kitty --class nmtui -e nmtui connect")) -- direct wifi connection picker
+hl.bind(mainMod .. " + ALT + I", hl.dsp.exec_cmd("nm-connection-editor")) -- full editor: hotspots, static IPs, VPNs
 hl.bind(mainMod .. " + ALT + N", hl.dsp.exec_cmd("pkill -x qs; " .. QS)) -- restart quickshell (island included)
 hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd(ISLAND .. ' power ""'))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("qs ipc call wallpicker toggle"))
