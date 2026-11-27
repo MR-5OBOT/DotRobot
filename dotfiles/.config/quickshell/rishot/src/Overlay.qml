@@ -3,7 +3,6 @@ import Qt5Compat.GraphicalEffects
 import Quickshell.Wayland
 import "Singletons"
 import "lib/coords.js" as Coords
-import "lib/hittest.js" as Hit
 
 Item {
     id: overlay
@@ -32,8 +31,6 @@ Item {
     property int annRevision: 0
     property int commitRevision: 0
     property bool textEditing: false
-    property var selectedIndex: null
-    property var moveOffset: null
     property var hoverWindow: null
 
     signal pressedAt(real gx, real gy)
@@ -58,27 +55,6 @@ Item {
     readonly property color dimColor: Theme.dim
     readonly property color vermilion: Theme.vermilion
 
-    function selectionBox() {
-        if (selectedIndex === null || !model
-            || selectedIndex < 0 || selectedIndex >= model.items.length) return null;
-        var a = model.items[selectedIndex];
-        var off = moveOffset || { x: 0, y: 0 };
-        var b = Hit.bboxOf(a);
-        var pad = (a.type === "text" || a.type === "step") ? 4 : Math.max((a.width || 4), 6);
-        return {
-            x: b.x - sx + off.x - pad,
-            y: b.y - sy + off.y - pad,
-            w: b.w + pad * 2,
-            h: b.h + pad * 2
-        };
-    }
-
-    readonly property var selBox: {
-        if (overlay.selectedIndex === null) return null;
-        overlay.annRevision;
-        return selectionBox();
-    }
-
     Item {
         id: scene
         anchors.fill: parent
@@ -90,7 +66,7 @@ Item {
          * from grim and frozenPng shows this output's slice of it (the
          * sourceClipRect in device pixels is the logical geometry times the
          * capture scale). Only one is live per session; both fill the overlay,
-         * so blur, pixelate, zoom, loupe and export sample the same coordinates.
+         * so blur, loupe and export sample the same coordinates.
          */
         ScreencopyView {
             id: frozenWlr
@@ -118,8 +94,6 @@ Item {
                 if (status === Image.Error) overlay.captureTimedOut();
             }
         }
-
-        readonly property real mosaicFactor: 14
 
         function committedOfType(t) {
             var src = overlay.model ? overlay.model.items : [];
@@ -178,144 +152,6 @@ Item {
             delegate: blurDelegate
         }
 
-        Component {
-            id: pixelateDelegate
-
-            Item {
-                required property var modelData
-                readonly property var a: modelData
-                readonly property bool valid: a !== undefined && a !== null && a.points !== undefined && a.points.length >= 2
-                readonly property real rx: valid ? Math.min(a.points[0].x, a.points[1].x) - overlay.sx : 0
-                readonly property real ry: valid ? Math.min(a.points[0].y, a.points[1].y) - overlay.sy : 0
-                readonly property real rw: valid ? Math.abs(a.points[1].x - a.points[0].x) : 0
-                readonly property real rh: valid ? Math.abs(a.points[1].y - a.points[0].y) : 0
-                x: rx
-                y: ry
-                width: rw
-                height: rh
-                visible: valid && rw > 0 && rh > 0
-                clip: true
-
-                ShaderEffectSource {
-                    anchors.fill: parent
-                    sourceItem: overlay.frozenItem
-                    live: false
-                    recursive: false
-                    smooth: false
-                    sourceRect: Qt.rect(parent.rx, parent.ry, parent.rw, parent.rh)
-                    textureSize: Qt.size(Math.max(1, parent.rw / scene.mosaicFactor),
-                                         Math.max(1, parent.rh / scene.mosaicFactor))
-                }
-            }
-        }
-
-        Repeater {
-            model: { overlay.commitRevision; return scene.committedOfType("pixelate"); }
-            delegate: pixelateDelegate
-        }
-        Repeater {
-            model: { overlay.annRevision; return scene.draftOfType("pixelate"); }
-            delegate: pixelateDelegate
-        }
-
-        Component {
-            id: zoomDelegate
-
-            Item {
-                id: zoomCell
-                required property var modelData
-                readonly property var a: modelData
-                readonly property bool valid: a !== undefined && a !== null && a.points !== undefined && a.points.length >= 2
-                readonly property bool selected: {
-                    overlay.annRevision;
-                    return overlay.selectedIndex !== null && overlay.model
-                        && overlay.selectedIndex >= 0 && overlay.selectedIndex < overlay.model.items.length
-                        && overlay.model.items[overlay.selectedIndex] === a;
-                }
-                readonly property var off: selected && overlay.moveOffset
-                    ? overlay.moveOffset : { x: 0, y: 0 }
-
-                readonly property real srcMinX: valid ? Math.min(a.points[0].x, a.points[1].x) : 0
-                readonly property real srcMinY: valid ? Math.min(a.points[0].y, a.points[1].y) : 0
-                readonly property real srcW: valid ? Math.abs(a.points[1].x - a.points[0].x) : 0
-                readonly property real srcH: valid ? Math.abs(a.points[1].y - a.points[0].y) : 0
-                readonly property real zf: (valid && a.zoom) ? a.zoom : 2
-
-                readonly property real rx: srcMinX - overlay.sx + off.x
-                readonly property real ry: srcMinY - overlay.sy + off.y
-                readonly property real rw: srcW
-                readonly property real rh: srcH
-                readonly property real corner: Math.min(rw, rh) * 0.08
-
-                readonly property real cx: rx + rw / 2
-                readonly property real cy: ry + rh / 2
-                readonly property real subW: rw / zf
-                readonly property real subH: rh / zf
-
-                anchors.fill: parent
-                visible: valid && rw > 0 && rh > 0
-
-                Rectangle {
-                    x: zoomCell.rx + 2
-                    y: zoomCell.ry + 2
-                    width: zoomCell.rw
-                    height: zoomCell.rh
-                    radius: zoomCell.corner
-                    color: Qt.rgba(0, 0, 0, 0.28)
-                    antialiasing: true
-                }
-
-                Item {
-                    id: lensClip
-                    x: zoomCell.rx
-                    y: zoomCell.ry
-                    width: zoomCell.rw
-                    height: zoomCell.rh
-                    layer.enabled: true
-                    layer.effect: OpacityMask {
-                        maskSource: Rectangle {
-                            width: zoomCell.rw
-                            height: zoomCell.rh
-                            radius: zoomCell.corner
-                            antialiasing: true
-                        }
-                    }
-
-                    ShaderEffectSource {
-                        anchors.fill: parent
-                        sourceItem: overlay.frozenItem
-                        live: false
-                        recursive: false
-                        smooth: true
-                        sourceRect: Qt.rect(zoomCell.cx - zoomCell.subW / 2,
-                                            zoomCell.cy - zoomCell.subH / 2,
-                                            zoomCell.subW, zoomCell.subH)
-                    }
-                }
-
-                Rectangle {
-                    x: zoomCell.rx
-                    y: zoomCell.ry
-                    width: zoomCell.rw
-                    height: zoomCell.rh
-                    radius: zoomCell.corner
-                    color: "transparent"
-                    border.color: overlay.vermilion
-                    border.width: 2
-                    antialiasing: true
-                }
-            }
-        }
-
-        Repeater {
-            model: { overlay.commitRevision; return scene.committedOfType("zoom"); }
-            delegate: zoomDelegate
-        }
-        Repeater {
-            model: { overlay.annRevision; return scene.draftOfType("zoom"); }
-            delegate: zoomDelegate
-        }
-
         AnnLayer {
             id: annCanvas
             anchors.fill: parent
@@ -325,8 +161,6 @@ Item {
             draft: overlay.draft
             revision: overlay.annRevision
             commitRevision: overlay.commitRevision
-            selectedIndex: overlay.selectedIndex
-            moveOffset: overlay.moveOffset
         }
     }
 
@@ -449,40 +283,6 @@ Item {
             border.color: overlay.vermilion
             border.width: 2.5
             antialiasing: true
-        }
-    }
-
-    Item {
-        id: annSelection
-        visible: overlay.ready && overlay.selBox !== null
-        x: overlay.selBox ? overlay.selBox.x : 0
-        y: overlay.selBox ? overlay.selBox.y : 0
-        width: overlay.selBox ? overlay.selBox.w : 0
-        height: overlay.selBox ? overlay.selBox.h : 0
-
-        Rectangle {
-            anchors.fill: parent
-            color: "transparent"
-            border.color: overlay.vermilion
-            border.width: 1
-            antialiasing: true
-        }
-
-        Repeater {
-            model: [
-                { hx: 0, hy: 0 },
-                { hx: 1, hy: 0 },
-                { hx: 0, hy: 1 },
-                { hx: 1, hy: 1 }
-            ]
-            Rectangle {
-                required property var modelData
-                width: 5; height: 5
-                radius: 2.5
-                color: overlay.vermilion
-                x: modelData.hx * (annSelection.width - width)
-                y: modelData.hy * (annSelection.height - height)
-            }
         }
     }
 

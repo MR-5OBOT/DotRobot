@@ -26,26 +26,6 @@ function create() {
             return ann;
         },
 
-        move: function (index, dx, dy) {
-            if (index < 0 || index >= this.items.length) return false;
-            this.commit();
-            var moved = cloneItem(this.items[index]);
-            var pts = moved.points;
-            for (var i = 0; i < pts.length; i++) {
-                pts[i].x += dx;
-                pts[i].y += dy;
-            }
-            this.items[index] = moved;
-            return true;
-        },
-
-        remove: function (index) {
-            if (index < 0 || index >= this.items.length) return false;
-            this.commit();
-            this.items.splice(index, 1);
-            return true;
-        },
-
         undo: function () {
             if (this.undoStack.length === 0) return false;
             this.redoStack.push(this.items.slice());

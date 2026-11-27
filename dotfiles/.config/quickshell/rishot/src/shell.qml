@@ -5,7 +5,6 @@ import Quickshell.Wayland
 import "Singletons"
 import "lib/coords.js" as Coords
 import "lib/AnnotationModel.js" as Ann
-import "lib/hittest.js" as Hit
 
 ShellRoot {
     id: root
@@ -36,18 +35,14 @@ ShellRoot {
      * the tooltips and Keys.onPressed shortcuts cannot drift apart.
      */
     readonly property var toolDescriptors: [
-        { id: "select",   icon: "select",   label: "Select",    key: "v" },
         { id: "rect",     icon: "rect",     label: "Rectangle", key: "r" },
         { id: "ellipse",  icon: "ellipse",  label: "Ellipse",   key: "o" },
-        { id: "line",     icon: "line",     label: "Line",      key: "l" },
         { id: "arrow",    icon: "arrow",    label: "Arrow",     key: "a" },
         { id: "pen",      icon: "pen",      label: "Pen",       key: "p" },
         { id: "marker",   icon: "marker",   label: "Marker",    key: "h" },
         { id: "step",     icon: "step",     label: "Step",      key: "n" },
         { id: "text",     icon: "text",     label: "Text",      key: "t" },
-        { id: "blur",     icon: "blur",     label: "Blur",      key: "b" },
-        { id: "pixelate", icon: "pixelate", label: "Pixelate",  key: "x" },
-        { id: "zoom",     icon: "zoom",     label: "Zoom",      key: "z" }
+        { id: "blur",     icon: "blur",     label: "Blur",      key: "b" }
     ]
     readonly property var toolKeys: {
         var m = {};
@@ -58,7 +53,6 @@ ShellRoot {
 
     function selectTool(t) {
         if (textEditing) commitText();
-        clearSelection();
         activeTool = t;
         var s = toolStyle[t];
         activeColor = s ? s.color : Theme.vermilion;
@@ -108,9 +102,6 @@ ShellRoot {
         }
     }
 
-    property var selectedIndex: null
-    property var moveOffset: null
-    property var moveStart: null
     property var resizing: null
     property var hoverWindow: null
     property var windowRects: []
@@ -130,7 +121,6 @@ ShellRoot {
     readonly property string shotsDir: (Quickshell.env("XDG_PICTURES_DIR")
             ? Quickshell.env("XDG_PICTURES_DIR") + "/Screenshots"
             : homeDir + "/Pictures/Screenshots")
-    readonly property string uploadEndpoint: "https://litterbox.catbox.moe/resources/internals/api.php"
 
     // Hyprland uses screencopy; grim is the fallback if no frame arrives.
     property string captureBackend: "screencopy"
@@ -244,45 +234,8 @@ ShellRoot {
         bumpCommit();
     }
 
-    function clearSelection() {
-        if (selectedIndex !== null) { selectedIndex = null; bumpAnn(); }
-    }
-
-    function deleteSelected() {
-        if (selectedIndex === null) return;
-        model.remove(selectedIndex);
-        selectedIndex = null;
-        bumpCommit();
-    }
-
-    function beginSelect(gx, gy) {
-        var idx = Hit.hitTest(model.items, gx, gy);
-        selectedIndex = idx;
-        if (idx !== null) {
-            capturing = true;
-            moveStart = { x: gx, y: gy };
-            moveOffset = { x: 0, y: 0 };
-        }
-        bumpAnn();
-    }
-    function updateSelect(gx, gy) {
-        if (selectedIndex === null || !moveStart) return;
-        moveOffset = { x: gx - moveStart.x, y: gy - moveStart.y };
-        bumpAnn();
-    }
-    function endSelect() {
-        capturing = false;
-        if (selectedIndex !== null && moveOffset
-            && (moveOffset.x !== 0 || moveOffset.y !== 0)) {
-            model.move(selectedIndex, moveOffset.x, moveOffset.y);
-        }
-        moveOffset = null;
-        moveStart = null;
-        bumpCommit();
-    }
-
     function beginDraw(gx, gy) {
-        if (!globalSel || activeTool === "select") return;
+        if (!globalSel) return;
         if (activeTool === "text") { placeText(gx, gy); return; }
         if (activeTool === "step") { placeStep(gx, gy); return; }
         var p = clampToSel(gx, gy);
@@ -292,10 +245,8 @@ ShellRoot {
             draft = { type: activeTool, points: [p], color: String(activeColor), width: activeWidth };
         else if (activeTool === "marker")
             draft = { type: "marker", points: [p, p], color: String(Theme.markerYellow), width: activeWidth, filled: true };
-        else if (activeTool === "blur" || activeTool === "pixelate")
+        else if (activeTool === "blur")
             draft = { type: activeTool, points: [p, p] };
-        else if (activeTool === "zoom")
-            draft = { type: "zoom", points: [p, p], zoom: 2 };
         else
             draft = { type: activeTool, points: [p, p], color: String(activeColor), width: activeWidth, filled: activeFill };
         bumpAnn();
@@ -320,7 +271,7 @@ ShellRoot {
         } else {
             var p0 = draft.points[0], p1 = draft.points[1];
             var dx = Math.abs(p1.x - p0.x), dy = Math.abs(p1.y - p0.y);
-            var big = draft.type === "line" || draft.type === "arrow"
+            var big = draft.type === "arrow"
                 ? Math.hypot(dx, dy) > 4
                 : dx > 2 && dy > 2;
             if (big) model.add(draft);
@@ -332,14 +283,14 @@ ShellRoot {
     /**
      * annRevision ticks on every change including live draft points, so the draft
      * and selection layers re-render at pointer speed. commitRevision ticks only
-     * when model.items actually changes (add/remove/move/undo/redo), so the heavy
+     * when model.items actually changes (add/undo/redo), so the heavy
      * committed-annotation Repeaters rebuild on discrete edits, not per draft point.
      */
     function bumpAnn() { annRevision += 1; }
     function bumpCommit() { commitRevision += 1; annRevision += 1; }
 
-    function undo() { if (model.undo()) { selectedIndex = null; moveOffset = null; moveStart = null; bumpCommit(); } }
-    function redo() { if (model.redo()) { selectedIndex = null; moveOffset = null; moveStart = null; bumpCommit(); } }
+    function undo() { if (model.undo()) bumpCommit(); }
+    function redo() { if (model.redo()) bumpCommit(); }
 
     function windowAt(gx, gy) {
         var best = null;
@@ -360,18 +311,15 @@ ShellRoot {
         if (phase === "selecting") {
             beginSelection(gx, gy);
         }
-        else if (activeTool === "select") beginSelect(gx, gy);
         else beginDraw(gx, gy);
     }
     function pointerMoved(gx, gy) {
         if (resizing !== null) return;
         if (phase === "selecting") updateSelection(gx, gy);
-        else if (activeTool === "select") updateSelect(gx, gy);
         else updateDraw(gx, gy);
     }
     function pointerReleased() {
         if (phase === "selecting") endSelection();
-        else if (activeTool === "select") endSelect();
         else endDraw();
     }
 
@@ -509,14 +457,6 @@ ShellRoot {
         root.finish("Screenshot saved", root.pretty(path), false, path);
     }
 
-    function doUpload() {
-        var tmp = root.tmpDir + "/rishot-upload-" + Date.now() + ".png";
-        grabTo(tmp, function (ok) {
-            if (ok) uploadProc.run(tmp);
-            else root.finish("Capture failed", "", true, "");
-        });
-    }
-
     Process {
         id: saveDialog
         stdout: StdioCollector { id: saveOut }
@@ -566,39 +506,6 @@ ShellRoot {
             if (code !== 0) { root.finish("Copy failed", root.pretty(file), true, file); return; }
             root.finish("Copied to clipboard", "", false, "");
         }
-    }
-
-    /**
-     * Uploads detached so the overlay closes instantly. setsid -f forks the
-     * worker into its own session and its parent returns at once (onExited quits
-     * qs); the worker strips metadata, posts, copies the link and fires the
-     * result notification on its own. exec 9>&- drops the single-instance lock fd
-     * so a fresh launch is not blocked while the upload runs.
-     */
-    Process {
-        id: uploadProc
-        function run(file) {
-            command = ["setsid", "-f", "sh", "-c",
-                "exec 9>&-; "
-                + "command -v magick >/dev/null 2>&1 && magick \"$1\" -strip \"$1\" >/dev/null 2>&1; "
-                + "reason='Upload failed'; detail=\"Capture kept at $1\"; "
-                + "if url=$(curl -sf --proto '=https' --max-time 30 -A \"Mozilla/5.0\" "
-                + "-F reqtype=fileupload -F time=72h -F fileToUpload=@\"$1\" \"$2\"); then "
-                + "case \"$url\" in https://*|http://*) "
-                + "if printf %s \"$url\" | wl-copy; then "
-                + "rm -f \"$1\"; "
-                + "if command -v notify-send >/dev/null 2>&1; then "
-                + "act=$(notify-send -a rishot -i \"$3\" -u normal -A \"copy=Copy link\" 'Link copied' \"$url\"); "
-                + "[ \"$act\" = copy ] && printf %s \"$url\" | wl-copy; "
-                + "fi; exit 0; "
-                + "fi; reason='Link copy failed'; detail=\"$url (capture kept at $1)\" ;; "
-                + "esac; fi; "
-                + "if command -v notify-send >/dev/null 2>&1; then "
-                + "notify-send -a rishot -i \"$3\" -u critical \"$reason\" \"$detail\"; fi",
-                "_", file, root.uploadEndpoint, root.iconPath];
-            running = true;
-        }
-        onExited: () => Qt.quit()
     }
 
     WindowProvider {
@@ -704,7 +611,6 @@ ShellRoot {
                 Keys.onEscapePressed: {
                     if (root.textEditing) root.cancelText();
                     else if (root.openPopover !== "") root.openPopover = "";
-                    else if (root.selectedIndex !== null) root.clearSelection();
                     else Qt.quit();
                 }
                 Keys.onPressed: (e) => {
@@ -717,11 +623,6 @@ ShellRoot {
                         return;
                     }
                     if (e.modifiers & (Qt.AltModifier | Qt.MetaModifier)) return;
-                    if ((e.key === Qt.Key_Delete || e.key === Qt.Key_Backspace) && root.selectedIndex !== null) {
-                        root.deleteSelected();
-                        e.accepted = true;
-                        return;
-                    }
                     var t = root.toolKeys[e.text];
                     if (t !== undefined) {
                         root.openPopover = "";
@@ -754,8 +655,6 @@ ShellRoot {
                     annRevision: root.annRevision
                     commitRevision: root.commitRevision
                     textEditing: root.textEditing
-                    selectedIndex: root.selectedIndex
-                    moveOffset: root.moveOffset
                     hoverWindow: root.hoverWindow
 
                     onPressedAt: (gx, gy) => root.pointerPressed(gx, gy)
@@ -814,7 +713,6 @@ ShellRoot {
                     onRedoRequested: root.redo()
                     onCopyRequested: root.doCopy()
                     onSaveRequested: root.doSave()
-                    onUploadRequested: root.doUpload()
                     onCloseRequested: Qt.quit()
                     onDragMoved: (dx, dy) => {
                         if (!win.selLocal) return;
