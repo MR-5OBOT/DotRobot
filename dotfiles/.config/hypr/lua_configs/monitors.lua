@@ -13,13 +13,13 @@ hl.monitor({
 	output = GIGABYTE,
 	-- Not 60Hz: Intel treats 1080p60 over HDMI as a TV and sends limited-range
 	-- colour (grey blacks). 240Hz gets full range. Max 8-bit colour over HDMI 2.0.
-	-- TEST (2026-11-23 to 11-25), only to see if the monitor's sound still cuts out: at 165Hz and
-	-- above (HDMI 2.0) the monitor reports lanes 1-2 unlocked with ~187k errors/s, and
-	-- the sound rides on those lanes. This custom 144Hz mode stays under 340 MHz
-	-- (HDMI 1.4, 0 errors) and isn't a TV mode, so it keeps full range.
-	-- If the sound never cuts out at 144Hz, the link was the cause. Either way, go
-	-- back to "1920x1080@240" afterwards.
-	mode = "modeline 325.44 1920 1928 1960 2000 1080 1083 1088 1130 +hsync -vsync",
+	mode = "1920x1080@240",
+	-- Sound cutting out on the monitor = the HDMI link, most likely the cable. At 165Hz
+	-- and up (HDMI 2.0) it showed lanes 1-2 unlocked with ~187k errors/s, and the sound
+	-- rides on those lanes; 2026-11-23 to 11-27 at the 144Hz mode below it never cut out.
+	-- 2026-11-27: back to 240Hz on the monitor's other HDMI input. If the sound cuts out
+	-- again, use this instead: under 340 MHz (HDMI 1.4, 0 errors), not a TV mode, so full range.
+	-- mode = "modeline 325.44 1920 1928 1960 2000 1080 1083 1088 1130 +hsync -vsync",
 	position = "auto-right",
 	scale = 1,
 	-- No vrr: Intel offers VRR only on DisplayPort/USB-C here, not HDMI.
