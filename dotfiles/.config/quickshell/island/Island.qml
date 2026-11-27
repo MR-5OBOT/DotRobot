@@ -80,7 +80,8 @@ Scope {
      */
     Process {
         running: Flags.keepAwake
-        command: ["systemd-inhibit", "--what=idle:sleep", "--who=Island",
+        // setpriv: a crashed qs must not leave the lock held (the laptop would never sleep)
+        command: ["setpriv", "--pdeathsig", "TERM", "systemd-inhibit", "--what=idle:sleep", "--who=Island",
                   "--why=keep awake", "--mode=block", "sleep", "infinity"]
     }
 
