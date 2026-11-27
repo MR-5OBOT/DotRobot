@@ -89,7 +89,7 @@ local function overlaps(a, b)
 		and b.at.y < a.at.y + a.size.y
 end
 local function focusDir(dir)
-	return function()
+	local function smart()
 		local cur = hl.get_active_window()
 		if not (cur and cur.fullscreen == 0 and cur.workspace) then
 			hl.dispatch(hl.dsp.focus({ direction = dir }))
@@ -123,6 +123,12 @@ local function focusDir(dir)
 		local now = hl.get_active_window()
 		if stacked and now and now.address == cur.address then
 			hl.dispatch(hl.dsp.focus({ window = stacked }))
+		end
+	end
+	-- pcall: if a Hyprland update renames a field smart() reads, the key still moves focus
+	return function()
+		if not pcall(smart) then
+			hl.dispatch(hl.dsp.focus({ direction = dir }))
 		end
 	end
 end
