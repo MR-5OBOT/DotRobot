@@ -109,32 +109,13 @@ stuck() {
     hyprctl layers -j | jq -e --arg ns "$1" '[.[].levels[][] | select(.namespace == $ns and .alpha == 0)] | length > 0' >/dev/null
 }
 
-# Swap awww under a frozen copy so healthy screens never go blank: the stopped old
-# daemon keeps its surfaces up while the new one restores its cache (~0.6s for a
-# 3440px still) and maps above them, then the old one dies. SIGKILL only: a clean
-# exit would unlink the socket the new daemon now owns.
-respawn_stills() {
-    local old want
-    old=$(pgrep -x awww-daemon | tr '\n' ' ' || true)
-    want=$(awww query 2>/dev/null | sort || true)
-    if [ -n "$old" ]; then
-        trap "kill -KILL $old 2>/dev/null" EXIT
-        kill -STOP $old 2>/dev/null || true
-        rm -f "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/$(basename "${WAYLAND_DISPLAY:-wayland-0}")-awww-daemon.sock"
-    fi
-    ensure_daemon || exit 1
-    [ -n "$old" ] || return 0
-    for _ in $(seq 1 100); do
-        [ "$(awww query 2>/dev/null | sort)" = "$want" ] && break
-        sleep 0.05
-    done
-    sleep 0.2 # let the restored frames reach the screen
-    kill -KILL $old 2>/dev/null || true
-    trap - EXIT
-}
-
+# Restart awww: the new daemon maps fresh surfaces and restores its own last images.
+# Screens blink once; waiting for the old one to exit keeps the new one off its socket.
 if [ "${1:-}" = "heal" ]; then
-    if stuck awww-daemon; then respawn_stills; fi
+    if stuck awww-daemon; then
+        pkill -x awww-daemon && timeout 3 pidwait -x awww-daemon || true
+        ensure_daemon || exit 1
+    fi
     exit 0
 fi
 
