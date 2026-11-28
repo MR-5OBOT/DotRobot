@@ -5,8 +5,10 @@ hl.monitor({ output = "eDP-1", position = "0x0", scale = 1.5 })
 
 -- Gigabyte GS25F2A on the right. Matched by model, so it works on any port.
 local GIGABYTE = "desc:GIGA-BYTE TECHNOLOGY CO. LTD. GS25F2A"
+
 -- Stops fullscreen apps from blanking the monitor (HDR / content-type switches).
 hl.config({ render = { cm_auto_hdr = 0, send_content_type = false } })
+
 hl.monitor({
 	output = GIGABYTE,
 	-- Not 60Hz: at 1080p60 Intel sends grey blacks (limited range).
@@ -19,7 +21,7 @@ hl.monitor({
 	-- No VRR: Intel only does it over DisplayPort / USB-C.
 })
 
--- Workspaces 1-10 on the monitor, 11+ on the laptop.
+-- Workspaces 1-10 live on the monitor. Other new windows open on the focused screen.
 for i = 1, 10 do
 	hl.workspace_rule({ workspace = tostring(i), monitor = GIGABYTE })
 end
