@@ -72,8 +72,7 @@ PanelWindow {
                         ["Caps + U / D", "Scroll up / down"],
                         ["Caps + G / Shift + G", "Top / bottom"],
                         ["Caps + 0 / $", "Line start / end"],
-                        ["Caps + - / = / Space", "Volume down / up, toggle mic mute"],
-                        ["Super + Alt + K", "Turn keyd on / off"]
+                        ["Caps + - / = / Space", "Volume down / up, toggle mic mute"]
                     ]
                 }],
                 [{

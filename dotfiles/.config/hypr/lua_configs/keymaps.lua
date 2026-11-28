@@ -37,14 +37,6 @@ hl.bind(mainMod .. " + T", hl.dsp.exec_cmd(ISLAND .. ' peek ""'))
 hl.bind(mainMod .. " + equal", hl.dsp.exec_cmd("qs ipc call calc toggle"))
 hl.bind(mainMod .. " + slash", hl.dsp.exec_cmd("qs ipc call keymaps toggle")) -- keymap cheat sheet
 
--- keyd on/off (its panic combo only stops it); hyprpolkitagent asks for the password
-hl.bind(
-	mainMod .. " + ALT + K",
-	hl.dsp.exec_cmd(
-		"if systemctl is-active -q keyd; then systemctl stop keyd; else systemctl start keyd; fi; "
-			.. 'notify-send -a keyd "keyd $(systemctl is-active keyd)"'
-	)
-)
 hl.bind("XF86Calculator", hl.dsp.exec_cmd("qs ipc call calc toggle"))
 hl.bind(mainMod .. " + ALT + C", hl.dsp.exec_cmd("hyprpicker -a -n"))
 
