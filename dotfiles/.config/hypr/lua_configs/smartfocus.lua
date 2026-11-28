@@ -3,6 +3,9 @@
 -- tile stays Hyprland's. Nothing that way: switch between a tile and the float on it.
 -- shortcut: nearest by centre (sideways counts double); use edge overlap if it misjumps.
 
+-- In fullscreen, H/J/K/L still move to the other windows.
+hl.config({ binds = { movefocus_cycles_fullscreen = true } })
+
 local STEP = { left = { -1, 0 }, right = { 1, 0 }, up = { 0, -1 }, down = { 0, 1 } }
 
 local function overlaps(a, b)

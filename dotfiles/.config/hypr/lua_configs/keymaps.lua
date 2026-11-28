@@ -65,12 +65,6 @@ hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("qs ipc call media toggle"))
 hl.bind(mainMod .. " + ALT + P", hl.dsp.exec_cmd("qs ipc call powerprofile cycle"))
 
 -- Focus Navigation (smartfocus.lua also hops between floating and tiled windows)
-hl.config({
-	binds = {
-		movefocus_cycles_fullscreen = 1,
-	},
-})
-
 hl.bind(mainMod .. " + H", focusDir("left"))
 hl.bind(mainMod .. " + L", focusDir("right"))
 hl.bind(mainMod .. " + K", focusDir("up"))
