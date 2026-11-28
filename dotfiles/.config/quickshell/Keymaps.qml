@@ -54,7 +54,8 @@ PanelWindow {
                         ["Super + 1 … 0", "Switch workspace 1 … 10"],
                         ["Super + Shift + 1 … 0", "Move window to workspace"],
                         ["Super + Tab", "Focus the next monitor"],
-                        ["Super + Shift + Tab", "Move window to the next monitor"]
+                        ["Super + Shift + Tab", "Move window to the next monitor"],
+                        ["Super + Ctrl + Tab", "Laptop screen off / on"]
                     ]
                 }]
             ]

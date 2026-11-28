@@ -17,8 +17,8 @@ Arch Linux dotfiles: Hyprland (Lua config), a Quickshell bar, kitty, zsh and tmu
 3. Reboot, pick **Hyprland (uwsm-managed)** at the login screen, then press
    Super+/ for the keybinds and Super+W for wallpapers.
 
-To adjust for other hardware, edit the external monitor in
-`dotfiles/.config/hypr/lua_configs/monitors.lua` and the keyboard ids in
+To adjust for other hardware, edit the laptop and external monitor (name, scale,
+position) in `dotfiles/.config/hypr/lua_configs/monitors.lua` and the keyboard ids in
 `dotfiles/keyd/default.conf` (then run `scripts/setup-keyd.sh`).
 
 ## Extra scripts

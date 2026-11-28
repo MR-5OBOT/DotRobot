@@ -185,6 +185,27 @@ hl.bind(mainMod .. " + SHIFT + Tab", function()
 	toast("Window → " .. label(m))
 end)
 
+-- CTRL + Tab: laptop screen off/on. Lets you keep the lid open (closed = weaker Wi-Fi).
+hl.bind(mainMod .. " + CTRL + Tab", function()
+	local on = hl.get_monitor("eDP-1") ~= nil -- nil while off
+	if on and #hl.get_monitors() < 2 then
+		return toast("No other screen") -- never turn off the only screen
+	end
+	hl.monitor({ output = "eDP-1", disabled = on })
+	toast(on and "Laptop screen off" or "Laptop screen on")
+end)
+-- Monitor lost while the laptop screen is off: turn the laptop screen back on.
+hl.on("monitor.removed", function()
+	hl.timer(function() -- runs after the removal, not in the middle of it
+		for _, m in ipairs(hl.get_monitors()) do
+			if m.name ~= "FALLBACK" then -- FALLBACK: Hyprland's stand-in when no screen is left
+				return
+			end
+		end
+		hl.monitor({ output = "eDP-1", disabled = false })
+	end, { timeout = 500, type = "oneshot" })
+end)
+
 -- Move/Resize mouse bindings
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })

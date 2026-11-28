@@ -1,32 +1,25 @@
--- Monitors
---
--- Laptop (eDP-1): no rule, Hyprland's defaults fit it: 1920x1080@60, scale 1.5
--- (apps see 1280x720), at 0x0. Add an hl.monitor block for "eDP-1" to change it.
+-- Monitors. Positions are in scaled pixels.
 
--- Gigabyte GS25F2A, external, right of the laptop.
--- Matched by model (desc:) instead of port, so it works on any port or dock and
--- never applies these settings to another screen on the same HDMI port.
+-- Laptop: 1920x1080@60 at scale 1.5, on the left.
+hl.monitor({ output = "eDP-1", position = "0x0", scale = 1.5 })
+
+-- Gigabyte GS25F2A on the right. Matched by model, so it works on any port.
 local GIGABYTE = "desc:GIGA-BYTE TECHNOLOGY CO. LTD. GS25F2A"
--- Fullscreen HDR and content-type switches blank the external HDMI monitor.
+-- Stops fullscreen apps from blanking the monitor (HDR / content-type switches).
 hl.config({ render = { cm_auto_hdr = 0, send_content_type = false } })
 hl.monitor({
 	output = GIGABYTE,
-	-- Not 60Hz: Intel treats 1080p60 over HDMI as a TV and sends limited-range
-	-- colour (grey blacks). 240Hz gets full range. Max 8-bit colour over HDMI 2.0.
+	-- Not 60Hz: at 1080p60 Intel sends grey blacks (limited range).
 	mode = "1920x1080@240",
-	-- Sound cutting out on the monitor = the HDMI link, most likely the cable. At 165Hz
-	-- and up (HDMI 2.0) it showed lanes 1-2 unlocked with ~187k errors/s, and the sound
-	-- rides on those lanes; 2026-11-23 to 11-27 at the 144Hz mode below it never cut out.
-	-- 2026-11-27: back to 240Hz on the monitor's other HDMI input. If the sound cuts out
-	-- again, use this instead: under 340 MHz (HDMI 1.4, 0 errors), not a TV mode, so full range.
+	-- Sound cutting out = HDMI link failing at 240Hz, likely the cable. Then use 144Hz:
 	-- mode = "modeline 325.44 1920 1928 1960 2000 1080 1083 1088 1130 +hsync -vsync",
-	position = "auto-right",
+	-- Fixed, so it stays put when the laptop screen turns off. 1280 = 1920 / 1.5.
+	position = "1280x0",
 	scale = 1,
-	-- No vrr: Intel offers VRR only on DisplayPort/USB-C here, not HDMI.
+	-- No VRR: Intel only does it over DisplayPort / USB-C.
 })
 
--- Workspaces 1-10 live on the Gigabyte, so apps that windowrules.lua sends to them
--- open there. The laptop uses 11+. Unplugged, 1-10 fall back to the laptop.
+-- Workspaces 1-10 on the monitor, 11+ on the laptop.
 for i = 1, 10 do
 	hl.workspace_rule({ workspace = tostring(i), monitor = GIGABYTE })
 end
