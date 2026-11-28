@@ -13,11 +13,13 @@ import "../components"
 SettingsSurface {
     id: root
 
+    property string screenName: ""
+
     backSurface: ""
     implicitHeight: content.implicitHeight
 
     rows: [
-        { item: scaleRow, kind: "seg", vals: [1.0, 1.15, 1.3, 1.5], get: function () { return Flags.uiScale; }, set: function (v) { Flags.uiScale = v; } },
+        { item: scaleRow, kind: "seg", vals: [1.0, 1.15, 1.3, 1.5], get: function () { return Flags.scaleFor(root.screenName); }, set: function (v) { Flags.setScale(root.screenName, v); } },
         { item: secRow, kind: "toggle", get: function () { return Flags.clockSeconds; }, set: function (v) { Flags.clockSeconds = v; } },
         { item: awakeRow, kind: "toggle", get: function () { return Flags.keepAwake; }, set: function (v) { Flags.keepAwake = v; } },
         { item: saverRow, kind: "toggle", get: function () { return Flags.memorySaver; }, set: function (v) { Flags.memorySaver = v; } }
@@ -47,8 +49,8 @@ SettingsSurface {
             SettingsSeg {
                 s: root.s
                 options: [{ label: "100%", value: 1.0 }, { label: "115%", value: 1.15 }, { label: "130%", value: 1.3 }, { label: "150%", value: 1.5 }]
-                value: Flags.uiScale
-                onPicked: (v) => Flags.uiScale = v
+                value: Flags.scaleFor(root.screenName)
+                onPicked: (v) => Flags.setScale(root.screenName, v)
             }
         }
 

@@ -1111,6 +1111,7 @@ Item {
         live: pill.liveSurface
         keepMs: pill.unloadMs
         sourceComponent: DisplaySurface {
+            screenName: pill.screenName
             s: pill.s * pill.settingsScale
             open: pill.displayOpen
             morphCloseness: pill.morphCloseness

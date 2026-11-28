@@ -10,7 +10,7 @@ PanelWindow {
     id: win
 
     property bool open: false
-    readonly property real s: Island.Flags.uiScale
+    readonly property real s: Island.Flags.scaleFor(screen ? screen.name : "")
 
     function toggle(monitor) {
         const target = Quickshell.screens.find(s => s.name === monitor) || Island.Monitors.focusedScreen;

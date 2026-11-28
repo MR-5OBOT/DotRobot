@@ -16,6 +16,7 @@ Singleton {
     property alias keepAwake: adapter.keepAwake
     property alias clockSeconds: adapter.clockSeconds
     property alias uiScale: adapter.uiScale
+    property alias uiScales: adapter.uiScales
 
     /**
      * First-run UI scale, never a fixed 100%. Every surface sizes off
@@ -39,6 +40,16 @@ Singleton {
     }
     property alias memorySaver: adapter.memorySaver
 
+    /** A screen's own UI scale, picked on the Display page opened on that screen; unset screens use uiScale. */
+    function scaleFor(name) {
+        return root.uiScales[name] ?? root.uiScale;
+    }
+    function setScale(name, v) {
+        const m = Object.assign({}, root.uiScales);
+        m[name] = v;
+        root.uiScales = m; // reassign: an in-place change neither notifies nor saves
+    }
+
     FileView {
         id: file
         path: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/island/flags.json"
@@ -59,6 +70,7 @@ Singleton {
             property bool keepAwake: false
             property bool clockSeconds: false
             property real uiScale: root.autoScale
+            property var uiScales: ({})
             /** Drop closed surfaces 60 s after they close instead of holding them in RAM all session. */
             property bool memorySaver: true
         }
