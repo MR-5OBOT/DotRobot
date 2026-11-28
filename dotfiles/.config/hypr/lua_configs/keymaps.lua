@@ -6,6 +6,8 @@ local SCRIPTS = os.getenv("HOME") .. "/.config/hypr/scripts"
 local SCRIPT = SCRIPTS .. "/controls"
 local RISHOT = os.getenv("HOME") .. "/.config/quickshell/rishot/bin/rishot"
 local QS = require("lua_configs.qs")
+local focusDir = require("lua_configs.smartfocus") -- Super+H/J/K/L
+local monitorKeys = require("lua_configs.monitorkeys") -- Super+Tab keys
 -- the island bar lives inside the main quickshell config (quickshell/island/)
 local ISLAND = "qs ipc call island"
 
@@ -69,69 +71,12 @@ hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("qs ipc call media toggle"))
 -- Power profile picker: tap to move down the list, Enter to apply
 hl.bind(mainMod .. " + ALT + P", hl.dsp.exec_cmd("qs ipc call powerprofile cycle"))
 
--- Focus Navigation
+-- Focus Navigation (smartfocus.lua also hops between floating and tiled windows)
 hl.config({
 	binds = {
 		movefocus_cycles_fullscreen = 1,
 	},
 })
--- Hyprland's movefocus never crosses between floating and tiled windows (a float only
--- sees floats, a tile only tiles, then the next monitor) and no option changes that
--- (0.57). So find the nearest window that way ourselves and use it when the hop starts
--- or ends on a float; tile to tile stays Hyprland's. If nothing is that way (no window,
--- no monitor), switch between a tile and the float stacked on it (last focused first).
--- ponytail: nearest by centre, sideways counts double; use edge overlap if it misjumps.
-local STEP = { left = { -1, 0 }, right = { 1, 0 }, up = { 0, -1 }, down = { 0, 1 } }
-local function overlaps(a, b)
-	return a.at.x < b.at.x + b.size.x
-		and b.at.x < a.at.x + a.size.x
-		and a.at.y < b.at.y + b.size.y
-		and b.at.y < a.at.y + a.size.y
-end
-local function focusDir(dir)
-	local function smart()
-		local cur = hl.get_active_window()
-		if not (cur and cur.fullscreen == 0 and cur.workspace) then
-			hl.dispatch(hl.dsp.focus({ direction = dir }))
-			return
-		end
-		local dx, dy = STEP[dir][1], STEP[dir][2]
-		local cx, cy = cur.at.x + cur.size.x / 2, cur.at.y + cur.size.y / 2
-		local best, bestScore, stacked
-		for _, w in ipairs(hl.get_workspace_windows(cur.workspace.id)) do
-			if w.address ~= cur.address and w.mapped and not w.hidden then
-				local ox, oy = w.at.x + w.size.x / 2 - cx, w.at.y + w.size.y / 2 - cy
-				local ahead = ox * dx + oy * dy -- distance in the pressed direction
-				local score = ahead + 2 * math.abs(ox * dy + oy * dx)
-				if ahead > 0 and (not bestScore or score < bestScore) then
-					best, bestScore = w, score
-				end
-				if
-					w.floating ~= cur.floating
-					and overlaps(w, cur)
-					and (not stacked or w.focus_history_id < stacked.focus_history_id)
-				then
-					stacked = w
-				end
-			end
-		end
-		if best and (cur.floating or best.floating) then
-			hl.dispatch(hl.dsp.focus({ window = best }))
-			return
-		end
-		hl.dispatch(hl.dsp.focus({ direction = dir }))
-		local now = hl.get_active_window()
-		if stacked and now and now.address == cur.address then
-			hl.dispatch(hl.dsp.focus({ window = stacked }))
-		end
-	end
-	-- pcall: if a Hyprland update renames a field smart() reads, the key still moves focus
-	return function()
-		if not pcall(smart) then
-			hl.dispatch(hl.dsp.focus({ direction = dir }))
-		end
-	end
-end
 hl.bind(mainMod .. " + H", focusDir("left"))
 hl.bind(mainMod .. " + L", focusDir("right"))
 hl.bind(mainMod .. " + K", focusDir("up"))
@@ -157,54 +102,11 @@ end
 hl.bind(mainMod .. " + 0", hl.dsp.focus({ workspace = 10 }))
 hl.bind(mainMod .. " + SHIFT + 0", hl.dsp.window.move({ workspace = 10 }))
 
--- Monitors: Tab jumps to the other screen, SHIFT + Tab carries the
--- active window there (onto whatever workspace that screen is showing). SHIFT + H/L
--- also cross over at the edge. Each switch flashes a Hyprland notification rather
--- than an island toast, which would pile up in the notification history.
-local monToast
-local function toast(text)
-	if monToast and monToast:is_alive() then
-		monToast:dismiss()
-	end -- rapid presses replace, not stack
-	monToast = hl.notification.create({ text = text, timeout = 1500, icon = "info" })
-end
-local function label(m)
-	return m.name:match("^eDP") and "Laptop" or "Monitor"
-end
-hl.bind(mainMod .. " + Tab", function()
-	local m = hl.get_monitor("+1")
-	hl.dispatch(hl.dsp.focus({ monitor = m.name }))
-	toast("Focus → " .. label(m))
-end)
-hl.bind(mainMod .. " + SHIFT + Tab", function()
-	if not hl.get_active_window() then
-		return
-	end
-	local m = hl.get_monitor("+1")
-	hl.dispatch(hl.dsp.window.move({ workspace = m.active_workspace.id }))
-	toast("Window → " .. label(m))
-end)
-
--- CTRL + Tab: laptop screen off/on. Lets you keep the lid open (closed = weaker Wi-Fi).
-hl.bind(mainMod .. " + CTRL + Tab", function()
-	local on = hl.get_monitor("eDP-1") ~= nil -- nil while off
-	if on and #hl.get_monitors() < 2 then
-		return toast("No other screen") -- never turn off the only screen
-	end
-	hl.monitor({ output = "eDP-1", disabled = on })
-	toast(on and "Laptop screen off" or "Laptop screen on")
-end)
--- Monitor lost while the laptop screen is off: turn the laptop screen back on.
-hl.on("monitor.removed", function()
-	hl.timer(function() -- runs after the removal, not in the middle of it
-		for _, m in ipairs(hl.get_monitors()) do
-			if m.name ~= "FALLBACK" then -- FALLBACK: Hyprland's stand-in when no screen is left
-				return
-			end
-		end
-		hl.monitor({ output = "eDP-1", disabled = false })
-	end, { timeout = 500, type = "oneshot" })
-end)
+-- Monitors (monitorkeys.lua): Tab = focus the other screen, + SHIFT = send the window
+-- there, + CTRL = laptop screen off/on
+hl.bind(mainMod .. " + Tab", monitorKeys.focusNext)
+hl.bind(mainMod .. " + SHIFT + Tab", monitorKeys.sendWindowNext)
+hl.bind(mainMod .. " + CTRL + Tab", monitorKeys.toggleLaptop)
 
 -- Move/Resize mouse bindings
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
