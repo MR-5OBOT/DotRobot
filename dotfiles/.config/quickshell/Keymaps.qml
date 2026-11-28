@@ -8,7 +8,7 @@ import "island/components" as IslandUi
 
 // Keymap cheat sheet: `qs ipc call keymaps toggle` (SUPER + /). A pure-black
 // top-edge notch; closes on Esc, the × button, or a click anywhere outside it.
-// Tabs (Hyprland, keyd, kitty, tmux, zsh): Tab / Shift+Tab cycle them, or click one. Add a
+// Tabs (Hyprland, keyd, kitty, zsh): Tab / Shift+Tab cycle them, or click one. Add a
 // tool by appending a tab to `tabs`. In a bind's keys, " + " and " / " between key
 // names draw as separators and everything else as a keycap.
 PanelWindow {
@@ -112,7 +112,7 @@ PanelWindow {
                 }],
                 [{
                     title: "KITTY",
-                    note: "Tabs (tmux's windows)",
+                    note: "Tabs",
                     binds: [
                         ["Prefix + C", "New tab"],
                         ["Prefix + 1 … 9 / 0", "Go to tab 1 … 9 / 10"],
@@ -120,43 +120,6 @@ PanelWindow {
                         ["Prefix + Shift + R", "Rename tab"],
                         ["Prefix + G", "Lazygit in a new tab"],
                         ["Prefix + R", "Reload kitty config"]
-                    ]
-                }]
-            ]
-        },
-        {
-            name: "tmux",
-            columns: [
-                [{
-                    title: "TMUX",
-                    note: "Panes & window navigation · Prefix = Alt + Space",
-                    binds: [
-                        ["Alt + H J K L", "Switch pane / nvim split (no prefix)"],
-                        ["Prefix + | / -", "Split side by side / stacked"],
-                        ["Alt + Ctrl + H J K L", "Resize pane (no prefix, hold to repeat)"],
-                        ["Prefix + Z", "Zoom pane in / out"],
-                        ["Alt + X / Prefix + X", "Close nvim split / close pane (asks)"],
-                        ["Prefix + [ / Caps + U", "Copy mode (vi keys, scroll back)"],
-                        ["V / Y / X", "In copy mode: select / copy / cut"],
-                        ["Prefix + Space", "Last window"],
-                        ["Prefix + N / P", "Next / previous window"],
-                        ["Prefix + ?", "List every tmux key"]
-                    ]
-                }],
-                [{
-                    title: "TMUX",
-                    note: "Windows & sessions",
-                    binds: [
-                        ["Prefix + C", "New window"],
-                        ["Prefix + 1 … 9 / 0", "Go to window 1 … 9 / 10"],
-                        ["Prefix + W", "Pick a session / window (Tab, arrows)"],
-                        ["Prefix + S", "Save windows as the template (asks first)"],
-                        ["Prefix + T", "Add the template's windows here"],
-                        ["Prefix + Shift + R", "Rename window"],
-                        ["Prefix + G", "Lazygit in a new window"],
-                        ["Prefix + B", "Show / hide the status bar"],
-                        ["Prefix + R", "Reload tmux config"],
-                        ["Prefix + D", "Detach (tmux keeps running)"]
                     ]
                 }]
             ]
