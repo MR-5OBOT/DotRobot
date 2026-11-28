@@ -57,6 +57,7 @@ hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --toggle-mic")
 hl.bind("XF86AudioMute", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --toggle"), { locked = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(SCRIPT .. "/brightness.sh --dec"), { locked = true })
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd(SCRIPT .. "/brightness.sh --inc"), { locked = true })
+
 -- pauses everything playing; the next press resumes those players
 hl.bind(mainMod .. " + P", hl.dsp.exec_cmd("qs ipc call media toggle"))
 
@@ -69,6 +70,7 @@ hl.config({
 		movefocus_cycles_fullscreen = 1,
 	},
 })
+
 hl.bind(mainMod .. " + H", focusDir("left"))
 hl.bind(mainMod .. " + L", focusDir("right"))
 hl.bind(mainMod .. " + K", focusDir("up"))
