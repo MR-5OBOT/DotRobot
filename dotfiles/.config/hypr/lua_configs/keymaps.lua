@@ -209,7 +209,3 @@ end)
 -- Move/Resize mouse bindings
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
-
--- Thumb side buttons:
-hl.bind("mouse:275", hl.dsp.exec_cmd(SCRIPT .. "/volume.sh --toggle-mic"))
-hl.bind("mouse:276", hl.dsp.exec_cmd(RISHOT))
